@@ -25,6 +25,11 @@
       "cooldown": 1000,
       "favor": 3
     },
+    "gensokyolegacy:ghost_dango": {
+      "type": "FOOD",
+      "cooldown": 1000,
+      "favor": 10
+    },
     "gensokyolegacy:ghost_sake": {
       "type": "ALCOHOL",
       "cooldown": 1000,

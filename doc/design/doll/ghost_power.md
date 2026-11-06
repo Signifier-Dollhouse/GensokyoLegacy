@@ -182,15 +182,48 @@ already full or the player has no level to give, and the deduction runs through
 `giveExperiencePoints` so the XP change event still sees it. When the stack fills before the whole
 offer is stored, the XP for the overflow is given back, so only the stored power is paid for.
 
-## 7. Undead kills
+## 7. Restoring power across the inventory
 
-`GhostEventHandlers.onUndeadExperienceDrop` listens to `LivingExperienceDropEvent`. When the dead
-entity is in the `minecraft:undead` entity type tag and the last attacker is a player, the dropped
-experience is handed to `SpiritualPower.addToHeld` as spiritual power; the experience orbs still
-drop. The helper splits the amount across the spiritual items in the killer's hands
-(`Player.getHandSlots`).
+`SpiritualPower.restore(player, power)` is the single entry point for every source that feeds a pool,
+and it returns how much was actually stored. It serves the carrier stacks in a fixed priority order,
+then spreads the amount evenly over all of them:
 
-## 8. Debug readout
+1. main hand, 2. off hand, 3. the four armour slots, 4. the hotbar and the rest of
+`player.getInventory().items` in slot order.
+
+A stack qualifies only when its `spiritual_power_max` is positive and it still has room. The same
+stack is collected once even if it is reachable through two of those lists, and stacks that are full
+or have no capacity are skipped, so they neither receive power nor dilute the share.
+
+Each carrier gets `power / n` first. Whatever is left over (the division remainder plus capacity the
+uniform share could not use) is topped up in priority order, so the main hand soaks the remainder.
+When `power < n` the uniform share would round to zero: the first carrier in priority order always
+receives one point, and the remaining points go to a random subset of the other carriers, walking the
+list until the amount is spent. That keeps one point per carrier from being wasted on items the
+player never looks at, and keeps the primary stack ahead.
+
+Two sources call it:
+
+- **Undead kills.** `GhostEventHandlers.onUndeadExperienceDrop` listens to
+  `LivingExperienceDropEvent`. When the dead entity is in the `minecraft:undead` entity type tag and
+  the last attacker is a player, the dropped experience is handed to `restore`; the experience orbs
+  still drop.
+- **The spiritual effect**, below.
+
+## 8. Spiritual effect and ghost dango
+
+`SpiritualEffect` is a plain beneficial `EmptyEffect` (`0x7FDCD0`) whose tick runs every 20th tick of
+the effect (`duration % 20 == 0`) and calls `SpiritualPower.restore(player, 10 << amplifier)`. Level
+II, amplify 1, is therefore 20 power per second: a fan at 10000 takes about eight minutes of effect
+to fill from empty, and the 1200-tick (one minute) duration restores 1200 power.
+
+`ghost_dango` is the item that grants it. It is a food gift (nutrition 3, saturation 0.3) that
+applies `Spiritual II` for 1200 ticks with certainty, and carries `GiftItemData(10, 1000,
+GiftType.FOOD)`. Yuyuko hands it out on the 1000–2000 appeal rung, below the fan. Because the effect
+feeds the whole inventory, the dango is worth eating with any spiritual item held or worn, not only
+the fan in hand.
+
+## 9. Debug readout
 
 The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which
 prints `Wild/Tamed <variant>: <power> / 1000 power`. Both read the synced accessors directly, so the

@@ -127,7 +127,7 @@ public class GLItems {
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
-	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
+	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO, GHOST_DANGO;
 	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
@@ -419,7 +419,8 @@ public class GLItems {
 			// be given something to drink. DIG_SPEED is the one effect that is haste on a mob and
 			// looting on an item, so this reads as luck at digging rather than as speed.
 			LUCKY_TEA = reg.item("lucky_tea", p -> new DrinkGiftItem(p.food(sake(
-							new MobEffectInstance(GLEffects.LOOTING, 600, 0)))))
+							new MobEffectInstance(GLEffects.LOOTING, 3600, 0),
+							new MobEffectInstance(GLEffects.SPIRITUAL, 3600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
 					.lang("Hakurei's Lucky Tea").register();
@@ -450,6 +451,15 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
 					.lang("Kappa Bento").register();
+
+			// Yuyuko's ghost dango: a ghost-themed sweet that feeds the spiritual pool of every
+			// carrier the eater has, not just the one in hand
+			GHOST_DANGO = reg.item("ghost_dango", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(3).saturationModifier(0.3f).alwaysEdible()
+									.effect(() -> new MobEffectInstance(GLEffects.SPIRITUAL, 1200, 1), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(10, 1000, GiftType.FOOD))
+					.lang("Ghost Dango").register();
 
 			// a fan is for looking at, and for blowing
 			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)

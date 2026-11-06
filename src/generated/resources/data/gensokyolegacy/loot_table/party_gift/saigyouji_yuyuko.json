@@ -23,7 +23,7 @@
       "conditions": [
         {
           "condition": "gensokyolegacy:appeal_consumed",
-          "max": 2000,
+          "max": 1000,
           "min": 500
         }
       ],
@@ -47,6 +47,24 @@
           "type": "minecraft:item",
           "name": "gensokyolegacy:sturdy_teddy_bear",
           "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "gensokyolegacy:appeal_consumed",
+          "max": 2000,
+          "min": 1000
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:ghost_dango",
+          "weight": 10
         }
       ],
       "rolls": 1.0

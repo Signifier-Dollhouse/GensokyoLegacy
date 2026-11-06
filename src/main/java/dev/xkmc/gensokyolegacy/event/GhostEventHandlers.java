@@ -38,14 +38,15 @@ public class GhostEventHandlers {
 	}
 
 	/**
-	 * An undead kill feeds the spiritual pool of whatever the killer holds, split across the hands.
+	 * An undead kill feeds the spiritual pool of whatever the killer carries, spread over the whole
+	 * inventory.
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onUndeadExperienceDrop(LivingExperienceDropEvent event) {
 		if (event.isCanceled() || !event.getEntity().getType().is(EntityTypeTags.UNDEAD)) return;
 		Player player = event.getAttackingPlayer();
 		if (player == null) return;
-		SpiritualPower.addToHeld(player, event.getDroppedExperience());
+		SpiritualPower.restore(player, event.getDroppedExperience());
 	}
 
 }

@@ -104,12 +104,12 @@ a cookie is worth. A frozen frog is not food she recognises, so it only ever rea
 
 ## A gift the player can also eat
 
-A gift is not necessarily inert. `magic_candy`, `kappa_bento`, `fairy_cake`, `lucky_tea` and `zun_beer`
-carry `FoodProperties`, so the player can consume them for the same effect that drinking or eating one
-is worth. No character is fed one: the only feed modules in use are the fairy ones
-(`FairyFeedModule`), which recognise a cake or a cookie and nothing else, so every other gift reaches
-`GiftModule.interact()` and nowhere else. (`FeedModule`, the generic one that would take any food, is
-currently attached to no character.)
+A gift is not necessarily inert. `magic_candy`, `kappa_bento`, `fairy_cake`, `ghost_dango`,
+`lucky_tea` and `zun_beer` carry `FoodProperties`, so the player can consume them for the same effect
+that drinking or eating one is worth. No character is fed one: the only feed modules in use are the
+fairy ones (`FairyFeedModule`), which recognise a cake or a cookie and nothing else, so every other
+gift reaches `GiftModule.interact()` and nowhere else. (`FeedModule`, the generic one that would take
+any food, is currently attached to no character.)
 
 That is why the food gifts carry real nutrition and the two drinks do not: the sakes, the tea and the
 beer go through `sake()`, which builds `alwaysEdible()` food with no nutrition, so the party food system

@@ -229,15 +229,18 @@ public class GiftLootGen {
 
 	/**
 	 * Yuyuko is the same high table as Suika, but her own stock sits one rung above:
-	 * a whole evening of appeal has to pass 2000 before she parts with her fan.
+	 * a whole evening of appeal has to pass 2000 before she parts with her fan. The dango
+	 * rung sits beneath the fan, where a guest has eaten enough for the sweet to be worth
+	 * handing over but not enough for the fan.
 	 */
 	private static List<Tier> yuyuko() {
 		return List.of(
 				tier(0, 500, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(500, 2000, gift(GLItems.GHOST_SAKE, 20),
+				tier(500, 1000, gift(GLItems.GHOST_SAKE, 20),
 						gift(GLItems.TENGU_SAKE, 20),
 						gift(GLItems.FANCY_FAN, 20),
 						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
+				tier(1000, 2000, gift(GLItems.GHOST_DANGO, 10)),
 				tier(2000, 0, gift(GLItems.YUYUKO_FAN, 10)));
 	}
 
