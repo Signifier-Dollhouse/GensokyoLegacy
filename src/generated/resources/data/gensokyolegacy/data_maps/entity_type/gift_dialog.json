@@ -49,6 +49,13 @@
       "returnTable": "gensokyolegacy:gift_return/morichika_rinnosuke",
       "threshold": 9
     },
+    "gensokyolegacy:murasa_minamitsu": {
+      "dislike": "gensokyolegacy:minamitsu/gift/dislike",
+      "like": "gensokyolegacy:minamitsu/gift/like",
+      "neutral": "gensokyolegacy:minamitsu/gift/neutral",
+      "returnTable": "gensokyolegacy:gift_return/murasa_minamitsu",
+      "threshold": 10
+    },
     "gensokyolegacy:saigyouji_yuyuko": {
       "dislike": "gensokyolegacy:yuyuko/gift/dislike",
       "like": "gensokyolegacy:yuyuko/gift/like",

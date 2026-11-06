@@ -90,7 +90,7 @@ public class GiftModule extends AbstractYoukaiModule {
 	}
 
 	/**
-	 * What she says about the gift, which is a dialog for the seven characters who have one written
+	 * What she says about the gift, which is a dialog for the characters who have one written
 	 * and the bare {@code love} / {@code hate} clip for everyone else.
 	 * <p>
 	 * A refusal returns {@code PASS}, so vanilla offers the other hand as well and lands here a second

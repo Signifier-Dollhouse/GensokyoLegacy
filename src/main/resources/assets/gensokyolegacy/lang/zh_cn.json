@@ -1562,5 +1562,14 @@
   "gensokyolegacy/marisa/gift/dialog/like": "哇，这么懂我，我很喜欢这个！",
   "gensokyolegacy/marisa/gift/dialog/dislike": "唔额，我突然想起来锅里有东西在煮，这个你先留着吧。",
   "gensokyolegacy/marisa/gift/dialog/return": "嘿！我也送你份礼物，你如果喜欢就最好啦。",
-  "gensokyolegacy/marisa/gift/option/return/take": "这可真是惊喜，我很开心。"
+  "gensokyolegacy/marisa/gift/option/return/take": "这可真是惊喜，我很开心。",
+  "gensokyolegacy/minamitsu/chat/greeting": "你现在站在我的甲板上。说吧，有什么事。",
+  "gensokyolegacy/minamitsu/chat/visit_greeting": "远离大海的客人。你想要什么？",
+  "gensokyolegacy/minamitsu/chat/party_greeting": "宴会？好吧——我就为这一晚离开船。",
+  "gensokyolegacy/minamitsu/chat/trade": "你需要我做什么？",
+  "gensokyolegacy/minamitsu/gift/dialog/like": "眼光不错。那我就收下了。",
+  "gensokyolegacy/minamitsu/gift/dialog/neutral": "给我的礼物？那我就不客气了。",
+  "gensokyolegacy/minamitsu/gift/dialog/dislike": "这东西在船上没用。你自己留着吧。",
+  "gensokyolegacy/minamitsu/gift/dialog/return": "给——这是我以前捞上来的。归你了。",
+  "gensokyolegacy/minamitsu/gift/option/return/take": "谢了，我收下。"
 }

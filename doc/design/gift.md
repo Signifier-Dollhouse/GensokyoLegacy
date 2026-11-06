@@ -224,6 +224,7 @@ off the two datamaps rather than guessed, so that no single gift buys a return o
 | cirno | sturdy_teddy_bear | 2.0 | 10 |
 | hakurei_reimu | ghost_sake | 2.0 | 10 |
 | saigyouji_yuyuko | ghost_sake | 2.0 | 10 |
+| murasa_minamitsu | ghost_sake | 2.0 | 10 |
 | morichika_rinnosuke | magic_book | 1.5 | 9 |
 | izayoi_sakuya | lucky_tea | 2.0 | 8 |
 
