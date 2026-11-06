@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
  * interface default would be shadowed by {@link Entity}'s concrete methods.
  *
  * @see "doc/design/doll/entity.md"
- * @see "doc/design/character_visit.md"
+ * @see "doc/design/structure/character_visit.md"
  */
 public interface IDimensionBoundEntity {
 

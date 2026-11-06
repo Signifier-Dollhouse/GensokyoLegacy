@@ -30,9 +30,10 @@ has to know about it — the whole sleep/bed subsystem is already gated on `HOME
 
 ## 2. The visit window
 
-The visitor's lifetime is **not stored**. It is a pure function of
+The visitor's window is **not stored**. It is a pure function of
 `(structure root pos, guest entity type, game day)`, evaluated the same way by
-the spawner and by the visitor itself, so both always agree.
+the spawner and by the visitor itself, so both always agree. The one piece of
+saved state is the day a guest gave up (§2.4), and both sides read it too.
 
 ```java
 WINDOW = 12000                       // day ticks 0..12000
@@ -54,11 +55,12 @@ remaining(dayTime) = start <= dayTime%24000 < start+stay
 * The implied frequency of a guest is `chance × avgStay / WINDOW`, so `chance`
   is the authored knob and `minStay`/`maxStay` the length knob.
 
-Because nothing is stored there is no bookkeeping to get wrong across day
-rollover, `/time set`, chunk unload/reload, or `/reload`. The cost is that a
-window can shift if the game version ever changes `RandomSource.create`'s
-algorithm — acceptable, and why the seed is pre-mixed here rather than left to
-`BlockPos.asLong` alone.
+Because the window itself is not stored there is no bookkeeping to get wrong
+across day rollover, `/time set`, chunk unload/reload, or `/reload`. The cost is
+that a window can shift if the game version ever changes
+`RandomSource.create`'s algorithm — acceptable, and why the seed is pre-mixed
+here rather than left to `BlockPos.asLong` alone. Giving up (§2.4) is keyed by
+day, so it needs nothing beyond that either.
 
 The `gap` dimension is excluded implicitly: its `getDayTime` is pinned at 18000,
 past `WINDOW`, so `remaining` is always 0. Visits are a surface-world daytime
@@ -100,6 +102,20 @@ stands down entirely while she is partying: renewing `MEM_VISIT` would register
 her as a visitor in the middle of a party, and discarding her would delete a
 guest the host is still feeding. The visit resumes — or expires — on its own
 once the party lets go.
+
+### 2.4 Giving up
+
+`NearbyPlayerSensor` discards a character when every player in range is below
+`DISCARD_REP_THRESHOLD`. For a visitor that cannot be the end of it: the
+scheduler still sees `remaining > 0` and puts her straight back, which turns a
+room full of players who dislike her into a spawn loop. `VisitModule.giveUp`
+therefore writes the day off in `StructureRefData.dismissedVisits`, keyed by
+guest type and day, and `VisitTable.remaining` answers 0 for the rest of it.
+
+A party guest is exempt from that sensor discard entirely. Whether the room
+likes her is not a reason to walk her out of a party she was invited to, and a
+guest who came as herself must not be deleted over it. `VisitModule.tickServer`
+already stands aside while she parties, so the party owns the decision.
 
 ## 3. Data
 
@@ -231,7 +247,8 @@ PARTY(400) < NAP(500) < VISITING(600) < scheduled`:
   sleep or go home**.
 
 `YoukaiVanishTask` is registered only under `IDLE`/`PLAY`, so a visitor never
-discards itself early and no change is needed there.
+discards itself early through the idle vanish. The dislike sensor is the one
+other way out, and §2.4 writes the window off before it fires.
 
 ## 6. Files
 
@@ -251,7 +268,7 @@ discards itself early and no change is needed there.
 |---|---|
 | `content/attachment/home/datamap/StructureConfig.java` | `visitors` + `CharacterVisit` + `visitOf` + builder |
 | `content/attachment/home/structure/StructureHomeHolder.java` | synthetic fallback constructor |
-| `content/attachment/index/StructureRefData.java` | expose `structureTick()`, call the scheduler |
+| `content/attachment/index/StructureRefData.java` | expose `structureTick()`, call the scheduler, remember which guests gave up (§2.4) |
 | `content/rpg/core/DialogConfig.java` | `visitGreeting` component |
 | `content/entity/youkai/YoukaiFlags.java` | append `VISITING` |
 | `content/entity/youkai/YoukaiEntity.java` | `createModules()` += `VisitModule`, `isVisiting()` |

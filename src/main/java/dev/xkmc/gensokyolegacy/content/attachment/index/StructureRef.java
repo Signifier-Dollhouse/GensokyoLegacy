@@ -10,4 +10,12 @@ public record StructureRef(IndexStorage storage, StructureKey key, StructureRefD
 		return data.getEntityRef(type);
 	}
 
+	public boolean visitDismissed(EntityType<?> guest, long day) {
+		return data.visitDismissed(guest, day);
+	}
+
+	public void dismissVisit(EntityType<?> guest, long day) {
+		data.dismissVisit(guest, day);
+	}
+
 }

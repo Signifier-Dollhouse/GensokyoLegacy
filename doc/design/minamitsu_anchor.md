@@ -477,7 +477,8 @@ and `markErased(false)` on impact.
 
 * `configure(origin)` — no throw type; every instance is an unbound storm anchor.
 * reach 48 from `origin`; past it the bullet is erased.
-* hit → `AnchorStorm.impact(this, owner)`, then erased. There is no return.
+* hit → the mace smash at the hit block face or entity, then `AnchorStorm.impact(this, owner)`,
+  then erased. There is no return.
 * trail → one gravitational danmaku per tick with zero initial speed, capped at 160.
 * `getItem()` always answers with `ANCHOR_WET` (§5.4).
 * rendered by the existing `NoFadeBulletRenderer`: full opacity at every range, model on the flight
