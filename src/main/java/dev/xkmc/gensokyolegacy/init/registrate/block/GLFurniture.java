@@ -349,11 +349,6 @@ public class GLFurniture {
 					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
 					.blockstate((ctx, pvd) -> WastelandGravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
-									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.STONE)
-							.pattern("A  ").pattern("A  ").pattern("BCB")
-							.define('A', Items.STONE).define('B', Items.STONE_SLAB).define('C', Items.SOUL_SOIL)
-							.save(pvd))
 					.simpleItem()
 					.loot(WastelandGravestoneBlock::genLoot)
 					.register();
