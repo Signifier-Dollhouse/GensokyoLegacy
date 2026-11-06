@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
-      "model": "gensokyolegacy:block/golden_lotus_large"
+    "half=lower": {
+      "model": "gensokyolegacy:block/golden_lotus_large_lower"
+    },
+    "half=upper": {
+      "model": "gensokyolegacy:block/golden_lotus_large_upper"
     }
   }
 }
