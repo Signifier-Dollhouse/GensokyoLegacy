@@ -26,6 +26,7 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.ghost.*;
@@ -93,7 +94,8 @@ public class GLItems {
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
-	public static final ItemEntry<Item> COIN, COIN_STACK;
+	public static final ItemEntry<CoinItem> COIN;
+	public static final ItemEntry<Item> COIN_STACK;
 	public static final int COIN_STACK_VALUE = 8;
 
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
@@ -305,8 +307,9 @@ public class GLItems {
 
 		// currency
 		{
-			COIN = reg.item("coin", Item::new)
+			COIN = reg.item("coin", CoinItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.CIRCLE.tag)
 					.lang("Coin").register();
 			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
 			COIN_STACK = reg.item("coin_stack", Item::new)

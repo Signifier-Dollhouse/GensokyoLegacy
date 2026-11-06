@@ -80,6 +80,7 @@ public class GLClient {
 			GLItems.MINAMITSU_ANCHOR.get().getTypeForRender();
 			GLItems.ANCHOR_WET.get().getTypeForRender();
 			GLItems.DROPLET.get().getTypeForRender();
+			GLItems.COIN.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
 	}

@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.anchor;
 
 /**
- * What one thrown anchor does. The item picks it from the mode and the click; the projectile reads
- * it for the rest of its life.
+ * What one anchor click does. The item picks it from the mode and the click; a thrown projectile
+ * reads it for the rest of its life, while the rain uses it only for the cost gate.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -12,7 +12,8 @@ public enum AnchorThrow {
 	GRAB(16, 0),
 	PULL(16, 0),
 	STORM(48, 5),
-	STORM_VOLLEY(48, 10);
+	STORM_VOLLEY(48, 10),
+	STORM_RAIN(32, 20);
 
 	private final double reach;
 	private final int cost;
@@ -38,6 +39,14 @@ public enum AnchorThrow {
 
 	public boolean isStorm() {
 		return this == STORM || this == STORM_VOLLEY;
+	}
+
+	/**
+	 * The sneak-right-click rain: anchors are dropped over nearby enemies instead of thrown from
+	 * the hand, so it has no flight of its own.
+	 */
+	public boolean isRain() {
+		return this == STORM_RAIN;
 	}
 
 	/**

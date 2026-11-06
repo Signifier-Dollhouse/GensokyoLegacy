@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and the
- * two storm throws pay spiritual power from the pool the item carries.
+ * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and every
+ * storm throw pays spiritual power from the pool the item carries.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -151,7 +151,14 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ItemStack stack = player.getItemInHand(hand);
 		if (isLinked(stack)) return retrieve(level, player, stack);
 		if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
-		if (getMode(stack) != AnchorMode.VOYAGE) {
+		if (getMode(stack) == AnchorMode.STORM && player.isShiftKeyDown()) {
+			if (level.isClientSide()) return InteractionResultHolder.sidedSuccess(stack, true);
+			if (!(player instanceof ServerPlayer sp)) return InteractionResultHolder.fail(stack);
+			return throwAnchors(sp, hand, AnchorThrow.STORM_RAIN)
+					? InteractionResultHolder.sidedSuccess(stack, false)
+					: InteractionResultHolder.fail(stack);
+		}
+		if (getMode(stack) != AnchorMode.VOYAGE) {     // Destroy and Storm charge
 			player.startUsingItem(hand);
 			return InteractionResultHolder.consume(stack);
 		}
@@ -244,7 +251,9 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ServerLevel level = sp.serverLevel();
 		Vec3 look = RayTraceUtil.getRayTerm(Vec3.ZERO, sp.getXRot(), sp.getYRot(), 1);
 		Vec3 from = RayTraceUtil.getRayTerm(sp.getEyePosition(), sp.getXRot(), sp.getYRot(), 2);
-		if (type.isStorm()) {
+		if (type.isRain()) {
+			AnchorRain.rain(sp);
+		} else if (type.isStorm()) {
 			throwUnbound(sp, level, from, look, type == AnchorThrow.STORM_VOLLEY);
 		} else {
 			AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);

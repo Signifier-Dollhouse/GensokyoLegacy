@@ -37,6 +37,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayDollRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayGhostRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.ButterflyDanmakuBulletEntity;
+import dev.xkmc.gensokyolegacy.content.entity.misc.CoinDanmakuBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
@@ -89,6 +90,7 @@ public class GLEntities {
 	public static final EntityEntry<HexBrewBottleEntity> HEXBREW_BOTTLE;
 	public static final EntityEntry<IronDaggerBulletEntity> IRON_DAGGER;
 	public static final EntityEntry<ButterflyDanmakuBulletEntity> BUTTERFLY_DANMAKU;
+	public static final EntityEntry<CoinDanmakuBulletEntity> COIN;
 	public static final EntityEntry<AnchorHookEntity> ANCHOR_HOOK;
 	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
 	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
@@ -281,6 +283,13 @@ public class GLEntities {
 					.<ButterflyDanmakuBulletEntity>entity("butterfly_danmaku", ButterflyDanmakuBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> ItemBulletRenderer<ButterflyDanmakuBulletEntity>::new)
+					.register();
+
+			// the directly thrown coin: same bullet, but it leaves the paid coin where it lands
+			COIN = GensokyoLegacy.REGISTRATE
+					.<CoinDanmakuBulletEntity>entity("coin_danmaku", CoinDanmakuBulletEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
+					.renderer(() -> ItemBulletRenderer<CoinDanmakuBulletEntity>::new)
 					.register();
 
 			// the bounded anchor is a real projectile: the client must see where it stopped
