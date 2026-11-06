@@ -226,6 +226,10 @@ GiftType.FOOD)`. Yuyuko hands it out on the 1000–2000 appeal rung, below the f
 feeds the whole inventory, the dango is worth eating with any spiritual item held or worn, not only
 the fan in hand.
 
+`SpiritualEffect.addSpiritual(player, amount)` grants the effect as a quantity of power: with no
+effect it applies level I for `amount * 2` ticks, while an existing level `A` instance is extended by
+`(amount * 2) >> A` ticks. The shift keeps the power gained per application the same at any level.
+
 ## 9. Debug readout
 
 The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which

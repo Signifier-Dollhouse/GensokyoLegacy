@@ -8,6 +8,7 @@ public class StrayDollRenderer extends GeoEntityRenderer<StrayDollEntity> {
 
 	public StrayDollRenderer(EntityRendererProvider.Context context) {
 		super(context, new StrayDollModel());
+		addRenderLayer(new StrayDollHeldItemLayer(this));
 	}
 
 }

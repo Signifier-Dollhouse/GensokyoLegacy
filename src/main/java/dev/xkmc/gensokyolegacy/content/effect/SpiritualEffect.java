@@ -1,7 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.effect;
 
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,6 +17,23 @@ public class SpiritualEffect extends EmptyEffect {
 
 	public SpiritualEffect(MobEffectCategory category, int color) {
 		super(category, color);
+	}
+
+	/**
+	 * Adds {@code amount} power as an effect: a fresh instance lasts long enough to restore it, an
+	 * existing one is extended by the same power at its current amplifier.
+	 */
+	public static void addSpiritual(Player player, int amount) {
+		if (amount <= 0) return;
+		int duration = amount * 2;
+		MobEffectInstance old = player.getEffect(GLEffects.SPIRITUAL);
+		if (old == null) {
+			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL, duration, 0));
+		} else if (!old.isInfiniteDuration()) {
+			int extended = old.getDuration() + (duration >> old.getAmplifier());
+			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL, extended, old.getAmplifier(),
+					old.isAmbient(), old.isVisible(), old.showIcon()));
+		}
 	}
 
 	@Override

@@ -99,6 +99,9 @@ not associated with any player.
   `NearestAttackableTargetGoal`: the doll only fights what hit it first, which is what "neutral"
   means here.
 - **Look alive** — `LookAtPlayerGoal(this, Player.class, 8.0F)` and `RandomLookAroundGoal(this)`.
+- **Spear** — if it spawns in the `magical_forest` biome, a 50% roll puts a `doll_lance` in its main
+  hand; the item drops on death like any equipment.
+- **Spiritual reward** — a player kill credit receives `SpiritualEffect.addSpiritual(player, 100)`.
 - **Sound** — none (the dolls are silent); optional idle particles later.
 
 Attributes: `Monster.createMonsterAttributes()` as a convenient builder, then `MAX_HEALTH 20`,
