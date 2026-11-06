@@ -565,6 +565,11 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.TALISMAN_POCKET.get()),
 				new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 16))));
+		// She only parts with her own tea once you are more than a stranger: strictly above 80.
+		trade("offer_lucky_tea", new TradeOffer(GLEntities.REIMU.get(),
+				List.of(new SelfReputationCondition(81)),
+				new ItemStack(GLItems.LUCKY_TEA.get()),
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 16))));
 		trade("offer_border_umbrella", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_RAID)),
 				new ItemStack(GLItems.BORDER_UMBRELLA.get()),

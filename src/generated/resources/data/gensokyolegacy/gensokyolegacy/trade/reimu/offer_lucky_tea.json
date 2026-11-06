@@ -1,0 +1,23 @@
+{
+  "character": "gensokyolegacy:hakurei_reimu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 81
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 16,
+      "item": "gensokyolegacy:coin"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 16,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:lucky_tea"
+  }
+}

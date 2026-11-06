@@ -1,95 +1,95 @@
 {
   "parent": "minecraft:block/cross",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "cross": "gensokyolegacy:block/nature/golden_lotus_large"
-  },
   "elements": [
     {
+      "faces": {
+        "north": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            8.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            8.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
       "from": [
         0.8,
         0,
         8
       ],
-      "to": [
-        15.2,
-        16,
-        8
-      ],
       "rotation": {
+        "angle": 45.0,
+        "axis": "y",
         "origin": [
           8,
           8,
           8
         ],
-        "axis": "y",
-        "angle": 45,
         "rescale": true
       },
       "shade": false,
-      "faces": {
-        "north": {
-          "uv": [
-            0,
-            8,
-            16,
-            16
-          ],
-          "texture": "#cross"
-        },
-        "south": {
-          "uv": [
-            0,
-            8,
-            16,
-            16
-          ],
-          "texture": "#cross"
-        }
-      }
+      "to": [
+        15.2,
+        16,
+        8
+      ]
     },
     {
+      "faces": {
+        "east": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            8.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#cross",
+          "uv": [
+            0.0,
+            8.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
       "from": [
         8,
         0,
         0.8
       ],
-      "to": [
-        8,
-        16,
-        15.2
-      ],
       "rotation": {
+        "angle": 45.0,
+        "axis": "y",
         "origin": [
           8,
           8,
           8
         ],
-        "axis": "y",
-        "angle": 45,
         "rescale": true
       },
       "shade": false,
-      "faces": {
-        "west": {
-          "uv": [
-            0,
-            8,
-            16,
-            16
-          ],
-          "texture": "#cross"
-        },
-        "east": {
-          "uv": [
-            0,
-            8,
-            16,
-            16
-          ],
-          "texture": "#cross"
-        }
-      }
+      "to": [
+        8,
+        16,
+        15.2
+      ]
     }
-  ]
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "cross": "gensokyolegacy:block/nature/golden_lotus_large"
+  }
 }
