@@ -1,0 +1,121 @@
+{
+  "type": "minecraft:add",
+  "argument1": 1.0,
+  "argument2": {
+    "type": "minecraft:mul",
+    "argument1": {
+      "type": "minecraft:y_clamped_gradient",
+      "from_value": 0.0,
+      "from_y": -60,
+      "to_value": 1.0,
+      "to_y": -48
+    },
+    "argument2": {
+      "type": "minecraft:add",
+      "argument1": -1.0,
+      "argument2": {
+        "type": "minecraft:range_choice",
+        "input": {
+          "type": "minecraft:clamp",
+          "input": {
+            "type": "minecraft:add",
+            "argument1": -0.25,
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": 3.0,
+              "argument2": "gensokyolegacy:depth"
+            }
+          },
+          "max": 1.0,
+          "min": 0.0
+        },
+        "max_exclusive": 0.25,
+        "min_inclusive": 0.0,
+        "when_in_range": 1.0,
+        "when_out_of_range": {
+          "type": "minecraft:add",
+          "argument1": 1.0,
+          "argument2": {
+            "type": "minecraft:mul",
+            "argument1": {
+              "type": "minecraft:clamp",
+              "input": {
+                "type": "minecraft:add",
+                "argument1": -0.25,
+                "argument2": {
+                  "type": "minecraft:mul",
+                  "argument1": 3.0,
+                  "argument2": "gensokyolegacy:depth"
+                }
+              },
+              "max": 1.0,
+              "min": 0.0
+            },
+            "argument2": {
+              "type": "minecraft:add",
+              "argument1": -1.0,
+              "argument2": {
+                "type": "minecraft:add",
+                "argument1": 1.2,
+                "argument2": {
+                  "type": "minecraft:mul",
+                  "argument1": 20.0,
+                  "argument2": {
+                    "type": "minecraft:squeeze",
+                    "argument": {
+                      "type": "minecraft:mul",
+                      "argument1": 0.64,
+                      "argument2": {
+                        "type": "minecraft:interpolated",
+                        "argument": {
+                          "type": "minecraft:blend_density",
+                          "argument": {
+                            "type": "minecraft:add",
+                            "argument1": 2.5,
+                            "argument2": {
+                              "type": "minecraft:mul",
+                              "argument1": {
+                                "type": "minecraft:y_clamped_gradient",
+                                "from_value": 0.0,
+                                "from_y": -72,
+                                "to_value": 1.0,
+                                "to_y": -40
+                              },
+                              "argument2": {
+                                "type": "minecraft:add",
+                                "argument1": -2.5,
+                                "argument2": {
+                                  "type": "minecraft:add",
+                                  "argument1": 0.9375,
+                                  "argument2": {
+                                    "type": "minecraft:mul",
+                                    "argument1": {
+                                      "type": "minecraft:y_clamped_gradient",
+                                      "from_value": 1.0,
+                                      "from_y": 296,
+                                      "to_value": 0.0,
+                                      "to_y": 320
+                                    },
+                                    "argument2": {
+                                      "type": "minecraft:add",
+                                      "argument1": -0.9375,
+                                      "argument2": "minecraft:nether/base_3d_noise"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

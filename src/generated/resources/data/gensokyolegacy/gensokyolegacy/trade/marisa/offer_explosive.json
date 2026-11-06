@@ -9,7 +9,7 @@
   "ingredients": [
     {
       "count": 3,
-      "item": "minecraft:emerald"
+      "item": "gensokyolegacy:coin"
     }
   ],
   "recurrence": {

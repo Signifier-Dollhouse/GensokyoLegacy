@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.mushroom.DemonicMiasmaMu
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.mushroom.DreamMushroomFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.mushroom.GhostFireMushroomFeature;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestFeatures;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -22,13 +22,16 @@ public class MushroomFeatures {
 	public enum MushroomTreeType {
 		GHOST_FIRE("ghost_fire_mushroom", GhostFireMushroomFeature::new,
 				() -> GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET, null,
-				MagicalForestFeatures.GHOST_FIRE_SMALL, MagicalForestFeatures.GHOST_FIRE_MEDIUM, MagicalForestFeatures.GHOST_FIRE_LARGE),
+				MagicalForestBiomeGen.GHOST_FIRE_SMALL, MagicalForestBiomeGen.GHOST_FIRE_MEDIUM,
+				MagicalForestBiomeGen.GHOST_FIRE_LARGE),
 		DREAM("dream_mushroom", DreamMushroomFeature::new,
 				() -> GLNaturalBlocks.DREAM_MUSHROOM_SET, 2,
-				MagicalForestFeatures.DREAM_SMALL, MagicalForestFeatures.DREAM_MEDIUM, MagicalForestFeatures.DREAM_LARGE),
+				MagicalForestBiomeGen.DREAM_SMALL, MagicalForestBiomeGen.DREAM_MEDIUM,
+				MagicalForestBiomeGen.DREAM_LARGE),
 		DEMONIC_MIASMA("demonic_miasma_mushroom", DemonicMiasmaMushroomFeature::new,
 				() -> GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET, 2,
-				MagicalForestFeatures.DEMONIC_MIASMA_SMALL, MagicalForestFeatures.DEMONIC_MIASMA_MEDIUM, MagicalForestFeatures.DEMONIC_MIASMA_LARGE);
+				MagicalForestBiomeGen.DEMONIC_MIASMA_SMALL, MagicalForestBiomeGen.DEMONIC_MIASMA_MEDIUM,
+				MagicalForestBiomeGen.DEMONIC_MIASMA_LARGE);
 
 		public final String id;
 		public final ResourceKey<ConfiguredFeature<?, ?>> cfKey;

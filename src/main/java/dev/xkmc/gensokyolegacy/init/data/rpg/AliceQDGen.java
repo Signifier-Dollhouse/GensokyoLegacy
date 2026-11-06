@@ -146,7 +146,7 @@ public class AliceQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("alice/first_doll", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 4)))),
+								.withPool(lootItem(GLItems.COIN.get(), 4)))),
 				start("Are these dolls really handmade?",
 						"Every one of them. The materials are simple, but the technique behind them is not. My stores are empty - bring me what I need and I will show you what a doll can do.",
 						"I'll gather the materials.", "These are the materials I need. With these I can make a doll.", "I'll be right back.",
@@ -239,7 +239,7 @@ public class AliceQDGen extends QuestDialogData {
 		trade("offer_doll", new TradeOffer(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL.get()),
-				new TradeRecurrence(1, 24000), List.of(item(Items.EMERALD, 32))));
+				new TradeRecurrence(1, 24000), List.of(item(GLItems.COIN.get(), 32))));
 		trade("offer_doll_lance", new TradeOffer(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SEVEN_COLORS)),
 				new ItemStack(GLItems.DOLL_LANCE.get()),

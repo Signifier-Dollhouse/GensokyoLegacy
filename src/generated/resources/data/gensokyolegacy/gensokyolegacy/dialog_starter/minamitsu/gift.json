@@ -1,0 +1,27 @@
+{
+  "character": "gensokyolegacy:murasa_minamitsu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": {
+    "animations": [
+      "dialog_talk_05"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:gift_return"
+          }
+        ],
+        "conditions": [],
+        "text": "gensokyolegacy/minamitsu/gift/option/return/take"
+      }
+    ],
+    "text": "gensokyolegacy/minamitsu/gift/dialog/return"
+  },
+  "override": true
+}

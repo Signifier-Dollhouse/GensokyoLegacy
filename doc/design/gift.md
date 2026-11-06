@@ -104,12 +104,12 @@ a cookie is worth. A frozen frog is not food she recognises, so it only ever rea
 
 ## A gift the player can also eat
 
-A gift is not necessarily inert. `magic_candy`, `kappa_bento`, `fairy_cake`, `lucky_tea` and `zun_beer`
-carry `FoodProperties`, so the player can consume them for the same effect that drinking or eating one
-is worth. No character is fed one: the only feed modules in use are the fairy ones
-(`FairyFeedModule`), which recognise a cake or a cookie and nothing else, so every other gift reaches
-`GiftModule.interact()` and nowhere else. (`FeedModule`, the generic one that would take any food, is
-currently attached to no character.)
+A gift is not necessarily inert. `magic_candy`, `kappa_bento`, `fairy_cake`, `ghost_dango`,
+`lucky_tea` and `zun_beer` carry `FoodProperties`, so the player can consume them for the same effect
+that drinking or eating one is worth. No character is fed one: the only feed modules in use are the
+fairy ones (`FairyFeedModule`), which recognise a cake or a cookie and nothing else, so every other
+gift reaches `GiftModule.interact()` and nowhere else. (`FeedModule`, the generic one that would take
+any food, is currently attached to no character.)
 
 That is why the food gifts carry real nutrition and the two drinks do not: the sakes, the tea and the
 beer go through `sake()`, which builds `alwaysEdible()` food with no nutrition, so the party food system
@@ -136,7 +136,7 @@ restock, and an item with no entry falls back to stock 1 at price 1.
 | `fancy_fan` | 10-20 | 1 |
 | `magic_book` | 12-24 | 1 |
 
-A gift is priced at its own favor up to double — an emerald buys back about as much favor as handing
+A gift is priced at its own favor up to double — a coin buys back about as much favor as handing
 the item over does — and stocked a few at a time, because a shelf of drinks and sweets is a shelf of
 things he can keep in stock. The fan and the book are doubled again at a single unit each, which for
 the book also keeps it honest as a furnace fuel: at 40000 ticks it burns 200 copies, so a price near
@@ -224,6 +224,7 @@ off the two datamaps rather than guessed, so that no single gift buys a return o
 | cirno | sturdy_teddy_bear | 2.0 | 10 |
 | hakurei_reimu | ghost_sake | 2.0 | 10 |
 | saigyouji_yuyuko | ghost_sake | 2.0 | 10 |
+| murasa_minamitsu | ghost_sake | 2.0 | 10 |
 | morichika_rinnosuke | magic_book | 1.5 | 9 |
 | izayoi_sakuya | lucky_tea | 2.0 | 8 |
 

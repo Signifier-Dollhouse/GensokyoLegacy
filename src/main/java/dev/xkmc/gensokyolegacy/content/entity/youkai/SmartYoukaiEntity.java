@@ -148,7 +148,7 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 				Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get(), GLBrains.VISITING.get());
 		board.addRandom(RandomStroll.stroll(0.8f), GLBrains.VISITING.get());
 
-		board.addSensor(new NearbyPlayerSensor<>().setRadius(32, 32).setScanRate(e -> 5));
+		board.addSensor(new NearbyPlayerSensor<>().setRadius(64, 32).setScanRate(e -> 5));
 		board.addSensor(new NearbyLivingEntitySensor<SmartYoukaiEntity>().setRadius(32, 16)
 				.setScanRate(self -> self.isAggressive() || self.hasPlayerNearby() ? 10 : 20));
 		board.addSensor(new YoukaiUpdateHomeSensor<SmartYoukaiEntity>());

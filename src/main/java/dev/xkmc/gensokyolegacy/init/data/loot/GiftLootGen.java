@@ -91,7 +91,9 @@ public class GiftLootGen {
 		gift(pvd, "morichika_rinnosuke", morichika());
 		gift(pvd, "ibuki_suika", suika());
 		gift(pvd, "saigyouji_yuyuko", yuyuko());
-		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko());
+		gift(pvd, "murasa_minamitsu", minamitsu());
+		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko(),
+				minamitsu());
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class GiftLootGen {
 	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
 		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
 				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika",
-				"saigyouji_yuyuko"};
+				"saigyouji_yuyuko", "murasa_minamitsu"};
 		for (int i = 0; i < ladders.length; i++) {
 			var name = names[i];
 			var table = returnTable(ladders[i]);
@@ -227,16 +229,32 @@ public class GiftLootGen {
 
 	/**
 	 * Yuyuko is the same high table as Suika, but her own stock sits one rung above:
-	 * a whole evening of appeal has to pass 2000 before she parts with her fan.
+	 * a whole evening of appeal has to pass 2000 before she parts with her fan. The dango
+	 * rung sits beneath the fan, where a guest has eaten enough for the sweet to be worth
+	 * handing over but not enough for the fan.
 	 */
 	private static List<Tier> yuyuko() {
 		return List.of(
 				tier(0, 500, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(500, 2000, gift(GLItems.GHOST_SAKE, 20),
+				tier(500, 1000, gift(GLItems.GHOST_SAKE, 20),
 						gift(GLItems.TENGU_SAKE, 20),
 						gift(GLItems.FANCY_FAN, 20),
 						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
+				tier(1000, 2000, gift(GLItems.GHOST_DANGO, 10)),
 				tier(2000, 0, gift(GLItems.YUYUKO_FAN, 10)));
+	}
+
+	/**
+	 * A ship ghost parts with her own anchor only after a whole evening has passed a thousand appeal;
+	 * the long middle rung is drink, the one thing she is always willing to share.
+	 */
+	private static List<Tier> minamitsu() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 1000, gift(GLItems.TENGU_SAKE, 20),
+						gift(GLItems.GHOST_SAKE, 20),
+						gift(GLItems.ZUN_BEER, 20)),
+				tier(1000, 0, gift(GLItems.MINAMITSU_ANCHOR, 10)));
 	}
 
 	/**

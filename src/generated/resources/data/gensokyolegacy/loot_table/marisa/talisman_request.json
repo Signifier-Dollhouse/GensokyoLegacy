@@ -47,7 +47,7 @@
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:emerald"
+          "name": "gensokyolegacy:coin"
         }
       ],
       "rolls": 1.0

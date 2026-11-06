@@ -8,7 +8,7 @@ grappling hook that drags things, and a storm caller that turns air into danmaku
 > **Package:** `content/item/anchor/` (item, mode, wheel), `content/entity/misc/anchor/` (hook,
 > unbound bullet, shared storm helper), `content/entity/misc/render/` (the hook renderer),
 > `event/` (left-click plumbing).
-> **Related:** `nue_trident.md` (the other thrown weapon; the unbound volley shares
+> **Related:** `nue_trident.md` (the other thrown weapon; the unbound anchors share
 > `ItemBulletEntity`), `dagger_glove.md` (mode wheel and selector listener),
 > `doll/ghost_power.md` (the spiritual power pool the storm mode spends).
 
@@ -25,7 +25,7 @@ position.
 |---|---|---|
 | **Destroy** | *empty* left click throws; on an entity deal damage, then fly home. It no longer breaks blocks. A block click mines as usual; an entity click is a radius-3 swing instead of a vanilla attack | hold 1–2 seconds, then release: throw an anchor that breaks blocks and damages entities in a sphere of `charge seconds + 2` blocks (3–4) around the impact; then fly home |
 | **Voyage** | *empty* left click only throws; the anchor pulls the hit entity toward the player. A block click mines as usual; an entity click is a radius-3 swing instead of a vanilla attack | throw; if it hits a block it sticks there, pulls the player in and holds them at the anchor until retrieved; if it hits nothing it pulls from the reach limit and then returns |
-| **Storm** | *empty* left click throws one unbound anchor (5 spiritual power), reach 48, no return; on impact deal area damage | hold right click for 1 second, then release: throw 5 unbound anchors (10 spiritual power), reach 48, no return |
+| **Storm** | *empty* left click throws one unbound anchor (5 spiritual power), reach 48, no return; on impact deal area damage | hold right click for 1 second: call a rain of anchors on nearby enemies (20 spiritual power). The charge releases itself when complete |
 
 The anchor is also a pickaxe: diamond harvest level, and it swings for +9 attack damage at −3 attack
 speed. Mining is ordinary; an entity click swings a radius-3 sphere for the wielder's attack damage
@@ -44,12 +44,13 @@ gravitational ones when it lands (§6.3). No wetness check is involved.
 | `SpiritualDanmakuItem` | `content/item/spiritual/SpiritualDanmakuItem.java` | `DanmakuItem` with the spiritual bar (§2.1) |
 | `AnchorMode` | `content/item/anchor/AnchorMode.java` | `VOYAGE / DESTROY / STORM`, display name, wheel entry |
 | `AnchorModel` | `content/item/anchor/AnchorModel.java` | the base model plus one GUI icon model per mode (§3) |
-| `AnchorThrow` | `content/item/anchor/AnchorThrow.java` | what a single throw does: `DESTROY / DESTROY_CHARGED / GRAB / PULL / STORM / STORM_VOLLEY` |
+| `AnchorThrow` | `content/item/anchor/AnchorThrow.java` | what a single throw does: `DESTROY / DESTROY_CHARGED / GRAB / PULL / STORM / STORM_RAIN` |
 | `AnchorHookEntity` | `content/entity/misc/anchor/AnchorHookEntity.java` | the bounded anchor: one synced throw type, one synced phase machine |
 | `AnchorBulletEntity` | `content/entity/misc/anchor/AnchorBulletEntity.java` | the unbound storm anchor, a danmaku bullet |
 | `AnchorStorm` | `content/entity/misc/anchor/AnchorStorm.java` | trail, burst and area damage, shared by the storm throws |
+| `AnchorRain` | `content/item/anchor/AnchorRain.java` | the storm's charged right click: charge particles, target selection and the anchors dropped over it |
 | `AnchorHookRenderer` | `content/entity/misc/render/AnchorHookRenderer.java` | draws the hook in its throw orientation and the chain back to the thrower |
-| `NoFadeBulletRenderer` | `content/entity/misc/render/NoFadeBulletRenderer.java` | the unbound volley's renderer: no fading, on the flight line (existing) |
+| `NoFadeBulletRenderer` | `content/entity/misc/render/NoFadeBulletRenderer.java` | the unbound anchors' renderer: no fading, on the flight line (existing) |
 | `AnchorSelectionListener` | `content/item/anchor/AnchorSelectionListener.java` | wheel/list registration, like the fan's |
 | `AnchorModeWheel` | `content/item/anchor/client/AnchorModeWheel.java` | the client wheel |
 | `AnchorSwingPacket` | `content/item/anchor/network/AnchorSwingPacket.java` | left-click in the air reaches the server |
@@ -195,6 +196,13 @@ public InteractionResultHolder<ItemStack> use(Level level, Player player, Intera
 }
 
 @Override
+public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+    if (getMode(stack) != AnchorMode.STORM) return;
+    if (getUseDuration(stack, user) - remaining < 20) return;
+    if (user instanceof Player player) player.releaseUsingItem();   // auto-release at 1 second
+}
+
+@Override
 public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
     if (!(entity instanceof Player player)) return;
     if (level.isClientSide || !(player instanceof ServerPlayer sp)) return;
@@ -202,7 +210,7 @@ public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int 
     switch (getMode(stack)) {
         case STORM -> {
             if (used < 20) return;                            // 1 second
-            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_VOLLEY);
+            throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_RAIN);
         }
         case DESTROY -> {
             if (used < 20) return;                            // 1 second
@@ -221,11 +229,12 @@ Destroy and Storm are charge attacks on the right click: `use` only raises the a
 (`UseAnim.SPEAR`, like the trident) and the release fires it. Destroy needs one second and scales
 its blast from 3 blocks at 1 second to 4 at 2 seconds (`n = charge seconds + 2`, clamped to 3–4),
 with the blast damage scaling linearly from 1.5× to 2.5× of the thrower's attack damage over the
-same window. Storm wants one second before the five-anchor volley. A short click therefore throws
-nothing and spends nothing. Voyage still throws on the right click, and the link branch handles a
-hook that is out: retrieve within 3 blocks, pull again from farther, regardless of the selected
-mode (§3.3, §6.2). Every hook copies the thrower's `ATTACK_DAMAGE` as its hit damage (`scale` is 1
-for the other throws), matching the trident and the dagger.
+same window. Storm wants one second and then releases itself: it spends 20 power and rains anchors
+on nearby enemies (§6.4). A short click therefore throws nothing and spends nothing. Voyage still
+throws on the right click, and the
+link branch handles a hook that is out: retrieve within 3 blocks, pull again from farther,
+regardless of the selected mode (§3.3, §6.2). Every hook copies the thrower's `ATTACK_DAMAGE` as its
+hit damage (`scale` is 1 for the other throws), matching the trident and the dagger.
 
 While the anchor is raised the client narrows the FOV with the bow's curve through
 `ComputeFovModifierEvent`: the squared charge over the 20-tick `CHARGE_TIME`, 15% at full draw, and
@@ -235,12 +244,12 @@ scaled by the player's FOV effect setting like the vanilla bow.
 
 1. refuse while the stack still carries a hook's UUID (§3.3);
 2. refuse if the item is on cooldown (`player.getCooldowns().isOnCooldown(this)`);
-3. for `STORM` / `STORM_VOLLEY`, refuse unless the stack has 5 / 10 power, with a chat message
+3. for `STORM` / `STORM_RAIN`, refuse unless the stack has 5 / 20 power, with a chat message
    (`GLLang.ItemAnchor.NEED_POWER`), matching how `ScatterFanHandler` refuses an empty fan;
 4. spawn the entity — one `AnchorHookEntity` for every non-storm throw, one `AnchorBulletEntity`
-   for `STORM` and five for `STORM_VOLLEY` (§5) — spend the power, add the cooldown, swing the
-   hand, play the sound; `SpellContainer.track` only the bullets, since a hook is not a
-   `SimplifiedProjectile` and discards itself when its owner is gone;
+   for `STORM` and one per selected point for `STORM_RAIN` (§5) — spend the power, add the
+   cooldown, swing the hand, play the sound; `SpellContainer.track` only the bullets, since a
+   hook is not a `SimplifiedProjectile` and discards itself when its owner is gone;
 5. return `sidedSuccess`.
 
 The four-argument overload also carries the charge radius of a `DESTROY_CHARGED` throw; it is written
@@ -250,7 +259,7 @@ blast size.
 ### 3.3 One bounded anchor at a time
 
 `GLItems.ANCHOR_LINK` (`DC.uuid("anchor_link")`) holds the UUID of the bounded hook the stack threw,
-written only after `addFreshEntity` succeeds and only for hooks (`STORM` / `STORM_VOLLEY` bullets leave it
+written only after `addFreshEntity` succeeds and only for hooks (`STORM` / `STORM_RAIN` bullets leave it
 empty). Its presence alone is the client's answer: no entity lookup, no sync of its own.
 
 * **Client** — `ItemInHandRendererMixin` cancels the held-item draw while the stack has the
@@ -297,7 +306,7 @@ goes `3` → `4`.
 | throw | entity | base | returns |
 |---|---|---|---|
 | `DESTROY`, `DESTROY_CHARGED`, `GRAB`, `PULL` | `AnchorHookEntity` | `ThrowableProjectile` | yes |
-| `STORM`, `STORM_VOLLEY` | `AnchorBulletEntity` | `ItemBulletEntity` | no |
+| `STORM`, `STORM_RAIN` | `AnchorBulletEntity` | `ItemBulletEntity` | no |
 
 `AnchorThrow` stays the item-level enum (`reach()`, `cost()`, `isStorm()`); `AnchorItem.throwAnchors`
 reads it and spawns one hook, one bullet, or five bullets. `returns()` goes away — the hook only
@@ -468,7 +477,8 @@ and `markErased(false)` on impact.
 
 * `configure(origin)` — no throw type; every instance is an unbound storm anchor.
 * reach 48 from `origin`; past it the bullet is erased.
-* hit → `AnchorStorm.impact(this, owner)`, then erased. There is no return.
+* hit → the mace smash at the hit block face or entity, then `AnchorStorm.impact(this, owner)`,
+  then erased. There is no return.
 * trail → one gravitational danmaku per tick with zero initial speed, capped at 160.
 * `getItem()` always answers with `ANCHOR_WET` (§5.4).
 * rendered by the existing `NoFadeBulletRenderer`: full opacity at every range, model on the flight
@@ -477,7 +487,7 @@ and `markErased(false)` on impact.
 ### 5.3 `AnchorStorm`
 
 One static helper holds everything the storm throws share, so the trail, the burst and area damage
-exist once and the single throw and the volley emit identical danmaku:
+exist once and the single throw and the rain emit identical danmaku:
 
 | method | job |
 |---|---|
@@ -655,13 +665,12 @@ empty click.
 
 * **Left click, `STORM` (5 power)** — throw one unbound anchor (`AnchorBulletEntity`) with reach 48
   and no return. On block or entity hit, deal area damage around the impact and vanish.
-* **Right click, `STORM_VOLLEY` (10 power)** — hold for one second (20 ticks) and release to throw
-  five unbound anchors (`AnchorBulletEntity`) in a narrow fan (±25° yaw around the aim), each with
-  reach 48 and no return. The release repeats `throwAnchors`, so power and cooldown are checked
-  there; a click shorter than the charge raises the anchor and does nothing else. They deal the same
-  area damage and vanish on impact.
+* **Right click, `STORM_RAIN` (20 power)** — hold for one second (20 ticks); `onUseTick` releases
+  the item for the player at that point and the rain falls on nearby enemies (§6.4). A click shorter
+  than the charge raises the anchor and does nothing else. Every anchor deals the same area damage
+  and vanishes on impact.
 
-Both clicks throw the same entity; only the count, the fan and the charge differ. The anchor always
+Both storm clicks use the same entity; only the count and the launch point differ. The anchor always
 uses the water model and always emits its danmaku — there is no wetness check anywhere.
 
 Area damage: every `LivingEntity` within 6 blocks of the impact that `IDanmakuEntity.canHurt(owner,
@@ -692,6 +701,31 @@ such component and stays upright; the window texture has its tip at the top, so 
 of them at once is ~2,150 entities. Add a per-anchor trail cap (`MAX_TRAIL = 160`) and a server
 config toggle (`anchorStormDanmaku`, default on) so a pack of players cannot turn one click into a
 server stall. If the config is off, the storm still does its damage.
+
+### 6.4 Storm rain
+
+The storm's charged right click calls a rain instead of throwing from the hand (`AnchorRain`):
+
+* while charging, the client spawns twenty `ParticleTypes.SPLASH` per tick: each appears at a random
+  angle `a` at distance 8 on a horizontal ring and moves toward angle `a + 90°` at distance 2. The
+  ring follows the winterstorm wand's effect (`l2complements` `WinterStormWand.tickClient`) with
+  the velocity bent inward, so the splash spirals toward the caster;
+* candidates are living entities within 32 blocks that are either an `Enemy` with line of sight to
+  the player or a `Mob` whose `getTarget()` is the player — the union, so a hunter behind a wall is
+  still covered;
+* the candidates are shuffled, then kept up to 32 anchors with at least 3 blocks between selected
+  points; if fewer than 10 survive, random points within 32 blocks of the player are added until
+  there are 10;
+* each point gets one `AnchorBulletEntity` 24-32 blocks above it, moving straight down at the usual
+  1.5 b/t. When the first motion-blocking block above the point is lower than that, the anchor
+  spawns directly under it instead, so a roofed target gets its anchor inside the room rather than
+  above the roof;
+* the spawn point is the bullet's `origin`, so the 48-block reach is measured from there; the whole
+  drop is always well inside it.
+
+The anchors are ordinary storm anchors: they shed their trail on the way down, burst and deal area
+damage on impact, and are tracked by `SpellContainer` like the left-click throw. The rain is the
+reason the storm budget matters most — 32 anchors is 32 bursts.
 
 ## 7. Registration checklist
 
@@ -755,8 +789,12 @@ effects beyond what the tags grant.
 * a bounded hook never changes dimension; it is discarded instead when its owner does, when the
   owner is more than 24 blocks away, or when a *held* anchor's link is missing or points at another
   hook;
-* the storm volley needs a one-second charge, so a right click alone never spends 10 power; the
-  left-click storm throw is instant and costs 5;
+* the storm rain is the right click and needs a one-second charge, so a right click alone never
+  spends 20 power; the left-click storm throw is instant and costs 5;
+* the charge releases itself at one second (`onUseTick`), so the player only has to hold the button;
+* the rain costs 20, covers enemies that see the player or target them within 32 blocks, caps at 32
+  anchors with 3 blocks between points, pads a short list to 10 random points, and spawns under a
+  roof when the point is covered (§6.4);
 * Destroy throws on an empty left click (no block break), and its right click is a 1–2 second charge
   for a 3–4 block blast (`radius = charge seconds + 2`, damage `1.5×` to `2.5×` of the thrower's
   attack damage); block clicks stay vanilla mining and entity clicks are the radius-3 swing;
@@ -767,8 +805,6 @@ effects beyond what the tags grant.
   the tidal claw, because the throw is the commitment;
 * the pull sets velocity and clears fall distance but never `setNoGravity` on the player, so a hook
   lost to a chunk unload cannot leave anyone floating;
-* the storm volley is five bullets in a ±25° yaw fan — "up to 48 blocks" is read as reach, not as a
-  literal vertical launch (the other reading is a single upward spray, which is a one-line change);
 * the held stack carries the out hook's UUID, hiding the item and refusing throws until the server
   sees the hook gone (§3.3); the client never looks the entity up;
 * the anchor charges spiritual power in creative too, matching the fan.
@@ -776,7 +812,7 @@ effects beyond what the tags grant.
 **Edge cases:**
 
 * **Owner dies / logs out mid-throw** — the hook discards in every phase (owner check); the unbound
-  volley is cleared by `SpellContainer` as before.
+  rain is cleared by `SpellContainer` as before.
 * **Server restart mid-grapple** — `type` and `phase` are NBT and synced, so the anchor is still
   stuck and the pull resumes; the timeout prevents a permanent pull.
 * **Owner changes dimension** — `getOwner()` returns null; the hook discards, the bullets are
@@ -850,9 +886,9 @@ a record of why the split landed in that order:
 8. Storm left: throws exactly one unbound anchor (not five), costs 5 from a 100 pool, the anchor is
    always the water model, sheds one falling danmaku per tick, area damage hits every mob in 6 blocks
    once for 12, and the anchor vanishes on impact.
-9. Storm right: a short click throws nothing and costs nothing; holding for one second and releasing
-   throws five unbound anchors, each reaching 48 blocks, 10 power for the volley; every throw emits
-   the falling trail and the 300-danmaku burst and shows the water model, wet or dry.
+9. Storm right: a short click throws nothing and costs nothing; holding for one second releases
+   itself into the rain, 20 power, and the splash ring spirals inward while charging. Every dropped
+   anchor emits the falling trail and the 300-danmaku burst and shows the water model, wet or dry.
 10. Bound vs. unbound: the hook keeps full opacity at 40 blocks and cannot be grazed; the bullets
    still graze, fade and vanish like danmaku. The bullets are erased on impact; the hook returns
    first and is discarded at the hand.

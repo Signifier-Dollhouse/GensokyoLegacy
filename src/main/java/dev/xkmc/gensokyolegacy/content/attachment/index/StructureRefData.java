@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SerialClass
 public class StructureRefData {
@@ -23,6 +24,8 @@ public class StructureRefData {
 	private long structureTick = 0;
 	@SerialField
 	private final Map<EntityType<?>, BedRefData> entities = new LinkedHashMap<>();
+	@SerialField
+	private final Map<EntityType<?>, Long> dismissedVisits = new LinkedHashMap<>();
 
 	public void blockTick(ServerLevel sl, BedData data, YoukaiBedBlockEntity be, StructureKey key) {
 		long time = sl.getGameTime();
@@ -52,6 +55,21 @@ public class StructureRefData {
 	@Nullable
 	public BedRefData getEntityRef(EntityType<?> type) {
 		return entities.get(type);
+	}
+
+	/**
+	 * Whether this guest gave up on the visit due today.
+	 */
+	public boolean visitDismissed(EntityType<?> guest, long day) {
+		return Objects.equals(dismissedVisits.get(guest), day);
+	}
+
+	/**
+	 * Record that the guest gave up the rest of today's visit. Keyed by day so the next
+	 * window is unaffected.
+	 */
+	public void dismissVisit(EntityType<?> guest, long day) {
+		dismissedVisits.put(guest, day);
 	}
 
 }

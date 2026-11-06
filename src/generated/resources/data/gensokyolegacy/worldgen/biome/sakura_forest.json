@@ -46,7 +46,8 @@
     [
       "minecraft:patch_grass_plain",
       "minecraft:flower_cherry",
-      "minecraft:trees_cherry"
+      "gensokyolegacy:gensokyo_biome/cherry_trees",
+      "gensokyolegacy:gensokyo_biome/cherry_litter"
     ]
   ],
   "has_precipitation": true,

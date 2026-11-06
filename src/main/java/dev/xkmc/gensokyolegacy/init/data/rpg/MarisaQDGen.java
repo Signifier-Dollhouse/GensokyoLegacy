@@ -189,7 +189,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("marisa/first_mushroom", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 4)))),
+								.withPool(lootItem(GLItems.COIN.get(), 4)))),
 				start("I saw some requests posted outside your shop?",
 						"A new face! Marisa Kirisame, the ordinary magician, reportin' for duty, ze! I'm Marisa Kirisame the magician — just an ordinary human, ze! Say, you live around here, right? This area's still real strange to me — even the forest plants look different. I'm just getting my magic research started and I'm short on honest-to-goodness samples. How about fetching me some red and brown mushrooms?",
 						"Sure, I'll gather some.", "You're a lifesaver! — Eight red and eight brown mushrooms'll do. Bring me the good stuff!", "Okay, wait for me to get back.",
@@ -216,7 +216,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(100), new ReputationReward(10, 300, 0, 300),
 						loot("marisa/huge_mushroom", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 6)))),
+								.withPool(lootItem(GLItems.COIN.get(), 6)))),
 				start("This posted request — mushrooms again?",
 						"Speaking of which — have ya seen the mushrooms around here? They're practically trees! I've never seen anything this huge — real whoppers. I tried pluckin' one, but it just shattered into little bits in my hands. There's gotta be a proper way to harvest the solid blocks. Think ya can bring me some whole giant mushroom blocks?",
 						"I'll bring you fresh blocks.", "Now that's a good assistant! Bring 'em back intact — caps and stems, either kind is fine. I'll be sitting tight!", "Wait for me to get back.",
@@ -244,7 +244,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(150), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/nether_mushroom_prep", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 6))
+								.withPool(lootItem(GLItems.COIN.get(), 6))
 								.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)))),
 				start("I saw the new request — has your mushroom obsession spread to the Nether?",
 						"The big-nosed natives around here say the mushrooms down there are something else entirely. No way I'm going there myself — all that fire and lava, and it ain't anything like the Former Hell. But you've been there, right? Bring me back some Nether mushrooms!",
@@ -271,7 +271,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300),
 						loot("marisa/shroomlight", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 6))
+								.withPool(lootItem(GLItems.COIN.get(), 6))
 								.withPool(lootItem(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 2)))),
 				start("What's this glowing mushroom in the request?",
 						"I hear the Nether has giant mushrooms too — with flesh like wood! And a glowing core inside, right? I need that thing — bring me back a few.",
@@ -300,7 +300,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/brewing", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 8))
+								.withPool(lootItem(GLItems.COIN.get(), 8))
 								.withPool(lootItem(HexBrew.HEXBREW_ELIXIR.bottle.get(), 1)))),
 				start("Come to think of it, brewing here is nothing like those witches' — shouldn't it be blazes and nether wart based?",
 						"Different schools, y'know — but what you describe interests me too. Fetch me some of both — price is negotiable!",
@@ -365,7 +365,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(300), new ReputationReward(10, 300, 0, 300),
 						loot("marisa/golden_apple", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 10)))),
+								.withPool(lootItem(GLItems.COIN.get(), 10)))),
 				start("Finally a request that's not about mushrooms?",
 						"Ever seen those fancy golden apples — the glowy kind? Nobody in this world knows how to make 'em anymore, but I reckon I can figure it out! Find me one as a sample and I'll reverse-engineer the whole thing, then share the knowledge. Whaddaya say?",
 						"I'll try to find one.", "No pressure — this request has no deadline.", "Taking it or not, same thing really — wish me luck.",
@@ -391,7 +391,7 @@ public class MarisaQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(300), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/koishi_hat", LootTable.lootTable()
-								.withPool(lootItem(Items.EMERALD, 8)))),
+								.withPool(lootItem(GLItems.COIN.get(), 8)))),
 				option("start", "What's with the hush-hush request — what's going on?", new StartQuestAction(),
 						dialog("start/dialog_1",
 								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.", List.of("dialog_talk_01"),
@@ -429,14 +429,14 @@ public class MarisaQDGen extends QuestDialogData {
 						loot("marisa/talisman_request", LootTable.lootTable()
 								.withPool(lootItem(GLItems.BROOM.get(), 1))
 								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
-								.withPool(lootItem(Items.EMERALD, 16)))),
+								.withPool(lootItem(GLItems.COIN.get(), 16)))),
 				start("A talisman request?",
-						"Say — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately my experiments keep leaving me singed, and healing's such a hassle. I wanna keep four for myself. Reimu sells 'em, so bring your emeralds. And... don't tell her they're for me. Whaddaya say?",
+						"Say — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately my experiments keep leaving me singed, and healing's such a hassle. I wanna keep four for myself. Reimu sells 'em, so bring your coins. And... don't tell her they're for me. Whaddaya say?",
 						"I'll get them from Reimu.", "Great! Four healing papers — no knockoffs, got it?", "As if I would.",
 						"Aren't you two close? Why not ask her yourself?", "Reimu charges even me full price — and she'd tease me about it forever. Just help me out here.", "Let me think about it."),
 				follow("What was I supposed to buy again?",
 						"Healing papers — Reimu sells 'em at the shrine — four of 'em, burn that into your brain!",
-						"I remember they weren't cheap.", "Her prices are brutal, huh? But worth every emerald, trust me!", "Ugh, so I'm paying out of pocket after all."),
+						"I remember they weren't cheap.", "Her prices are brutal, huh? But worth every coin, trust me!", "Ugh, so I'm paying out of pocket after all."),
 				complete("Here, the papers.",
 						"That's it! One ofuda and every ache is gone — I never could've asked her myself without you.",
 						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a broom I whittled down this morning, and a star wand of my own making. The wand's the real prize — point one of Alice's dolls with it and she won't need a hand anymore. Keep it secret for me!", "At this point I kinda have to.")
@@ -460,7 +460,7 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-talisman", rollItem(talismanTable)
 				)), LootTable.lootTable()
 						.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
-						.withPool(lootItem(Items.EMERALD, 16)));
+						.withPool(lootItem(GLItems.COIN.get(), 16)));
 	}
 
 	private void dailyQuests() {
@@ -482,7 +482,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Oh, these are perfect! Thanks, buddy!", null,
 				new TreeMap<>(Map.of(
 						"a-special", rollItem(myceliumTable)
-				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
+				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 1)));
 
 		prefix("marisa/daily_witchcraft");
 		questAnims("daily", "dialog_talk_04", "dialog_decline", "dialog_greet", "dialog_talk_02", "dialog_agree", "dialog_greet", "dialog_agree");
@@ -506,7 +506,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"Just what I needed! Thanks!", null,
 				new TreeMap<>(Map.of(
 						"a-grubby", rollItem(witchcraftTable)
-				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1))
+				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 1))
 						.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)));
 
 		prefix("marisa/daily_shroomlight");
@@ -527,7 +527,7 @@ public class MarisaQDGen extends QuestDialogData {
 				"That's the one — thanks!", null,
 				new TreeMap<>(Map.of(
 						"a-light", rollItem(shroomlightTable)
-				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 2)));
+				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 2)));
 
 		prefix("marisa/daily_brewing");
 		questAnims("daily", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_agree", "dialog_talk_03", "dialog_agree");
@@ -544,73 +544,73 @@ public class MarisaQDGen extends QuestDialogData {
 						"a-brewing", new SubmitItemRequirement(List.of(
 								item(Items.BLAZE_ROD, 2),
 								item(Items.NETHER_WART, 8)))
-				)), LootTable.lootTable().withPool(lootItem(Items.EMERALD, 8)));
+				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 8)));
 	}
 
 	private void trades() {
 		// Restocking trades (player sells to Marisa)
 		prefix("marisa");
-		trade("sell_mod_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
+		trade("sell_mod_shroom", GLEntities.MARISA.get(), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(10, 24000), item(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap, 8));
-		trade("sell_dream_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
+		trade("sell_dream_shroom", GLEntities.MARISA.get(), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(10, 24000), item(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap, 8));
-		trade("sell_miasma_shroom", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
+		trade("sell_miasma_shroom", GLEntities.MARISA.get(), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(8, 24000), item(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap, 8));
-		trade("sell_spider_eye", GLEntities.MARISA.get(), new ItemStack(Items.EMERALD),
+		trade("sell_spider_eye", GLEntities.MARISA.get(), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 24000), item(Items.SPIDER_EYE, 8));
 		trade("sell_shroomlight", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
+				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.SHROOMLIGHT, 4))));
 		trade("sell_nether_fungus", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(Items.EMERALD),
+				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.CRIMSON_FUNGUS, 8))));
 		trade("sell_blaze_rod", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(Items.EMERALD, 2),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(GLItems.COIN.get(), 2),
 				new TradeRecurrence(4, 24000), List.of(item(Items.BLAZE_ROD, 3))));
 		trade("sell_nether_wart", new TradeOffer(GLEntities.MARISA.get(),
-				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(Items.EMERALD),
+				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 24000), List.of(item(Items.NETHER_WART, 8))));
 
 		// Offering trades (player buys hexbrews from Marisa), gated by reputation or quests
 		trade("offer_miasma", new TradeOffer(GLEntities.MARISA.get(), List.of(),
 				new ItemStack(HexBrew.MIASMA_HEXBREW.bottle.get(), 4),
-				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 3))));
 		// Witch hexbrew: variety of potion effects, unlocked by the brewing quest, no rep gate; half-day restock.
-		// Strong variants sell 1 bottle at 4 emerald, 16 stock; no-strong effects fall back to long, 4 bottles.
+		// Strong variants sell 1 bottle at 4 coin, 16 stock; no-strong effects fall back to long, 4 bottles.
 		trade("offer_witch_speed", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_SWIFTNESS),
-				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 12000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_witch_strength", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_STRENGTH),
-				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 12000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_witch_regen", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_REGENERATION),
-				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 12000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_witch_leaping", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchStrong(Potions.STRONG_LEAPING),
-				new TradeRecurrence(16, 12000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 12000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_witch_fire", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)), witchLong(Potions.LONG_FIRE_RESISTANCE),
-				new TradeRecurrence(4, 12000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(4, 12000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_shield", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.SHIELD_HEXBREW.bottle.get()),
-				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
+				new TradeRecurrence(8, 24000), List.of(item(GLItems.COIN.get(), 2))));
 		trade("offer_hyphae", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_HUGE_MUSHROOM)), new ItemStack(HexBrew.HYPHAE_HEXBREW.bottle.get()),
-				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 2))));
+				new TradeRecurrence(8, 24000), List.of(item(GLItems.COIN.get(), 2))));
 		trade("offer_explosive", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(50)), new ItemStack(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 4),
-				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 3))));
+				new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 3))));
 		trade("offer_starlight", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(120)), new ItemStack(HexBrew.STARLIGHT_HEXBREW.bottle.get()),
-				new TradeRecurrence(8, 24000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(8, 24000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_sealing_pot", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(120)), new ItemStack(GLBlocks.SEALING_POT.asItem()),
-				new TradeRecurrence(1, 48000), List.of(item(Items.EMERALD, 24))));
+				new TradeRecurrence(1, 48000), List.of(item(GLItems.COIN.get(), 24))));
 		trade("offer_star_wand", new TradeOffer(GLEntities.MARISA.get(),
 				List.of(new SelfReputationCondition(100), new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)),
 				new ItemStack(GLItems.STAR_WAND.get()),
-				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 8))));
+				new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		// The broom: a day's whittling for a handful of straw. Same gate as the wand,
 		// and the same one-a-day ceiling, so neither reward walks out on the other.
 		trade("offer_broom", new TradeOffer(GLEntities.MARISA.get(),

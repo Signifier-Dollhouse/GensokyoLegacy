@@ -1,0 +1,829 @@
+package dev.xkmc.gensokyolegacy.content.dimension;
+
+import com.mojang.datafixers.util.Pair;
+import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.SurfaceRuleData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.CubicSpline;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.level.biome.OverworldBiomeBuilder;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.*;
+import net.minecraft.world.level.levelgen.SurfaceRules.ConditionSource;
+import net.minecraft.world.level.levelgen.SurfaceRules.RuleSource;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
+
+/**
+ * The Gensokyo dimension: overworld sea level, flatter land, and a handpicked biome list.
+ * <p>
+ * The height curve is keyed on continentalness alone, where the overworld also keys it on erosion and weirdness, so
+ * there are no river channels and no peaks. The climate grid reads those four axes plus erosion, which picks between
+ * the plain's two grounds and shapes nothing. The caves are the overworld's, plus {@link #DF_LARGE_CAVES} for the
+ * caverns under the ground, and the aquifer's barrier is resampled (§12). The allowed biomes are mod copies, so
+ * vanilla structures never generate here.
+ *
+ * @see "doc/design/gensokyo_dimension.md"
+ * @see "doc/design/gensokyo_biomes.md"
+ */
+public class GensokyoDimension {
+
+	public static final ResourceKey<DimensionType> DT_GENSOKYO = ResourceKey.create(Registries.DIMENSION_TYPE, GensokyoLegacy.loc("gensokyo"));
+	public static final ResourceKey<NoiseGeneratorSettings> NS_GENSOKYO = ResourceKey.create(Registries.NOISE_SETTINGS, GensokyoLegacy.loc("gensokyo"));
+	public static final ResourceKey<LevelStem> LEVEL_GENSOKYO = ResourceKey.create(Registries.LEVEL_STEM, GensokyoLegacy.loc("gensokyo"));
+	public static final ResourceKey<Level> GENSOKYO = Registries.levelStemToLevel(LEVEL_GENSOKYO);
+
+	public static final ResourceKey<DensityFunction> DF_OFFSET = df("offset");
+	public static final ResourceKey<DensityFunction> DF_FACTOR = df("factor");
+	public static final ResourceKey<DensityFunction> DF_DEPTH = df("depth");
+	public static final ResourceKey<DensityFunction> DF_SLOPED_CHEESE = df("sloped_cheese");
+	public static final ResourceKey<DensityFunction> DF_LARGE_CAVES = df("large_caves");
+	public static final ResourceKey<DensityFunction> DF_BARRIER = df("barrier");
+	public static final ResourceKey<DensityFunction> DF_FLUID_FLOODEDNESS = df("fluid_level_floodedness");
+
+	/**
+	 * The four climate axes, every octave finer than vanilla's. The height chain splines this continentalness too — the
+	 * biome grid has to read the same field the waterline is drawn on, or `ocean` stops meaning "drowned" — so the
+	 * whole dimension is built narrower rather than just the biomes. Vanilla keeps these parameters private, so the
+	 * amplitude lists are copied from {@code minecraft/worldgen/noise/*.json} with {@code firstOctave} moved; that
+	 * leaves the value distribution alone and only shifts the spatial frequency, since {@code NormalNoise} normalises
+	 * on the amplitudes alone.
+	 * <p>
+	 * The four are not scaled alike. Continentalness is two octaves finer than vanilla, which makes landforms four
+	 * times as steep and is what re-cut the height shares; the other three move nothing but the biome grid, where the
+	 * octave is a readability choice. Only continentalness moves terrain.
+	 * <p>
+	 * {@code NoiseRouterData} builds temperature and vegetation inline rather than behind a registry key, so those
+	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead. Erosion
+	 * and continentalness do sit behind keys, so those two are redirected in place.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §7
+	 */
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_CONTINENTS_SMALL = nn("continentalness_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_TEMPERATURE_SMALL = nn("temperature_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_VEGETATION_SMALL = nn("vegetation_small");
+	public static final ResourceKey<NormalNoise.NoiseParameters> N_EROSION_SMALL = nn("erosion_small");
+	public static final ResourceKey<DensityFunction> DF_CONTINENTS_SMALL = df("continents_small");
+	public static final ResourceKey<DensityFunction> DF_TEMPERATURE_SMALL = df("temperature_small");
+	public static final ResourceKey<DensityFunction> DF_VEGETATION_SMALL = df("vegetation_small");
+	public static final ResourceKey<DensityFunction> DF_EROSION_SMALL = df("erosion_small");
+
+	/** Vanilla keys {@link NoiseRouterData} keeps private, rebuilt here so the overworld router can be redirected. */
+	private static final ResourceKey<DensityFunction> VANILLA_SLOPED_CHEESE = vanilla("overworld/sloped_cheese");
+	private static final ResourceKey<DensityFunction> VANILLA_BASE_3D_NOISE = vanilla("overworld/base_3d_noise");
+	private static final ResourceKey<DensityFunction> VANILLA_NETHER_BASE_3D_NOISE = vanilla("nether/base_3d_noise");
+	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_X = vanilla("shift_x");
+	private static final ResourceKey<DensityFunction> VANILLA_SHIFT_Z = vanilla("shift_z");
+
+	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0f, 1.0f);
+
+	/**
+	 * The three bands a column is split into, and the bounds between them.
+	 * <p>
+	 * These are spans, not the points the grid used before, and that is what the layout rests on:
+	 * {@code Climate.ParameterList} is a nearest-cell lookup, so a boundary between two spans sits at the
+	 * <em>midpoint</em> of their bounds rather than at either.
+	 * <p>
+	 * Only the cave and the underground tile — {@link #DEEP_DEPTH} is both the cave's ceiling and the
+	 * underground's floor. The cave's floor is <em>not</em> the surface row's ceiling: {@link #CAVE_DEPTH} sits
+	 * well above {@link #SURFACE_DEPTH}, and the gap between them is interpolated rather than claimed, so the
+	 * surface/cave boundary lands at the midpoint 0.2 with a band of rock around it won on the falloff.
+	 * <p>
+	 * Past a band's continentalness bound it is not claimed at all and has to win the region back on the squared
+	 * falloff, which is why the cave carries a closed ceiling at {@link #CAVE_CONT_CEILING} rather than an open one.
+	 * <p>
+	 * {@link #UNDERGROUND_CONT} draws the surface/underground crossover through the foothills at
+	 * {@code SURFACE_DEPTH + (cont - UNDERGROUND_CONT)}, so that boundary climbs with continentalness. It, not the new
+	 * mountain point, is what shapes the drop across the shoulder: raising it from 0.1 to 0.22 halves that drop, 29
+	 * blocks to 17, and lifts the local mean y52 to y66, while the summit boundary barely moves because that row never
+	 * competes up there.
+	 * <p>
+	 * {@link #HELL_DEPTH} sets the boundary over the mountain proper and nothing else. Its floor is out of reach of the
+	 * foothills -- depth 1.7 is below the world floor below continentalness 0.44 -- so cutting it cannot flatten the
+	 * drop, it only lifts the summit: mean y70 at 1.70, y64 at 1.82, y140 at 0.60. All measured with
+	 * {@code tools/cave_bands.py}, which reports that mean and the drop.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §9
+	 */
+	private static final float SURFACE_DEPTH = 0.1f;
+	private static final float CAVE_DEPTH = 0.3f;
+	private static final float DEEP_DEPTH = 0.53f;
+	private static final float HELL_DEPTH = 1.70f;
+
+	/**
+	 * How far down the mountain's own underground row is claimed. Higher than {@link #DEEP}'s 1.5 because only the
+	 * mountain carries the offset to push depth that far: {@code depth = 1.5 + offset - (y + 64) / 128} reaches 2.02
+	 * at the floor under the summit, against 1.05 under the water. Capped at 2.0 because the climate codec
+	 * refuses a parameter outside [-2, 2], which leaves the last twentieth of a block interpolated at the floor.
+	 */
+	private static final float HELL_FLOOR = 2.0f;
+	private static final float UNDERGROUND_CONT = 0.22f;
+	private static final float CAVE_CONT = 0.5f;
+	private static final float CAVE_CONT_CEILING = 1.0f;
+
+	private static final Band SHALLOW = new Band(-1.5f, SURFACE_DEPTH);
+	private static final Band DEEP = new Band(DEEP_DEPTH, 1.5f);
+	private static final Band HELL = new Band(HELL_DEPTH, HELL_FLOOR);
+	private static final Band CAVE_BAND = new Band(CAVE_DEPTH, DEEP_DEPTH);
+	private static final Band CAVE_CONTINENTALNESS = new Band(CAVE_CONT, CAVE_CONT_CEILING);
+	private static final Band UNDERGROUND_CONTINENTALNESS = new Band(-1.0f, UNDERGROUND_CONT);
+
+	/**
+	 * The caverns of {@link #DF_LARGE_CAVES}, {@code min}-ed into the router's final density.
+	 * <p>
+	 * Vanilla's cheese caves live inside the function that places the surface, so more of them also means thinner
+	 * ground. These sit outside that chain and are gated on {@link #DF_DEPTH}, which is zero at the surface and
+	 * falls one unit per 128 blocks, so the gate is a hard zero through the whole surface band. {@code ceiling}
+	 * is above every value {@code final_density} can take — {@code postProcess} clamps to {@code +/-0.64} and
+	 * squeezes, bounding it at {@code 0.309} — which is what makes the gate, rather than the ceiling, the thing
+	 * that keeps the surface shut.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static final double CAVE_GATE_GAIN = 3.0;
+	private static final double CAVE_GATE_FLOOR = 0.25;
+	private static final double CAVE_GATE_DEAD = 0.25;
+	private static final double CAVE_CEILING = 1.0;
+
+	/**
+	 * The gain and the offset that turn the nether's field into a cavern field, both in the router's final-density
+	 * units.
+	 * <p>
+	 * The gate is a lerp, not a switch: {@code lerp(CAVE_CEILING, caverns, gate)} reads air only below
+	 * {@code 1 - 1/gate}, which is −1.0 at half open and −0.25 at four fifths. The nether's field is far narrower
+	 * than the cheese field it replaces — a standard deviation of 0.070 and a range of {@code +/-0.24} once squeezed,
+	 * against the {@code +/-0.309} the squeeze allows and {@code +/-1.25} for {@code 5.0 * cave_cheese} — so ungained
+	 * it carves only at a fully open gate and nothing at all in between, which would leave the ground from 25 to 53
+	 * blocks down with nothing but vanilla's tunnels. The gain is what puts the caverns back in that band, and it
+	 * leaves the closed band at a hard zero either way.
+	 * <p>
+	 * With the gate out of the way the volume is just {@code bias / gain = 0.060}, the field's own 13% quantile, so
+	 * the two constants are one number written twice.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static final double CAVE_GAIN = 20.0;
+	private static final double CAVE_BIAS = 1.20;
+
+	/**
+	 * {@code NoiseRouterData.slideNetherLike}'s five numbers, which are what put the nether's roof and floor where
+	 * they are and are kept here rather than re-tuned, so the field reads as the nether's own shape.
+	 */
+	private static final int CAVE_ROOF_BAND = 24;
+	private static final double CAVE_ROOF_VALUE = 0.9375;
+	private static final int CAVE_FLOOR_BAND_FROM = -8;
+	private static final int CAVE_FLOOR_BAND_TO = 24;
+	private static final double CAVE_FLOOR_VALUE = 2.5;
+
+	/**
+	 * Height above the world bottom at which the bedrock floor ends, counting the bottom block as zero, so the floor is
+	 * the five layers y −64 … −60. Vanilla's gradient spans those five and nothing above.
+	 */
+	private static final int BEDROCK_FLOOR = 4;
+
+	/** The {@code minY} {@link #noiseSettings} builds the settings from, which the floor heights below are read against. */
+	private static final int WORLD_BOTTOM = -64;
+
+	/** The world height {@link #noiseSettings} builds, so {@link #CAVE_ROOF_BAND} reads against Gensokyo's own top. */
+	private static final int WORLD_HEIGHT = 384;
+
+	/**
+	 * Where the caverns fade back out over the bedrock floor: closed through {@link #BEDROCK_FLOOR} and open again
+	 * a screen higher, so the fade is a thick base rather than a ceiling.
+	 */
+	private static final int CAVE_BASE_DEAD_Y = WORLD_BOTTOM + BEDROCK_FLOOR;
+	private static final int CAVE_BASE_LIVE_Y = WORLD_BOTTOM + 16;
+
+	/**
+	 * The aquifer's barrier resampled four times coarser than vanilla's, and biased up a little.
+	 * <p>
+	 * The barrier is not a wall between aquifers, it is the field the fluid cavity is cut out of: an aquifer holds
+	 * fluid wherever {@code barrier + bias + pressure <= -density}, so a *negative* reading is water and a positive
+	 * one is rock. At vanilla's {@code xz 1.0 / y 0.5} that boundary is an 8 x 16 block noise — far finer than the
+	 * 16 x 12 x 16 grid the aquifer centres sit on — so the cavity comes out as the noise's own low blobs: one per
+	 * eight blocks, each with a perforated rim, which reads as a cavern full of seeping pockets rather than as a
+	 * cave with water in it. Four times coarser inverts the ordering, and the boundary is then one blob per cavern.
+	 * <p>
+	 * The scale changes the wavelength and nothing else — {@code NormalNoise} normalises on the amplitudes alone, so
+	 * all three readings share one distribution (p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, on
+	 * 300k samples) and the volume below is the only thing that moves it.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
+	 */
+	private static final double BARRIER_XZ = 0.25;
+	private static final double BARRIER_Y = 0.125;
+
+	/**
+	 * How much more rock than vanilla's barrier claims, in barrier units. This is the only volume knob, because the
+	 * scale above changes only the wavelength. Sampling that distribution, {@code +0.10} takes the share of a
+	 * cavern's volume that carries fluid from 27.0% to 17.9% at a cave density of {@code -0.20}, which was still
+	 * reading as an overflow; {@code +0.20} takes it to 10.9%, and {@code +0.30} to 6.0%.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
+	 */
+	private static final double BARRIER_BIAS = 0.20;
+
+	/**
+	 * How much higher than vanilla's a column has to read before the aquifer gives it fluid at all.
+	 * <p>
+	 * This is the other half of "how many aquifers", and it is a different question from {@link #BARRIER_BIAS}: the
+	 * barrier decides how much of a cavern fills, this decides whether it fills at all. Sampling the noise — same
+	 * distribution as the barrier, p10 −0.415, median 0.000, p90 +0.415, standard deviation 0.319 — and reading it
+	 * through {@code Aquifer.computeSurfaceLevel}, which takes its three branches on {@code d3}, {@code d3 - 0.3} and
+	 * 0 in the deep:
+	 *
+	 * <pre>
+	 * bias    no aquifer    a level of its own    sea level
+	 * +0.00      50.0%              32.0%          18.0%
+	 * +0.08      40.4%              34.4%          25.2%
+	 * </pre>
+	 * <p>
+	 * so {@code +0.08} puts roughly a fifth more of the underground's columns under water. Near the surface the bias
+	 * stops mattering on its own: the same three branches read against {@code d3 - 0.4} and {@code d3 - 0.8} there, so
+	 * it takes a much higher reading to flood the ground and the surface band is left alone.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §12
+	 */
+	private static final double FLUIDEDNESS_BIAS = 0.08;
+
+	/**
+	 * Continentalness thresholds that separate the regions, each sitting where the offset spline reaches a height band
+	 * edge: the waterline, the foot of the plain at y 66, then y 96, y 128 and y 192. The spline already carries a
+	 * point at every one of these, so a region's bounds land on whole control points of the curve.
+	 * <p>
+	 * The plain's own top at y 80 is no longer one of them: the two grounds share the y 66 … 96 span and are split by
+	 * erosion instead, so one region carries both.
+	 * <p>
+	 * {@code -0.437} is the one free value: it is the quantile giving the beach its 4% share of the map, measured on the
+	 * same 1024 x 1024 chunk sample as {@code doc/design/gensokyo_dimension.md} §4.
+	 */
+	private static final float[] REGION_EDGES = {-0.53f, -0.437f, 0.108f, 0.329f, 0.595f};
+
+	/** Half the dead zone held between neighbouring spans, so no boundary is a shared edge. */
+	private static final float GAP = 0.01f;
+
+	private static final Band FULL_PLANE = new Band(-1.0f, 1.0f);
+	private static final Band COLD = new Band(-1.0f, -0.01f);
+	private static final Band HOT = new Band(0.01f, 1.0f);
+	private static final Band DRY = new Band(-1.0f, -0.01f);
+	private static final Band HUMID = new Band(0.01f, 1.0f);
+
+	/**
+	 * The plain's one cut on a fifth axis, where erosion picks between the two grounds. It sits at the same octave as
+	 * the temperature axis, so the two grounds are not a coarse superstructure over the four climate boxes — all eight
+	 * cells of the plain cut on one footprint.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §4
+	 */
+	private static final Band LOW_EROSION = new Band(-1.0f, -0.01f);
+	private static final Band HIGH_EROSION = new Band(0.01f, 1.0f);
+
+	// region order follows REGION_EDGES: water, shore, plain, mountain, settlement, summit. The first two and the last
+	// take the whole plane in one cell, and the settlement band splits on humidity alone, into the town and the cliff
+	// beside it; the plain and the mountain tile the plane the way the biome guide lists them — hot humid, cold humid,
+	// hot dry, cold dry — four cells each, save that the plain takes eight: the lower ground on LOW_EROSION and the
+	// upper ground on HIGH_EROSION. List order is what a column in the gap between them falls back to.
+	private static final List<List<Cell>> SURFACE = List.of(
+			List.of(new Cell(MistyLakeBiomeGen.KEY, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(MistyLakeShoreBiomeGen.KEY, FULL_PLANE, FULL_PLANE)),
+			List.of(new Cell(SunflowerPlainsBiomeGen.KEY, HOT, HUMID, LOW_EROSION),
+					new Cell(MuenzukaBiomeGen.KEY, COLD, HUMID, LOW_EROSION),
+					new Cell(PlainOfThePastBiomeGen.KEY, HOT, DRY, LOW_EROSION),
+					new Cell(MyourenTempleBarrensBiomeGen.KEY, COLD, DRY, LOW_EROSION),
+					new Cell(MagicalForestBiomeGen.KEY, HOT, HUMID, HIGH_EROSION),
+					new Cell(BambooForestOfTheLostBiomeGen.KEY, COLD, HUMID, HIGH_EROSION),
+					new Cell(SakuraForestBiomeGen.KEY, HOT, DRY, HIGH_EROSION),
+					new Cell(HillOfTheNamelessBiomeGen.KEY, COLD, DRY, HIGH_EROSION)),
+			List.of(new Cell(UntroddenValleyBiomeGen.KEY, HOT, HUMID),
+					new Cell(GenbuRavineBiomeGen.KEY, COLD, HUMID),
+					new Cell(YoukaiMountainFoothillsBiomeGen.KEY, HOT, DRY),
+					new Cell(SanctuaryBiomeGen.KEY, COLD, DRY)),
+			List.of(new Cell(TenguSettlementBiomeGen.KEY, FULL_PLANE, HUMID),
+					new Cell(SecretHeavenCliffBiomeGen.KEY, FULL_PLANE, DRY)),
+			List.of(new Cell(YoukaiMountainSummitBiomeGen.KEY, FULL_PLANE, FULL_PLANE)));
+
+	/**
+	 * The four underground biomes, tiled over the temperature and humidity plane the way the open-ground bands
+	 * are. They share one continentalness range, {@link #UNDERGROUND_CONTINENTALNESS}: the underground is one
+	 * depth row, and which of the four it is depends on the climate above it rather than on where the ground
+	 * sits — the same reasoning that keeps a band from spilling into its neighbours' rows.
+	 * <p>
+	 * Cold and humid is the ruins of the former hell, cold and dry the animal realm, and the two hot corners are
+	 * the two hells.
+	 */
+	private static final Cell HELL_CELL = new Cell(FormerHellBiomeGen.KEY, COLD, HUMID);
+
+	private static final List<Cell> UNDERGROUND = List.of(
+			HELL_CELL,
+			new Cell(AnimalRealmBiomeGen.KEY, COLD, DRY),
+			new Cell(HellOfBloodPoolsBiomeGen.KEY, HOT, HUMID),
+			new Cell(HellOfBlazingFiresBiomeGen.KEY, HOT, DRY));
+
+	public static void init(DataProviderInitializer init) {
+		// every registration of a registry has to share one bootstrap, so the density functions and the noise
+		// settings that reference them are declared here and nowhere else
+		init.add(Registries.DENSITY_FUNCTION, GensokyoDimension::densityFunctions);
+		init.add(Registries.NOISE_SETTINGS, GensokyoDimension::noiseSettings);
+	}
+
+	/**
+	 * Called from {@code GLFeatureGen}, which owns the single {@link Registries#NOISE} bootstrap.
+	 */
+	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
+		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-8, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
+		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+		ctx.register(N_EROSION_SMALL, new NormalNoise.NoiseParameters(-8, 1.0, 1.0, 0.0, 1.0, 1.0));
+	}
+
+	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
+		ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
+				NoiseSettings.create(WORLD_BOTTOM, WORLD_HEIGHT, 1, 2),
+				Blocks.STONE.defaultBlockState(),
+				Blocks.WATER.defaultBlockState(),
+				smallClimateRouter(new FlatTerrainFunctions(ctx.lookup(Registries.DENSITY_FUNCTION)),
+						ctx.lookup(Registries.NOISE), ctx.lookup(Registries.DENSITY_FUNCTION)),
+				surfaceRules(),
+				new OverworldBiomeBuilder().spawnTarget(),
+				63,
+				false, true, true, false
+		));
+	}
+
+	/**
+	 * The overworld surface tree with the fixed biomes' materials in front of it, in the priority order of
+	 * {@code gensokyolegacy_fixed_biomes_guide.md} §6: the lake bed, then the summit, then the shore's waterline,
+	 * then the four underground palettes, and vanilla's tree last as the shared default and fallback.
+	 * <p>
+	 * Every fixed-biome branch is a filter rather than a palette: each of its rules carries its own floor, water-level
+	 * and slope condition and returns null where none of them hold, so the position falls through to the next entry
+	 * and reaches the overworld tree. That is what keeps them from shadowing the shared grass and dirt, and it is why
+	 * they can be three separate entries instead of one branch per biome. The settlement has no branch at all: its
+	 * paths are a placed feature, per the guide, and its topsoil is the dimension's.
+	 * <p>
+	 * The four underground branches are the opposite shape. They key on the biome alone and claim the whole column,
+	 * floor included, so they have to be complete — an unfinished palette would swallow the deepslate the overworld
+	 * tree would otherwise have put there. Claiming the floor is safe only because the bedrock rule is asked first:
+	 * see the first entry of the sequence.
+	 */
+	private static RuleSource surfaceRules() {
+		return SurfaceRules.sequence(
+				// Vanilla's bedrock floor, hoisted to the front. It is the first rule of both SurfaceRuleData.overworld()
+				// and SurfaceRuleData.nether(), so every branch below used to shadow it, and the four underground
+				// branches claim a whole column — the world bottom of a mountain_interior column came out stone and the
+				// other three netherrack or brick. Nothing else in the sequence moves by putting it here.
+				bedrockFloor(),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MistyLakeBiomeGen.KEY, MistyLakeShoreBiomeGen.KEY),
+						SurfaceRules.sequence(
+								// the bed itself, and a steep bank cut into it
+								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.sequence(
+												SurfaceRules.ifTrue(SurfaceRules.steep(),
+														SurfaceRules.state(Blocks.STONE.defaultBlockState())),
+												SurfaceRules.state(Blocks.SAND.defaultBlockState())))),
+								// gravel through the two blocks under it, so the bed has a thickness to it
+								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(YoukaiMountainSummitBiomeGen.KEY),
+						SurfaceRules.sequence(
+								SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState())),
+								// the low tail of the noise is scree, and everything else is exposed rock; the
+								// summit's soil pockets are the grass disk in the tail, not a third state here
+								SurfaceRules.ifTrue(SurfaceRules.noiseCondition(YoukaiMountainSummitBiomeGen.SUMMIT_SURFACE, -0.6),
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
+								SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
+				// the shore's own waterline, which is the only place its ground is not the dimension's grass
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MistyLakeShoreBiomeGen.KEY),
+						SurfaceRules.sequence(
+								SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR,
+										SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(-1, 0),
+												SurfaceRules.state(Blocks.SAND.defaultBlockState()))),
+								SurfaceRules.ifTrue(UNDER_BED, SurfaceRules.ifTrue(UNDERWATER,
+										SurfaceRules.state(Blocks.GRAVEL.defaultBlockState()))))),
+				// the cliff is the settlement's dry half, so its exposure is all the rule has to do: the steep faces are bare rock
+				// and the flat ground falls through to the shared grass over dirt, with the scree laid on top by the tail
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(SecretHeavenCliffBiomeGen.KEY),
+						SurfaceRules.ifTrue(SurfaceRules.steep(), SurfaceRules.state(Blocks.STONE.defaultBlockState()))),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(MountainInteriorBiomeGen.KEY),
+						// the mountain's own rock, the whole column: it only ever sits between the two rock bands, so
+						// there is no deepslate below it to grade into and no floor worth giving a different material
+						SurfaceRules.state(Blocks.STONE.defaultBlockState())),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(HellOfBloodPoolsBiomeGen.KEY),
+						hellPalette(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.BLACKSTONE)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(AnimalRealmBiomeGen.KEY),
+						hellPalette(Blocks.PACKED_MUD, Blocks.DIRT, Blocks.DEEPSLATE)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(HellOfBlazingFiresBiomeGen.KEY),
+						hellPalette(Blocks.BLACKSTONE, Blocks.MAGMA_BLOCK, Blocks.BASALT)),
+				SurfaceRules.ifTrue(SurfaceRules.isBiome(FormerHellBiomeGen.KEY),
+						hellPalette(Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, Blocks.POLISHED_DEEPSLATE)),
+				SurfaceRuleData.overworld());
+	}
+
+	/** At or below the water line, which is the closest a surface rule gets to "this is a lake bed". */
+	private static final ConditionSource UNDERWATER = SurfaceRules.waterBlockCheck(0, 0);
+
+	/**
+	 * The bedrock floor, as a plain band rather than vanilla's {@code verticalGradient}.
+	 * <p>
+	 * {@link SurfaceRules#yBlockCheck} reads "y is at or above this anchor" — its type is {@code y_above} and its test
+	 * is {@code blockY >= anchor}, so a floor has to be {@code not} of one, stated at the first layer <em>above</em> the
+	 * floor to leave the top layer out.
+	 * <p>
+	 * Vanilla's gradient is per-block probabilistic, not a floor: it runs from {@code bottom()} to {@code aboveBottom(5)},
+	 * so y −64 is always bedrock and y −59 never, and the four between pass four fifths, three fifths, two fifths and a
+	 * fifth of the time. A column that is not solid all the way down therefore keeps most of its floor as whatever was
+	 * there before. A band has no such gap.
+	 * <p>
+	 * It only reaches the blocks the noise made solid. {@code SurfaceSystem} asks a rule about a position only when the
+	 * block there is the generator's default block, so air and fluid are invisible to every rule below as well — see
+	 * {@link #DF_LARGE_CAVES}, which is what keeps the halls out of the floor.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §10
+	 */
+	private static RuleSource bedrockFloor() {
+		return SurfaceRules.ifTrue(
+				SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(BEDROCK_FLOOR + 1), 0)),
+				SurfaceRules.state(Blocks.BEDROCK.defaultBlockState()));
+	}
+
+	/** Two blocks under any floor, for a material with thickness. {@code UNDER_FLOOR} only ever reaches one. */
+	private static final ConditionSource UNDER_BED = SurfaceRules.stoneDepthCheck(2, false, CaveSurface.FLOOR);
+
+	/**
+	 * One underground palette: the cave floor, the few blocks under it, and the rest of the column. The second test is
+	 * a wider {@link SurfaceRules#stoneDepthCheck} rather than {@code UNDER_FLOOR}, which with no aquifer to add to
+	 * {@code surfaceDepth} only ever reaches one block down.
+	 */
+	private static RuleSource hellPalette(Block floor, Block underFloor, Block body) {
+		return SurfaceRules.sequence(
+				SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(floor.defaultBlockState())),
+				SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(3, false, CaveSurface.FLOOR),
+						SurfaceRules.state(underFloor.defaultBlockState())),
+				SurfaceRules.state(body.defaultBlockState()));
+	}
+
+	/**
+	 * The overworld router with temperature and vegetation pointed at the finer parameters, and the aquifer's
+	 * barrier and fluid-level floodedness pointed at ours. Continentalness and erosion need no line here:
+	 * {@link FlatTerrainFunctions} redirects both in place, so the fields the overworld built are already ours.
+	 * Every other field is carried over unchanged, so only the biome grid and the fluid cavities see any of this.
+	 */
+	private static NoiseRouter smallClimateRouter(HolderGetter<DensityFunction> densities,
+												  HolderGetter<NormalNoise.NoiseParameters> noises,
+												  HolderGetter<DensityFunction> registry) {
+		NoiseRouter overworld = OverworldNoiseRouter.overworld(densities, noises);
+		return new NoiseRouter(
+				reference(registry.getOrThrow(DF_BARRIER)),
+				reference(registry.getOrThrow(DF_FLUID_FLOODEDNESS)),
+				overworld.fluidLevelSpreadNoise(),
+				overworld.lavaNoise(),
+				reference(registry.getOrThrow(DF_TEMPERATURE_SMALL)),
+				reference(registry.getOrThrow(DF_VEGETATION_SMALL)),
+				overworld.continents(), overworld.erosion(), overworld.depth(), overworld.ridges(),
+				overworld.initialDensityWithoutJaggedness(),
+				DensityFunctions.min(overworld.finalDensity(), reference(registry.getOrThrow(DF_LARGE_CAVES))),
+				overworld.veinToggle(), overworld.veinRidged(), overworld.veinGap());
+	}
+
+	/**
+	 * The overworld height chain with erosion and weirdness taken out: the offset spline is a function of
+	 * continentalness alone and the jaggedness term is gone, so nothing carves a river or lifts a peak.
+	 */
+	private static void densityFunctions(BootstrapContext<DensityFunction> ctx) {
+		var densities = ctx.lookup(Registries.DENSITY_FUNCTION);
+		var noises = ctx.lookup(Registries.NOISE);
+		// one continentalness for the whole dimension, a field finer than vanilla's. The height chain splines it and
+		// the biome grid reads it, so the ocean band edge still sits on the waterline the same spline draws.
+		var continentalness = ctx.register(DF_CONTINENTS_SMALL,
+				smallClimate(densities, noises.getOrThrow(N_CONTINENTS_SMALL)));
+		ctx.register(DF_TEMPERATURE_SMALL, smallClimate(densities, noises.getOrThrow(N_TEMPERATURE_SMALL)));
+		ctx.register(DF_VEGETATION_SMALL, smallClimate(densities, noises.getOrThrow(N_VEGETATION_SMALL)));
+		// the plain's own cut, so erosion is one of ours rather than the vanilla field: at the same octave as the
+		// temperature axis, and deliberately unsnapped, so its edge is not a 4-block staircase
+		ctx.register(DF_EROSION_SMALL, smallClimate(densities, noises.getOrThrow(N_EROSION_SMALL)));
+		var offset = ctx.register(DF_OFFSET, DensityFunctions.add(DensityFunctions.constant(NoiseRouterData.GLOBAL_OFFSET),
+				blended(DensityFunctions.spline(offsetSpline(continentalness)), DensityFunctions.blendOffset())));
+		var factor = ctx.register(DF_FACTOR,
+				blended(DensityFunctions.spline(factorSpline(continentalness)), DensityFunctions.constant(10.0)));
+		var depth = ctx.register(DF_DEPTH, DensityFunctions.add(
+				DensityFunctions.yClampedGradient(-64, 320, 1.5, -1.5), reference(offset)));
+		ctx.register(DF_SLOPED_CHEESE, DensityFunctions.add(
+				DensityFunctions.mul(DensityFunctions.constant(4.0),
+						DensityFunctions.mul(reference(depth), reference(factor)).quarterNegative()),
+				reference(densities.getOrThrow(VANILLA_BASE_3D_NOISE))));
+		// the same field vanilla reads inline, resampled coarser and biased, so an aquifer's cavity is one body
+		ctx.register(DF_BARRIER, DensityFunctions.add(
+				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_BARRIER), BARRIER_XZ, BARRIER_Y),
+				DensityFunctions.constant(BARRIER_BIAS)));
+		// the count, not the volume: how many columns hold fluid at all rather than how much of a cavern fills
+		ctx.register(DF_FLUID_FLOODEDNESS, DensityFunctions.add(
+				DensityFunctions.noise(noises.getOrThrow(Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS), 1.0, 0.67),
+				DensityFunctions.constant(FLUIDEDNESS_BIAS)));
+		ctx.register(DF_LARGE_CAVES, largeCaves(densities, reference(depth)));
+	}
+
+	/**
+	 * The caverns as their own density function, so the router can {@code min} them into its final density.
+	 * <p>
+	 * The field is the nether's own: {@code minecraft:nether/base_3d_noise} under
+	 * {@code NoiseRouterData.slideNetherLike} and {@code postProcess}, rebuilt here because both are private and
+	 * the nether's slide is stated for a 0 … 128 world. A nether cavern is a smooth blob with thick rock between it
+	 * and the next, which is the one shape that reads as "cave" rather than as "swiss cheese"; vanilla's overworld
+	 * mixes a cheese slab with spaghetti tunnels at two scales and came out with spaces that were neither.
+	 * <p>
+	 * {@code depth} only gates the surface. It is never small again once y is low, so a cavern reached the world base
+	 * and the aquifer filled the hole with lava — which {@code SurfaceSystem} never asks a rule about, because a rule
+	 * only sees the generator's default block, so the floor came out lava. The second gate is that base, in y alone.
+	 * <p>
+	 * {@code dead} repeats {@code floor} so {@link DensityFunctions#rangeChoice} skips the field over exactly the
+	 * stretch where the gate reads zero, which is the whole surface band and the bedrock floor.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §8
+	 */
+	private static DensityFunction largeCaves(HolderGetter<DensityFunction> densities, DensityFunction depth) {
+		var gate = DensityFunctions.add(DensityFunctions.mul(DensityFunctions.constant(CAVE_GATE_GAIN), depth),
+				DensityFunctions.constant(-CAVE_GATE_FLOOR)).clamp(0.0, 1.0);
+		var caverns = DensityFunctions.add(
+				DensityFunctions.mul(DensityFunctions.constant(CAVE_GAIN), DensityFunctions.mul(
+						DensityFunctions.interpolated(DensityFunctions.blendDensity(
+								slideNetherLike(reference(densities.getOrThrow(VANILLA_NETHER_BASE_3D_NOISE))))),
+						DensityFunctions.constant(0.64)).squeeze()),
+				DensityFunctions.constant(CAVE_BIAS));
+		var base = DensityFunctions.yClampedGradient(CAVE_BASE_DEAD_Y, CAVE_BASE_LIVE_Y, 0.0, 1.0);
+		var open = DensityFunctions.rangeChoice(gate, 0.0, CAVE_GATE_DEAD,
+				DensityFunctions.constant(CAVE_CEILING), DensityFunctions.lerp(gate, CAVE_CEILING, caverns));
+		return DensityFunctions.lerp(base, CAVE_CEILING, open);
+	}
+
+	/**
+	 * {@code NoiseRouterData.slideNetherLike} over Gensokyo's own y range, with its five numbers unchanged.
+	 * <p>
+	 * It is the nether's floor and roof, so the field is solid below the fade and above it. The nether's floor
+	 * fades in from {@code minY - 8}, which for a −64 world is eight blocks under it and therefore never read;
+	 * the bedrock floor's own gate is what actually holds the bottom of Gensokyo.
+	 */
+	private static DensityFunction slideNetherLike(DensityFunction base) {
+		int top = WORLD_BOTTOM + WORLD_HEIGHT;
+		var roof = DensityFunctions.yClampedGradient(top - CAVE_ROOF_BAND, top, 1.0, 0.0);
+		var inside = DensityFunctions.lerp(roof, CAVE_ROOF_VALUE, base);
+		var floor = DensityFunctions.yClampedGradient(WORLD_BOTTOM + CAVE_FLOOR_BAND_FROM,
+				WORLD_BOTTOM + CAVE_FLOOR_BAND_TO, 0.0, 1.0);
+		return DensityFunctions.lerp(floor, CAVE_FLOOR_VALUE, inside);
+	}
+
+	/**
+	 * One climate axis at the vanilla {@code xz_scale}, on a noise whose every octave is one step finer.
+	 * <p>
+	 * Deliberately not {@code flat_cache}d: {@code NoiseChunk.FlatCache} indexes its table by quart position and
+	 * stores the value at the cell's origin corner, so it snaps these fields to a 4-block grid and the biome edges
+	 * come out stepped.
+	 */
+	private static DensityFunction smallClimate(HolderGetter<DensityFunction> densities,
+												Holder<NormalNoise.NoiseParameters> noise) {
+		return DensityFunctions.shiftedNoise2d(
+				reference(densities.getOrThrow(VANILLA_SHIFT_X)), reference(densities.getOrThrow(VANILLA_SHIFT_Z)),
+				0.25, noise);
+	}
+
+	/**
+	 * Continentalness to offset, splined against {@link #DF_CONTINENTS_SMALL} rather than the vanilla field. The
+	 * surface sits at {@code 63.5 + 128 * spline}, and the points were solved against the *vanilla* continentalness
+	 * field: every 16-block band from y 64 up carries a point, each at the quantile that gives that band its share of
+	 * the map — 30% plain, 22% at 80, 12% at 96, 5% at 112, 3% per band above 128, on a 13% ocean. So the height map
+	 * is a choice of shares rather than a curve drawn by eye. The last three points are flat, so the peak holds at 220
+	 * however high continentalness climbs.
+	 * <p>
+	 * The fine field has a different distribution, so these shares are now the *previous* ones, not the current ones —
+	 * see {@code doc/design/gensokyo_dimension.md} §7. Re-solve with {@code tools/terrain.py} before trusting them.
+	 */
+	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
+			Holder<DensityFunction> continentalness) {
+		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
+				.addPoint(-1.10f, -0.1992f)
+				.addPoint(-0.80f, -0.1914f)
+				.addPoint(-0.70f, -0.1758f)
+				.addPoint(-0.65f, -0.1445f)
+				.addPoint(-0.60f, -0.0977f)
+				.addPoint(-0.56f, -0.0508f)
+				.addPoint(-0.53f, -0.0039f)
+				.addPoint(-0.50f, 0.0038f)
+				.addPoint(-0.118f, 0.1288f)
+				.addPoint(0.108f, 0.2538f)
+				.addPoint(0.255f, 0.3788f)
+				.addPoint(0.329f, 0.5038f)
+				.addPoint(0.380f, 0.6288f)
+				.addPoint(0.436f, 0.7538f)
+				.addPoint(0.505f, 0.8788f)
+				.addPoint(0.595f, 1.0038f)
+				.addPoint(0.734f, 1.1288f)
+				.addPoint(1.05f, 1.2227f)
+				.addPoint(1.30f, 1.2227f)
+				.addPoint(2.00f, 1.2227f)
+				.build();
+	}
+
+	/**
+	 * Continentalness to vertical gain. It only steepens the slope below the surface, never moves the surface.
+	 */
+	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> factorSpline(
+			Holder<DensityFunction> continentalness) {
+		return CubicSpline.builder(new DensityFunctions.Spline.Coordinate(continentalness))
+				.addPoint(-0.19f, 3.95f)
+				.addPoint(1.00f, 5.00f)
+				.build();
+	}
+
+	/**
+	 * Vanilla's wrapper that lets nearby structures pull the height around. Gensokyo has no vanilla structures, so
+	 * the blending terms always collapse onto {@code min}.
+	 * <p>
+	 * {@code flat_cache} and {@code cache_2d} stay, as in vanilla, and they snap the height to the 4-block cell's
+	 * origin corner. That costs the exact {@code ocean}-is-drowned match, since the biome grid samples the unsnapped
+	 * axis at the cell centre: ~0.6% of the map disagrees either way. Leaving them off instead makes every block
+	 * re-sample the spline, which is ~7700 continentalness samples per chunk against the cached 50, and it only buys a
+	 * third of that error back. Stepped edges are the cheaper side of the trade.
+	 *
+	 * @see "doc/design/gensokyo_dimension.md" §7
+	 */
+	private static DensityFunction blended(DensityFunction min, DensityFunction max) {
+		return DensityFunctions.flatCache(DensityFunctions.cache2d(
+				DensityFunctions.lerp(DensityFunctions.blendAlpha(), max, min)));
+	}
+
+	private static DensityFunction reference(Holder<DensityFunction> function) {
+		return new DensityFunctions.HolderHolder(function);
+	}
+
+	/**
+	 * The dimension type, identical to the overworld one.
+	 */
+	public static DimensionType dimensionType() {
+		return new DimensionType(
+				OptionalLong.empty(),
+				true, false, false, true,
+				1.0, true, false,
+				-64, 384, 384,
+				BlockTags.INFINIBURN_OVERWORLD,
+				BuiltinDimensionTypes.OVERWORLD_EFFECTS, 0.0f,
+				new DimensionType.MonsterSettings(false, true, UniformInt.of(0, 7), 0)
+		);
+	}
+
+	/**
+	 * Overworld terrain driven by the restricted biome list, with the aquifer's lava sea at
+	 * {@link GensokyoChunkGenerator}'s level rather than the engine's.
+	 */
+	public static GensokyoChunkGenerator chunkGenerator(BootstrapContext<LevelStem> ctx) {
+		return new GensokyoChunkGenerator(biomeSource(ctx.lookup(Registries.BIOME)),
+				ctx.lookup(Registries.NOISE_SETTINGS).getOrThrow(NS_GENSOKYO));
+	}
+
+	/**
+	 * A coarse climate grid, one biome per cell, with weirdness spanning everything and erosion spanning everything
+	 * except the plain. Each {@link #REGION_EDGES} interval is one height band of the offset spline and carries a
+	 * single continentalness span, which every biome in that region shares; the region's own biomes tile the
+	 * temperature and humidity plane instead. That is why the list is as short as it is: one cell per biome per region,
+	 * not one per biome per climate cell.
+	 * <p>
+	 * The plain is the one region with more cells than that, because erosion halves it as well — see {@link #SURFACE}.
+	 * <p>
+	 * Neighbouring spans are held {@link #GAP} apart, so a value in the gap is equidistant and the tie falls to list
+	 * order. The gap above the waterline is the one exception: {@code ocean} ends exactly on the waterline so it stays
+	 * the drowned set, and the gap falls on the beach side of it.
+	 */
+	public static MultiNoiseBiomeSource biomeSource(HolderGetter<Biome> biomes) {
+		List<Pair<Climate.ParameterPoint, Holder<Biome>>> values = new ArrayList<>();
+		for (int r = 0; r < REGION_EDGES.length + 1; r++) {
+			Band region = region(r);
+			for (Cell cell : SURFACE.get(r)) {
+				values.add(cell(biomes, cell, region, SHALLOW));
+			}
+		}
+		Band underground = UNDERGROUND_CONTINENTALNESS;
+		for (Cell cell : UNDERGROUND) {
+			values.add(cell(biomes, cell, underground, DEEP));
+		}
+		// the ruins again under the mountain, one depth lower, so the cave/underground split sits where it
+		// should instead of wherever the first row's continentalness penalty leaves it. Only the ruins: the
+		// other three belong to the low ground and have no business claiming the mountain's deep rock
+		values.add(cell(biomes, HELL_CELL, CAVE_CONTINENTALNESS, HELL));
+		// the inside of the mountain, one region for all of it: continentalness above CAVE_CONT and below the
+		// ceiling, and the depth between the two rock bands
+		values.add(Pair.of(new Climate.ParameterPoint(FULL_RANGE, FULL_RANGE,
+						CAVE_CONTINENTALNESS.parameter(), FULL_RANGE, CAVE_BAND.parameter(), FULL_RANGE, 0L),
+				biomes.getOrThrow(MountainInteriorBiomeGen.KEY)));
+		return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
+	}
+
+	/** The continentalness span of one region, with the half-open gaps between regions held apart. */
+	private static Band region(int index) {
+		float min = index == 0 ? -1.0f : REGION_EDGES[index - 1] + GAP;
+		float max = index == REGION_EDGES.length ? 1.0f : REGION_EDGES[index] - GAP;
+		if (index == 0) max = REGION_EDGES[0];
+		return new Band(min, max);
+	}
+
+	private static Pair<Climate.ParameterPoint, Holder<Biome>> cell(HolderGetter<Biome> biomes, Cell cell, Band region,
+																	Band depth) {
+		return Pair.of(new Climate.ParameterPoint(cell.temperature().parameter(), cell.humidity().parameter(),
+						region.parameter(), cell.erosion().parameter(), depth.parameter(), FULL_RANGE, 0L),
+				biomes.getOrThrow(cell.biome()));
+	}
+
+	/**
+	 * One biome's claim on a region's temperature, humidity and erosion. Erosion spans the whole plane everywhere
+	 * except the plain, which is the one region where it chooses; the short constructor is that default.
+	 * <p>
+	 * A region with a single biome gets the whole plane and one cell, which is what keeps {@code ocean}, {@code beach},
+	 * {@code mountain}, {@code grove} and {@code peak} from spilling into their neighbours' rows.
+	 */
+	private record Cell(ResourceKey<Biome> biome, Band temperature, Band humidity, Band erosion) {
+
+		Cell(ResourceKey<Biome> biome, Band temperature, Band humidity) {
+			this(biome, temperature, humidity, FULL_PLANE);
+		}
+	}
+
+	/**
+	 * One biome's claim on a climate band, kept as a span so the generated json reads like the table it came from.
+	 */
+	private record Band(float min, float max) {
+
+		Climate.Parameter parameter() {
+			return Climate.Parameter.span(min, max);
+		}
+	}
+
+	/**
+	 * Redirects the overworld router to our height chain. The vanilla depth and sloped cheese cannot be rewritten in
+	 * place, their sub-trees live in registry entries the overworld shares.
+	 */
+	private record FlatTerrainFunctions(HolderGetter<DensityFunction> inner) implements HolderGetter<DensityFunction> {
+
+		@Override
+		public Optional<Holder.Reference<DensityFunction>> get(ResourceKey<DensityFunction> key) {
+			if (key.equals(NoiseRouterData.DEPTH)) return inner.get(DF_DEPTH);
+			if (key.equals(NoiseRouterData.FACTOR)) return inner.get(DF_FACTOR);
+			if (key.equals(VANILLA_SLOPED_CHEESE)) return inner.get(DF_SLOPED_CHEESE);
+			// the biome grid gets the finer continentalness; the height chain above was built from the vanilla one
+			if (key.equals(NoiseRouterData.CONTINENTS)) return inner.get(DF_CONTINENTS_SMALL);
+			// erosion too, for the same reason: nothing that shapes the ground reads it, so the finer field is free,
+			// and the plain's lower/upper cut is the only reader there is
+			if (key.equals(NoiseRouterData.EROSION)) return inner.get(DF_EROSION_SMALL);
+			return inner.get(key);
+		}
+
+		@Override
+		public Optional<HolderSet.Named<DensityFunction>> get(TagKey<DensityFunction> tag) {
+			return inner.get(tag);
+		}
+	}
+
+	/**
+	 * {@link NoiseRouterData#overworld} is protected, so this subclass is the only way to rebuild the overworld noise
+	 * router from holder getters owned by the datagen lookup, which is what keeps the result serializable.
+	 */
+	private static class OverworldNoiseRouter extends NoiseRouterData {
+
+		private static NoiseRouter overworld(HolderGetter<DensityFunction> densities,
+											 HolderGetter<NormalNoise.NoiseParameters> noises) {
+			return NoiseRouterData.overworld(densities, noises, false, false);
+		}
+	}
+
+	private static ResourceKey<DensityFunction> df(String id) {
+		return ResourceKey.create(Registries.DENSITY_FUNCTION, GensokyoLegacy.loc(id));
+	}
+
+	private static ResourceKey<NormalNoise.NoiseParameters> nn(String id) {
+		return ResourceKey.create(Registries.NOISE, GensokyoLegacy.loc(id));
+	}
+
+	private static ResourceKey<DensityFunction> vanilla(String path) {
+		return ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace(path));
+	}
+
+}

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.compat.jei;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -15,7 +16,6 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -45,7 +45,7 @@ public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, 
 
 	public TradeRecipeCategory init(IGuiHelper helper) {
 		this.background = helper.createBlankDrawable(WIDTH, HEIGHT);
-		this.icon = helper.createDrawableItemStack(Items.EMERALD.getDefaultInstance());
+		this.icon = helper.createDrawableItemStack(GLItems.COIN.asStack());
 		return this;
 	}
 

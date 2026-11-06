@@ -78,7 +78,7 @@
 
 ### 1.2 当前生成逻辑与问题
 
-`GLFeatureGen.MAGICAL_FOREST_VEGETATION`：每区块 12 次 `RANDOM_SELECTOR`（顺序抽签，实际约 40% 程序化蓝杉、20% 深色橡树、20% 丛林灌木、20% 各类巨型蘑菇），`HEIGHTMAP_OCEAN_FLOOR`。
+`MagicalForestBiomeGen.MAGICAL_FOREST_VEGETATION`：每区块 12 次 `RANDOM_SELECTOR`（顺序抽签，实际约 40% 程序化蓝杉、20% 深色橡树、20% 丛林灌木、20% 各类巨型蘑菇），`HEIGHTMAP_OCEAN_FLOOR`。
 
 | 问题 | 原因 |
 |---|---|
@@ -114,7 +114,7 @@ TemplateFeature(config: 模板加权表 / processor_list / 地面与坡度 / 根
    ▼
 PlacedFeature = [JitteredGrid | Count] → [NoiseBand] → [GridExclusion] → [AvoidStructures] → 高度图(NO_LEAVES) → Biome
    ▼
-GLBiomes.MAGICAL_FOREST：L1 巨木 → L2 大树 → L3 中小树/大蘑菇 → L4 灌木/小蘑菇 → L5 地被
+MagicalForestBiomeGen.KEY：L1 巨木 → L2 大树 → L3 中小树/大蘑菇 → L4 灌木/小蘑菇 → L5 地被
 ```
 
 ---
@@ -266,10 +266,10 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 
 ### 6.5 池塘
 
-池塘不是植被层，排在更早的 `LAKES` 步（`MagicalForestFeatures.addLake`），这样所有树都在水面刻好之后才放：
+池塘不是植被层，排在更早的 `LAKES` 步（`MagicalForestBiomeGen#build`），这样所有树都在水面刻好之后才放：
 
 - 每 6 区块平均一个（`RarityFilter.onAverageOnceEvery(6)`），只长在干燥陆地上，不会铺到海洋上（`SurfaceWaterDepthFilter.forMaxDepth(0)` + `BiomeFilter`），并与 §8 那组建筑（魔理沙的家、香霖堂、博丽神社、爱丽丝的家）保持 11 格距离。
-- `MagicalForestLakeFeature` 在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。
+- `LakeFeature`（`mode = surface`）在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。同一个 feature 的 `mode = underground` 是旧地狱洞窟里的水潭，见 `gensokyo_biomes.md` §2.1。
 - **树不会长进水里**：`TemplateFeature` 自带"锚点地面无流体"的检查，池塘先刻好，巨木/大树自然就避开了，不需要额外的排斥过滤器。
 
 ---
@@ -304,13 +304,12 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 
 ```
 content/worldgen/feature/template/   TemplateFeature, TemplateFeatureConfig, TemplateBlendProcessor
-content/worldgen/feature/lake/       MagicalForestLakeFeature, LakeMaker（池塘，见 §6.5）
+content/worldgen/feature/lake/       LakeFeature, LakeConfig, LakeMaker（池塘，见 §6.5）
 content/worldgen/placement/          GridLayer, JitteredGridPlacement, GridExclusionFilter, NoiseBandFilter,
                                      AvoidStructuresFilter, CanopyFilter
 init/registrate/GLWorldGen           feature "template"；processor "template_blend"；5 个 placement modifier type
-init/data/biome/MagicalForestFeatures 全部 configured / placed feature、两个 noise、群系里的生成顺序
-init/data/biome/GLFeatureGen         只保留 disk 与三种地被 patch 的 configured feature，并调用上面的类
-init/data/biome/GLBiomes             MAGICAL_FOREST 改用 MagicalForestFeatures.addVegetation
+init/data/biome/biomes/MagicalForestBiomeGen   全部 configured / placed feature、两个 noise、群系、生成顺序
+init/data/biome/BiomeGen                      共享机制：Layers、Registrar、各 biome 共用的 biome 工厂与配置；调用本类
 init/data/GLTagGen                   block tag template_trunk（#logs + 四种菌柄）
 content/worldgen/feature/TreeFeatures BLUE_FIR 压到 4–6 格高（只剩树苗使用，世界生成不再放置它）
 resources/.../structure/magical_forest/**.nbt
@@ -328,9 +327,11 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 **树苗/催熟复用（M5，已实现）**：`TemplateFeature` 是普通 ConfiguredFeature，可直接作为 `TreeGrower` 目标，非 worldgen 环境下不设 bounding box 即可。蓝杉树苗 1 棵长 `blue_fir_medium`、2×2 长 `blue_fir_large`（`TreeGrower` mega 槽位）；原版没有 3×3 槽位，9 棵长 `blue_fir_giant` 由 `BlueFirSaplingBlock` 在 fallback 到 grower 之前自行检查。蘑菇用 `WeightedMushroomBlock` 按 50% / 40% / 10% 长出同种小 / 中 / 大模板（`ghost_fire_small/medium/large` 等 9 个 growth-only configured feature，不带地表；混种的 worldgen 版不能复用，否则会串种）。
 
-## 9.1 补充树种（只有树苗，世界生成不放置）
+## 9.1 补充树种（树苗可种，部分群系也生成）
 
-枫 / 槐两族登记在 `GLNaturalBlocks.WoodSet`（log + wood，槐族另有 `locust_hollow_log`），樱树不登记木头——粉樱 / 紫樱直接长在原版 `minecraft:cherry_log` 上，所以 `TreeSet` 收的是 `Supplier<Block>` 原木而不是 `WoodSet`。六种树叶是六种树型，但共用同一根木头：橙枫 / 红枫 / 黄枫用 `maple`，粉樱 / 紫樱用原版樱木，槐树自成一族。木头按树种切成对应的原版木板（枫与槐 → 橡木），因为本模组没有自己的木板方块。六个 `TreeType` 只注册 configured feature，没有任何 placed feature 引用它，生成逻辑一行没动；树苗是它们唯一的入口。原木、六种树苗与 12 张落叶贴图全部来自美术稿，没有占位贴图。
+枫 / 槐两族登记在 `GLNaturalBlocks.WoodSet`（log + wood，槐族另有 `locust_hollow_log`），樱树不登记木头——粉樱 / 紫樱直接长在原版 `minecraft:cherry_log` 上，所以 `TreeSet` 收的是 `Supplier<Block>` 原木而不是 `WoodSet`。六种树叶是六种树型，但共用同一根木头：橙枫 / 红枫 / 黄枫用 `maple`，粉樱 / 紫樱用原版樱木，槐树自成一族。木头按树种切成对应的原版木板（枫与槐 → 橡木），因为本模组没有自己的木板方块。原木、六种树苗与 12 张落叶贴图全部来自美术稿，没有占位贴图。
+
+六个 `TreeType` 最初只注册 configured feature，树苗是它们唯一的入口；现在其中六个也参与世界生成：三档枫树由「山脚 → 天狗集落 → 无人之谷」这条枫林带种下（无人之谷另有橡树与白桦，枫树占一半），粉樱取代原版 `minecraft:trees_cherry` 种满樱花森林，紫樱只长在无之塚这一个墓地群系（无之塚槐树占一半、紫樱占四分之一，余下是橡树与白桦，共四棵一块），命莲寺原野全是槐树六棵一块。共享的是 configured feature，每片林子几棵树是各群系自己的 placed feature。枫林带、樱花林与无之塚都另铺一层本物种的落叶地毯（枫林带三种枫叶混铺，樱花林只落粉樱，无之塚只落紫樱），铺法就是魔法森林那套 `canopy` + `MOTION_BLOCKING_NO_LEAVES` heightmap，现已提到 `Registrar.litter` 上供普通群系使用。详见 `gensokyo_biomes.md` §2.2。
 
 树形由 `TreeFeatures.TreeShape` 给出：枫、槐使用手工模板，樱用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以樱树照常会掉最外圈叶子。
 
@@ -350,7 +351,7 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 | 魔法森林在 erosion 2–3，坡地多 | `max_slope` + 根系下延；巨木放不下时该网格点留空，由 L3 补位。若拒绝率过高再放宽到 5 |
 | 模板数量少导致重复感（巨橡只有 1 个） | 已用 3 个程序化巨橡补足（§4.1）；另有 8 向变体 + 垂挂物修剪 |
 | feature order cycle | 新 PlacedFeature 只在本模组群系使用，且各群系内相对顺序一致 |
-| 与将来 `multiplex_worldgen` 分支冲突 | Feature/Placement 都是独立新类，群系接线集中在 `GLBiomes`/`GLFeatureGen` 两处，易于 rebase |
+| 与将来 `multiplex_worldgen` 分支冲突 | 已解决：每个群系是 `init/data/biome/biomes/` 下独立的 `AbstractBiomeGen` 子类，自带 feature / placed feature / biome，改一个群系不会碰别的群系的文件 |
 
 ---
 

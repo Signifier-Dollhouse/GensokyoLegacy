@@ -26,6 +26,7 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.ghost.*;
@@ -93,6 +94,10 @@ public class GLItems {
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
+	public static final ItemEntry<CoinItem> COIN;
+	public static final ItemEntry<Item> COIN_STACK;
+	public static final int COIN_STACK_VALUE = 8;
+
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
 	public static final ItemEntry<SpellItem> REIMU_SPELL, MARISA_SPELL, SANAE_SPELL, YUKARI_SPELL_BUTTERFLY, YUKARI_SPELL_LASER, MYSTIA_SPELL, SAKUYA_SPELL;
@@ -122,7 +127,7 @@ public class GLItems {
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
-	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
+	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO, GHOST_DANGO;
 	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
@@ -300,6 +305,18 @@ public class GLItems {
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
 				e -> e.icon(GLItems.DOLL_GLOVE::asStack));
 
+		// currency
+		{
+			COIN = reg.item("coin", CoinItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.CIRCLE.tag)
+					.lang("Coin").register();
+			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
+			COIN_STACK = reg.item("coin_stack", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.lang("Coin Stack").register();
+		}
+
 		// ingredients
 		{
 
@@ -402,7 +419,8 @@ public class GLItems {
 			// be given something to drink. DIG_SPEED is the one effect that is haste on a mob and
 			// looting on an item, so this reads as luck at digging rather than as speed.
 			LUCKY_TEA = reg.item("lucky_tea", p -> new DrinkGiftItem(p.food(sake(
-							new MobEffectInstance(GLEffects.LOOTING, 600, 0)))))
+							new MobEffectInstance(GLEffects.LOOTING, 3600, 0),
+							new MobEffectInstance(GLEffects.SPIRITUAL, 3600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
 					.lang("Hakurei's Lucky Tea").register();
@@ -433,6 +451,15 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
 					.lang("Kappa Bento").register();
+
+			// Yuyuko's ghost dango: a ghost-themed sweet that feeds the spiritual pool of every
+			// carrier the eater has, not just the one in hand
+			GHOST_DANGO = reg.item("ghost_dango", p -> new Item(p
+							.food(new FoodProperties.Builder().nutrition(3).saturationModifier(0.3f).alwaysEdible()
+									.effect(() -> new MobEffectInstance(GLEffects.SPIRITUAL, 1200, 1), 1).build())))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(10, 1000, GiftType.FOOD))
+					.lang("Ghost Dango").register();
 
 			// a fan is for looking at, and for blowing
 			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
@@ -540,6 +567,7 @@ public class GLItems {
 			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Bone Flute")
+					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
 					.tab(TAB.key())
 					.register();
 

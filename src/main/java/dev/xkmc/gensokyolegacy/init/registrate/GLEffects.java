@@ -70,6 +70,10 @@ public class GLEffects {
 			StunEffect::new,
 			"Cannot attack, jump or use items, and movement is slowed.");
 
+	public static final LegacyHolder<MobEffect> SPIRITUAL = genEffect("spiritual",
+			() -> new SpiritualEffect(MobEffectCategory.BENEFICIAL, 0x7FDCD0),
+			"Restore 10 spiritual power per second per level to the items you carry");
+
 	private static <T extends MobEffect> LegacyHolder<MobEffect> genEffect(String name, NonNullSupplier<T> sup, String desc) {
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.effect(name, sup, desc).lang(MobEffect::getDescriptionId).register());
 	}

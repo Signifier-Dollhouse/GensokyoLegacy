@@ -420,7 +420,7 @@ public class ReimuQDGen extends QuestDialogData {
 				"Just what was needed. Thanks.",
 				new TreeMap<>(Map.of(
 						"a-supplies", rollItem(foodTable))),
-				LootTable.lootTable().withPool(lootItem(Items.EMERALD, 1)));
+				LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 1)));
 
 		prefix("reimu/daily_hunt");
 		questAnims("dailyEx", "dialog_think", "dialog_think", "dialog_agree", "dialog_think", "dialog_greet", "dialog_agree", "dialog_talk_02");
@@ -438,7 +438,7 @@ public class ReimuQDGen extends QuestDialogData {
 						"a-kill", new KillEnemyRequirement(reqText("kill", "Kill hostile mobs"), 12),
 						"b-loot", rollItem(huntTable))),
 				List.of(new ExpReward(80), new ReputationReward(10, 150, 5, 120),
-						loot("reimu/daily_hunt", LootTable.lootTable().withPool(lootItem(Items.EMERALD, 3)))),
+						loot("reimu/daily_hunt", LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 3)))),
 				groupKey(dailyGroupKey, dailyStartKey,
 						dialog("start/dialog_1", "Something's always stirring trouble near the shrine. Clear out those monsters and bring back their loot.", THINK_ANIMS,
 								option("start/reject", "Later.",
@@ -508,67 +508,67 @@ public class ReimuQDGen extends QuestDialogData {
 						item(Items.CRYING_OBSIDIAN, 2))));
 		trade("sell_bread", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(1, 24000),
 				List.of(item(Items.BREAD, 16))));
 		trade("sell_chicken", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(1, 24000),
 				List.of(item(Items.COOKED_CHICKEN, 4))));
 		trade("sell_string", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 96000),
 				List.of(item(Items.STRING, 6))));
 		trade("sell_wool", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 96000),
 				List.of(itemTag(ItemTags.WOOL, 6))));
 		trade("sell_paper", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(16, 24000),
 				List.of(item(Items.PAPER, 12))));
 		trade("sell_redstone", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(16, 24000),
 				List.of(item(Items.REDSTONE, 4))));
 		trade("sell_gunpowder", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
-				new ItemStack(Items.EMERALD),
+				new ItemStack(GLItems.COIN.get()),
 				new TradeRecurrence(4, 24000),
 				List.of(item(Items.GUNPOWDER, 4))));
 		trade("offer_heal_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.HEAL_TALISMAN.get()),
-				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 8))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		trade("offer_shelter_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.SHELTER_TALISMAN.get()),
-				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 8))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		trade("offer_speed_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.SPEED_TALISMAN.get()),
-				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_hydrophobic_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.HYDROPHOBIC_TALISMAN.get()),
-				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_lava_talisman", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.LAVA_TALISMAN.get()),
-				new TradeRecurrence(16, 24000), List.of(item(Items.EMERALD, 4))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 4))));
 		trade("offer_talisman_pocket", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				new ItemStack(GLTalismans.TALISMAN_POCKET.get()),
-				new TradeRecurrence(4, 24000), List.of(item(Items.EMERALD, 16))));
+				new TradeRecurrence(4, 24000), List.of(item(GLItems.COIN.get(), 16))));
 		trade("offer_border_umbrella", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_RAID)),
 				new ItemStack(GLItems.BORDER_UMBRELLA.get()),
-				new TradeRecurrence(1, 168000), List.of(item(Items.EMERALD, 48))));
+				new TradeRecurrence(1, 168000), List.of(item(GLItems.COIN.get(), 48))));
 	}
 
 	private SimpleDialogOption start(String button, String intro,

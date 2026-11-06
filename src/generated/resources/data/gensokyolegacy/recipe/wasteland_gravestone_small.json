@@ -13,8 +13,8 @@
     }
   },
   "pattern": [
-    "A  ",
-    "A  ",
+    " A ",
+    " A ",
     "BCB"
   ],
   "result": {

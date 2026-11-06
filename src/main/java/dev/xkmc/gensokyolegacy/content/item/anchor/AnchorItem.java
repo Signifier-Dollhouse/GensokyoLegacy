@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.anchor;
 
 import dev.xkmc.danmakuapi.api.GrazeHelper;
-import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
@@ -42,8 +41,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and the
- * two storm throws pay spiritual power from the pool the item carries.
+ * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and every
+ * storm throw pays spiritual power from the pool the item carries.
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
@@ -62,7 +61,6 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	private static final double MELEE_RADIUS = 3;
 	private static final double FLY_SPEED = 1.5;
 	private static final int LIFE = 200;
-	private static final double FAN_STEP = 12.5;
 
 	public AnchorItem(Properties properties) {
 		super(properties, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, 1.0F, MAX_POWER);
@@ -151,7 +149,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ItemStack stack = player.getItemInHand(hand);
 		if (isLinked(stack)) return retrieve(level, player, stack);
 		if (GrazeHelper.forbidDanmaku(player)) return InteractionResultHolder.fail(stack);
-		if (getMode(stack) != AnchorMode.VOYAGE) {
+		if (getMode(stack) != AnchorMode.VOYAGE) {     // Destroy and Storm charge
 			player.startUsingItem(hand);
 			return InteractionResultHolder.consume(stack);
 		}
@@ -187,9 +185,18 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
-	 * Both charged throws start on {@code use} and fire on release; Destroy scales its radius with
-	 * the time held, Storm wants one full second before the volley.
+	 * Storm releases itself once the charge completes; Destroy waits for the release and scales its
+	 * radius with the time held.
 	 */
+	@Override
+	public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+		if (getMode(stack) != AnchorMode.STORM) return;
+		if (level.isClientSide() && user instanceof Player player)
+			AnchorRain.chargeParticles(player);
+		if (getUseDuration(stack, user) - remaining < CHARGE_TIME) return;
+		if (user instanceof Player player) player.releaseUsingItem();
+	}
+
 	@Override
 	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
 		if (!(entity instanceof Player player)) return;
@@ -199,7 +206,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		switch (getMode(stack)) {
 			case STORM -> {
 				if (used < CHARGE_TIME) return;
-				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_VOLLEY);
+				throwAnchors(sp, player.getUsedItemHand(), AnchorThrow.STORM_RAIN);
 			}
 			case DESTROY -> {
 				if (used < DESTROY_CHARGE_MIN) return;
@@ -244,8 +251,10 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		ServerLevel level = sp.serverLevel();
 		Vec3 look = RayTraceUtil.getRayTerm(Vec3.ZERO, sp.getXRot(), sp.getYRot(), 1);
 		Vec3 from = RayTraceUtil.getRayTerm(sp.getEyePosition(), sp.getXRot(), sp.getYRot(), 2);
-		if (type.isStorm()) {
-			throwUnbound(sp, level, from, look, type == AnchorThrow.STORM_VOLLEY);
+		if (type.isRain()) {
+			AnchorRain.rain(sp);
+		} else if (type.isStorm()) {
+			throwUnbound(sp, level, from, look);
 		} else {
 			AnchorHookEntity proj = new AnchorHookEntity(GLEntities.ANCHOR_HOOK.get(), sp, level);
 			float damage = (float) sp.getAttributeValue(Attributes.ATTACK_DAMAGE) * scale;
@@ -262,22 +271,17 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	/**
-	 * Storm throws are always unbound: one anchor on a left click, a five-anchor fan on a charged
-	 * right click.
+	 * The single unbound anchor of a left-click storm throw; the right-click rain is
+	 * {@link AnchorRain}.
 	 */
-	private static void throwUnbound(ServerPlayer sp, ServerLevel level, Vec3 from, Vec3 look, boolean fan) {
-		int count = fan ? 5 : 1;
-		var orientation = DanmakuHelper.getOrientation(look);
-		for (int i = 0; i < count; i++) {
-			Vec3 dir = fan ? orientation.rotateDegrees((i - (count - 1) / 2.0) * FAN_STEP) : look;
-			AnchorBulletEntity proj = new AnchorBulletEntity(GLEntities.ANCHOR_BULLET.get(), sp, level);
-			proj.setItem(new ItemStack(GLItems.MINAMITSU_ANCHOR.get()));
-			proj.configure(from);
-			proj.setup(0, LIFE, false, false, dir.scale(FLY_SPEED));
-			proj.moveTo(from);
-			level.addFreshEntity(proj);
-			SpellContainer.track(sp, proj);
-		}
+	private static void throwUnbound(ServerPlayer sp, ServerLevel level, Vec3 from, Vec3 look) {
+		AnchorBulletEntity proj = new AnchorBulletEntity(GLEntities.ANCHOR_BULLET.get(), sp, level);
+		proj.setItem(new ItemStack(GLItems.MINAMITSU_ANCHOR.get()));
+		proj.configure(from);
+		proj.setup(0, LIFE, false, false, look.scale(FLY_SPEED));
+		proj.moveTo(from);
+		level.addFreshEntity(proj);
+		SpellContainer.track(sp, proj);
 	}
 
 	/**

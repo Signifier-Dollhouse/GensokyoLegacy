@@ -96,12 +96,11 @@ power so it can be read without opening the tooltip.
   ghost. At a full pool a ghost is released instead, the same escape hatch the single-target path
   uses; release refuses the haunting ghost, so it is left following rather than destroyed with power
   still in it. Absorbing fewer ghosts than expected is not an error.
-- **Scatter mode, right-click air** spends 10 spiritual power on a forward fan of butterfly danmaku:
-  21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
-  0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
-  across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
-  Every butterfly trails petals, pink for the pink item and purple for the blue.
-  The mode is refused, with a message, when the pool holds less than 10.
+- **Scatter mode, right-click air** spends 10 spiritual power to cast a butterfly storm: 100
+  butterflies per tick for 20 ticks, alternating pink and blue. Every butterfly is summoned at the
+  caster's centre and given a `PolarMover` centred there whose radius grows, so it spirals away
+  from the caster while still curving around them. Every butterfly trails petals, pink for the pink
+  item and purple for the blue. The mode is refused, with a message, when the pool holds less than 10.
 - **Haunt mode, right-click air** spends 1000 spiritual power to send a haunting ghost at the entity
   under the crosshair. Targeting reuses the shared glove trace (`YuyukoFanItem` implements
   `GloveTargeting`): 64 blocks, no block veto, the same accepted targets as the dagger glove's
@@ -151,8 +150,8 @@ The variant wears `textures/geo/ghost/dual_ghost.png`; `GhostVariant.texture` re
 
 ### 4.2 Haunting effect
 
-Only the fan's own butterflies carry the `haunting` flag (`ScatterFanHandler` is the only place that
-sets it). When such a butterfly hits a living target it inflicts `haunting` for 3600 ticks and
+Only the fan's own butterflies carry the `haunting` flag (`YuyukoScatterItemSpell` is the only place
+that sets it). When such a butterfly hits a living target it inflicts `haunting` for 3600 ticks and
 remembers the fan's holder as the effect's owner. Every later hit on that target makes
 `HauntingEffect` spawn six butterflies owned by the remembered holder: one three-butterfly circle
 in each of the ghost's two tilted planes, one block in radius, each circling for a 20-tick round
@@ -183,15 +182,48 @@ already full or the player has no level to give, and the deduction runs through
 `giveExperiencePoints` so the XP change event still sees it. When the stack fills before the whole
 offer is stored, the XP for the overflow is given back, so only the stored power is paid for.
 
-## 7. Undead kills
+## 7. Restoring power across the inventory
 
-`GhostEventHandlers.onUndeadExperienceDrop` listens to `LivingExperienceDropEvent`. When the dead
-entity is in the `minecraft:undead` entity type tag and the last attacker is a player, the dropped
-experience is handed to `SpiritualPower.addToHeld` as spiritual power; the experience orbs still
-drop. The helper splits the amount across the spiritual items in the killer's hands
-(`Player.getHandSlots`).
+`SpiritualPower.restore(player, power)` is the single entry point for every source that feeds a pool,
+and it returns how much was actually stored. It serves the carrier stacks in a fixed priority order,
+then spreads the amount evenly over all of them:
 
-## 8. Debug readout
+1. main hand, 2. off hand, 3. the four armour slots, 4. the hotbar and the rest of
+`player.getInventory().items` in slot order.
+
+A stack qualifies only when its `spiritual_power_max` is positive and it still has room. The same
+stack is collected once even if it is reachable through two of those lists, and stacks that are full
+or have no capacity are skipped, so they neither receive power nor dilute the share.
+
+Each carrier gets `power / n` first. Whatever is left over (the division remainder plus capacity the
+uniform share could not use) is topped up in priority order, so the main hand soaks the remainder.
+When `power < n` the uniform share would round to zero: the first carrier in priority order always
+receives one point, and the remaining points go to a random subset of the other carriers, walking the
+list until the amount is spent. That keeps one point per carrier from being wasted on items the
+player never looks at, and keeps the primary stack ahead.
+
+Two sources call it:
+
+- **Undead kills.** `GhostEventHandlers.onUndeadExperienceDrop` listens to
+  `LivingExperienceDropEvent`. When the dead entity is in the `minecraft:undead` entity type tag and
+  the last attacker is a player, the dropped experience is handed to `restore`; the experience orbs
+  still drop.
+- **The spiritual effect**, below.
+
+## 8. Spiritual effect and ghost dango
+
+`SpiritualEffect` is a plain beneficial `EmptyEffect` (`0x7FDCD0`) whose tick runs every 20th tick of
+the effect (`duration % 20 == 0`) and calls `SpiritualPower.restore(player, 10 << amplifier)`. Level
+II, amplify 1, is therefore 20 power per second: a fan at 10000 takes about eight minutes of effect
+to fill from empty, and the 1200-tick (one minute) duration restores 1200 power.
+
+`ghost_dango` is the item that grants it. It is a food gift (nutrition 3, saturation 0.3) that
+applies `Spiritual II` for 1200 ticks with certainty, and carries `GiftItemData(10, 1000,
+GiftType.FOOD)`. Yuyuko hands it out on the 1000–2000 appeal rung, below the fan. Because the effect
+feeds the whole inventory, the dango is worth eating with any spiritual item held or worn, not only
+the fan in hand.
+
+## 9. Debug readout
 
 The debug wand's ghost click and the debug glasses' look-at overlay share `GhostDebugInfo`, which
 prints `Wild/Tamed <variant>: <power> / 1000 power`. Both read the synced accessors directly, so the

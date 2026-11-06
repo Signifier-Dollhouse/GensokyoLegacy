@@ -88,6 +88,7 @@ public class AnchorBulletEntity extends ItemBulletEntity {
 	@Override
 	protected void onHitBlock(BlockHitResult result) {
 		if (level().isClientSide) return;
+		AnchorStorm.smash(level(), result.getBlockPos());
 		AnchorStorm.impact(this, getOwner());
 		markErased(false);
 	}
@@ -95,6 +96,7 @@ public class AnchorBulletEntity extends ItemBulletEntity {
 	@Override
 	public void onHitEntity(EntityHitResult result) {
 		if (level().isClientSide) return;
+		AnchorStorm.smashAt(level(), result.getEntity().position());
 		AnchorStorm.impact(this, getOwner());
 		markErased(false);
 	}

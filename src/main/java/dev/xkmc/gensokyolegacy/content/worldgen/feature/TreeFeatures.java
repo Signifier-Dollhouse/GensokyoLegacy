@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateReplaceProcessor;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestFeatures;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Holder;
@@ -108,9 +108,9 @@ public class TreeFeatures {
 		// young tree only (4-6 tall): saplings grow the hand-built template trees instead
 		BLUE_FIR("blue_fir_tree", () -> GLNaturalBlocks.BLUE_FUR_SET,
 				new TreeShape.Spruce(4, 2, 0, UniformInt.of(1, 2), UniformInt.of(0, 1), UniformInt.of(1, 2)),
-				MagicalForestFeatures.BLUE_FIR_MEDIUM,
-				MagicalForestFeatures.BLUE_FIR_LARGE,
-				MagicalForestFeatures.BLUE_FIR_GIANT),
+				MagicalForestBiomeGen.BLUE_FIR_MEDIUM,
+				MagicalForestBiomeGen.BLUE_FIR_LARGE,
+				MagicalForestBiomeGen.BLUE_FIR_GIANT),
 		// the maple and locust use templates; the cherry grows like minecraft:cherry
 		ORANGE_MAPLE("orange_maple_tree", () -> GLNaturalBlocks.ORANGE_MAPLE_SET,
 				TreeShape.maple(() -> GLNaturalBlocks.ORANGE_MAPLE_SET,

@@ -37,6 +37,17 @@ public class GLRecipeGen {
 		furniture(pvd);
 		hexbrew(pvd);
 		fairyStuff(pvd);
+		myouren(pvd);
+
+		// a coin stack is eight coins, packed and unpacked as a shapeless pile rather than a 3×3 block
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.COIN_STACK.get())::unlockedBy,
+				GLItems.COIN.get())
+				.requires(GLItems.COIN.get(), 8)
+				.save(pvd);
+		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.COIN.get(), 8)::unlockedBy,
+				GLItems.COIN_STACK.get())
+				.requires(GLItems.COIN_STACK.get())
+				.save(pvd);
 
 		unlock(pvd, ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, GLItems.INVITATION_LETTER.get(), 4)::unlockedBy, Items.PAPER)
 				.requires(Items.PAPER).requires(Items.POPPY).save(pvd);
@@ -297,12 +308,6 @@ public class GLRecipeGen {
 		return func.apply("has_" + pvd.safeName(item), DataIngredient.items(item).getCriterion(pvd));
 	}
 
-	/**
-	 * Invented survival recipes for decorative / furniture blocks. Per-wood pieces are cut on the stonecutter from
-	 * their own planks, so the output matches the input wood and crafting-grid collisions with other mods are
-	 * impossible. Fuel values follow ingredient burn time: a plank (300) cutting into N pieces splits the value (walls
-	 * 1 plank -> 2 = 150).
-	 */
 	private static void furniture(RegistrateRecipeProvider pvd) {
 		for (var e : GLDecoBlocks.WoodType.values()) {
 			var plank = DataIngredient.items(e.plank);
@@ -410,6 +415,35 @@ public class GLRecipeGen {
 				GLDecoBlocks.WROUGHT_IRON_BARS.get().asItem())
 				.pattern("CCC").pattern(" W ")
 				.define('W', GLDecoBlocks.WROUGHT_IRON_BARS.get()).define('C', Items.CANDLE).save(pvd);
+	}
+
+	private static void myouren(RegistrateRecipeProvider pvd) {
+		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.WASTELAND_GRAVESTONE_SMALL)::unlockedBy, Items.STONE)
+				.pattern(" A ").pattern(" A ").pattern("BCB")
+				.define('A', Items.STONE)
+				.define('B', Items.STONE_SLAB)
+				.define('C', Items.SOUL_SOIL)
+				.save(pvd);
+
+		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.JIZO)::unlockedBy, Items.STONE)
+				.pattern("A").pattern("B").pattern("C")
+				.define('A', Items.CHISELED_STONE_BRICKS)
+				.define('B', GLDecoBlocks.MYOUREN_BRICK_SET.block.get())
+				.define('C', Items.POLISHED_DEEPSLATE_SLAB)
+				.save(pvd);
+
+		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.JIZO_STRAW_HAT)::unlockedBy, Items.STONE)
+				.pattern("A").pattern("B")
+				.define('A', GLItems.MYSTICAL_STRAW)
+				.define('B', GLFurniture.JIZO)
+				.save(pvd);
+
+		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.JIZO_MYOUREN)::unlockedBy, Items.STONE)
+				.pattern("A").pattern("B")
+				.define('A', Items.RED_WOOL)
+				.define('B', GLFurniture.JIZO)
+				.save(pvd);
+
 	}
 
 	/**

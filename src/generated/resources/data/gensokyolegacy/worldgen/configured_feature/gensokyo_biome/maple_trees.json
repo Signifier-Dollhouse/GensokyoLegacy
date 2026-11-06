@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "default": {
+      "feature": "gensokyolegacy:yellow_maple_tree",
+      "placement": []
+    },
+    "features": [
+      {
+        "chance": 0.33333334,
+        "feature": {
+          "feature": "gensokyolegacy:red_maple_tree",
+          "placement": []
+        }
+      },
+      {
+        "chance": 0.5,
+        "feature": {
+          "feature": "gensokyolegacy:orange_maple_tree",
+          "placement": []
+        }
+      }
+    ]
+  }
+}

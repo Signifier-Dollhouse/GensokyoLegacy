@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * The spawn side of a visit: once a second per structure, put every guest the
  * time table currently says should be there on site.
  *
- * @see "doc/design/character_visit.md"
+ * @see "doc/design/structure/character_visit.md"
  */
 public class VisitScheduler {
 

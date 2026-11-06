@@ -1,11 +1,12 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
 import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
-import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.trigger.FeedCharacterTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GapBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -103,9 +104,9 @@ public class GLAdvGen {
 				CriterionBuilder.or()
 						.add(PlayerTrigger.TriggerInstance.located(
 								LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
-										resolveBiome(pvd, GLBiomes.MAGICAL_FOREST),
-										resolveBiome(pvd, GLBiomes.SAKURA_FOREST),
-										resolveBiome(pvd, GLDimensionGen.BIOME_GAP)))))
+										resolveBiome(pvd, MagicalForestBiomeGen.KEY),
+										resolveBiome(pvd, SakuraForestBiomeGen.KEY),
+										resolveBiome(pvd, GapBiomeGen.KEY)))))
 						.add(fedAFairy()),
 				"Welcome to Gensokyo", "Find your way in this new world");
 		root.add((id, builder, conditions) -> builder.rewards(
@@ -119,7 +120,7 @@ public class GLAdvGen {
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "marisa_house")))),
 				"Kirisame House", "Enter Marisa's house in the Magical Forest");
-		var morichika = root.create("enter_morichika_shop", Items.EMERALD,
+		var morichika = root.create("enter_morichika_shop", GLItems.COIN.get(),
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
