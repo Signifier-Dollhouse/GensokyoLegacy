@@ -96,12 +96,11 @@ power so it can be read without opening the tooltip.
   ghost. At a full pool a ghost is released instead, the same escape hatch the single-target path
   uses; release refuses the haunting ghost, so it is left following rather than destroyed with power
   still in it. Absorbing fewer ghosts than expected is not an error.
-- **Scatter mode, right-click air** spends 10 spiritual power on a forward fan of butterfly danmaku:
-  21 rays three degrees apart, five danmaku per ray. Odd (1-based) rays use the pink item at
-  0.6–1.0 distance, even rays the blue item at 0.55–0.95. Within a ray the five are spaced evenly
-  across that range, and each moves at the distance it spawned at, so the outermost is the fastest.
-  Every butterfly trails petals, pink for the pink item and purple for the blue.
-  The mode is refused, with a message, when the pool holds less than 10.
+- **Scatter mode, right-click air** spends 10 spiritual power to cast a butterfly storm: 100
+  butterflies per tick for 20 ticks, alternating pink and blue. Every butterfly is summoned at the
+  caster's centre and given a `PolarMover` centred there whose radius grows, so it spirals away
+  from the caster while still curving around them. Every butterfly trails petals, pink for the pink
+  item and purple for the blue. The mode is refused, with a message, when the pool holds less than 10.
 - **Haunt mode, right-click air** spends 1000 spiritual power to send a haunting ghost at the entity
   under the crosshair. Targeting reuses the shared glove trace (`YuyukoFanItem` implements
   `GloveTargeting`): 64 blocks, no block veto, the same accepted targets as the dagger glove's
@@ -151,8 +150,8 @@ The variant wears `textures/geo/ghost/dual_ghost.png`; `GhostVariant.texture` re
 
 ### 4.2 Haunting effect
 
-Only the fan's own butterflies carry the `haunting` flag (`ScatterFanHandler` is the only place that
-sets it). When such a butterfly hits a living target it inflicts `haunting` for 3600 ticks and
+Only the fan's own butterflies carry the `haunting` flag (`YuyukoScatterItemSpell` is the only place
+that sets it). When such a butterfly hits a living target it inflicts `haunting` for 3600 ticks and
 remembers the fan's holder as the effect's owner. Every later hit on that target makes
 `HauntingEffect` spawn six butterflies owned by the remembered holder: one three-butterfly circle
 in each of the ghost's two tilted planes, one block in radius, each circling for a 20-tick round

@@ -48,6 +48,11 @@ public class CoinItem extends DanmakuItem {
 		super.spawnBullet(danmaku, player, level, event);
 	}
 
+
+	protected int cooldown() {
+		return 10;
+	}
+
 	@Override
 	public double modifyFading(double selfFading) {
 		return selfFading / 2 + 0.5;
