@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -12,14 +13,16 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The storm mode's sneak-right-click: anchors fall on every enemy that can see the player or is
+ * The storm mode's charged right click: anchors fall on every enemy that can see the player or is
  * hunting them, padded with random points around the player when there are too few targets.
  *
  * @see "doc/design/minamitsu_anchor.md"
@@ -35,6 +38,11 @@ public final class AnchorRain {
 	private static final int FILL_TRIES = 128;
 	private static final double FALL_SPEED = 1.5;
 	private static final int LIFE = 200;
+	private static final int CHARGE_PARTICLES = 20;
+	private static final double CHARGE_OUTER = 8;
+	private static final double CHARGE_INNER = 2;
+	private static final double CHARGE_SPEED = 0.8;
+	private static final float CHARGE_TURN = Mth.HALF_PI;
 
 	private AnchorRain() {
 	}
@@ -42,6 +50,25 @@ public final class AnchorRain {
 	public static void rain(ServerPlayer sp) {
 		for (BlockPos target : select(sp))
 			drop(sp, target);
+	}
+
+	/**
+	 * The storm charge's splash ring: particles appear at distance 8 on a horizontal ring and move
+	 * toward a point 90 degrees around and 2 blocks out, after the winterstorm wand's ring.
+	 */
+	public static void chargeParticles(Player player) {
+		Level level = player.level();
+		RandomSource rand = level.getRandom();
+		for (int i = 0; i < 20; i++) {
+			Vec3 center = player.position().add(0, 1 + 2 * rand.nextDouble(), 0);
+			float angle = rand.nextFloat() * Mth.TWO_PI;
+			Vec3 dir = new Vec3(1, 0, 0).yRot(angle);
+			Vec3 from = center.add(dir.scale(6));
+			Vec3 to = center.add(dir.yRot(Mth.HALF_PI).scale(0.5));
+			Vec3 vel = to.subtract(from).normalize().scale(0.7);
+			level.addAlwaysVisibleParticle(ParticleTypes.SPLASH,
+					from.x, from.y, from.z, vel.x, vel.y, vel.z);
+		}
 	}
 
 	/**

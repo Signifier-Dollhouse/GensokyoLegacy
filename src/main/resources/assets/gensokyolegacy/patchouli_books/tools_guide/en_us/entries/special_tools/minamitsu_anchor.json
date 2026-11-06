@@ -16,7 +16,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Storm$()$(br)Left click throws one unbound anchor that deals area damage on impact. Right click is a charge: hold it for one second, then release to throw five unbound anchors in a fan, each reaching 48 blocks. Sneak and right-click instead calls down a rain of anchors on every enemy that can see you or is hunting you within 32 blocks. The throws cost 5, 10 and 20 spiritual power.$(br2)$(bold)Storm danmaku$()$(br)A storm anchor always takes the water-anchor form: it sheds a falling danmaku every tick along its flight and bursts into a spray of danmaku when it lands."
+      "text": "$(bold)Storm$()$(br)Left click throws one unbound anchor that deals area damage on impact, at 5 spiritual power. Right click is a charge: hold it for one second while a ring of water spirals in, then the anchor releases itself and calls down a rain of anchors on every enemy that can see you or is hunting you within 32 blocks, at 20 spiritual power.$(br2)$(bold)Storm danmaku$()$(br)A storm anchor always takes the water-anchor form: it sheds a falling danmaku every tick along its flight and bursts into a spray of danmaku when it lands."
     },
     {
       "type": "patchouli:text",

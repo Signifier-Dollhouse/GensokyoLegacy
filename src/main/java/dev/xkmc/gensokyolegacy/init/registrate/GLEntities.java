@@ -299,7 +299,7 @@ public class GLEntities {
 					.renderer(() -> AnchorHookRenderer::new)
 					.register();
 
-			// only the unbound volley stays a danmaku, so it keeps the fully predicted movement
+			// only the unbound anchors stay danmaku, so they keep the fully predicted movement
 			ANCHOR_BULLET = GensokyoLegacy.REGISTRATE
 					.<AnchorBulletEntity>entity("minamitsu_anchor_unbound", AnchorBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1 << 16))

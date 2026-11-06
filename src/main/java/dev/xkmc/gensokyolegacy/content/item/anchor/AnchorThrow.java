@@ -12,7 +12,6 @@ public enum AnchorThrow {
 	GRAB(16, 0),
 	PULL(16, 0),
 	STORM(48, 5),
-	STORM_VOLLEY(48, 10),
 	STORM_RAIN(32, 20);
 
 	private final double reach;
@@ -38,12 +37,12 @@ public enum AnchorThrow {
 	}
 
 	public boolean isStorm() {
-		return this == STORM || this == STORM_VOLLEY;
+		return this == STORM;
 	}
 
 	/**
-	 * The sneak-right-click rain: anchors are dropped over nearby enemies instead of thrown from
-	 * the hand, so it has no flight of its own.
+	 * The charged right click's rain: anchors are dropped over nearby enemies instead of thrown
+	 * from the hand, so it has no flight of its own.
 	 */
 	public boolean isRain() {
 		return this == STORM_RAIN;

@@ -1,5 +1,6 @@
 {
+  "parent": "gensokyolegacy:custom/furniture/bed_foot",
   "textures": {
-    "particle": "gensokyolegacy:block/bed/minamitsu_bed"
+    "all": "gensokyolegacy:block/bed/minamitsu_bed"
   }
 }
