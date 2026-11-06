@@ -4,7 +4,7 @@
 		"——肢体动画——": {
 			"loop": true
 		},
-		"走路": {
+		"walk": {
 			"loop": true,
 			"animation_length": 0.75,
 			"bones": {
@@ -659,7 +659,7 @@
 				}
 			}
 		},
-		"跑步": {
+		"run": {
 			"loop": true,
 			"animation_length": 0.6667,
 			"bones": {
@@ -1068,7 +1068,7 @@
 				}
 			}
 		},
-		"待机": {
+		"idle": {
 			"loop": true,
 			"animation_length": 2.75,
 			"bones": {
@@ -1291,7 +1291,7 @@
 				}
 			}
 		},
-		"眨眼": {
+		"wink": {
 			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
@@ -1335,7 +1335,7 @@
 				}
 			}
 		},
-		"使用主手物品": {
+		"swing": {
 			"animation_length": 0.3056,
 			"bones": {
 				"UpBody": {
@@ -1424,7 +1424,7 @@
 				}
 			}
 		},
-		"闲置动画": {
+		"idle_animation": {
 			"animation_length": 2.3438,
 			"bones": {
 				"UpperBody": {
@@ -1881,7 +1881,7 @@
 				}
 			}
 		},
-		"拿取物品": {
+		"get": {
 			"animation_length": 0.75,
 			"bones": {
 				"UpBody": {
@@ -1946,7 +1946,7 @@
 				}
 			}
 		},
-		"坐下": {
+		"sit": {
 			"loop": true,
 			"animation_length": 2.5,
 			"bones": {
@@ -2532,7 +2532,7 @@
 				}
 			}
 		},
-		"睡觉": {
+		"sleep": {
 			"loop": true,
 			"animation_length": 0.5,
 			"bones": {
@@ -2590,7 +2590,7 @@
 				}
 			}
 		},
-		"吃": {
+		"eat": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -2826,7 +2826,7 @@
 				}
 			}
 		},
-		"喝": {
+		"drink": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -3002,7 +3002,7 @@
 				}
 			}
 		},
-		"受伤": {
+		"hurt": {
 			"animation_length": 0.5,
 			"bones": {
 				"Root": {
@@ -3260,7 +3260,7 @@
 				}
 			}
 		},
-		"当玩家拿武器时": {
+		"weapon(to player)": {
 			"animation_length": 2.125,
 			"bones": {
 				"Root": {
@@ -3796,7 +3796,7 @@
 		"——交流动画——": {
 			"loop": true
 		},
-		"交流_01": {
+		"talk_01": {
 			"animation_length": 1.8333,
 			"bones": {
 				"UpBody": {
@@ -4036,7 +4036,7 @@
 				}
 			}
 		},
-		"交流_02": {
+		"talk_02": {
 			"animation_length": 1.875,
 			"bones": {
 				"UpBody": {
@@ -4216,7 +4216,7 @@
 				}
 			}
 		},
-		"交流_03": {
+		"talk_03": {
 			"animation_length": 1.75,
 			"bones": {
 				"UpBody": {
@@ -4371,7 +4371,7 @@
 				}
 			}
 		},
-		"交流_04": {
+		"talk_04": {
 			"animation_length": 1.75,
 			"bones": {
 				"UpBody": {
@@ -4593,7 +4593,7 @@
 				}
 			}
 		},
-		"交流_05": {
+		"talk_05": {
 			"animation_length": 1.75,
 			"bones": {
 				"UpBody": {
@@ -4767,7 +4767,7 @@
 				}
 			}
 		},
-		"思考中_01": {
+		"think_01": {
 			"animation_length": 1.6667,
 			"bones": {
 				"UpBody": {
@@ -4923,7 +4923,7 @@
 				}
 			}
 		},
-		"思考中_02": {
+		"think_02": {
 			"animation_length": 1.6667,
 			"bones": {
 				"UpBody": {
@@ -5203,7 +5203,7 @@
 				}
 			}
 		},
-		"疑惑": {
+		"puzzle": {
 			"animation_length": 1.5,
 			"bones": {
 				"LeftArm": {
@@ -5838,7 +5838,7 @@
 				}
 			}
 		},
-		"拒绝": {
+		"refuse": {
 			"animation_length": 1.25,
 			"bones": {
 				"UpBody": {
@@ -6061,7 +6061,7 @@
 				}
 			}
 		},
-		"肯定": {
+		"agree": {
 			"animation_length": 1.5,
 			"bones": {
 				"UpBody": {
@@ -6252,7 +6252,7 @@
 				}
 			}
 		},
-		"招呼": {
+		"hello": {
 			"animation_length": 1.125,
 			"bones": {
 				"UpBody": {
@@ -6537,7 +6537,7 @@
 				}
 			}
 		},
-		"喜欢": {
+		"love": {
 			"animation_length": 1.9444,
 			"bones": {
 				"UpperBody": {
@@ -7248,7 +7248,7 @@
 				}
 			}
 		},
-		"讨厌": {
+		"hate": {
 			"animation_length": 1.75,
 			"bones": {
 				"UpperBody": {

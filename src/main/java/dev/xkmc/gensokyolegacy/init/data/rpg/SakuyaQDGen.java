@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.init.data.rpg;
 
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.DialogStarter;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
@@ -11,8 +10,10 @@ import net.minecraft.world.item.Items;
 
 import java.util.List;
 
-/** Izayoi Sakuya: no structure of her own, so all of it is visit content gated on {@code visitingAt}
- *  (Kourindou, her only host). No quests: a guest can never hand out new work, so one would be dead content. */
+/**
+ * Izayoi Sakuya: no structure of her own, so all of it is visit content gated on {@code visitingAt}
+ * (Kourindou, her only host). No quests: a guest can never hand out new work, so one would be dead content.
+ */
 public class SakuyaQDGen extends QuestDialogData {
 
 	public SakuyaQDGen() {

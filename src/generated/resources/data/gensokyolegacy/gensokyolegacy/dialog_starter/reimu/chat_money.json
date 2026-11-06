@@ -9,7 +9,20 @@
       "reputation": 100
     }
   ],
-  "dialog": "gensokyolegacy:reimu/chat_money/talk",
+  "dialog": {
+    "animations": [
+      "dialog_decline"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/reimu/chat_money/option/bye"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/chat_money/dialog/reimu/chat_money/talk"
+  },
   "text": "gensokyolegacy/reimu/chat_money/starter/start",
   "weight": 30
 }

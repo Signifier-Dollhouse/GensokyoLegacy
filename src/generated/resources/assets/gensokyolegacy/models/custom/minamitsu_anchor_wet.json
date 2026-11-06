@@ -1,0 +1,6 @@
+{
+  "parent": "gensokyolegacy:custom/anchor",
+  "textures": {
+    "all": "gensokyolegacy:item/anchor/water_anchor"
+  }
+}

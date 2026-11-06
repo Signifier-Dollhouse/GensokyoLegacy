@@ -11,9 +11,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-/** Suicide attack: go stray (cut from pairing, no leash), dive and explode — entities only, terrain never breaks. The
+/**
+ * Suicide attack: go stray (cut from pairing, no leash), dive and explode — entities only, terrain never breaks. The
  * TNT is consumed, then the doll is killed outright so the stray death drop returns the item form. An aborted dive
- * rejoins the ledger instead, so the order costs the player nothing (control.md §5.4). */
+ * rejoins the ledger instead, so the order costs the player nothing (control.md §5.4).
+ */
 public class DollSuicideBehavior extends DollBehavior {
 
 	private static final double BLAST_RANGE = 2.0;

@@ -49,7 +49,7 @@ public class EntityPreviewRenderer {
 	public static void renderEntityInInventory(GuiGraphics g, float x, float y, float scale, Vector3f translate,
 											   Quaternionf pose, @Nullable Quaternionf cameraOrientation, LivingEntity entity) {
 		g.pose().pushPose();
-		g.pose().translate((double) x, (double) y, 50.0);
+		g.pose().translate(x, y, 50.0);
 		g.pose().scale(scale, scale, -scale);
 		g.pose().translate(translate.x, translate.y, translate.z);
 		g.pose().mulPose(pose);

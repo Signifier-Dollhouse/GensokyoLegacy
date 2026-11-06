@@ -4,7 +4,7 @@
 		"——肢体动画——": {
 			"loop": true
 		},
-		"待机": {
+		"idle": {
 			"loop": true,
 			"animation_length": 1.75,
 			"bones": {
@@ -344,7 +344,7 @@
 				}
 			}
 		},
-		"眨眼": {
+		"wink": {
 			"loop": true,
 			"animation_length": 1.5,
 			"bones": {
@@ -388,7 +388,7 @@
 				}
 			}
 		},
-		"漂浮": {
+		"fly": {
 			"loop": true,
 			"animation_length": 1.375,
 			"bones": {
@@ -841,7 +841,7 @@
 				}
 			}
 		},
-		"使用主手物品": {
+		"swing": {
 			"animation_length": 0.3056,
 			"bones": {
 				"UpBody": {
@@ -930,7 +930,7 @@
 				}
 			}
 		},
-		"拿取物品": {
+		"get": {
 			"loop": true,
 			"bones": {
 				"RightArm": {
@@ -941,7 +941,7 @@
 				}
 			}
 		},
-		"坐下": {
+		"sit": {
 			"loop": true,
 			"animation_length": 2.5,
 			"bones": {
@@ -1538,7 +1538,7 @@
 				}
 			}
 		},
-		"吃": {
+		"eat": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -1860,7 +1860,7 @@
 				}
 			}
 		},
-		"喝": {
+		"drink": {
 			"animation_length": 2.25,
 			"bones": {
 				"UpBody": {
@@ -2036,7 +2036,7 @@
 				}
 			}
 		},
-		"跳舞": {
+		"dance": {
 			"loop": true,
 			"animation_length": 1.9167,
 			"bones": {
@@ -2691,7 +2691,7 @@
 				}
 			}
 		},
-		"哭泣_待机": {
+		"cry_idle": {
 			"loop": true,
 			"animation_length": 1.4583,
 			"bones": {
@@ -3023,7 +3023,7 @@
 				}
 			}
 		},
-		"哭泣_漂浮": {
+		"cry_fly": {
 			"loop": true,
 			"animation_length": 1.1458,
 			"bones": {

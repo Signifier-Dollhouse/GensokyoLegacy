@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 /**
  * Rally, the glove's one toggle: with none summoned it materializes everything parked plus every doll
  * item; otherwise it recalls, itemizing summoned dolls and strays in {@link DollAttachment#STRAY_RECALL_RANGE}.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public class SummonMode extends DollGloveHandler {

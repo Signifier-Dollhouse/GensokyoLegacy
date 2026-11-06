@@ -27,8 +27,23 @@
 		"sparkling": "星星附着",
 		"sparkling.desc": "受到攻击时散发星星",
 		"sparkling.description": "受到攻击时散发星星",
+		"haunting": "幽蝶缠身",
+		"haunting.desc": "受到攻击时散发幽蝶",
+		"haunting.description": "受到攻击时散发幽蝶",
 		"shield": "护盾",
 		"shield.desc": "获得1点吸收值",
-		"shield.description": "获得1点吸收值"
+		"shield.description": "获得1点吸收值",
+		"lively": "活泼",
+		"lively.desc": "每级使物品冷却速度提升20%",
+		"lively.description": "每级使物品冷却速度提升20%",
+		"foodie": "美食家",
+		"foodie.desc": "饥饿值高于16时，每秒将1点饥饿值转化为1点饱和度。进食速度翻倍。",
+		"foodie.description": "饥饿值高于16时，每秒将1点饥饿值转化为1点饱和度。进食速度翻倍。",
+		"drowning": "溺水",
+		"drowning.desc": "受伤时每级额外受到20%的溺水伤害。处于任意流体中时持续下沉。",
+		"drowning.description": "受伤时每级额外受到20%的溺水伤害。处于任意流体中时持续下沉。",
+		"stun": "眩晕",
+		"stun.desc": "无法攻击、跳跃或使用物品，移动速度降低。",
+		"stun.description": "无法攻击、跳跃或使用物品，移动速度降低。"
 	}
 }

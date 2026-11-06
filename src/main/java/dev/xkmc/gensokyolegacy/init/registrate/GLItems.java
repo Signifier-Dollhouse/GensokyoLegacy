@@ -2,39 +2,48 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.xkmc.danmakuapi.content.item.DanmakuItem;
 import dev.xkmc.danmakuapi.content.item.SpellItem;
 import dev.xkmc.danmakuapi.init.data.DanmakuTagGen;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollInventory;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
-import dev.xkmc.gensokyolegacy.content.client.model.*;
+import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
+import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.gensokyolegacy.content.item.hakkero.*;
-import dev.xkmc.gensokyolegacy.content.item.tool.BroomItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
-import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
-import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
-import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
-import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
-import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.MiniShieldItem;
-import dev.xkmc.gensokyolegacy.content.item.doll.SekibankiHeadItem;
-import dev.xkmc.gensokyolegacy.content.item.gift.*;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
-import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
-import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
-import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.InvitationLetterItem;
-import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorModel;
+import dev.xkmc.gensokyolegacy.content.item.anchor.DropletDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
+import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
+import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
+import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
+import dev.xkmc.gensokyolegacy.content.item.doll.*;
+import dev.xkmc.gensokyolegacy.content.item.ghost.*;
+import dev.xkmc.gensokyolegacy.content.item.gift.*;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroData;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMode;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototype;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
+import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
@@ -51,21 +60,24 @@ import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
 import dev.xkmc.l2core.init.reg.simple.DCReg;
 import dev.xkmc.l2core.init.reg.simple.DCVal;
 import dev.xkmc.l2core.init.reg.simple.EnumCodec;
+import dev.xkmc.l2core.util.DCStack;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Unit;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -81,6 +93,10 @@ public class GLItems {
 	public static final ItemEntry<FairyDustItem> FAIRY_DUST;
 	public static final ItemEntry<FrozenFrogItem> FROZEN_FROG_COLD, FROZEN_FROG_WARM, FROZEN_FROG_TEMPERATE;
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
+
+	public static final ItemEntry<CoinItem> COIN;
+	public static final ItemEntry<Item> COIN_STACK;
+	public static final int COIN_STACK_VALUE = 8;
 
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
 
@@ -100,13 +116,19 @@ public class GLItems {
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
+	public static final ItemEntry<AnchorItem> MINAMITSU_ANCHOR;
+	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
+	public static final ItemEntry<DropletDanmakuItem> DROPLET;
+	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
+	public static final ItemEntry<UfoItem> UFO;
+
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
 	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
 	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO;
-	public static final ItemEntry<Item> FANCY_FAN;
+	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
@@ -120,8 +142,14 @@ public class GLItems {
 
 	public static final ItemEntry<DollItem> DOLL;
 
-			/** The Sekibanki head gadget: a doll item that summons its own kind and carries nothing. */
+	/**
+	 * The Sekibanki head gadget: a doll item that summons its own kind and carries nothing.
+	 */
 	public static final ItemEntry<SekibankiHeadItem> SEKIBANKI_HEAD;
+
+	public static final ItemEntry<BoneFluteItem> BONE_FLUTE;
+
+	public static final ItemEntry<YuyukoFanItem> YUYUKO_FAN;
 
 	public static final ItemEntry<DollGloveItem> DOLL_GLOVE;
 
@@ -130,6 +158,7 @@ public class GLItems {
 	public static final ItemEntry<MiniShieldItem> MINI_SHIELD;
 
 	public static final ItemEntry<StarDanmakuItem> STAR;
+	public static final ItemEntry<ButterflyDanmakuItem> PINK_BUTTERFLY, BLUE_BUTTERFLY;
 	public static final ItemEntry<StarWandItem> STAR_WAND;
 	public static final ItemEntry<StrangeGlassesItem> STRANGE_GLASSES;
 	public static final ItemEntry<IceWingsItem> ICE_WINGS;
@@ -147,10 +176,11 @@ public class GLItems {
 	public static final DCVal<PortalSide> DC_PORTAL_SIDE = DC.enumVal("portal_side", EnumCodec.of(PortalSide.class, PortalSide.values()));
 	public static final DCVal<UUID> DC_DEBUG_YOUKAI = DC.uuid("debug_youkai");
 	public static final DCVal<ResourceLocation> DC_OFFER = DC.loc("offer");
+	// presence marker on client-side display stacks: draw the wheel icon range instead of the held model
+	public static final DCVal<Unit> ICON = DC.unit("icon");
 	public static final DCVal<BorderUmbrellaSlots> UMBRELLA_SLOTS = DC.reg("border_umbrella_slots", BorderUmbrellaSlots.class, false);
 	public static final DCVal<Integer> UMBRELLA_SLOT_SELECTED = DC.intVal("border_umbrella_slot_selected");
 	public static final DCVal<BorderUmbrellaMode> UMBRELLA_TYPE = DC.enumVal("border_umbrella_type", EnumCodec.of(BorderUmbrellaMode.class, BorderUmbrellaMode.values()));
-	public static final DCVal<Unit> UMBRELLA_ICON = DC.unit("border_umbrella_icon");
 	public static final DCVal<BorderUmbrellaUnlock> UMBRELLA_UNLOCK = DC.reg("border_umbrella_unlock", BorderUmbrellaUnlock.class, false);
 	public static final DCVal<BorderUmbrellaTravelData> UMBRELLA_TRAVEL = DC.reg("border_umbrella_travel", BorderUmbrellaTravelData.class, false);
 	public static final DCVal<Integer> UMBRELLA_DISTANCE = DC.intVal("border_umbrella_distance");
@@ -158,10 +188,18 @@ public class GLItems {
 	public static final DCVal<DollInventory> DOLL_LOADOUT = DC.reg("doll_loadout", DollInventory.class, false);
 	public static final DCVal<DyeColor> DOLL_COLOR = DC.enumVal("doll_color", EnumCodec.of(DyeColor.class, DyeColor.values()));
 	public static final DCVal<Integer> DOLL_GLOVE_MODE = DC.intVal("doll_glove_mode");
-	public static final DCVal<Unit> DOLL_GLOVE_ICON = DC.unit("doll_glove_icon");
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
-	public static final DCVal<Unit> DAGGER_GLOVE_ICON = DC.unit("dagger_glove_icon");
+	public static final DCVal<Integer> SPIRITUAL_POWER = DC.intVal("spiritual_power");
+	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
+	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
+			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
+	public static final DCVal<AnchorMode> ANCHOR_MODE =
+			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
+	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
+	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
+	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
+			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 
 
 	static {
@@ -173,6 +211,18 @@ public class GLItems {
 			STAR = reg.item("star_danmaku", p -> new StarDanmakuItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/hexbrew/star")))
 					.tag(DanmakuItems.Bullet.STAR.tag)
+					.register();
+
+			PINK_BUTTERFLY = reg.item("pink_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.PINK, GensokyoLegacy.loc("textures/item/danmaku/pink_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
+					.register();
+
+			BLUE_BUTTERFLY = reg.item("blue_butterfly_danmaku", p -> new ButterflyDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.BLUE, GensokyoLegacy.loc("textures/item/danmaku/blue_butterfly_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.BUTTERFLY.tag)
 					.register();
 
 			// spell cards
@@ -253,7 +303,19 @@ public class GLItems {
 		GLNaturalBlocks.register();
 
 		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
-				e -> e.icon(GLItems.MYSTICAL_STRAW::asStack));
+				e -> e.icon(GLItems.DOLL_GLOVE::asStack));
+
+		// currency
+		{
+			COIN = reg.item("coin", CoinItem::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.tag(DanmakuItems.Bullet.CIRCLE.tag)
+					.lang("Coin").register();
+			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
+			COIN_STACK = reg.item("coin_stack", Item::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
+					.lang("Coin Stack").register();
+		}
 
 		// ingredients
 		{
@@ -389,9 +451,9 @@ public class GLItems {
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
 					.lang("Kappa Bento").register();
 
-			// a fan is for looking at, and the gift is the point
-			FANCY_FAN = reg.item("fancy_fan", Item::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+			// a fan is for looking at, and for blowing
+			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
+					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
@@ -492,6 +554,30 @@ public class GLItems {
 					.tab(TAB.key())
 					.register();
 
+			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Bone Flute")
+					.tab(TAB.key())
+					.register();
+
+			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> {
+						var base = pvd.handheld(ctx, pvd.modLoc("item/yuyuko_fan/" + ctx.getName()));
+						// icon variants for the wheel/selector display stacks (cf. umbrella_display)
+						var modes = YuyukoFanMode.values();
+						for (int i = 0; i < modes.length; i++) {
+							base.override()
+									.predicate(GensokyoLegacy.loc("yuyuko_fan_display"), i + 1)
+									.model(pvd.withExistingParent("item/yuyuko_fan_icon_" + modes[i].iconName(), "item/generated")
+											.texture("layer0", pvd.modLoc("item/yuyuko_fan/" + modes[i].iconName() + "_icon")))
+									.end();
+						}
+					})
+					.lang("Yuyuko's Fan")
+					.tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
 					.model(DollGloveModel::model)
 					.lang("Seven-Colored Doll Glove").tab(TAB.key())
@@ -575,7 +661,15 @@ public class GLItems {
 
 			// 3D model hand-written in models/custom, so only wire up the parent here. SeparateTransformsModelBuilder
 			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
-			IRON_DAGGER = reg.item("iron_dagger", IronDaggerItem::new)
+			// The melee bonus is one below the danmaku damage so that base 1 + bonus equals the thrown hit.
+			IRON_DAGGER = reg.item("iron_dagger", p -> new IronDaggerItem(p
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+									EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
@@ -594,10 +688,90 @@ public class GLItems {
 
 			// The glove's held model carries a predicate override per mode rather than a flat layer0, so per-mode art
 			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
-			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
+			// Same melee profile as the dagger it launches: the throw copies the holder's attack damage.
+			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+									EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// A pickaxe that throws itself. TOOL gives it diamond harvesting without durability, and
+			// the durability bar is free for the spiritual pool.
+			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
+					.attributes(ItemAttributeModifiers.builder()
+							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 14.0,
+									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2,
+									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+							.build())
+					.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
+					.model(AnchorModel::model)
+					.tag(ItemTags.PICKAXES, ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE,
+							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.lang("Minamitsu's Anchor").tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE)
+					.register();
+
+			// the water twin: never held, only drawn by an unbound storm anchor, which must switch models
+			// per item because ItemModelProjectileType bakes one model per item (minamitsu_anchor.md §5.1)
+			ANCHOR_WET = reg.item("anchor_wet", p -> new DanmakuItem(p, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, 1.0F))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/minamitsu_anchor_wet")));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/anchor/anchor_voyage"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
+					.lang("Minamitsu's Anchor (Wet)").register();
+
+			// the storm's droplet: hidden like the wet anchor, fired only by AnchorStorm (minamitsu_anchor.md §6.3)
+			DROPLET = reg.item("droplet_danmaku", p -> new DropletDanmakuItem(p.rarity(Rarity.RARE),
+							DyeColor.BLUE, GensokyoLegacy.loc("textures/item/danmaku/droplet_danmaku.png")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/danmaku/" + ctx.getName())))
+					.removeTab(TAB.key())
+					.tag(GLTagGen.WEBSITE_HIDDEN)
+					.lang("Droplet Danmaku").register();
+
+			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)
+							.attributes(ItemAttributeModifiers.builder()
+									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 10.0,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.build())))
+					.model((ctx, pvd) -> {
+						var base = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
+						var guiModel = pvd.nested()
+								.parent(new ModelFile.UncheckedModelFile("item/generated"))
+								.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_icon"));
+						pvd.getBuilder(ctx.getName())
+								.customLoader(SeparateTransformsModelBuilder::begin)
+								.base(base)
+								.perspective(ItemDisplayContext.GUI, guiModel)
+								.end().guiLight(BlockModel.GuiLight.FRONT);
+					})
+					.tag(ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.lang("Nue's Trident").tab(TAB.key())
+					.register();
+
+			UFO = reg.item("ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("UFO").tab(TAB.key())
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
@@ -685,16 +859,20 @@ public class GLItems {
 				.texture("layer1", pvd.modLoc("item/doll/doll1"));
 	}
 
-	/** The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
-	 *  mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
-	 *  every effect on the last gulp. */
+	/**
+	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
+	 * mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
+	 * every effect on the last gulp.
+	 */
 	private static FoodProperties sake(MobEffectInstance... effects) {
 		return sake(false, effects);
 	}
 
-	/** The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
-	 *  but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
-	 *  would get a glass bottle per sip, and the "infinite" would read as a bottling machine. */
+	/**
+	 * The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
+	 * but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
+	 * would get a glass bottle per sip, and the "infinite" would read as a bottling machine.
+	 */
 	private static FoodProperties gourd(MobEffectInstance... effects) {
 		return sake(false, effects);
 	}

@@ -1,0 +1,15 @@
+{
+  "base": {
+    "parent": "gensokyolegacy:block/tower_grass_small"
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "gui": {
+      "parent": "gensokyolegacy:custom/nature/tower_grass_icon",
+      "textures": {
+        "plant": "gensokyolegacy:block/nature/tower_grass_small"
+      }
+    }
+  }
+}

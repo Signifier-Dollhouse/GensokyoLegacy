@@ -4,12 +4,9 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.LootDrop;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Loot-table drops behind quest rewards. Loot tables are never synced, so this is a client's only way to

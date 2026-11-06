@@ -40,11 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -75,17 +71,25 @@ public class GLDecoBlocks {
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
 
-	/** The glazed tile colors; each one gets a block plus the three shapes cut from it. */
+	/**
+	 * The glazed tile colors; each one gets a block plus the three shapes cut from it.
+	 */
 	public static final DyeColor[] TILE_COLORS = {
 			DyeColor.CYAN, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.BROWN, DyeColor.BLUE, DyeColor.BLACK, DyeColor.GRAY};
 
-	/** The tile set of every color in {@link #TILE_COLORS}, in the same order. */
+	/**
+	 * The tile set of every color in {@link #TILE_COLORS}, in the same order.
+	 */
 	public static final BrickSet[] TILE_SETS = new BrickSet[TILE_COLORS.length];
 
-	/** 冰砖:浮冰切出的冰系砖块,附带台阶、楼梯和墙 */
+	/**
+	 * 冰砖:浮冰切出的冰系砖块,附带台阶、楼梯和墙
+	 */
 	public static final BrickSet ICE_BRICK_SET;
 
-	/** 命莲寺白砖:寺墙用的白砖,附带台阶、楼梯和墙 */
+	/**
+	 * 命莲寺白砖:寺墙用的白砖,附带台阶、楼梯和墙
+	 */
 	public static final BrickSet MYOUREN_BRICK_SET;
 
 	static {
@@ -142,68 +146,68 @@ public class GLDecoBlocks {
 					.simpleItem()
 					.register();
 
-		// 纸窗方块
-		GLASS = reg.block("paper_window", Block::new)
-				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
-				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						pvd.models().cubeAll(ctx.getName(),
-								pvd.modLoc("block/deco/paper_window"))))
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
-				.register();
-
-		// 障子方块
-		SHOJI_FRAME = reg.block("shoji_frame", Block::new)
-				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
-				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-						pvd.models().cubeAll(ctx.getName(),
-								pvd.modLoc("block/deco/shoji_frame"))))
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
-				.register();
-
-		// 纸窗板
-		GLASS_PANE = reg.block("paper_window_pane", IronBarsBlock::new)
-				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
-				.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
-						pvd.modLoc("block/deco/paper_window"),
-						ResourceLocation.withDefaultNamespace("block/spruce_planks")))
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-						.texture("layer0", pvd.modLoc("block/deco/paper_window")))
-				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
-				.build()
-				.register();
-
-		// 纸门:纸面推拉门,与木制推拉门同逻辑,纸窗材质手感
-		{
-			var doorTop = GensokyoLegacy.loc("block/deco/paper_sliding_door_top");
-			var doorBottom = GensokyoLegacy.loc("block/deco/paper_sliding_door_bottom");
-			var doorSide = GensokyoLegacy.loc("block/deco/paper_sliding_door_side");
-			PAPER_SLIDING_DOOR = reg.block("paper_sliding_door", SlidingDoor::create)
-					.properties(p -> p.mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
-					.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
-					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
-					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
-					.tag(GLTagGen.SLIDING_DOOR_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
-					.build()
-					.loot(SlidingDoorJsons::genLoot)
+			// 纸窗方块
+			GLASS = reg.block("paper_window", Block::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+							pvd.models().cubeAll(ctx.getName(),
+									pvd.modLoc("block/deco/paper_window"))))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
 					.register();
-		}
 
-		// 障子框
-		SHOJI_FRAME_PANE = reg.block("shoji_frame_pane", IronBarsBlock::new)
-				.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
-				.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
-						pvd.modLoc("block/deco/shoji_frame"),
-						ResourceLocation.withDefaultNamespace("block/spruce_planks")))
-				.tag(BlockTags.MINEABLE_WITH_AXE)
-				.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-						.texture("layer0", pvd.modLoc("block/deco/shoji_frame")))
-				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
-				.build()
-				.register();
+			// 障子方块
+			SHOJI_FRAME = reg.block("shoji_frame", Block::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+							pvd.models().cubeAll(ctx.getName(),
+									pvd.modLoc("block/deco/shoji_frame"))))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
+					.register();
+
+			// 纸窗板
+			GLASS_PANE = reg.block("paper_window_pane", IronBarsBlock::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
+							pvd.modLoc("block/deco/paper_window"),
+							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/paper_window")))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
+					.build()
+					.register();
+
+			// 纸门:纸面推拉门,与木制推拉门同逻辑,纸窗材质手感
+			{
+				var doorTop = GensokyoLegacy.loc("block/deco/paper_sliding_door_top");
+				var doorBottom = GensokyoLegacy.loc("block/deco/paper_sliding_door_bottom");
+				var doorSide = GensokyoLegacy.loc("block/deco/paper_sliding_door_side");
+				PAPER_SLIDING_DOOR = reg.block("paper_sliding_door", SlidingDoor::create)
+						.properties(p -> p.mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+						.blockstate((ctx, pvd) -> SlidingDoorJsons.buildBlockState(ctx, pvd, doorTop, doorBottom, doorSide))
+						.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
+						.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
+						.tag(GLTagGen.SLIDING_DOOR_ITEM)
+						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+						.build()
+						.loot(SlidingDoorJsons::genLoot)
+						.register();
+			}
+
+			// 障子框
+			SHOJI_FRAME_PANE = reg.block("shoji_frame_pane", IronBarsBlock::new)
+					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
+							pvd.modLoc("block/deco/shoji_frame"),
+							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("block/deco/shoji_frame")))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
+					.build()
+					.register();
 		}
 
 		// wrought iron
@@ -336,14 +340,14 @@ public class GLDecoBlocks {
 							.blockstate((ctx, pvd) -> NorenJsons.buildBlockState(ctx, pvd, kind.hanging()))
 							.item().tag(kind.tag())
 							.model((ctx, pvd) -> NorenJsons.genItemModel(ctx, pvd, kind.hanging()))
-						.build()
-						.recipe((ctx, pvd) -> {
-							GLRecipeGen.cutWool(pvd, col, ctx);
-							GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+							.build()
+							.recipe((ctx, pvd) -> {
+								GLRecipeGen.cutWool(pvd, col, ctx);
+								GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
 												RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
-											.requires(kind.tag()).requires(col.getTag()).save(pvd);
-						})
-						.register();
+										.requires(kind.tag()).requires(col.getTag()).save(pvd);
+							})
+							.register();
 				}
 			}
 
@@ -489,12 +493,12 @@ public class GLDecoBlocks {
 		private boolean suppressCraft;
 
 		public BrickSet(L2Registrate reg, String id, BlockBehaviour.Properties prop,
-		                NonNullBiConsumer<DataGenContext<Block, Block>, RegistrateRecipeProvider> recipe) {
+						NonNullBiConsumer<DataGenContext<Block, Block>, RegistrateRecipeProvider> recipe) {
 			this(reg, id, prop, recipe, BlockTags.MINEABLE_WITH_PICKAXE);
 		}
 
 		public BrickSet(L2Registrate reg, String id, BlockBehaviour.Properties prop,
-		                NonNullBiConsumer<DataGenContext<Block, Block>, RegistrateRecipeProvider> recipe, TagKey<Block> tool) {
+						NonNullBiConsumer<DataGenContext<Block, Block>, RegistrateRecipeProvider> recipe, TagKey<Block> tool) {
 			this(reg, id + "_brick", prop, GensokyoLegacy.loc("block/deco/" + id + "_bricks"),
 					reg.block(id + "_bricks", p -> new Block(prop))
 							.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),

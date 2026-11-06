@@ -10,8 +10,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.YoukaiHomeBlocksSe
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.home.YoukaiCraftTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.ItemPickupTask;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.task.play.YoukaiHuntTask;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
@@ -35,7 +35,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -44,9 +46,9 @@ import java.util.Optional;
 @SerialClass
 public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
-	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("待机");
-	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("坐下");
-	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("睡觉");
+	protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+	protected static final RawAnimation SIT = RawAnimation.begin().thenLoop("sit");
+	protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("sleep");
 	/**
 	 * Her hovering loop, which is what an airborne fairy wants instead of standing.
 	 * <p>
@@ -56,23 +58,27 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * the whole walk. Point the {@code isMoving} branch below back at a {@code WALK}
 	 * constant once the clip is exported from Blockbench.
 	 */
-	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("漂浮");
-	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("使用主手物品");
-	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("招呼");
-	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("交流_01");
-	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("交流_02");
-	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("交流_03");
-	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("交流_04");
-	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("交流_05");
-	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("思考中_01");
-	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("思考中_02");
-	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("疑惑");
-	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("肯定");
-	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("拒绝");
-	/** The idle flourish the current export added as {@code 闲置动画}. */
-	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("闲置动画");
+	private static final RawAnimation FLOAT = RawAnimation.begin().thenLoop("fly");
+	private static final RawAnimation USE_MAINHAND = RawAnimation.begin().thenPlay("swing");
+	private static final RawAnimation GREET = RawAnimation.begin().thenPlay("hello");
+	private static final RawAnimation TALK_01 = RawAnimation.begin().thenPlay("talk_01");
+	private static final RawAnimation TALK_02 = RawAnimation.begin().thenPlay("talk_02");
+	private static final RawAnimation TALK_03 = RawAnimation.begin().thenPlay("talk_03");
+	private static final RawAnimation TALK_04 = RawAnimation.begin().thenPlay("talk_04");
+	private static final RawAnimation TALK_05 = RawAnimation.begin().thenPlay("talk_05");
+	private static final RawAnimation THINK = RawAnimation.begin().thenPlay("think_01");
+	private static final RawAnimation THINK_02 = RawAnimation.begin().thenPlay("think_02");
+	private static final RawAnimation CONFUSED = RawAnimation.begin().thenPlay("puzzle");
+	private static final RawAnimation AGREE = RawAnimation.begin().thenPlay("agree");
+	private static final RawAnimation DECLINE = RawAnimation.begin().thenPlay("refuse");
+	/**
+	 * The idle flourish the current export added as {@code idle_animation}.
+	 */
+	private static final RawAnimation IDLE_FIDGET = RawAnimation.begin().thenPlay("idle_animation");
 
-	/** Her own entity data, over the generic youkai/spell-data layers. */
+	/**
+	 * Her own entity data, over the generic youkai/spell-data layers.
+	 */
 	protected static final SyncedData CIRNO_DATA = new SyncedData(CirnoEntity::defineId, SPELL_DATA);
 
 	private static final EntityDataAccessor<Integer> DATA_TANNED = CIRNO_DATA.define(SyncedData.INT, 0, "tanned");
@@ -241,7 +247,7 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 			case TALK_04 -> Optional.of(TALK_04);
 			case TALK_05 -> Optional.of(TALK_05);
 			// this rig had no thinking clip until the current export, which added the
-			// 思考中 pair along with a plain 疑惑 to replace the old baffled 疑惑（baka专属）
+			// think_* pair along with a plain puzzle to replace the old baffled baka-only clip
 			case THINK -> Optional.of(THINK);
 			case THINK_02 -> Optional.of(THINK_02);
 			case CONFUSED -> Optional.of(CONFUSED);

@@ -22,19 +22,26 @@ public class GLJeiUtil {
 	public static final int ARROW = 24;
 	public static final int GAP = 4;
 	public static final int PAD = 2;
-	/** distance between two text lines */
+	/**
+	 * distance between two text lines
+	 */
 	public static final int LINE = 10;
 
 	private static final int TEXT = 0xFF404040;
-	/** a vanilla stack count is drawn white, with a shadow */
+	/**
+	 * a vanilla stack count is drawn white, with a shadow
+	 */
 	private static final int COUNT = 0xFFFFFF;
 
-	/** Where a stack count sits: {@code renderItemDecorations} is handed the slot's coordinates,
-	 * not the 16px item box's. */
+	/**
+	 * Where a stack count sits: {@code renderItemDecorations} is handed the slot's coordinates,
+	 * not the 16px item box's.
+	 */
 	private static final int COUNT_X = SLOT - 1;
 	private static final int COUNT_Y = 9;
 
-	private GLJeiUtil() {}
+	private GLJeiUtil() {
+	}
 
 	/**
 	 * Slot grid position of the {@code index}th slot of a {@code cols}-wide grid.
@@ -54,14 +61,18 @@ public class GLJeiUtil {
 		return slot;
 	}
 
-	/** A slot framed the ordinary way whatever its role: a plain row of outputs is a list of rewards,
-	 * not one product, and has no use for the frame that marks a single output. */
+	/**
+	 * A slot framed the ordinary way whatever its role: a plain row of outputs is a list of rewards,
+	 * not one product, and has no use for the frame that marks a single output.
+	 */
 	public static IRecipeSlotBuilder plainSlot(IRecipeLayoutBuilder builder, RecipeIngredientRole role, int x, int y) {
 		return builder.addSlot(role, x, y).setStandardSlotBackground();
 	}
 
-	/** One slot for an {@link IngredientEntry}: every variant, each carrying the count so the slot
-	 * shows the price. An abstract ingredient's text goes into the slot tooltip. */
+	/**
+	 * One slot for an {@link IngredientEntry}: every variant, each carrying the count so the slot
+	 * shows the price. An abstract ingredient's text goes into the slot tooltip.
+	 */
 	public static void addEntry(IRecipeLayoutBuilder builder, RecipeIngredientRole role, int x, int y, IngredientEntry entry) {
 		var slot = slot(builder, role, x, y);
 		var stacks = new ArrayList<ItemStack>();
@@ -76,8 +87,10 @@ public class GLJeiUtil {
 		return builder.addText(text, width, height).setPosition(x, y).setColor(TEXT);
 	}
 
-	/** A stack size drawn by hand where a real count would sit, for the one thing a count cannot
-	 * say: that it is a range. Width is measured, never truncated to the slot. */
+	/**
+	 * A stack size drawn by hand where a real count would sit, for the one thing a count cannot
+	 * say: that it is a range. Width is measured, never truncated to the slot.
+	 */
 	public static ITextWidget countText(IRecipeExtrasBuilder builder, Component text, int slotX, int slotY) {
 		int width = Minecraft.getInstance().font.width(text);
 		return builder.addText(text, width, SLOT)

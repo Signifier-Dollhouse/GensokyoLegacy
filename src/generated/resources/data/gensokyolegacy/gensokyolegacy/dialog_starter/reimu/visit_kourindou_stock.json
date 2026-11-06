@@ -6,7 +6,34 @@
       "structure": "gensokyolegacy:morichika_shop"
     }
   ],
-  "dialog": "gensokyolegacy:reimu/visit_kourindou/stock",
+  "dialog": {
+    "animations": [
+      "dialog_think"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_think_02"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/reimu/visit_kourindou/option/browse/end"
+            }
+          ],
+          "text": "gensokyolegacy/reimu/visit_kourindou/dialog/reimu/visit_kourindou/browse_ans"
+        },
+        "text": "gensokyolegacy/reimu/visit_kourindou/option/browse"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/visit_kourindou/dialog/reimu/visit_kourindou/stock"
+  },
   "text": "gensokyolegacy/reimu/visit_kourindou/starter/stock",
   "weight": 30
 }

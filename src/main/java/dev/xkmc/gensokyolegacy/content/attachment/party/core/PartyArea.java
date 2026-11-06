@@ -12,43 +12,47 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Everything one party occupies, found by walking out from the clicked table. The scan is
  * the unit of "a party" and runs once per send, never per tick.
  *
- * @param anchor the table block the player clicked
- * @param food   every party-food block laid out for the spread, in walk order
- * @param seats  every seat block the walk reached
- * @param tables every table block the walk reached
- * @param appeal attraction of {@link #food} counting each food once; scales {@link PartyMath#weight},
- *               otherwise unused
+ * @param anchor      the table block the player clicked
+ * @param food        every party-food block laid out for the spread, in walk order
+ * @param seats       every seat block the walk reached
+ * @param tables      every table block the walk reached
+ * @param appeal      attraction of {@link #food} counting each food once; scales {@link PartyMath#weight},
+ *                    otherwise unused
  * @param fulfillment total hunger in {@link #food}; what the planner budgets and a
  *                    guest's fulfillment is measured against. Unlike {@link #appeal}
  *                    this <b>does</b> scale with what is left on the table. select.md §2.1
  * @see "doc/design/party/area.md"
  */
 public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> seats,
-		List<BlockPos> tables, int appeal, int fulfillment) {
+						List<BlockPos> tables, int appeal, int fulfillment) {
 
-	/** How far the walk reaches around each chair or table: a 9 x 3 x 9 box, centred. */
+	/**
+	 * How far the walk reaches around each chair or table: a 9 x 3 x 9 box, centred.
+	 */
 	private static final int POKE_X = 4;
 	private static final int POKE_Y = 1;
 	private static final int POKE_Z = 4;
 
-	/** The six faces, for the walk itself. */
+	/**
+	 * The six faces, for the walk itself.
+	 */
 	private static final Direction[] FACES = Direction.values();
 
-	/** Every face but the underside, which is the separate "standing on a table" case. */
+	/**
+	 * Every face but the underside, which is the separate "standing on a table" case.
+	 */
 	private static final Direction[] TOUCHING = {
 			Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP};
 
-	/** A safety valve: the distance limit alone allows the better part of a million blocks. */
+	/**
+	 * A safety valve: the distance limit alone allows the better part of a million blocks.
+	 */
 	private static final int MAX_VISITED = 1 << 16;
 
 	/**
@@ -105,7 +109,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return new PartyArea(anchor.immutable(), food, seats, tables, appeal, fulfillment);
 	}
 
-	/** Whether a position is within the scan distance of the anchor. */
+	/**
+	 * Whether a position is within the scan distance of the anchor.
+	 */
 	private static boolean within(BlockPos anchor, BlockPos pos, long reach) {
 		long dx = pos.getX() - anchor.getX();
 		long dy = pos.getY() - anchor.getY();
@@ -139,7 +145,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return ans;
 	}
 
-	/** Every chair within {@link #GUEST_RADIUS}, unfiltered: reachability is the walk's problem, not the list's. */
+	/**
+	 * Every chair within {@link #GUEST_RADIUS}, unfiltered: reachability is the walk's problem, not the list's.
+	 */
 	public static List<BlockPos> seatsAround(Level level, BlockPos anchor) {
 		var ans = new ArrayList<BlockPos>();
 		for (var pos : box(anchor)) {
@@ -157,14 +165,18 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return state.is(GLTagGen.PARTY_SEAT) && ISeatableBlock.isSeatPos(state);
 	}
 
-	/** Every block of the guest box around the anchor, inclusive. */
+	/**
+	 * Every block of the guest box around the anchor, inclusive.
+	 */
 	private static Iterable<BlockPos> box(BlockPos anchor) {
 		return BlockPos.betweenClosed(
 				anchor.offset(-GUEST_RADIUS, -GUEST_RADIUS, -GUEST_RADIUS),
 				anchor.offset(GUEST_RADIUS, GUEST_RADIUS, GUEST_RADIUS));
 	}
 
-	/** Queue the box around one piece of furniture, for the walk to read from. */
+	/**
+	 * Queue the box around one piece of furniture, for the walk to read from.
+	 */
 	private static void poke(Deque<BlockPos> queue, BlockPos from) {
 		GensokyoLegacy.LOGGER.info("Poke " + from);
 		for (int dx = -POKE_X; dx <= POKE_X; dx++) {
@@ -223,7 +235,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return null;
 	}
 
-	/** The mean of the food positions; the chunk containing it owns the party. */
+	/**
+	 * The mean of the food positions; the chunk containing it owns the party.
+	 */
 	@Nullable
 	public static BlockPos center(List<BlockPos> food) {
 		if (food.isEmpty()) return null;
@@ -238,7 +252,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 		return new BlockPos((int) Math.floorDiv(x, n), (int) Math.floorDiv(y, n), (int) Math.floorDiv(z, n));
 	}
 
-	/** Every chunk the food touches. A party may not overlap another party's. */
+	/**
+	 * Every chunk the food touches. A party may not overlap another party's.
+	 */
 	@Nullable
 	public static ChunkPosRange touchedChunks(List<BlockPos> food) {
 		if (food.isEmpty()) return null;

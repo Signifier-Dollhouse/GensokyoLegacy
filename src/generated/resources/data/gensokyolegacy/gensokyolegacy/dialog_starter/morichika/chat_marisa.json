@@ -10,7 +10,34 @@
       "invert": true
     }
   ],
-  "dialog": "gensokyolegacy:morichika/chat_marisa/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_05"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_02"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/morichika/chat_marisa/option/bye"
+            }
+          ],
+          "text": "gensokyolegacy/morichika/chat_marisa/dialog/morichika/chat_marisa/where_ans"
+        },
+        "text": "gensokyolegacy/morichika/chat_marisa/option/where"
+      }
+    ],
+    "text": "gensokyolegacy/morichika/chat_marisa/dialog/morichika/chat_marisa/talk"
+  },
   "text": "gensokyolegacy/morichika/chat_marisa/starter/start",
   "weight": 100
 }

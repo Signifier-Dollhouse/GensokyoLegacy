@@ -75,11 +75,8 @@ public class HexBrewBottleEntity extends ThrowableItemProjectile {
 	protected boolean canHitEntity(Entity target) {
 		if (!super.canHitEntity(target)) return false;
 		Entity owner = getOwner();
-		if (owner != null && getItem().getItem() instanceof HexBrewBottleItem bottle &&
-				bottle.getHexBrew() == HexBrew.EXPLOSIVE_HEXBREW &&
-				(target.isAlliedTo(owner) || owner.isAlliedTo(target))) {
-			return false;
-		}
-		return true;
+		return owner == null || !(getItem().getItem() instanceof HexBrewBottleItem bottle) ||
+				bottle.getHexBrew() != HexBrew.EXPLOSIVE_HEXBREW ||
+				(!target.isAlliedTo(owner) && !owner.isAlliedTo(target));
 	}
 }

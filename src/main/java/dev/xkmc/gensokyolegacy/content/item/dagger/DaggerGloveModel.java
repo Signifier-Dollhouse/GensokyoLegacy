@@ -18,10 +18,14 @@ import java.util.Locale;
  */
 public class DaggerGloveModel {
 
-	/** This glove's own modelled hand, exported from Blockbench. */
+	/**
+	 * This glove's own modelled hand, exported from Blockbench.
+	 */
 	private static final ResourceLocation HAND_MODEL = GensokyoLegacy.loc("custom/dagger_glove_hand");
 
-	/** This glove's hand skins, one per mode, which is what that model's {@code #0} is overridden to. */
+	/**
+	 * This glove's hand skins, one per mode, which is what that model's {@code #0} is overridden to.
+	 */
 	private static ResourceLocation handTexture(String mode) {
 		return GensokyoLegacy.loc("item/dagger_glove/dagger_glove_hand_" + mode);
 	}
@@ -56,7 +60,7 @@ public class DaggerGloveModel {
 	 * own modelled hand in {@code mode}'s skin on all four hand displays.
 	 */
 	private static void perspectives(ItemModelBuilder builder, RegistrateItemModelProvider pvd,
-			ResourceLocation texture, String mode) {
+									 ResourceLocation texture, String mode) {
 		GloveHandModel.perspectives(builder, pvd, texture, HAND_MODEL, handTexture(mode));
 	}
 

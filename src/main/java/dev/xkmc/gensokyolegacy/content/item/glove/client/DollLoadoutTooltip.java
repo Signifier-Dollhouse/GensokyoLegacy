@@ -9,5 +9,6 @@ import net.minecraft.world.item.ItemStack;
  *
  * @see "doc/design/doll/loadout.md"
  */
-public record DollLoadoutTooltip(ItemStack main, ItemStack off, ItemStack core, ItemStack cloth) implements TooltipComponent {
+public record DollLoadoutTooltip(ItemStack main, ItemStack off, ItemStack core,
+                                 ItemStack cloth) implements TooltipComponent {
 }

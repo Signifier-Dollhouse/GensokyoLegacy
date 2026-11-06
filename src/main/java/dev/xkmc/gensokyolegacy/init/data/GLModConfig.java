@@ -38,12 +38,23 @@ public class GLModConfig {
 		public final ModConfigSpec.DoubleValue danmakuPlayerPHPDamage;
 		public final ModConfigSpec.DoubleValue danmakuHealOnHitTarget;
 
+		public final ModConfigSpec.BooleanValue anchorStormDanmaku;
+
 		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
 
+		public final ModConfigSpec.IntValue curiosDecayInterval;
+		public final ModConfigSpec.IntValue foodieDecayInterval;
+		public final ModConfigSpec.IntValue livelyDecayInterval;
+		public final ModConfigSpec.IntValue curiosSkillCost;
+		public final ModConfigSpec.IntValue hauntingSkillCost;
+
 		public final ModConfigSpec.IntValue sealingPotRadius;
+		public final ModConfigSpec.DoubleValue jizoXpRatio;
 
 		public final ModConfigSpec.IntValue partyScanDistance;
 		public final ModConfigSpec.IntValue partyGuestRadius;
+
+		public final ModConfigSpec.DoubleValue cooldownMaxRate;
 
 		Server(Builder builder) {
 			markL2();
@@ -65,6 +76,8 @@ public class GLModConfig {
 			{
 				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
 						.defineInRange("sealingPotRadius", 4, 1, 8);
+				jizoXpRatio = builder.text("Spiritual power a Jizo restores per experience point when it takes one level and the current progress; 0.1 restores 10%")
+						.defineInRange("jizoXpRatio", 2d, 0, 100);
 			}
 			builder.pop();
 
@@ -74,6 +87,13 @@ public class GLModConfig {
 						.defineInRange("partyScanDistance", 32, 4, 64);
 				partyGuestRadius = builder.text("How far a party guest may wander from the table she is eating at")
 						.defineInRange("partyGuestRadius", 24, 4, 64);
+			}
+			builder.pop();
+
+			builder.push("cooldown", "Cooldown");
+			{
+				cooldownMaxRate = builder.text("Upper bound on the cooldown speed, applied after the sources multiply")
+						.defineInRange("cooldownMaxRate", 4.0, 1.0, 16.0);
 			}
 			builder.pop();
 
@@ -108,10 +128,32 @@ public class GLModConfig {
 			}
 			builder.pop();
 
+			builder.push("minamitsu_anchor", "Minamitsu's Anchor");
+			{
+				anchorStormDanmaku = builder.text("Whether a storm anchor sheds trail danmaku and bursts on impact")
+						.define("anchorStormDanmaku", true);
+			}
+			builder.pop();
+
 			builder.push("morichika", "Morichika");
 			{
 				morichikaReplaceChance = builder.text("Chance for Morichika to replace a stocked shelf with a new item when no empty shelf is available; otherwise he skips restocking")
 						.defineInRange("morichikaReplaceChance", 0.3, 0, 1);
+			}
+			builder.pop();
+
+			builder.push("ghost", "Ghosts");
+			{
+				curiosDecayInterval = builder.text("Ticks between power drain pulses for curios ghosts")
+						.defineInRange("curiosDecayInterval", 100, 1, 1000000);
+				foodieDecayInterval = builder.text("Ticks between power drain pulses for foodie ghosts")
+						.defineInRange("foodieDecayInterval", 100, 1, 1000000);
+				livelyDecayInterval = builder.text("Ticks between power drain pulses for lively ghosts")
+						.defineInRange("livelyDecayInterval", 100, 1, 1000000);
+				curiosSkillCost = builder.text("Power a curios ghost spends to cleanse one harmful effect")
+						.defineInRange("curiosSkillCost", 10, 0, 1000);
+				hauntingSkillCost = builder.text("Power a Ghost Butterfly spends on each butterfly volley")
+						.defineInRange("hauntingSkillCost", 10, 0, 1000);
 			}
 			builder.pop();
 		}

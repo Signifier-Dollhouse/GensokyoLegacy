@@ -10,7 +10,7 @@ package dev.xkmc.gensokyolegacy.content.entity.youkai;
 public record YoukaiFeatureSet(
 		boolean effectImmune, boolean damageFilter,
 		boolean noTargetHealing, boolean trueDamageOnImmune, boolean hasBossBar,
-		int limiter , int noPlayerDiscardTime,
+		int limiter, int noPlayerDiscardTime,
 		double maxSpeed, float dynamicReductionRate) {
 
 	public static final YoukaiFeatureSet NONE = YoukaiFeatureSet.builder()

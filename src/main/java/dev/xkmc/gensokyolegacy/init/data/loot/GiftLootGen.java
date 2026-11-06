@@ -3,9 +3,9 @@ package dev.xkmc.gensokyolegacy.init.data.loot;
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyGift;
-import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
+import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
@@ -22,9 +22,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * The gift each party guest leaves behind, as a loot table per character at {@code gensokyolegacy:party_gift/<entity
@@ -92,7 +90,8 @@ public class GiftLootGen {
 		gift(pvd, "alice_margatroid", alice());
 		gift(pvd, "morichika_rinnosuke", morichika());
 		gift(pvd, "ibuki_suika", suika());
-		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika());
+		gift(pvd, "saigyouji_yuyuko", yuyuko());
+		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko());
 	}
 
 	/**
@@ -101,7 +100,8 @@ public class GiftLootGen {
 	 */
 	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
 		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
-				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika"};
+				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika",
+				"saigyouji_yuyuko"};
 		for (int i = 0; i < ladders.length; i++) {
 			var name = names[i];
 			var table = returnTable(ladders[i]);
@@ -223,6 +223,20 @@ public class GiftLootGen {
 				tier(50, 400, gift(GLItems.TENGU_SAKE, 20),
 						gift(GLItems.GHOST_SAKE, 20)),
 				tier(400, 0, gift(GLItems.IBUKI_GOURD, 10)));
+	}
+
+	/**
+	 * Yuyuko is the same high table as Suika, but her own stock sits one rung above:
+	 * a whole evening of appeal has to pass 2000 before she parts with her fan.
+	 */
+	private static List<Tier> yuyuko() {
+		return List.of(
+				tier(0, 500, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(500, 2000, gift(GLItems.GHOST_SAKE, 20),
+						gift(GLItems.TENGU_SAKE, 20),
+						gift(GLItems.FANCY_FAN, 20),
+						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
+				tier(2000, 0, gift(GLItems.YUYUKO_FAN, 10)));
 	}
 
 	/**

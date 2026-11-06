@@ -13,9 +13,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,14 +32,22 @@ import org.jetbrains.annotations.Nullable;
  * @see "doc/design/dagger_glove.md"
  */
 public enum DaggerGloveMode {
-	/** One dagger, straight ahead. */
+	/**
+	 * One dagger, straight ahead.
+	 */
 	SINGLE(1, 5, 40, GLLang.ItemDaggerGlove.MODE_SINGLE, GLLang.ItemDaggerGlove.DESC_SINGLE),
-	/** Seven daggers fanned across 30 degrees, 5 apart. */
+	/**
+	 * Seven daggers fanned across 30 degrees, 5 apart.
+	 */
 	FAN(7, 10, 40, GLLang.ItemDaggerGlove.MODE_FAN, GLLang.ItemDaggerGlove.DESC_FAN),
-	/** Ten daggers, five a side, each turning onto the hovered target at its own tick. */
+	/**
+	 * Ten daggers, five a side, each turning onto the hovered target at its own tick.
+	 */
 	HOMING(10, 20, 60, GLLang.ItemDaggerGlove.MODE_HOMING, GLLang.ItemDaggerGlove.DESC_HOMING);
 
-	/** Flight speed of the non-homing modes and of a homing dagger's aimed stage, in blocks per tick. */
+	/**
+	 * Flight speed of the non-homing modes and of a homing dagger's aimed stage, in blocks per tick.
+	 */
 	public static final double SPEED = 2;
 	/**
 	 * How far, in blocks, every homing dagger's outbound stage travels before it turns. A stage's turn tick
@@ -47,13 +55,21 @@ public enum DaggerGloveMode {
 	 * radius and the pairs converge as one volley (dagger_glove.md §2a-1). The aimed stage stays at {@link #SPEED}.
 	 */
 	private static final double HOMING_REACH = 16;
-	/** Degrees between neighbouring daggers, in both the fan and the homing spread. */
+	/**
+	 * Degrees between neighbouring daggers, in both the fan and the homing spread.
+	 */
 	private static final double ANGLE_STEP = 5;
-	/** Innermost homing dagger's angle, in degrees; the outermost is four more steps out. */
+	/**
+	 * Innermost homing dagger's angle, in degrees; the outermost is four more steps out.
+	 */
 	private static final double HOMING_INNER = 20;
-	/** Ticks of straight flight before the innermost homing dagger turns. */
+	/**
+	 * Ticks of straight flight before the innermost homing dagger turns.
+	 */
 	private static final int HOMING_TURN = 8;
-	/** Extra ticks of flight before each successive homing dagger turns. */
+	/**
+	 * Extra ticks of flight before each successive homing dagger turns.
+	 */
 	private static final int HOMING_TURN_STEP = 3;
 	/**
 	 * How long the second, aimed stage of a homing dagger may fly.
@@ -75,7 +91,9 @@ public enum DaggerGloveMode {
 		this.desc = desc;
 	}
 
-	/** How many daggers one shot of this mode spends. */
+	/**
+	 * How many daggers one shot of this mode spends.
+	 */
 	public int count() {
 		return count;
 	}
@@ -95,7 +113,9 @@ public enum DaggerGloveMode {
 		return life;
 	}
 
-	/** Whether this mode needs a target under the crosshair before it will fire at all. */
+	/**
+	 * Whether this mode needs a target under the crosshair before it will fire at all.
+	 */
 	public boolean needsTarget() {
 		return this == HOMING;
 	}
@@ -169,6 +189,7 @@ public enum DaggerGloveMode {
 		// the outbound stage covers a fixed distance in whatever time it has; everything else flies
 		// at the plain speed
 		double speed = turnTick > 0 ? HOMING_REACH / turnTick : SPEED;
+		float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
 		var danmaku = new IronDaggerBulletEntity(GLEntities.IRON_DAGGER.get(), player, level);
 		danmaku.setItem(dagger);
 		danmaku.setReturnable(true);
@@ -176,20 +197,22 @@ public enum DaggerGloveMode {
 		int stageLife = turnTick > 0 ? turnTick : life();
 		// no mover: a mover derives its per-tick velocity from tickCount, which the client reads
 		// as the entity's age, so a client first seeing the dagger computes a phantom first step (§2a)
-		danmaku.setup(DanmakuItems.Bullet.DAGGER.damage(), stageLife, false, DanmakuItems.Bullet.DAGGER.bypass(), dir.scale(speed));
+		danmaku.setup(damage, stageLife, false, DanmakuItems.Bullet.DAGGER.bypass(), dir.scale(speed));
 		danmaku.moveTo(from);
 		if (turnTick > 0) {
 			// the first stage stays returnable: it hands the dagger back itself on every ordinary ending,
 			// and the trail claims that return only once it has really spawned stage 2, which takes the rune
 			danmaku.setRune(null);
 			danmaku.afterExpiry = new DaggerHomingTrail(level, danmaku, target, SPEED,
-					HOMING_STAGE_LIFE, dir, dagger, rune);
+					HOMING_STAGE_LIFE, dir, dagger, rune, damage);
 		}
 		level.addFreshEntity(danmaku);
 		if (player instanceof ServerPlayer sp) SpellContainer.track(sp, danmaku);
 	}
 
-	/** The stack a glove-fired dagger is drawn as, and is worth when it lands. */
+	/**
+	 * The stack a glove-fired dagger is drawn as, and is worth when it lands.
+	 */
 	public static ItemStack dagger() {
 		return new ItemStack(GLItems.IRON_DAGGER.get());
 	}

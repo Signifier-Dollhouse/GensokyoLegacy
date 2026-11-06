@@ -24,19 +24,29 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** One character's gift ladder as a JEI recipe: a row per rung, the appeal that reaches it beside
+/**
+ * One character's gift ladder as a JEI recipe: a row per rung, the appeal that reaches it beside
  * it and what she hands over there in plain frames. A loot table is never synced, so the server
- * reads every ladder and sends it over ({@link PartyGiftToClient}). */
+ * reads every ladder and sends it over ({@link PartyGiftToClient}).
+ */
 public class PartyGiftCategory extends BaseRecipeCategory<EntityType<?>, PartyGiftCategory> {
 
-	/** generous over the authored ladders, so a datapack's longer one still fits */
+	/**
+	 * generous over the authored ladders, so a datapack's longer one still fits
+	 */
 	private static final int ROWS = 5;
-	/** the widest rung of those ladders; a wider one says so in the tooltip */
+	/**
+	 * the widest rung of those ladders; a wider one says so in the tooltip
+	 */
 	private static final int COLS = 5;
 
-	/** width of the appeal band column the rungs are read against */
+	/**
+	 * width of the appeal band column the rungs are read against
+	 */
 	private static final int LABEL = 45;
-	/** between that column and the first rung of a row */
+	/**
+	 * between that column and the first rung of a row
+	 */
 	private static final int MARGIN = 5;
 
 	private static final int SLOTS_X = GLJeiUtil.PAD + LABEL + MARGIN;
@@ -69,7 +79,7 @@ public class PartyGiftCategory extends BaseRecipeCategory<EntityType<?>, PartyGi
 			for (var gift : tier.gifts()) {
 				if (slot == COLS) break;
 				GLJeiUtil.plainSlot(builder, RecipeIngredientRole.OUTPUT,
-						SLOTS_X + slot * GLJeiUtil.SLOT, rowY(row))
+								SLOTS_X + slot * GLJeiUtil.SLOT, rowY(row))
 						.addItemStack(gift.stack())
 						// the slot cannot say how often she picks it, so the tooltip does
 						.addRichTooltipCallback((view, tooltip) -> tooltip.add(gift.chanceText()));
@@ -85,7 +95,7 @@ public class PartyGiftCategory extends BaseRecipeCategory<EntityType<?>, PartyGi
 		for (var tier : tiers(recipe)) {
 			if (row == ROWS) break;
 			GLJeiUtil.text(builder, tier.bandText(), GLJeiUtil.PAD,
-					rowY(row) + (GLJeiUtil.SLOT - GLJeiUtil.LINE) / 2, LABEL, GLJeiUtil.LINE)
+							rowY(row) + (GLJeiUtil.SLOT - GLJeiUtil.LINE) / 2, LABEL, GLJeiUtil.LINE)
 					.setTextAlignment(HorizontalAlignment.RIGHT);
 			row++;
 		}
@@ -95,7 +105,7 @@ public class PartyGiftCategory extends BaseRecipeCategory<EntityType<?>, PartyGi
 
 	@Override
 	public void getTooltip(ITooltipBuilder tooltip, EntityType<?> recipe,
-			IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+						   IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
 		var tiers = tiers(recipe);
 		tooltip.add(recipe.getDescription().copy().withStyle(ChatFormatting.UNDERLINE));
 		tooltip.add(GLLang.JeiExtra.GIFT_NOTE.get());

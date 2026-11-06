@@ -94,7 +94,8 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		initData(sideVal);
 	}
 
-	/** Pairing invariant: a fresh item (no uuid) creates exactly 2 uuid-bearing endpoints (block or item), and
+	/**
+	 * Pairing invariant: a fresh item (no uuid) creates exactly 2 uuid-bearing endpoints (block or item), and
 	 * the pair then teleports between any 2 points, GAP included. EXIT on a pending ENTRY fills the missing side
 	 * (non-GAP entry → GAP exit at proportional Y, GAP entry → overworld spawn); picking up clears that endpoint.
 	 */

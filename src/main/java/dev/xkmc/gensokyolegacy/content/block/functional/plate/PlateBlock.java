@@ -34,8 +34,10 @@ public class PlateBlock implements ShapePathFindBlockMethod, UseItemOnBlockMetho
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(GLBlocks.PLATE_BE, PlateBlockEntity.class);
 
-	/** The model's disc only. Its second element is a utensil sliver lying over the rim, too thin to
-	 *  be worth an outline of its own. */
+	/**
+	 * The model's disc only. Its second element is a utensil sliver lying over the rim, too thin to
+	 * be worth an outline of its own.
+	 */
 	private static final VoxelShape SHAPE = Block.box(3, 0, 3, 13, 1, 13);
 
 	@Override

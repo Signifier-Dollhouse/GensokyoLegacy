@@ -1,0 +1,18 @@
+{
+  "character": "gensokyolegacy:morichika_rinnosuke",
+  "conditions": [],
+  "ingredients": [
+    {
+      "count": 12,
+      "item": "minecraft:bread"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 16,
+    "restockTime": 24000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:coin"
+  }
+}

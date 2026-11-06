@@ -5,7 +5,6 @@ import dev.xkmc.danmakuapi.api.IYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
@@ -18,7 +17,7 @@ import java.util.UUID;
  * take friendly fire, and player-owned dolls spare non-enemies. Fully defaulted, so the entity gains
  * danmaku allyship with zero extra code.
  */
-public interface DollDanmakuAlly extends DollEntityImpl, IYoukaiEntity {
+public interface DollDanmakuAlly extends DollBaseImpl, IYoukaiEntity {
 
 	@Override
 	default boolean shouldHurt(LivingEntity le) {
@@ -49,7 +48,7 @@ public interface DollDanmakuAlly extends DollEntityImpl, IYoukaiEntity {
 	 * the commander's transient attack record.
 	 */
 	default boolean isNonEnemy(LivingEntity le) {
-		DollEntity doll = asDoll();
+		var doll = asDoll();
 		UUID ownerId = doll.getOwnerUUID();
 		if (ownerId == null) return false;
 		DollHost host = doll.getHost();
@@ -57,8 +56,7 @@ public interface DollDanmakuAlly extends DollEntityImpl, IYoukaiEntity {
 		if (le instanceof Mob mob && mob.getTarget() != null &&
 				ownerId.equals(mob.getTarget().getUUID())) return false;
 		LivingEntity lastHurt = le.getLastHurtByMob();
-		if (lastHurt != null && ownerId.equals(lastHurt.getUUID())) return false;
-		return true;
+		return lastHurt == null || !ownerId.equals(lastHurt.getUUID());
 	}
 
 	@Override

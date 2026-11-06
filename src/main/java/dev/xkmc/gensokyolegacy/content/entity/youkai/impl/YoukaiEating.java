@@ -1,13 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai.impl;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+
+import static dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity.DATA_EAT_ITEM;
+import static dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity.DATA_EAT_TICKS;
 
 /**
  * A character chewing: the dish she is eating, how much of it is left, and the crumbs.
@@ -17,21 +17,6 @@ import net.minecraft.world.phys.Vec3;
  * chain behind them changed nothing — {@code doc/design/youkai/entity.md} §3.
  */
 public interface YoukaiEating extends YoukaiBaseImpl {
-
-	/**
-	 * What she is chewing, and how much of the chew is left. Both client-visible, and both named
-	 * null where the flags are not: a chew is a gesture, not a state, and a persisted countdown
-	 * would outlive an unload that cuts the feeding task off before its {@code stop}.
-	 * <p>
-	 * They have to be synced at all because a character eats by playing {@link YoukaiAnim#EAT},
-	 * which is a rig clip with no vanilla use timer behind it - nothing on the client knows the
-	 * chew is running. The stack also outlives the hand on purpose: every chew empties that hand
-	 * part-way through, and the crumbs have to carry on to the end.
-	 */
-	EntityDataAccessor<ItemStack> DATA_EAT_ITEM = SynchedEntityData.defineId(YoukaiEntity.class,
-			EntityDataSerializers.ITEM_STACK);
-	EntityDataAccessor<Integer> DATA_EAT_TICKS = SynchedEntityData.defineId(YoukaiEntity.class,
-			EntityDataSerializers.INT);
 
 	/**
 	 * Crumbs, on vanilla's own cadence: {@link #CRUMBS} every {@link #CRUMB_EVERY} ticks.
@@ -58,7 +43,9 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 		getEntityData().set(DATA_EAT_TICKS, 0);
 	}
 
-	/** The dish she is chewing, or empty. Only ever read for the crumbs. */
+	/**
+	 * The dish she is chewing, or empty. Only ever read for the crumbs.
+	 */
 	default ItemStack getEatItem() {
 		return getEntityData().get(DATA_EAT_ITEM);
 	}
@@ -110,15 +97,6 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 				.yRot(-self.getYRot() * ((float) Math.PI / 180F));
 		self.level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, food),
 				out.x, out.y, out.z, vel.x, vel.y + 0.05, vel.z);
-	}
-
-	/**
-	 * Registers the pair. A static hook rather than a module, because the module list is per-entity
-	 * and these two accessors are the same pair on every character.
-	 */
-	static void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(DATA_EAT_ITEM, ItemStack.EMPTY);
-		builder.define(DATA_EAT_TICKS, 0);
 	}
 
 }

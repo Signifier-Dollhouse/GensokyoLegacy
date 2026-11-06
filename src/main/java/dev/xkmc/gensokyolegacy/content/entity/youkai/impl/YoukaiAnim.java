@@ -15,8 +15,8 @@ import java.util.Optional;
  * <p>
  * {@link #EAT} and {@link #HURT} name clips the whole mod agrees on, so they can be named outright.
  * {@link #TALK_SPECIAL_01} and {@link #SKILL_01} are numbered instead, because what they hold is up to the
- * rig: Suika's are her lying-down talk ({@code 侧卧_交流}) and the sweep her spell card pulls with
- * ({@code 聚集}), and a slot shared by every character cannot be named after one of them. The next rig to
+ * rig: Suika's are her lying-down talk ({@code lie_01_talk}) and the sweep her spell card pulls with
+ * ({@code skill}), and a slot shared by every character cannot be named after one of them. The next rig to
  * want a second special talk or a second skill takes {@code 02}.
  */
 public enum YoukaiAnim {
@@ -60,7 +60,7 @@ public enum YoukaiAnim {
 	}
 
 	/**
-	 * Every {@code 交流_*} slot, in order. Used by
+	 * Every {@code talk_*} slot, in order. Used by
 	 * {@link GeoYoukaiAnim#broadcastDialogAnim} to pick a talk clip when the
 	 * dialog names none, so a character shipping five of them gets all five
 	 * in rotation rather than the first three.

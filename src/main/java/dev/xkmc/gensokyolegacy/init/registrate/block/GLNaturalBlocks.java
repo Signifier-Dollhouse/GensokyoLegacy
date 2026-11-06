@@ -15,20 +15,21 @@ import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -48,6 +49,7 @@ import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +62,12 @@ import java.util.function.Supplier;
 
 public class GLNaturalBlocks {
 
+	public static final SimpleEntry<CreativeModeTab> TAB;
+
 	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
+	public static final BlockEntry<SimpleBushBlock> GOLDEN_LOTUS_SMALL, GOLDEN_LOTUS_MEDIUM, GOLDEN_LOTUS_LARGE;
+	public static final BlockEntry<SimpleBushBlock> TOWER_GRASS_SMALL, TOWER_GRASS_LARGE;
+	public static final BlockEntry<BirdNestBlock> BIRD_NEST;
 	public static final BlockEntry<WaterloggedBushBlock> FLAME_CATTAIL;
 	public static final BlockEntry<SimpleBushBlock> BRACKEN;
 	public static final BlockEntry<SideBushBlock> EUGUNE_RED, EUGUNE_BROWN, EUGUNE_GHOST_FIRE;
@@ -93,6 +100,9 @@ public class GLNaturalBlocks {
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 
+		TAB = reg.buildModCreativeTab("natural_blocks", "Gensokyo Legacy - Building Blocks",
+				e -> e.icon(() -> GLNaturalBlocks.STAR_FLOWER.asItem().getDefaultInstance()));
+
 		// 星星花
 		STAR_FLOWER = reg.block("star_flower", p -> new SimpleBushBlock(p, SimpleBushBlock.FULL))
 				.properties(p -> p.offsetType(BlockBehaviour.OffsetType.XYZ).mapColor(MapColor.PLANT).strength(0).sound(SoundType.GRASS).noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
@@ -112,9 +122,35 @@ public class GLNaturalBlocks {
 				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(1, 1000, GiftType.MAGIC))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 				.tag(ItemTags.SMALL_FLOWERS)
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
+				.register();
+
+		GOLDEN_LOTUS_SMALL = regGoldenLotus(reg, "small");
+		GOLDEN_LOTUS_MEDIUM = regGoldenLotus(reg, "medium");
+		GOLDEN_LOTUS_LARGE = regGoldenLotus(reg, "large");
+		TOWER_GRASS_SMALL = regTowerGrass(reg, "small");
+		TOWER_GRASS_LARGE = regTowerGrass(reg, "large");
+
+		BIRD_NEST = reg.block("bird_nest", BirdNestBlock::new)
+				.properties(p -> p.mapColor(MapColor.WOOD).strength(0.2f).sound(SoundType.GRASS)
+						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> {
+					for (boolean hasEgg : new boolean[]{false, true}) {
+						String name = hasEgg ? "bird_nest_with_egg" : ctx.getName();
+						var model = pvd.models().withExistingParent(name, pvd.modLoc("custom/nature/bird_nest"))
+								.texture("0", pvd.modLoc("block/nature/" + name))
+								.texture("particle", pvd.modLoc("block/nature/" + name)).renderType("cutout");
+						pvd.getVariantBuilder(ctx.get()).partialState().with(BirdNestBlock.HAS_EGG, hasEgg)
+								.modelForState().modelFile(model).addModel();
+					}
+				})
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item()
+				.model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), pvd.modLoc("block/" + ctx.getName()))
+						.guiLight(BlockModel.GuiLight.SIDE)
+						.transforms().transform(ItemDisplayContext.GUI).rotation(30, 225, 0).scale(0.625f).end().end())
+				.build()
 				.register();
 
 		// 燃蒲
@@ -149,7 +185,6 @@ public class GLNaturalBlocks {
 				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
@@ -167,7 +202,6 @@ public class GLNaturalBlocks {
 				})
 				.item((block, props) -> new PlaceOnWaterBlockItem(block, props))
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
-				.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 				.build()
 				.register();
 
@@ -245,8 +279,8 @@ public class GLNaturalBlocks {
 		// 青杉
 		BLUE_FUR_SET = new TreeSet(
 				reg, new WoodSet(reg, "blue_fir", Items.SPRUCE_PLANKS,
-						Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
-						BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN), null),
+				Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN), null),
 				"blue_fir",
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES),
 				TreeFeatures.TreeType.BLUE_FIR
@@ -257,17 +291,22 @@ public class GLNaturalBlocks {
 				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_DARK_OAK_WOOD,
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_ORANGE), null);
 		ORANGE_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "orange_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.ORANGE_MAPLE_LEAF.get()));
 		RED_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "red_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.RED_MAPLE_LEAF.get()));
 		YELLOW_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "yellow_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.YELLOW_MAPLE_LEAF.get()));
 
 		// 樱: two blossom colours, both growing on the vanilla cherry trunk
 		PINK_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "pink_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.PINK_CHERRY_BLOSSOM.get()));
 		PURPLE_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "purple_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY,
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.PURPLE_CHERRY_BLOSSOM.get()));
 
 		// 槐: the only tree with a hollow trunk
 		LOCUST_WOOD = new WoodSet(reg, "locust", Items.OAK_PLANKS,
@@ -363,7 +402,47 @@ public class GLNaturalBlocks {
 
 	}
 
-	/** A carpet of fallen leaves, one block per tree: {@code <id>_layer1} and {@code <id>_layer2}. */
+	private static BlockEntry<SimpleBushBlock> regGoldenLotus(L2Registrate reg, String size) {
+		return reg.block("golden_lotus_" + size, SimpleBushBlock::new)
+				.initialProperties(() -> Blocks.POPPY)
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
+						pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.tag(BlockTags.SMALL_FLOWERS)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tag(ItemTags.SMALL_FLOWERS)
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
+				.register();
+	}
+
+	private static BlockEntry<SimpleBushBlock> regTowerGrass(L2Registrate reg, String size) {
+		return reg.block("tower_grass_" + size, p -> new SimpleBushBlock(p, Block.box(0, 0, 0, 16, 27, 16)))
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.GRASS)
+						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models()
+						.withExistingParent(ctx.getName(), pvd.modLoc("custom/nature/tower_grass"))
+						.texture("1", pvd.modLoc("block/nature/" + ctx.getName()))
+						.texture("particle", pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item()
+				.model((ctx, pvd) -> {
+					var base = pvd.nested().parent(new ModelFile.UncheckedModelFile(
+							pvd.modLoc("block/" + ctx.getName())));
+					var icon = pvd.nested().parent(new ModelFile.UncheckedModelFile(
+							pvd.modLoc("custom/nature/tower_grass_icon")))
+							.texture("plant", pvd.modLoc("block/nature/" + ctx.getName()));
+					pvd.getBuilder(ctx.getName()).customLoader(SeparateTransformsModelBuilder::begin)
+							.base(base).perspective(ItemDisplayContext.GUI, icon).end()
+							.guiLight(BlockModel.GuiLight.FRONT);
+				})
+				.build()
+				.register();
+	}
+
+	/**
+	 * A carpet of fallen leaves, one block per tree: {@code <id>_layer1} and {@code <id>_layer2}.
+	 */
 	private static BlockEntry<FallenLeavesBlock> regFallenLeaves(L2Registrate reg, String id) {
 		return reg.block(id, FallenLeavesBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
@@ -404,11 +483,13 @@ public class GLNaturalBlocks {
 
 		public final BlockEntry<StrippableWoodBlock> log;
 		public final BlockEntry<StrippableWoodBlock> wood;
-		/** The hollow trunk of an old tree; only the locust has one. */
+		/**
+		 * The hollow trunk of an old tree; only the locust has one.
+		 */
 		public final @Nullable BlockEntry<StrippableWoodBlock> hollowLog;
 
 		public WoodSet(L2Registrate reg, String id, Item planks, Block strippedLog, Block strippedWood,
-		               BlockBehaviour.Properties logProp, @Nullable String hollowLogId) {
+					   BlockBehaviour.Properties logProp, @Nullable String hollowLogId) {
 			log = reg.block(id + "_log", p -> new StrippableWoodBlock(() -> strippedLog, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> genColumnState(ctx, pvd,
@@ -443,13 +524,17 @@ public class GLNaturalBlocks {
 					.register();
 		}
 
-		/** {@code maple_log} cut into {@code oak_planks} -> {@code maple_log_to_oak_planks}. */
+		/**
+		 * {@code maple_log} cut into {@code oak_planks} -> {@code maple_log_to_oak_planks}.
+		 */
 		private static String plankRecipe(String id, Item planks) {
 			return id + "_to_" + BuiltInRegistries.ITEM.getKey(planks).getPath();
 		}
 	}
 
-	/** One tree type: its leaves and its sapling, over the trunk it grows on. */
+	/**
+	 * One tree type: its leaves and its sapling, over the trunk it grows on.
+	 */
 	public static class TreeSet {
 
 		public final Supplier<Block> trunk;
@@ -457,15 +542,27 @@ public class GLNaturalBlocks {
 		public final BlockEntry<? extends SaplingBlock> sapling;
 
 		public TreeSet(L2Registrate reg, WoodSet wood, String id,
-		               BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
-			this(reg, () -> wood.log.get(), id, leafProp, type);
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+			this(reg, () -> wood.log.get(), id, leafProp, type, LeavesBlock::new);
+		}
+
+		public TreeSet(L2Registrate reg, WoodSet wood, String id,
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type,
+					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
+			this(reg, () -> wood.log.get(), id, leafProp, type, leafFactory);
 		}
 
 		public TreeSet(L2Registrate reg, Supplier<Block> trunk, String id,
-		               BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type) {
+			this(reg, trunk, id, leafProp, type, LeavesBlock::new);
+		}
+
+		public TreeSet(L2Registrate reg, Supplier<Block> trunk, String id,
+					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type,
+					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
 			this.trunk = trunk;
 			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
-			// only the blue fir has templates, and only it needs the 3x3 stage vanilla has no grower slot for
+			// only the blue fir needs the 3x3 stage vanilla has no grower slot for
 			Function<BlockBehaviour.Properties, ? extends SaplingBlock> saplingFactory = type.saplingGiant.isPresent()
 					? p -> new BlueFirSaplingBlock(grower, type.saplingGiant.orElseThrow(), p)
 					: p -> new SaplingBlock(grower, p);
@@ -482,7 +579,7 @@ public class GLNaturalBlocks {
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
 					.build()
 					.register();
-			leaves = reg.block(id + "_leaves", LeavesBlock::new)
+			leaves = reg.block(id + "_leaves", p -> leafFactory.apply(p))
 					.properties(p -> leafProp)
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
 							pvd.modLoc("block/wood/" + ctx.getName()))))
@@ -504,11 +601,11 @@ public class GLNaturalBlocks {
 			tb.add(block, LootTable.lootTable()
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
 							.add(LootItem.lootTableItem(block).when(silkTouch)))
-				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
-						.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(sapling)
-								.when(BonusLevelTableCondition.bonusLevelFlatChance(
-										enchantments.getOrThrow(Enchantments.FORTUNE),
-										2 / 512F, 3 / 512F, 4 / 512F, 5 / 512F)))))
+					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
+							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(sapling)
+									.when(BonusLevelTableCondition.bonusLevelFlatChance(
+											enchantments.getOrThrow(Enchantments.FORTUNE),
+											2 / 512F, 3 / 512F, 4 / 512F, 5 / 512F)))))
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
 							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(Items.STICK)
 									.apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
@@ -543,27 +640,27 @@ public class GLNaturalBlocks {
 		}
 
 		public MushroomSet(L2Registrate reg, String id, BlockEntry<HugeMushroomBlock> stem, int capVariants,
-		                   boolean emissive, BlockBehaviour.Properties blockProp,
-		                   BlockBehaviour.Properties capProp,
-		                   MushroomFeatures.MushroomTreeType type) {
+						   boolean emissive, BlockBehaviour.Properties blockProp,
+						   BlockBehaviour.Properties capProp,
+						   MushroomFeatures.MushroomTreeType type) {
 			this(reg, id, stem, capVariants, emissive, blockProp, capProp, type,
 					(t, p) -> new WeightedMushroomBlock(t.growthSmall, t.growthMedium, t.growthLarge, p),
 					HugeMushroomBlock::new);
 		}
 
 		public MushroomSet(L2Registrate reg, String id, BlockEntry<HugeMushroomBlock> stem, int capVariants,
-		                   boolean emissive, BlockBehaviour.Properties blockProp,
-		                   BlockBehaviour.Properties capProp,
-		                   MushroomFeatures.MushroomTreeType type,
-		                   BiFunction<MushroomFeatures.MushroomTreeType, BlockBehaviour.Properties, ? extends Block> capFactory,
-		                   Function<BlockBehaviour.Properties, ? extends HugeMushroomBlock> blockFactory) {
+						   boolean emissive, BlockBehaviour.Properties blockProp,
+						   BlockBehaviour.Properties capProp,
+						   MushroomFeatures.MushroomTreeType type,
+						   BiFunction<MushroomFeatures.MushroomTreeType, BlockBehaviour.Properties, ? extends Block> capFactory,
+						   Function<BlockBehaviour.Properties, ? extends HugeMushroomBlock> blockFactory) {
 			this.stem = stem;
 
 			cap = reg.block(id, p -> capFactory.apply(type, p))
 					.properties(p -> capProp)
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
-				.item().model((ctx, pvd) -> pvd.generated(ctx,
-						pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1))))
+					.item().model((ctx, pvd) -> pvd.generated(ctx,
+							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1))))
 					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 					.build()
 					.register();
@@ -621,7 +718,7 @@ public class GLNaturalBlocks {
 		}
 
 		private static void addFace(MultiPartBlockStateBuilder builder, ModelFile outer, ModelFile inside,
-		                            BooleanProperty prop, int x, int y) {
+									BooleanProperty prop, int x, int y) {
 			builder.part().modelFile(outer).rotationX(x).rotationY(y).uvLock(true).addModel().condition(prop, true).end();
 			builder.part().modelFile(inside).rotationX(x).rotationY(y).uvLock(false).addModel().condition(prop, false).end();
 		}
@@ -655,7 +752,7 @@ public class GLNaturalBlocks {
 		}
 
 		private static void genCapState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd,
-		                                int variants, boolean emissive) {
+										int variants, boolean emissive) {
 			ConfiguredModel[] models = new ConfiguredModel[variants];
 			for (int i = 1; i <= variants; i++) {
 				var name = capModelName(ctx.getName(), variants, i);
@@ -669,7 +766,7 @@ public class GLNaturalBlocks {
 	}
 
 	private static void genColumnState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd,
-	                                   ResourceLocation side, ResourceLocation end) {
+									   ResourceLocation side, ResourceLocation end) {
 		var vertical = pvd.models().cubeColumn(ctx.getName(), side, end);
 		var horizontal = pvd.models().cubeColumnHorizontal(ctx.getName() + "_horizontal", side, end);
 		pvd.getVariantBuilder(ctx.get())

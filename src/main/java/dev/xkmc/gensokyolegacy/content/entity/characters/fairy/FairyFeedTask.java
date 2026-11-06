@@ -54,7 +54,7 @@ public class FairyFeedTask extends Behavior<FairyEntity> {
 	 */
 	private static final int SWALLOWED_AT = EAT_TICKS / 2;
 	/**
-	 * The {@code 使用主手物品} clip runs 0.31s. The gift leaves her hand halfway
+	 * The {@code swing} clip runs 0.31s. The gift leaves her hand halfway
 	 * through it rather than at the start, so it arrives on the arm's way out
 	 * instead of teleporting out of a gesture that has not begun.
 	 */

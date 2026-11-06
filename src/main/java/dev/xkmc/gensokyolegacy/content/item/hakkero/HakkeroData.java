@@ -29,7 +29,9 @@ import java.util.Arrays;
 @SerialClass
 public class HakkeroData {
 
-	/** Number of smelting channels: one input and one output slot each. */
+	/**
+	 * Number of smelting channels: one input and one output slot each.
+	 */
 	public static final int CHANNELS = 8;
 	public static final int OUTPUTS = CHANNELS * 2;
 	public static final int FUEL = CHANNELS * 2;
@@ -37,7 +39,9 @@ public class HakkeroData {
 
 	@SerialField
 	private ItemStack[] slots = defaultStacks();
-	/** Cook progress per channel. */
+	/**
+	 * Cook progress per channel.
+	 */
 	@SerialField
 	private int[] cookTime = new int[CHANNELS];
 	/**
@@ -108,7 +112,7 @@ public class HakkeroData {
 	}
 
 	private HakkeroData(ItemStack[] slots, int[] cookTime, String[] recipes,
-			int burnTime, int burnMax, long stamp) {
+						int burnTime, int burnMax, long stamp) {
 		this.slots = slots;
 		this.cookTime = cookTime;
 		this.recipes = recipes;
@@ -123,7 +127,9 @@ public class HakkeroData {
 		return stack == null || stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
 	}
 
-	/** Live view, for the item's own processing. Never handed outside this package. */
+	/**
+	 * Live view, for the item's own processing. Never handed outside this package.
+	 */
 	ItemStack raw(int slot) {
 		ItemStack stack = slots[slot];
 		return stack == null ? ItemStack.EMPTY : stack;
@@ -135,14 +141,17 @@ public class HakkeroData {
 		return new HakkeroData(next, cookTime, recipes, burnTime, burnMax, stamp);
 	}
 
-	/** A private working copy for the processing loop: the stored record is shared with the
+	/**
+	 * A private working copy for the processing loop: the stored record is shared with the
 	 * menu and the tooltip simulation, and the loop edits in place.
 	 */
 	public HakkeroData workingCopy() {
 		return copy();
 	}
 
-	/** In-place edit of one slot, for processing; the caller re-publishes the whole record. */
+	/**
+	 * In-place edit of one slot, for processing; the caller re-publishes the whole record.
+	 */
 	HakkeroData setRaw(int slot, ItemStack stack) {
 		slots[slot] = stack.isEmpty() ? ItemStack.EMPTY : stack;
 		return touched();
@@ -152,7 +161,9 @@ public class HakkeroData {
 		return cookTime[channel];
 	}
 
-	/** The recipe id a channel is cooking, or {@code null} when it is idle. */
+	/**
+	 * The recipe id a channel is cooking, or {@code null} when it is idle.
+	 */
 	@Nullable
 	public ResourceLocation recipe(int channel) {
 		String id = recipes[channel];
@@ -171,13 +182,16 @@ public class HakkeroData {
 		return stamp;
 	}
 
-	/** How much of the current fuel is left, as the furnace's burn progress. */
+	/**
+	 * How much of the current fuel is left, as the furnace's burn progress.
+	 */
 	public float burnProgress() {
 		return burnMax > 0 ? Hakkero.clamp01((float) burnTime / burnMax) : 0.0F;
 	}
 
 	/**
 	 * How far a channel has cooked, as the fraction the cooldown overlay draws.
+	 *
 	 * @param recipeTime cooking time of the recipe being cooked, or 0 when idle or its recipe is gone
 	 */
 	public float progress(int channel, int recipeTime) {
@@ -194,7 +208,9 @@ public class HakkeroData {
 		return touched();
 	}
 
-	/** In-place fuel edit; see {@link #setCook}. */
+	/**
+	 * In-place fuel edit; see {@link #setCook}.
+	 */
 	HakkeroData setFuel(int burnTime, int burnMax) {
 		this.burnTime = burnTime;
 		this.burnMax = burnMax;
@@ -215,7 +231,9 @@ public class HakkeroData {
 	 * "could" is deliberate, or a channel whose output slot is already full would quietly eat every
 	 * coal dropped into it.
 	 */
-	/** True when nothing at all is stored, so a tooltip image would be pointless. */
+	/**
+	 * True when nothing at all is stored, so a tooltip image would be pointless.
+	 */
 	public boolean isEmpty() {
 		for (ItemStack stack : slots) {
 			if (stack != null && !stack.isEmpty()) return false;

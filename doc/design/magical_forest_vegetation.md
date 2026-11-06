@@ -332,7 +332,11 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 枫 / 槐两族登记在 `GLNaturalBlocks.WoodSet`（log + wood，槐族另有 `locust_hollow_log`），樱树不登记木头——粉樱 / 紫樱直接长在原版 `minecraft:cherry_log` 上，所以 `TreeSet` 收的是 `Supplier<Block>` 原木而不是 `WoodSet`。六种树叶是六种树型，但共用同一根木头：橙枫 / 红枫 / 黄枫用 `maple`，粉樱 / 紫樱用原版樱木，槐树自成一族。木头按树种切成对应的原版木板（枫与槐 → 橡木），因为本模组没有自己的木板方块。六个 `TreeType` 只注册 configured feature，没有任何 placed feature 引用它，生成逻辑一行没动；树苗是它们唯一的入口。原木、六种树苗与 12 张落叶贴图全部来自美术稿，没有占位贴图。
 
-树形由 `TreeFeatures.TreeShape` 给出两种：枫沿用蓝杉的 `SpruceFoliagePlacer`（6–8 格干、2–3 层平展冠），樱与槐用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以这些树照常会掉最外圈叶子。
+树形由 `TreeFeatures.TreeShape` 给出：枫、槐使用手工模板，樱用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以樱树照常会掉最外圈叶子。
+
+红、橙、黄枫树苗自然生长或骨粉催熟时，共用 `magical_forest/tree/maple_tree_01` 到 `maple_tree_05` 五种手工树形，各占 20%，再随机旋转、镜像。模板按槐树的规则去空气、居中树干锚点、重算叶片距离，保留枫木朝向、落叶层数和树干蘑菇。原模板使用红枫叶，`TemplateReplaceProcessor` 在放置时将树叶与落叶替换为树苗对应的颜色，并保留 `distance`、`persistent`、`waterlogged`、`layers` 和 `facing`；共用同一份模板，不复制三套 NBT。替换发生在模板混合处理之后，装饰支撑检查仍由 `TemplateBlendProcessor` 完成。生长沿用槐树的地面、树根和净空配置。
+
+槐树的 `locust_tree` 改用 `TemplateFeature`，单棵树苗自然生长或骨粉催熟时，从 `magical_forest/tree/locust_1` 到 `locust_5` 五个手工模板中等权随机选一个，再随机旋转、镜像。模板来自 `huaishu_01.nbt` 到 `huaishu_05.nbt`：去除空气，以最低层槐木中离该层质心最近的一格为锚点，裁剪并补齐到奇数宽深，使锚点位于底面中心；树叶重算 `distance`，距离 ≤ 6 的设为 `persistent=false`，距离 7 的保留。原有方块相对位置、木头朝向和空心槐木均保留。生长只检查树苗脚下的泥土地面，不要求周边地面平整，底层树根最多下延 3 格，不附加地表装饰。
 
 ---
 

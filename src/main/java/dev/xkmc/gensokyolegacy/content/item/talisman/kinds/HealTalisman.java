@@ -20,7 +20,8 @@ public class HealTalisman extends TalismanPaperItem {
 		return needsHeal(le);
 	}
 
-	/** What a heal talisman is for: an entity that is alive and missing health. Static and
+	/**
+	 * What a heal talisman is for: an entity that is alive and missing health. Static and
 	 * paper-free on purpose — a doll host must answer "is anyone worth a talisman?" before it
 	 * holds one, and that question is about the target, not the paper.
 	 */

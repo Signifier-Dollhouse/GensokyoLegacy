@@ -5,6 +5,23 @@
       "type": "gensokyolegacy:gift_return"
     }
   ],
-  "dialog": "gensokyolegacy:marisa/gift/return",
+  "dialog": {
+    "animations": [
+      "dialog_talk_05"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:gift_return"
+          }
+        ],
+        "conditions": [],
+        "text": "gensokyolegacy/marisa/gift/option/return/take"
+      }
+    ],
+    "text": "gensokyolegacy/marisa/gift/dialog/return"
+  },
   "override": true
 }

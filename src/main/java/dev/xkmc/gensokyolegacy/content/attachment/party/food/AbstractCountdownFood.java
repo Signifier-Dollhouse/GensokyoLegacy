@@ -1,20 +1,24 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
-/** Shared serve count and consume for block foods that count themselves down as they are eaten.
+/**
+ * Shared serve count and consume for block foods that count themselves down as they are eaten.
  * The direction is read off the block, never assumed: a fresh state at the property maximum
  * counts down (servings left), one at the minimum counts up (bites taken).
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public abstract class AbstractCountdownFood implements BlockFoodHandler {
 
-	/** The property names these block classes use for their serve count. */
+	/**
+	 * The property names these block classes use for their serve count.
+	 */
 	private static final String[] COUNT_NAMES = {"bites", "servings", "serve"};
 
 	@Override
@@ -45,8 +49,10 @@ public abstract class AbstractCountdownFood implements BlockFoodHandler {
 		return countsDown(state, left) ? next : next + 1;
 	}
 
-	/** The block's own serve-count property, found by name because the
+	/**
+	 * The block's own serve-count property, found by name because the
 	 * {@code IntegerProperty} instances belong to the other mods.
+	 *
 	 * @return null when the block has no counter
 	 */
 	@Nullable
@@ -61,7 +67,9 @@ public abstract class AbstractCountdownFood implements BlockFoodHandler {
 		return null;
 	}
 
-	/** Whether a fresh block counts down from its maximum (servings left) rather than up from zero (bites taken). */
+	/**
+	 * Whether a fresh block counts down from its maximum (servings left) rather than up from zero (bites taken).
+	 */
 	private static boolean countsDown(BlockState state, IntegerProperty property) {
 		return state.getBlock().defaultBlockState().getValue(property) >= maximum(property);
 	}

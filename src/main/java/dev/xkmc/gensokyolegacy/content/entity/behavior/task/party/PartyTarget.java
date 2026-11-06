@@ -15,11 +15,10 @@ import org.jetbrains.annotations.Nullable;
  * @param walkTo        the standable block she goes to in order to do it
  * @param interactReach how close to {@code interact} she must be to act on it
  * @param walkReach     how close to {@code walkTo} she must be to count as having arrived
- *
  * @see "doc/design/party/guest.md"
  */
 public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo,
-		double interactReach, double walkReach) {
+						  double interactReach, double walkReach) {
 
 	/**
 	 * How close she must get to the block she walked to before she counts as there. One block,
@@ -28,7 +27,9 @@ public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo
 	 */
 	public static final double WALK_REACH = 1;
 
-	/** A chair, and the ground she stands on to sit in it. */
+	/**
+	 * A chair, and the ground she stands on to sit in it.
+	 */
 	public static PartyTarget forSeat(BlockPos seat, @Nullable BlockPos ground) {
 		return new PartyTarget(seat, ground, 2, WALK_REACH);
 	}
@@ -49,7 +50,9 @@ public record PartyTarget(@Nullable BlockPos interact, @Nullable BlockPos walkTo
 		return walkTo == null ? inReach(ctx) : within(ctx, walkTo, walkReach);
 	}
 
-	/** Whether she is close enough to the chair or the dish to act on it. */
+	/**
+	 * Whether she is close enough to the chair or the dish to act on it.
+	 */
 	public boolean inReach(PartyContext ctx) {
 		return within(ctx, interact, interactReach);
 	}

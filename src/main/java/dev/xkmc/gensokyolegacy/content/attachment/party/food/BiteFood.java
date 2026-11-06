@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-/** A Kaleidoscope Cookery dish: a placed block eaten one bite at a time.
+/**
+ * A Kaleidoscope Cookery dish: a placed block eaten one bite at a time.
  * <p>Not an {@link AbstractCountdownFood}: Cookery's counter stops at the maximum and leaves an
  * emptied block standing, so serves are {@code maxBites - bites}. food_mods.md §1.1.
  *

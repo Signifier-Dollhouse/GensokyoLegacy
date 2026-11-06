@@ -66,7 +66,7 @@ Every file the feature creates and modifies, and the resources it generates.
 | `content/command/GLCommands.java` | `/gensokyo party` |
 | `content/attachment/party/item/PartyWand.java` | the debug wand: hover, eat, simulate (debug.md §2) |
 | `content/attachment/party/item/PartyWandData.java` | the simulated result, as the wand's data component payload |
-| `content/attachment/party/item/PartyWandComponent.java` | the `DataComponentType`, registered on the mod bus |
+| `init/registrate/GLItems.java` | `PARTY_WAND_DATA`, the `DataComponentType` |
 | `init/data/GLModConfig.java` | `partyScanDistance`, `partyGuestRadius` |
 | `init/data/GLLang.java` | `Party` enum, wired into `genLang`'s group array |
 | `init/data/GLTagGen.java` | `PARTY_TABLE`, `PARTY_SEAT` and `genPartyTag` (area.md §1) |

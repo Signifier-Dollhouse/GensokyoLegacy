@@ -4,8 +4,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.MutableDollInventory;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollShieldItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 
 /**

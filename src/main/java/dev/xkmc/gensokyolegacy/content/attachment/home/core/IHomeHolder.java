@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.core;
 
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.custom.CustomHomeHolder;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.home.structure.StructureHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;

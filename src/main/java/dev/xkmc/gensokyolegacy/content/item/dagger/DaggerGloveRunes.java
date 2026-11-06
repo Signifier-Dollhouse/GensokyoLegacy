@@ -16,7 +16,9 @@ import java.util.Map;
  */
 public class DaggerGloveRunes {
 
-	/** The empty rune: no effect, no extra cooldown. Also the fallback for an unknown id. */
+	/**
+	 * The empty rune: no effect, no extra cooldown. Also the fallback for an unknown id.
+	 */
 	public static final DaggerGloveRune NONE = new DaggerGloveRune() {
 		@Override
 		public int cooldownCost() {
@@ -41,12 +43,16 @@ public class DaggerGloveRunes {
 		REGISTRY.put(id, rune);
 	}
 
-	/** The rune under this id, or {@link #NONE} if there is none. Never null. */
+	/**
+	 * The rune under this id, or {@link #NONE} if there is none. Never null.
+	 */
 	public static DaggerGloveRune get(ResourceLocation id) {
 		return REGISTRY.getOrDefault(id, NONE);
 	}
 
-	/** Every registered rune, by id. Empty until a rune ships. */
+	/**
+	 * Every registered rune, by id. Empty until a rune ships.
+	 */
 	public static Map<ResourceLocation, DaggerGloveRune> all() {
 		return Collections.unmodifiableMap(REGISTRY);
 	}

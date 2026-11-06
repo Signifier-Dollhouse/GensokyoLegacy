@@ -4,7 +4,38 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/koishi_hat/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_talk_05"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/koishi_hat/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/koishi_hat/option/complete/handover"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/complete/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/koishi_hat/option/complete"
   },
   "conditions": [
@@ -22,7 +53,34 @@
     "type": "gensokyolegacy:simple",
     "actions": [],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/koishi_hat/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_confused"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/marisa/koishi_hat/option/follow_up/end/end"
+              }
+            ],
+            "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/marisa/koishi_hat/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/koishi_hat/option/follow_up"
   },
   "initialDialog": {
@@ -33,7 +91,20 @@
       }
     ],
     "conditions": [],
-    "next": "gensokyolegacy:marisa/koishi_hat/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_talk_01"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "text": "gensokyolegacy/marisa/koishi_hat/option/start/end"
+        }
+      ],
+      "text": "gensokyolegacy/marisa/koishi_hat/dialog/marisa/koishi_hat/start/dialog_1"
+    },
     "text": "gensokyolegacy/marisa/koishi_hat/option/start"
   },
   "requirements": {

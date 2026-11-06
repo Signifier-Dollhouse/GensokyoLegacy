@@ -28,8 +28,10 @@ public class CirnoFeedModule extends FairyFeedModule {
 	 */
 	public static final int COOKIE_ICE = 4;
 
-	/** Stated once and handed to both halves, so the stack she throws and the stack the page
-	 * promises cannot come apart. */
+	/**
+	 * Stated once and handed to both halves, so the stack she throws and the stack the page
+	 * promises cannot come apart.
+	 */
 	private static final List<ItemStack> CAKE_GIFT = List.of(GLItems.FAIRY_ICE_CRYSTAL.asStack());
 	private static final List<ItemStack> COOKIE_GIFT = List.of(new ItemStack(Blocks.PACKED_ICE, COOKIE_ICE));
 
@@ -37,7 +39,9 @@ public class CirnoFeedModule extends FairyFeedModule {
 		super(self);
 	}
 
-	/** The same two dishes as any fairy's, for crystals and packed ice. */
+	/**
+	 * The same two dishes as any fairy's, for crystals and packed ice.
+	 */
 	public static List<EntityInteraction> interactions() {
 		return page(CAKE_GIFT, COOKIE_GIFT);
 	}

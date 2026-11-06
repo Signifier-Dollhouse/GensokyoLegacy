@@ -3,13 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
-import dev.xkmc.l2modularblock.mult.AnimateTickBlockMethod;
-import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.ShapeUpdateBlockMethod;
-import dev.xkmc.l2modularblock.mult.SurviveBlockMethod;
-import dev.xkmc.l2modularblock.mult.ToolModifyBlockMethod;
-import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
+import dev.xkmc.l2modularblock.mult.*;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,18 +37,24 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
-/** 落地烛台。点火、掐灭和火焰粒子的做法照搬原版 {@code AbstractCandleBlock}，但自己实现：
+/**
+ * 落地烛台。点火、掐灭和火焰粒子的做法照搬原版 {@code AbstractCandleBlock}，但自己实现：
  * 那条路径要求方块同时带 {@code lit} 和 {@code waterlogged}，烛台不蓄水。
  *
- * @see "doc/design/candlestick.md" */
+ * @see "doc/design/candlestick.md"
+ */
 public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
 		SurviveBlockMethod, ShapeUpdateBlockMethod, ShapeBlockMethod,
 		AnimateTickBlockMethod, ToolModifyBlockMethod, UseItemOnBlockMethod {
 
-	/** 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。 */
+	/**
+	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
+	 */
 	public static final DirectionProperty FACING = BlockTemplates.HORIZONTAL_FACING;
 
-	/** 与原版蜡烛同一个属性名，这样打火石/火焰弹的默认处理才能认出它。 */
+	/**
+	 * 与原版蜡烛同一个属性名，这样打火石/火焰弹的默认处理才能认出它。
+	 */
 	public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
 	/**
@@ -72,7 +72,9 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 			new Vec3(3 / 16D, 13 / 16D, 0.5D),
 			new Vec3(13 / 16D, 13 / 16D, 0.5D));
 
-	/** 朝北的三个点转出四个朝向，角度与 {@link VoxelBuilder#rotateFromNorth} 一致。 */
+	/**
+	 * 朝北的三个点转出四个朝向，角度与 {@link VoxelBuilder#rotateFromNorth} 一致。
+	 */
 	private static Vec3[][] allFaces(Vec3... northPoints) {
 		Vec3[][] ans = new Vec3[4][];
 		for (var dir : Direction.Plane.HORIZONTAL) {
@@ -104,7 +106,7 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 
 	@Override
 	public BlockState updateShape(Block self, BlockState current, BlockState old, Direction from,
-			BlockState source, LevelAccessor level, BlockPos pos, BlockPos sourcePos) {
+								  BlockState source, LevelAccessor level, BlockPos pos, BlockPos sourcePos) {
 		if (from == Direction.DOWN && !source.isFaceSturdy(level, sourcePos, Direction.UP)) {
 			return Blocks.AIR.defaultBlockState();
 		}
@@ -118,7 +120,7 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 
 	@Override
 	public @Nullable BlockState getToolModifiedState(Block self, @Nullable BlockState current, BlockState old,
-			UseOnContext ctx, ItemAbility ability, boolean simulate) {
+													 UseOnContext ctx, ItemAbility ability, boolean simulate) {
 		// 打火石和火焰弹都走 FIRESTARTER_LIGHT；其他能力交回 current，别抹掉 delegate 自己算出的结果。
 		return ability == ItemAbilities.FIRESTARTER_LIGHT && !old.getValue(LIT)
 				? old.setValue(LIT, true)
@@ -127,7 +129,7 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 
 	@Override
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-			Player pl, InteractionHand hand, BlockHitResult result) {
+										   Player pl, InteractionHand hand, BlockHitResult result) {
 		// 同原版 CandleBlock：必须空手，且要有建造权限，避免拿着方块右键就误熄。
 		if (stack.isEmpty() && pl.getAbilities().mayBuild && state.getValue(LIT)) {
 			extinguish(pl, level, pos, state);
@@ -149,7 +151,9 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 		return FLAME_OFFSETS[state.getValue(FACING).get2DDataValue()];
 	}
 
-	/** 掐灭：改状态、三点冒烟、播 {@code candle_extinguish}。 */
+	/**
+	 * 掐灭：改状态、三点冒烟、播 {@code candle_extinguish}。
+	 */
 	public static void extinguish(@Nullable Player player, LevelAccessor level, BlockPos pos, BlockState state) {
 		level.setBlock(pos, state.setValue(LIT, false), 11);
 		for (Vec3 each : flames(state)) {
@@ -160,7 +164,9 @@ public class CandlestickBlock implements CreateBlockStateBlockMethod, DefaultSta
 		level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 	}
 
-	/** 一处火焰：常驻的小火焰粒子，外加原版同款的烟和噼啪声。 */
+	/**
+	 * 一处火焰：常驻的小火焰粒子，外加原版同款的烟和噼啪声。
+	 */
 	private static void addFlame(Level level, Vec3 pos, RandomSource random) {
 		float f = random.nextFloat();
 		if (f < 0.3F) {

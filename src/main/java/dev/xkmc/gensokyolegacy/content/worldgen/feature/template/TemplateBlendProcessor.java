@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.feature.template;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -21,13 +22,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Blends a vegetation template into what is already there and never carves - templates carry no air. Trunks replace
@@ -148,11 +143,11 @@ public class TemplateBlendProcessor extends StructureProcessor {
 			}
 			return false;
 		}
+		if (state.getBlock() instanceof CarpetBlock || state.getBlock() instanceof FallenLeavesBlock) {
+			return isSolid(level, pos.below(), solid);
+		}
 		if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
 			return isSolid(level, pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite()), solid);
-		}
-		if (state.getBlock() instanceof CarpetBlock) {
-			return isSolid(level, pos.below(), solid);
 		}
 		// hanging plants chain downwards, anything else needs a floor
 		return isSolid(level, pos.above(), solid) || kept.containsKey(pos.above()) || isSolid(level, pos.below(), solid);

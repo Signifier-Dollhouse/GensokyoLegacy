@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.loot;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.serial.loot.AddItemModifier;
@@ -15,7 +14,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;

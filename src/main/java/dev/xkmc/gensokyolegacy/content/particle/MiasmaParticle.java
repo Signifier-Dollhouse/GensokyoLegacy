@@ -1,11 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 
 public class MiasmaParticle extends TextureSheetParticle {
@@ -26,6 +22,7 @@ public class MiasmaParticle extends TextureSheetParticle {
 		this.lifetime = 25 + this.random.nextInt(20);
 		this.friction = 0.96F;
 		this.setSpriteFromAge(sprites);
+		hasPhysics = false;
 	}
 
 	@Override

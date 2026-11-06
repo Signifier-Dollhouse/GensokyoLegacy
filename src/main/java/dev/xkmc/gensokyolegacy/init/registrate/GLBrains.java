@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.*;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.init.reg.simple.SR;
 import dev.xkmc.l2core.init.reg.simple.Val;
@@ -36,9 +36,11 @@ public class GLBrains {
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_PREY = MEMORIES.reg("prey", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
-	/** Who just fed her and what she owes them for it, held for the length of the animation she plays about
-	 *  it; both halves travel together because the gift depends on the food. Its presence starts
-	 *  {@code FairyFeedTask}, which eats first and only then hands something back. */
+	/**
+	 * Who just fed her and what she owes them for it, held for the length of the animation she plays about
+	 * it; both halves travel together because the gift depends on the food. Its presence starts
+	 * {@code FairyFeedTask}, which eats first and only then hands something back.
+	 */
 	public static final Val<MemoryModuleType<FairyFeedModule.Fed>> MEM_FEED =
 			MEMORIES.reg("feed", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<List<ItemEntity>>> MEM_ITEMS = MEMORIES.reg("nearby_items", () -> new MemoryModuleType<>(Optional.empty()));
@@ -57,9 +59,11 @@ public class GLBrains {
 	 * what puts a plain fairy in {@link #FEAR}.
 	 */
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_FEAR = MEMORIES.reg("fear", () -> new MemoryModuleType<>(Optional.empty()));
-	/** How long she still intends to lie down. Its presence is what puts her in {@link #NAP}, and its expiry ends
-	 *  that - the nap has no other reason to stop, so the memory is the clock, not a flag. <p> No codec, so a nap
-	 *  does not survive a save; she wakes up on reload rather than being found lying there. */
+	/**
+	 * How long she still intends to lie down. Its presence is what puts her in {@link #NAP}, and its expiry ends
+	 * that - the nap has no other reason to stop, so the memory is the clock, not a flag. <p> No codec, so a nap
+	 * does not survive a save; she wakes up on reload rather than being found lying there.
+	 */
 	public static final Val<MemoryModuleType<Unit>> MEM_NAP = MEMORIES.reg("nap", () -> new MemoryModuleType<>(Optional.empty()));
 
 	/*
@@ -139,9 +143,11 @@ public class GLBrains {
 	 * her schedule, but not on a panic, and not on a hunt.
 	 */
 	public static final Val<Activity> FEAST = ACTIVITIES.reg("feast", () -> new Activity("feast"));
-	/** Lying down and doing nothing at all. Below TALK and PARTY: a conversation is answered from where she is
-	 *  lying rather than getting her up - {@code YoukaiNapTask} holds the pose through one - but a party still
-	 *  does. Above VISITING and the schedule: a nap is her own free time, not a guest's house. */
+	/**
+	 * Lying down and doing nothing at all. Below TALK and PARTY: a conversation is answered from where she is
+	 * lying rather than getting her up - {@code YoukaiNapTask} holds the pose through one - but a party still
+	 * does. Above VISITING and the schedule: a nap is her own free time, not a guest's house.
+	 */
 	public static final Val<Activity> NAP = ACTIVITIES.reg("nap", () -> new Activity("nap"));
 
 	public static void register() {

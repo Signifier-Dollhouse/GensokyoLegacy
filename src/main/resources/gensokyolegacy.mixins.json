@@ -10,6 +10,7 @@
 		"EntityMixin",
 		"ILivingEntityExtensionMixin",
 		"ItemAccessor",
+		"ItemCooldownsAccessor",
 		"LivingEntityJumpingAccessor",
 		"LivingEntityMixin",
 		"NaturalSpawnerSealingMixin",
@@ -21,10 +22,9 @@
 	],
 	"client": [
 		"AbstractContainerScreenMixin",
-		"BroomInHandMixin",
-		"DowserHandRendererMixin",
 		"DowserItemInHandLayerMixin",
 		"GuiGraphicsMixin",
+		"ItemInHandRendererMixin",
 		"LocalPlayerMixin",
 		"ClientGlowMixin"
 	],

@@ -29,7 +29,8 @@ public class PickupTask extends PartyTask {
 		boolean takeable = dish != null && ctx.dishInReach();
 		ctx.dish(null);
 		// someone else got there first, or the host broke it up: draw again
-		if (!takeable || !ctx.takeServing(dish)) return;
+		if (!takeable || !ctx.takeServing(dish)) {
+		}
 		// holding it is the whole of the handoff: seated she is already home, otherwise
 		// GoToSeat picks her up
 	}

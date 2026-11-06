@@ -70,6 +70,15 @@
         "TOOL": 1.5
       }
     },
+    "gensokyolegacy:murasa_minamitsu": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "COLLECTION": 1.5,
+        "FOOD": 1.5,
+        "TOOL": 1.0
+      }
+    },
     "gensokyolegacy:plain_fairy": {
       "override": {},
       "preference": {
@@ -81,6 +90,16 @@
         "MAGIC": 0.0,
         "TOOL": 0.0,
         "TOY": 2.0
+      }
+    },
+    "gensokyolegacy:saigyouji_yuyuko": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "DRINK": 2.0,
+        "FOOD": 2.0,
+        "MAGIC": 0.5,
+        "TOOL": 0.0
       }
     }
   }

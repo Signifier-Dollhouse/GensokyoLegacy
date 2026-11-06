@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.client;
 
 import dev.xkmc.gensokyolegacy.content.item.character.StrangeGlassesItem;
-import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveDollHover;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveDollHover;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/** Central registry for the client-side entity glow effects the glow mixin reads. Rules are checked in
+/**
+ * Central registry for the client-side entity glow effects the glow mixin reads. Rules are checked in
  * registration order and the first non-null color wins, so specific highlights (glove targets) must
  * register before blanket ones (strange glasses white-out).
  */

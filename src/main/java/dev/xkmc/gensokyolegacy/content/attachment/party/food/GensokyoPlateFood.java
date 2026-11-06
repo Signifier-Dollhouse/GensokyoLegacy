@@ -38,7 +38,9 @@ public class GensokyoPlateFood implements ContainerFoodHandler {
 		return List.of(FoodResult.of(be.stack.copyWithCount(1), state.getBlock(), 1, props, this::consume));
 	}
 
-	/** Only a plate put out on the furniture is party food, the same test every other dish uses. */
+	/**
+	 * Only a plate put out on the furniture is party food, the same test every other dish uses.
+	 */
 	@Override
 	public boolean isPutOut(Level level, BlockPos pos, BlockState state) {
 		return PartyArea.touchingFurniture(level, pos);

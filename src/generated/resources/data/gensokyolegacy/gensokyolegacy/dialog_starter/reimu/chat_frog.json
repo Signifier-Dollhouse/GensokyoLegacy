@@ -22,7 +22,40 @@
       "key": "frog"
     }
   ],
-  "dialog": "gensokyolegacy:reimu/chat_frog/talk",
+  "dialog": {
+    "animations": [
+      "dialog_think_02"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:set_timer",
+            "delay": 1200,
+            "key": "frog"
+          }
+        ],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_04"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/reimu/chat_frog/option/bye"
+            }
+          ],
+          "text": "gensokyolegacy/reimu/chat_frog/dialog/reimu/chat_frog/idea"
+        },
+        "text": "gensokyolegacy/reimu/chat_frog/option/ask"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/chat_frog/dialog/reimu/chat_frog/talk"
+  },
   "text": "gensokyolegacy/reimu/chat_frog/starter/start",
   "weight": 1000
 }

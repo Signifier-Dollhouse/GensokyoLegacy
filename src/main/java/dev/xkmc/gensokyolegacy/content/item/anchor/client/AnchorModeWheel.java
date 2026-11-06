@@ -1,0 +1,85 @@
+package dev.xkmc.gensokyolegacy.content.item.anchor.client;
+
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.l2itemselector.wheel.ItemWheelEntry;
+import dev.xkmc.l2itemselector.wheel.PersistentWheel;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The selector wheel for the anchor: one entry per mode, every mode always listed.
+ *
+ * @see "doc/design/minamitsu_anchor.md"
+ */
+public class AnchorModeWheel implements PersistentWheel<ItemWheelEntry> {
+
+	private final ItemStack stack;
+
+	public AnchorModeWheel(ItemStack stack) {
+		this.stack = stack;
+	}
+
+	@Override
+	public boolean isValid(Player player) {
+		ItemStack held = AnchorSelectionListener.getHeldAnchor(player);
+		return held != null && held.getItem() instanceof AnchorItem;
+	}
+
+	@Override
+	public List<ItemWheelEntry> getWheelContent() {
+		return Arrays.stream(AnchorMode.values())
+				.map(mode -> new ItemWheelEntry(mode.icon()))
+				.toList();
+	}
+
+	@Override
+	public int getIndex(Player player) {
+		ItemStack held = AnchorSelectionListener.getHeldAnchor(player);
+		return held == null ? -1 : AnchorItem.getMode(held).ordinal();
+	}
+
+	@Override
+	public void select(int index) {
+		AnchorMode[] modes = AnchorMode.values();
+		if (index < 0 || index >= modes.length) return;
+		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(index));
+		// optimistic update, same as the other selector wheels
+		AnchorItem.setMode(stack, modes[index]);
+	}
+
+	@Override
+	public void renderIcon(GuiGraphics g, int x0, int y0, boolean left, float sideWidth, boolean hover) {
+		ItemStack icon = AnchorItem.getMode(stack).icon();
+		float cx = left ? sideWidth / 2f : g.guiWidth() - sideWidth / 2f;
+		float r = Math.min((float) x0 / 1.5f, (float) y0) / 1.5f;
+		float rs = r * 0.025f;
+		float r0 = Math.min(sideWidth / 2f, r * 0.75f) * (hover ? 0.3f : 0.15f);
+		if (r0 > 4) {
+			g.pose().pushPose();
+			g.pose().translate(cx, y0, 0);
+			g.pose().scale(rs, rs, rs);
+			g.renderItem(icon, -8, -8);
+			g.pose().popPose();
+		}
+		if (hover) {
+			int cx2 = left ? (int) (sideWidth / 2) : g.guiWidth() - (int) (sideWidth / 2);
+			int ty = y0 + (int) r0 * 2;
+			var font = Minecraft.getInstance().font;
+			var text = icon.getHoverName();
+			for (var line : font.split(text, (int) (sideWidth - 4))) {
+				g.drawString(font, line, cx2 - font.width(line) / 2, ty, 0xffffff, true);
+				ty += font.lineHeight + 1;
+			}
+		}
+	}
+
+}

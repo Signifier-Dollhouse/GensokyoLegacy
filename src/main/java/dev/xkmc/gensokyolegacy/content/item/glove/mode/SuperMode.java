@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.mode;
 
-import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -51,7 +51,7 @@ public class SuperMode extends DollGloveHandler {
 
 	@Override
 	public void performAttackOn(ServerPlayer sp, @Nullable LivingEntity target, InteractionHand hand, ItemStack stack, DollGloveItem item) {
-var commands = attachment(sp).commands();
+		var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
 		} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUPER_ATTACK) instanceof DollEntity doll) {

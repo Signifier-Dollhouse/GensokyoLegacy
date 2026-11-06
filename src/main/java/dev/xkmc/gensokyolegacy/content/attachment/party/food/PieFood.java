@@ -9,6 +9,7 @@ import vectorwing.farmersdelight.common.block.PieBlock;
  * A Farmer's Delight pie: four bites counted <em>up</em>, food on a slice item rather than on the
  * block. Every pie is the same class but has its own slice, so the slice is asked of the block;
  * Youkai's Feasts' {@code YHPieBlock} extends {@code PieBlock}.
+ *
  * @see "doc/design/party/food_mods.md"
  */
 public class PieFood extends AbstractCountdownFood {

@@ -31,9 +31,10 @@ public class ExplosiveHandler implements HexBrewHandler {
 		int r = radius;
 		if (level.isClientSide) return;
 		BaseExplosionContext base = new BaseExplosionContext(level, pos.x, pos.y, pos.z, r);
+		Entity credit = HexBrewHandler.damageOwner(thrower);
 		VanillaExplosionContext vanilla = new VanillaExplosionContext(
 				thrower,
-				thrower instanceof LivingEntity le ? level.damageSources().explosion(null, le) : null,
+				credit instanceof LivingEntity le ? level.damageSources().explosion(null, le) : null,
 				null, false, Explosion.BlockInteraction.KEEP);
 		ModExplosionContext mod = entity -> {
 			if (entity == thrower) return false;

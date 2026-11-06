@@ -12,11 +12,14 @@ import org.jetbrains.annotations.Nullable;
  * Finds the item form of a block food by appending a suffix to the block's registry id —
  * {@code youkaisfeasts:tarte_lune} → {@code youkaisfeasts:tarte_lune_slice}. Preferred over
  * reflecting a field, because a naming convention survives a mod update.
+ *
  * @see "doc/design/party/food.md"
  */
 public final class Permutations {
 
-	/** Suffixes tried against a block's id, in order. */
+	/**
+	 * Suffixes tried against a block's id, in order.
+	 */
 	private static final String[] SUFFIXES = {"_slice", "_dish", "_piece"};
 
 	/**
@@ -29,7 +32,8 @@ public final class Permutations {
 		return item == null ? null : Servings.of(new ItemStack(item));
 	}
 
-	/** The first permuted id that names a real item carrying food, or null. The item rather than
+	/**
+	 * The first permuted id that names a real item carrying food, or null. The item rather than
 	 * just its properties, so a caller can also <i>name</i> the serving.
 	 */
 	@Nullable
@@ -45,7 +49,9 @@ public final class Permutations {
 		return null;
 	}
 
-	/** The food properties of the item at this id, or null. */
+	/**
+	 * The food properties of the item at this id, or null.
+	 */
 	@Nullable
 	public static FoodProperties propsAt(ResourceLocation id) {
 		var item = BuiltInRegistries.ITEM.get(id);
@@ -53,7 +59,9 @@ public final class Permutations {
 		return Servings.of(new ItemStack(item));
 	}
 
-	/** The item at this id, or an empty stack. */
+	/**
+	 * The item at this id, or an empty stack.
+	 */
 	public static ItemStack stackAt(ResourceLocation id) {
 		var item = BuiltInRegistries.ITEM.get(id);
 		return item == net.minecraft.world.item.Items.AIR ? ItemStack.EMPTY : new ItemStack(item);

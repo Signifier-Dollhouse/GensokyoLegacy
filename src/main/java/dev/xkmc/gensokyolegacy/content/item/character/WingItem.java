@@ -41,7 +41,9 @@ import java.util.function.Supplier;
  */
 public abstract class WingItem extends Item implements Equipable, ICurioItem {
 
-	/** Two seconds: long enough not to refresh every tick, short enough to lapse on removal. */
+	/**
+	 * Two seconds: long enough not to refresh every tick, short enough to lapse on removal.
+	 */
 	protected static final int DURATION = 40;
 
 	/**

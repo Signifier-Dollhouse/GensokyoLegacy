@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistr
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,31 +25,47 @@ import java.util.Optional;
  */
 public class DollMeleeBehavior extends DollBehavior {
 
-	/** Targets further away than this are left to the ranged behaviors. */
+	/**
+	 * Targets further away than this are left to the ranged behaviors.
+	 */
 	private static final double ENGAGE_RANGE = 16.0;
 
-	/** Contact range that lands the swing (bounding-box distance). */
+	/**
+	 * Contact range that lands the swing (bounding-box distance).
+	 */
 	private static final double MELEE_RANGE = 2.5;
 
-	/** The charge's own leash, standing in for the owner ring while it lasts: past everything the engage range admits
-	 * (16 + contact) and under the 48-block ledger pullback once the formation radius is added. */
+	/**
+	 * The charge's own leash, standing in for the owner ring while it lasts: past everything the engage range admits
+	 * (16 + contact) and under the 48-block ledger pullback once the formation radius is added.
+	 */
 	private static final double CHARGE_REACH = 20.0;
 
-	/** Charge speed: twice the movement cap, which the charge raises to match. */
+	/**
+	 * Charge speed: twice the movement cap, which the charge raises to match.
+	 */
 	private static final double CHARGE_SPEED = BaseDollEntity.MAX_SPEED * 2;
 
-	/** Return speed: ordinary flight, i.e. the cap again. */
+	/**
+	 * Return speed: ordinary flight, i.e. the cap again.
+	 */
 	private static final double RETURN_SPEED = BaseDollEntity.MAX_SPEED;
 
-	/** Fraction of the charge velocity the impact bounce kicks back with. */
+	/**
+	 * Fraction of the charge velocity the impact bounce kicks back with.
+	 */
 	private static final double RECOIL = 0.5;
 
-	/** Blocks per tick the struck target is pushed, vanilla's default punch. */
+	/**
+	 * Blocks per tick the struck target is pushed, vanilla's default punch.
+	 */
 	private static final double KNOCKBACK = 0.5;
 
 	private static final int COOLDOWN_TICKS = 20;
 
-	/** Charge budget, and the backstop for a target circling inside {@link #CHARGE_REACH} that can never be caught. */
+	/**
+	 * Charge budget, and the backstop for a target circling inside {@link #CHARGE_REACH} that can never be caught.
+	 */
 	private static final int CHARGE_TICKS = 40;
 
 	/**
@@ -65,7 +82,9 @@ public class DollMeleeBehavior extends DollBehavior {
 	private static final int HOLD_TICKS = 6;
 	private static final int LANCE_HOLD_TICKS = 9;
 
-	/** Return budget: the way home is straight and at full flight speed. */
+	/**
+	 * Return budget: the way home is straight and at full flight speed.
+	 */
 	private static final int RETURN_TICKS = 60;
 
 	private static final int CHARGE = 0;
@@ -77,10 +96,14 @@ public class DollMeleeBehavior extends DollBehavior {
 	private int stalled;
 	private int holdTicks;
 
-	/** Where the charge began, and the return destination. Set in {@link #start}. */
+	/**
+	 * Where the charge began, and the return destination. Set in {@link #start}.
+	 */
 	private Vec3 home = Vec3.ZERO;
 
-	/** Half of the impact → home leg: the release point of the return flight. */
+	/**
+	 * Half of the impact → home leg: the release point of the return flight.
+	 */
 	private double halfLeg;
 
 	@Override
@@ -118,8 +141,10 @@ public class DollMeleeBehavior extends DollBehavior {
 		return ticks < RETURN_TICKS && doll.position().distanceToSqr(home) > halfLeg * halfLeg;
 	}
 
-	/** Waiting in formation never closes the gap to {@link #ENGAGE_RANGE}, so a target past it is one this doll can
-	 * never go and get: the wait gives the ticket up at once instead of sitting on it. */
+	/**
+	 * Waiting in formation never closes the gap to {@link #ENGAGE_RANGE}, so a target past it is one this doll can
+	 * never go and get: the wait gives the ticket up at once instead of sitting on it.
+	 */
 	@Override
 	public boolean canReach(DollEntity doll, LivingEntity target) {
 		return inRange(doll, target, ENGAGE_RANGE);
@@ -211,9 +236,12 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	private void swing(DollEntity doll, ItemStack weapon, LivingEntity target, Vec3 toTarget) {
-		// Plain mob_attack; GLAttackListener#onCreateSource turns it into a bypass-cooldown variant
-		// for every doll melee, not only this behavior.
-		DamageSource source = doll.damageSources().mobAttack(doll);
+		// The doll is the direct source, its owner the causing one; GLAttackListener#onCreateSource
+		// turns every doll melee into a bypass-cooldown variant.
+		LivingEntity owner = doll.getOwner();
+		DamageSource source = owner == null
+				? doll.damageSources().mobAttack(doll)
+				: doll.damageSources().source(DamageTypes.MOB_ATTACK, doll, owner);
 		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
 		if (push.lengthSqr() < 1e-6) return;
@@ -235,14 +263,18 @@ public class DollMeleeBehavior extends DollBehavior {
 		return (float) (doll.getAttributeValue(Attributes.ATTACK_DAMAGE) + weaponDamage);
 	}
 
-	/** No hit, but the ticket still goes out — a charge given up costs nothing. */
+	/**
+	 * No hit, but the ticket still goes out — a charge given up costs nothing.
+	 */
 	private void abort(DollEntity doll) {
 		doll.actions.complete(doll);
 		doll.setSpeedCap(RETURN_SPEED);
 		beginReturn(doll);
 	}
 
-	/** The strike landed: the charge is over, so the doubled cap drops back here. */
+	/**
+	 * The strike landed: the charge is over, so the doubled cap drops back here.
+	 */
 	private void beginHold(DollEntity doll, boolean bareHand) {
 		phase = HOLD;
 		ticks = 0;

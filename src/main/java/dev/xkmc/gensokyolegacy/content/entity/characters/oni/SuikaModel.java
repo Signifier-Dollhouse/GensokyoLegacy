@@ -10,7 +10,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  * The animation file was exported against a slightly different mesh revision, so five bones
  * it keys do not exist here and GeckoLib drops those keyframes silently: {@code Hat},
  * {@code Front_Hair1} and the three {@code *_DownCloth} bones. They affect only the moving
- * cloth and hat of {@code 坐下}, {@code 睡觉} and {@code 受伤}, and every clip she actually
+ * cloth and hat of {@code sit}, {@code sleep} and {@code hurt}, and every clip she actually
  * plays still drives real bones, so it is wired as shipped. Re-export from Blockbench against
  * this mesh to get the cloth motion back.
  */

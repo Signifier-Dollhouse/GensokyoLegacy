@@ -1,10 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls;
 
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollNature;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.StrayHost;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.*;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.FollowDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.LookAtDollOwnerGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollModule;
@@ -25,11 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -48,7 +40,7 @@ import java.util.*;
  * lives one layer up: {@link DollEntity} adds the loadout, the commands and the status.
  *
  * @see "doc/design/doll/entity.md"
- * @see "doc/design/doll/timed_summon.md"
+ * @see "doc/design/doll/summon.md"
  */
 public abstract class BaseDollEntity extends DamageRefactorEntity
 		implements OwnableEntity, DollRig, IDimensionBoundEntity {
@@ -73,7 +65,9 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	@Nullable
 	private StrayHost strayHost;
 
-	/** Movement cap, 0.5 blocks per tick. */
+	/**
+	 * Movement cap, 0.5 blocks per tick.
+	 */
 	public static final double MAX_SPEED = 0.5;
 
 	/**
@@ -88,6 +82,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 
 	public void setSpeedCap(double speedCap) {
 		this.speedCap = speedCap;
+	}
+
+	/**
+	 * Cancels steering and clears the velocity, for a doll that drives its own movement.
+	 */
+	public void stopMove() {
+		if (moveControl instanceof DollMoveControl control) control.stop();
 	}
 
 	/**
@@ -210,6 +211,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	}
 
 	/**
+	 * Whether the follow goal steers this doll straight at its slot rather than following a path.
+	 */
+	public boolean fliesDirectly() {
+		return false;
+	}
+
+	/**
 	 * A resident doll is either owned by a living entity (player ledger, or a
 	 * character's own host) or hosted by a controller block (homePos set, no owner).
 	 */
@@ -264,12 +272,12 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	}
 
 	/**
-	 * What a doll of this kind is allowed to become. An item-backed doll by default; a timed summon or
+	 * What a doll of this kind is allowed to become. An item-backed doll by default; a summon or
 	 * a gadget overrides this, and it is the only place the kind has to say so —
 	 * {@link DollSpawn#materialize} stamps it onto the ledger entry, which is what every
 	 * itemize / recall / loadout gate actually reads.
 	 *
-	 * @see "doc/design/doll/timed_summon.md"
+	 * @see "doc/design/doll/summon.md"
 	 */
 	public DollNature nature() {
 		return DollNature.DOLL;
@@ -360,7 +368,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 		super.die(damageSource);
 	}
 
-	private void deferCombatData(DollData data, float amount, boolean force, boolean boostBase) {
+	protected void deferCombatData(DollData data, float amount, boolean force, boolean boostBase) {
 		CombatData ans = data.combat.set(this, amount, force, boostBase);
 		data.combat = ans;
 		boolean update = getCombatData() == null || ans.amount() != getCombatData().amount();

@@ -23,9 +23,11 @@ public class GLStructureTagGen {
 	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
 			ProviderType.registerDynamicTag("biome", "biome", Registries.BIOME);
 
-	/** Tags on the structure registry itself, as opposed to the biome tags below which say where a structure
-	 *  may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
-	 *  shrine" style lookups are written against them. */
+	/**
+	 * Tags on the structure registry itself, as opposed to the biome tags below which say where a structure
+	 * may spawn. These are what {@code ServerLevel#findNearestMapStructure} takes, so "point me at Reimu's
+	 * shrine" style lookups are written against them.
+	 */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
 			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
 
@@ -36,9 +38,11 @@ public class GLStructureTagGen {
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
-	/** Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
-	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
-	 *  Spelled out rather than imported because that mod is compile-only. */
+	/**
+	 * Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
+	 * the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
+	 * Spelled out rather than imported because that mod is compile-only.
+	 */
 	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
 			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
 
@@ -48,9 +52,11 @@ public class GLStructureTagGen {
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
 	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
 
-	/** Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
-	 *  {@code FairyDustItem} wants). <p> A datapack can widen any of these tags, so the one a given flower
-	 *  points at is data, not code: it reaches further afield without a code change. */
+	/**
+	 * Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
+	 * {@code FairyDustItem} wants). <p> A datapack can widen any of these tags, so the one a given flower
+	 * points at is data, not code: it reaches further afield without a code change.
+	 */
 	public static final TagKey<Structure> CHARACTER_HOMES = structureTag("character_homes");
 
 	public static final TagKey<Block> CIRNO_PRIMARY = blockTag("structure_fix/cirno_nest/primary");

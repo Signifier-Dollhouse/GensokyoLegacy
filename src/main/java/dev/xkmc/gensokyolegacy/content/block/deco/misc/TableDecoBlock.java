@@ -3,11 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
-import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
-import dev.xkmc.l2modularblock.mult.ShapeUpdateBlockMethod;
-import dev.xkmc.l2modularblock.mult.SurviveBlockMethod;
+import dev.xkmc.l2modularblock.mult.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -32,12 +28,14 @@ public class TableDecoBlock implements CreateBlockStateBlockMethod, DefaultState
 		PlacementBlockMethod, SurviveBlockMethod, ShapeUpdateBlockMethod, ShapePathFindBlockMethod {
 
 	private final VoxelShape[] shapes;
-	/** 摆放时在"背对玩家"之外再顺时针转多少度。 */
+	/**
+	 * 摆放时在"背对玩家"之外再顺时针转多少度。
+	 */
 	private final int placementTurn;
 
 	/**
-	 * @param shapes 朝北的碰撞盒按 {@link MagicTableBlock#allFaces} 转出的四个朝向，
-	 *               按 {@link Direction#get2DDataValue()} 索引
+	 * @param shapes        朝北的碰撞盒按 {@link MagicTableBlock#allFaces} 转出的四个朝向，
+	 *                      按 {@link Direction#get2DDataValue()} 索引
 	 * @param placementTurn 摆放时再顺时针转的度数
 	 */
 	public TableDecoBlock(VoxelShape[] shapes, int placementTurn) {
@@ -70,7 +68,7 @@ public class TableDecoBlock implements CreateBlockStateBlockMethod, DefaultState
 
 	@Override
 	public BlockState updateShape(Block self, BlockState current, BlockState old, Direction from,
-			BlockState source, LevelAccessor level, BlockPos pos, BlockPos sourcePos) {
+								  BlockState source, LevelAccessor level, BlockPos pos, BlockPos sourcePos) {
 		if (from == Direction.DOWN && !MagicTableBlock.isTable(source)) return Blocks.AIR.defaultBlockState();
 		return current;
 	}
@@ -80,9 +78,11 @@ public class TableDecoBlock implements CreateBlockStateBlockMethod, DefaultState
 		return shapes[state.getValue(BlockTemplates.HORIZONTAL_FACING).get2DDataValue()];
 	}
 
-	/** 装饰只有朝向这一个状态，交给 {@code horizontalBlock} 出四个朝向的变体。
+	/**
+	 * 装饰只有朝向这一个状态，交给 {@code horizontalBlock} 出四个朝向的变体。
 	 *
-	 * @param model 装饰的自定义模型，如 {@code custom/deco/sewing_machine} */
+	 * @param model 装饰的自定义模型，如 {@code custom/deco/sewing_machine}
+	 */
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name, String model) {
 		pvd.horizontalBlock(block, pvd.models().getBuilder("block/" + name)
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc(model)))

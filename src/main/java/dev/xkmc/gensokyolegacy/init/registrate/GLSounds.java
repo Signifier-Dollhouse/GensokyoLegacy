@@ -26,10 +26,14 @@ public class GLSounds {
 	 */
 	public static final SimpleEntry<SoundEvent> DOLL_ATTACK = reg("doll_attack");
 
-	/** The lance charge's impact. */
+	/**
+	 * The lance charge's impact.
+	 */
 	public static final SimpleEntry<SoundEvent> DOLL_LANCE = reg("doll_lance");
 
-	/** The bare-handed charge's impact. */
+	/**
+	 * The bare-handed charge's impact.
+	 */
 	public static final SimpleEntry<SoundEvent> DOLL_SLAP = reg("doll_slap");
 
 	private static SimpleEntry<SoundEvent> reg(String id) {

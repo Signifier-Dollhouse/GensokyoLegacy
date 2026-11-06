@@ -26,7 +26,10 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.RuleBasedBlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
-import net.minecraft.world.level.levelgen.placement.*;
+import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 import java.util.List;
 
@@ -63,33 +66,33 @@ public class GLFeatureGen {
 			for (var type : TreeType.values()) {
 				ctx.register(type.cfKey, type.createConfiguredFeature());
 			}
-		FeatureUtils.register(ctx, MAGICAL_FOREST_GRASS, Feature.RANDOM_PATCH,
-				FeatureUtils.simpleRandomPatchConfiguration(24,
-						PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-										new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-												.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 1)
-												.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
-												.build())),
+			FeatureUtils.register(ctx, MAGICAL_FOREST_GRASS, Feature.RANDOM_PATCH,
+					FeatureUtils.simpleRandomPatchConfiguration(24,
+							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+													.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 1)
+													.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+													.build())),
 									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
 											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
-		FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,
-				FeatureUtils.simpleRandomPatchConfiguration(32,
-						PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
-										new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-												.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
-												.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 3)
-												.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
-												.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
-												.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
-												.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
-												.add(GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState(), 1)
-											.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
-											.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
-											.build())),
-								BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
-										BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
-		FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
+			FeatureUtils.register(ctx, MAGICAL_FOREST_FLOWERS, Feature.RANDOM_PATCH,
+					FeatureUtils.simpleRandomPatchConfiguration(32,
+							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
+											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+													.add(GLNaturalBlocks.STAR_FLOWER.get().defaultBlockState(), 3)
+													.add(GLNaturalBlocks.BROOM_GRASS.get().defaultBlockState(), 3)
+													.add(GLNaturalBlocks.BRACKEN.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.EUGUNE_RED.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.EUGUNE_BROWN.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.EUGUNE_GHOST_FIRE.get().defaultBlockState(), 1)
+													.add(GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState(), 1)
+													.add(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.get().defaultBlockState(), 2)
+													.add(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap.get().defaultBlockState(), 1)
+													.build())),
+									BlockPredicate.allOf(BlockPredicate.ONLY_IN_AIR_PREDICATE,
+											BlockPredicate.matchesTag(Direction.DOWN.getNormal(), BlockTags.DIRT)))));
+			FeatureUtils.register(ctx, MAGICAL_FOREST_MUSHROOMS, Feature.RANDOM_PATCH,
 					FeatureUtils.simpleRandomPatchConfiguration(32,
 							PlacementUtils.filtered(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(
 											new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
@@ -111,7 +114,7 @@ public class GLFeatureGen {
 					new DiskConfiguration(RuleBasedBlockStateProvider.simple(Blocks.MYCELIUM),
 							grassOnly, UniformInt.of(2, 3), 1));
 			MagicalForestFeatures.configured(ctx);
-	});
+		});
 		init.add(Registries.PLACED_FEATURE, ctx -> {
 			var cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
 			PlacementUtils.register(ctx, MAGICAL_FOREST_DISK_COARSE_DIRT_PLACED, cf.getOrThrow(MAGICAL_FOREST_DISK_COARSE_DIRT),
@@ -124,7 +127,7 @@ public class GLFeatureGen {
 					CountPlacement.of(2), InSquarePlacement.spread(),
 					PlacementUtils.HEIGHTMAP_OCEAN_FLOOR, BiomeFilter.biome());
 			MagicalForestFeatures.placed(ctx);
-	});
+		});
 		init.add(Registries.NOISE, MagicalForestFeatures::noise);
 	}
 

@@ -36,7 +36,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private BlockPos anchor;
 
-	/** The chunk this party is owned by; also where the driver looks for it. */
+	/**
+	 * The chunk this party is owned by; also where the driver looks for it.
+	 */
 	@SerialField
 	private ChunkPos chunk;
 
@@ -52,29 +54,43 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private final ArrayList<UUID> guests = new ArrayList<>();
 
-	/** The spread's hunger at send time — the guests' shared budget. */
+	/**
+	 * The spread's hunger at send time — the guests' shared budget.
+	 */
 	@SerialField
 	private int hungerBudget;
 
-	/** Hunger the guests have actually been served, against {@link #hungerBudget}. */
+	/**
+	 * Hunger the guests have actually been served, against {@link #hungerBudget}.
+	 */
 	@SerialField
 	private int hungerServed;
 
-	/** What the table was worth by the end — the counter the host is paid from. */
+	/**
+	 * What the table was worth by the end — the counter the host is paid from.
+	 */
 	@SerialField
 	private int appealServed;
 
-	/** Fast: a second course should be noticed while the table is still full of people. */
+	/**
+	 * Fast: a second course should be noticed while the table is still full of people.
+	 */
 	private static final int FOOD_RESCAN = 40;
 
-	/** Five times slower than the food: chairs are not eaten, and the list only has to stay roughly right. */
+	/**
+	 * Five times slower than the food: chairs are not eaten, and the list only has to stay roughly right.
+	 */
 	private static final int LAYOUT_RESCAN = 200;
 
-	/** The spread as of the last food rescan; serialized so a resumed party keeps it. */
+	/**
+	 * The spread as of the last food rescan; serialized so a resumed party keeps it.
+	 */
 	@SerialField
 	private final ArrayList<BlockPos> food = new ArrayList<>();
 
-	/** Every chair as of the last layout rescan. */
+	/**
+	 * Every chair as of the last layout rescan.
+	 */
 	@SerialField
 	private final ArrayList<BlockPos> seats = new ArrayList<>();
 
@@ -85,13 +101,17 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private final HashMap<BlockPos, UUID> claims = new HashMap<>();
 
-	/** When each of the two lists was last rebuilt. */
+	/**
+	 * When each of the two lists was last rebuilt.
+	 */
 	@SerialField
 	private long foodScannedAt;
 	@SerialField
 	private long layoutScannedAt;
 
-	/** Bumped whenever the chair list changes, so a guest can notice her chair is gone. */
+	/**
+	 * Bumped whenever the chair list changes, so a guest can notice her chair is gone.
+	 */
 	@SerialField
 	private int layoutVersion;
 
@@ -102,12 +122,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@SerialField
 	private int admitted = 0;
 
-	/** Consecutive empty food rescans; the party ends on the second. */
+	/**
+	 * Consecutive empty food rescans; the party ends on the second.
+	 */
 	@SerialField
 	private int emptyScans = 0;
 
-	/** Backstop against one stuck guest pinning the chunk's party open for ever, stamped from the
-	 * last unseat rather than from CLOSING — see {@link #startClosingClock}. */
+	/**
+	 * Backstop against one stuck guest pinning the chunk's party open for ever, stamped from the
+	 * last unseat rather than from CLOSING — see {@link #startClosingClock}.
+	 */
 	@SerialField
 	private long closingAt = 0;
 
@@ -123,7 +147,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	@Nullable
 	private LevelChunk owner;
 
-	/** Whether this chunk already hosts a party; the send-time overlap guard reads this. */
+	/**
+	 * Whether this chunk already hosts a party; the send-time overlap guard reads this.
+	 */
 	public boolean active() {
 		return phase != Phase.IDLE;
 	}
@@ -167,7 +193,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return hungerServed;
 	}
 
-	/** Appeal the guests have actually been served; what the host is paid from. */
+	/**
+	 * Appeal the guests have actually been served; what the host is paid from.
+	 */
 	public int appealServed() {
 		return appealServed;
 	}
@@ -176,17 +204,23 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return guests.size();
 	}
 
-	/** The spread as of the last rescan: every dish a guest can eat. */
+	/**
+	 * The spread as of the last rescan: every dish a guest can eat.
+	 */
 	public List<BlockPos> food() {
 		return food;
 	}
 
-	/** Every chair as of the last layout rescan. */
+	/**
+	 * Every chair as of the last layout rescan.
+	 */
 	public List<BlockPos> seats() {
 		return seats;
 	}
 
-	/** Bumped when the chair list changes; a guest compares it to notice her chair is gone. */
+	/**
+	 * Bumped when the chair list changes; a guest compares it to notice her chair is gone.
+	 */
 	public int layoutVersion() {
 		return layoutVersion;
 	}
@@ -242,12 +276,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		if (claims.values().removeIf(guest::equals)) dirty();
 	}
 
-	/** Whether the whole roster has been admitted. */
+	/**
+	 * Whether the whole roster has been admitted.
+	 */
 	public boolean admitted() {
 		return admitted >= roster.size();
 	}
 
-	/** How many of the roster are still to arrive. */
+	/**
+	 * How many of the roster are still to arrive.
+	 */
 	public int pending() {
 		return Math.max(0, roster.size() - admitted);
 	}
@@ -261,7 +299,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return admitted < roster.size() ? roster.get(admitted) : null;
 	}
 
-	/** Mark one roster entry as dealt with, whether or not it produced a guest. */
+	/**
+	 * Mark one roster entry as dealt with, whether or not it produced a guest.
+	 */
 	public void admit() {
 		if (admitted < roster.size()) {
 			admitted++;
@@ -277,12 +317,16 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return emptyScans >= 2;
 	}
 
-	/** When the last guest stood up to leave, or 0 while one is still sitting. */
+	/**
+	 * When the last guest stood up to leave, or 0 while one is still sitting.
+	 */
 	public long closingAt() {
 		return closingAt;
 	}
 
-	/** When the next gathering rocket is due, or 0 before the first guest sits. */
+	/**
+	 * When the next gathering rocket is due, or 0 before the first guest sits.
+	 */
 	public long sparkAt() {
 		return sparkAt;
 	}
@@ -344,9 +388,11 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		if (changed) dirty();
 	}
 
-	/** Freeze the roster and open the party. Every rejection must happen before this. */
+	/**
+	 * Freeze the roster and open the party. Every rejection must happen before this.
+	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
-			List<EntityType<?>> roster, int hunger) {
+					  List<EntityType<?>> roster, int hunger) {
 		start(chunk, gameTime, host, anchor, roster, hunger, List.of(), List.of());
 	}
 
@@ -356,7 +402,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	 * offered what she could walk to.
 	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
-			List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
+					  List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
 		this.owner = chunk;
 		this.host = host;
 		this.anchor = anchor.immutable();
@@ -418,7 +464,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		dirty();
 	}
 
-	/** Hunger actually consumed by the guests so far. */
+	/**
+	 * Hunger actually consumed by the guests so far.
+	 */
 	public void serve(int hunger) {
 		if (hunger > 0) {
 			hungerServed += hunger;
@@ -426,14 +474,18 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		}
 	}
 
-	/** Hunger and appeal actually consumed by one serve, in their own units. */
+	/**
+	 * Hunger and appeal actually consumed by one serve, in their own units.
+	 */
 	public void serve(int hunger, int appeal) {
 		if (hunger > 0) hungerServed += hunger;
 		if (appeal > 0) appealServed += appeal;
 		if (hunger > 0 || appeal > 0) dirty();
 	}
 
-	/** Back to idle. The roster is kept so a command can still report on it. */
+	/**
+	 * Back to idle. The roster is kept so a command can still report on it.
+	 */
 	public void reset() {
 		host = null;
 		anchor = null;
@@ -449,7 +501,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		dirty();
 	}
 
-	/** The anchor, for a caller that has already established the party is live. */
+	/**
+	 * The anchor, for a caller that has already established the party is live.
+	 */
 	public BlockPos liveAnchor() {
 		if (anchor == null) throw new IllegalStateException("party is idle");
 		return anchor;
@@ -461,7 +515,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 
 	// --- lookup ---
 
-	/** This chunk's party, or null if the chunk is not loaded. Never force-loads. */
+	/**
+	 * This chunk's party, or null if the chunk is not loaded. Never force-loads.
+	 */
 	@Nullable
 	public static PartyAttachment of(ServerLevel level, ChunkPos pos) {
 		LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, false);
@@ -485,7 +541,9 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		return found;
 	}
 
-	/** The active party in the chunk containing this position, if there is one. */
+	/**
+	 * The active party in the chunk containing this position, if there is one.
+	 */
 	@Nullable
 	public static PartyAttachment at(ServerLevel level, BlockPos pos) {
 		var party = of(level, new ChunkPos(pos));

@@ -13,19 +13,21 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
 import dev.xkmc.gensokyolegacy.content.fluid.ClientGLFluid;
 import dev.xkmc.gensokyolegacy.content.fluid.GLFluidType;
+import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollClientLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
-import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.ClientHakkeroTooltip;
-import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
+import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
-import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.model.HumanoidModel;
@@ -60,6 +62,10 @@ public class GLClient {
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"),
 					DaggerGloveItem::displayPredicate);
+			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"),
+					AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"),
+					YuyukoFanItem::displayPredicate);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
@@ -67,7 +73,14 @@ public class GLClient {
 			CuriosRendererRegistry.register(GLItems.STRANGE_GLASSES.get(), StrangeGlassesRenderer::new);
 
 			GLItems.STAR.get().getTypeForRender();
+			GLItems.PINK_BUTTERFLY.get().getTypeForRender();
+			GLItems.BLUE_BUTTERFLY.get().getTypeForRender();
 			GLItems.IRON_DAGGER.get().getTypeForRender();
+			GLItems.NUE_TRIDENT.get().getTypeForRender();
+			GLItems.MINAMITSU_ANCHOR.get().getTypeForRender();
+			GLItems.ANCHOR_WET.get().getTypeForRender();
+			GLItems.DROPLET.get().getTypeForRender();
+			GLItems.COIN.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
 	}

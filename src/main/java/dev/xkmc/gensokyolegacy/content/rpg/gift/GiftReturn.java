@@ -11,7 +11,6 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 
@@ -25,7 +24,9 @@ import java.util.ArrayList;
  */
 public class GiftReturn {
 
-	/** Folder the return tables live in, under their own character type's namespace. */
+	/**
+	 * Folder the return tables live in, under their own character type's namespace.
+	 */
 	public static final String TABLE_DIR = "gift_return";
 
 	/**

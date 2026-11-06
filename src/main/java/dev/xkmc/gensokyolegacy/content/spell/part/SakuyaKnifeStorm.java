@@ -23,13 +23,15 @@ public class SakuyaKnifeStorm<T> extends Ticker<T> {
 	@SerialField
 	private int perTick = 80, duration = 10;
 	@SerialField
-	private double radius = 12, accel = 0.2;
+	private final double radius = 12;
+	@SerialField
+	private final double accel = 0.2;
 	/**
 	 * Ticks a knife hangs at its spawn point before it starts accelerating, so the shell is legible as a shell
 	 * before it collapses inward; comfortably shorter than a knife's life, so flight is left after the hold.
 	 */
 	@SerialField
-	private int delay = 10;
+	private final int delay = 10;
 
 	public SakuyaKnifeStorm() {
 	}

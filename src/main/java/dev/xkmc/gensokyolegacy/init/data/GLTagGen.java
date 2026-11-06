@@ -4,9 +4,11 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -16,8 +18,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
-import java.util.Locale;
-import net.minecraft.resources.ResourceLocation;
 
 
 public class GLTagGen {
@@ -35,15 +35,21 @@ public class GLTagGen {
 
 	public static final TagKey<Item> TALISMAN = item("talisman");
 
-	/** The talisman papers themselves, without the folded charm every one of them turns into. */
+	/**
+	 * The talisman papers themselves, without the folded charm every one of them turns into.
+	 */
 	public static final TagKey<Item> TALISMAN_PAPERS = item("talisman_papers");
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 
-	/** The player-facing spell card items, distinct from danmaku_api's own {@code preset_spell}. */
+	/**
+	 * The player-facing spell card items, distinct from danmaku_api's own {@code preset_spell}.
+	 */
 	public static final TagKey<Item> SPELL_CARD = item("spell_card");
 
-	/** The inspection tools: the debug wands and glasses, the structure wand and the party wand. */
+	/**
+	 * The inspection tools: the debug wands and glasses, the structure wand and the party wand.
+	 */
 	public static final TagKey<Item> DEBUG_ITEMS = item("debug_items");
 
 	/**
@@ -80,13 +86,17 @@ public class GLTagGen {
 	 * {@link #TABLE}, which also carries {@code tea_table} and {@code magic_table}.
 	 */
 	public static final TagKey<Block> PARTY_TABLE = block("party_table");
-	/** Seats a guest may take. Chairs are a hard requirement for a party. */
+	/**
+	 * Seats a guest may take. Chairs are a hard requirement for a party.
+	 */
 	public static final TagKey<Block> PARTY_SEAT = block("party_seat");
 
 	public static final TagKey<Block> SLIDING_DOOR = block("sliding_door");
 	public static final TagKey<Block> PLANK_WALL = block("plank_wall");
 
-	/** Every tile block, plus the stairs, slab and vertical slab cut from it. */
+	/**
+	 * Every tile block, plus the stairs, slab and vertical slab cut from it.
+	 */
 	public static final TagKey<Block> TILE_VARIANTS = block("tile_variants");
 
 	public static final TagKey<EntityType<?>> FLESH_SOURCE = entity("flesh_source");
@@ -99,6 +109,9 @@ public class GLTagGen {
 	public static final TagKey<EntityType<?>> PIGLIN_SOURCE = entity("drops_piglin_head");
 
 	public static final TagKey<EntityType<?>> UMBRELLA_CAPTURE_BLACKLIST = entity("umbrella_capture_blacklist");
+
+	public static final TagKey<EntityType<?>> CARRYON_BLACKLIST = TagKey.create(Registries.ENTITY_TYPE,
+			ResourceLocation.fromNamespaceAndPath("carryon", "entity_blacklist"));
 
 	private static void addTiles(RegistrateTagsProvider.IntrinsicImpl<Block> pvd, TagKey<Block> tag) {
 		for (var set : GLDecoBlocks.TILE_SETS) {
@@ -153,7 +166,7 @@ public class GLTagGen {
 	};
 
 	public static void onItemTagGen(RegistrateItemTagsProvider pvd) {
-		pvd.addTag(CURRENCY).add(Items.EMERALD, Items.GOLD_INGOT);
+		pvd.addTag(CURRENCY).add(GLItems.COIN.get(), Items.GOLD_INGOT);
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
 		addTiles(pvd, TILE_VARIANTS_ITEM);

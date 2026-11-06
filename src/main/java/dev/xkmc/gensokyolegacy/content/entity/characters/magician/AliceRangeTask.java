@@ -25,13 +25,19 @@ import java.util.Map;
  */
 public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 
-	/** Inside this she opens the range. */
+	/**
+	 * Inside this she opens the range.
+	 */
 	private static final double MIN = 16;
 
-	/** Beyond this she closes. */
+	/**
+	 * Beyond this she closes.
+	 */
 	private static final double MAX = 24;
 
-	/** Where she settles, and what both corrections aim at. */
+	/**
+	 * Where she settles, and what both corrections aim at.
+	 */
 	private static final double HOLD = 20;
 
 	/**
@@ -40,7 +46,9 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 	 */
 	private static final double ORBIT_STEP = 0.011;
 
-	/** Ticks of continuous line of sight before she gives up and charges a lost target. */
+	/**
+	 * Ticks of continuous line of sight before she gives up and charges a lost target.
+	 */
 	private static final int LOSE_SIGHT_GRACE = 20;
 
 	public AliceRangeTask() {
@@ -77,7 +85,9 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 		}
 	}
 
-	/** Inside the band: orbit at exactly {@link #HOLD}, rising or falling to suit. */
+	/**
+	 * Inside the band: orbit at exactly {@link #HOLD}, rising or falling to suit.
+	 */
 	private void circle(AliceEntity alice, LivingEntity target) {
 		orbit += ORBIT_STEP;
 		Vec3 dest = orbitPoint(alice, target);
@@ -101,12 +111,16 @@ public class AliceRangeTask extends YoukaiAttackTask<AliceEntity> {
 				target.getZ() + Math.sin(orbit) * radius);
 	}
 
-	/** Too far: step to {@link #HOLD} blocks out along the full 3D vector. */
+	/**
+	 * Too far: step to {@link #HOLD} blocks out along the full 3D vector.
+	 */
 	private void close(AliceEntity alice, LivingEntity target) {
 		stepTo(alice, target, -1);
 	}
 
-	/** Too close: step to {@link #HOLD} blocks out along the same 3D vector. */
+	/**
+	 * Too close: step to {@link #HOLD} blocks out along the same 3D vector.
+	 */
 	private void withdraw(AliceEntity alice, LivingEntity target) {
 		stepTo(alice, target, 1);
 	}

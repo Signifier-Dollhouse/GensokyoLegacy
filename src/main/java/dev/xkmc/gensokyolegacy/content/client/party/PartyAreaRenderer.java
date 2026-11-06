@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.client.party;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandComponent;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
+import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -20,18 +20,22 @@ import java.util.List;
  */
 public class PartyAreaRenderer {
 
-	/** Green for a dish, blue for a seat, gold for a table: three colours, three meanings. */
+	/**
+	 * Green for a dish, blue for a seat, gold for a table: three colours, three meanings.
+	 */
 	private static final float[] FOOD_COLOUR = {0.3f, 1f, 0.3f, 0.9f};
 	private static final float[] SEAT_COLOUR = {0.4f, 0.8f, 1f, 0.9f};
 	private static final float[] TABLE_COLOUR = {1f, 0.8f, 0.2f, 0.9f};
 
-	/** The scan on the wand in hand, or null when there is none to draw. */
+	/**
+	 * The scan on the wand in hand, or null when there is none to draw.
+	 */
 	private static PartyWandData held() {
 		var player = Minecraft.getInstance().player;
 		if (player == null) return null;
 		for (ItemStack stack : player.getHandSlots()) {
 			if (!(stack.getItem() instanceof PartyWand)) continue;
-			PartyWandData data = stack.get(PartyWandComponent.TYPE);
+			PartyWandData data = GLItems.PARTY_WAND_DATA.get(stack);
 			if (data != null && !data.drawn().isEmpty()) return data;
 		}
 		return null;

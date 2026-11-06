@@ -5,18 +5,20 @@ package dev.xkmc.gensokyolegacy.content.attachment.doll;
  * right now. Declared once by the entity kind ({@code BaseDollEntity.nature()}) and stamped onto the
  * entry by {@link DollSpawn#materialize}, so a kind is never declared twice.
  *
- * @see "doc/design/doll/timed_summon.md"
+ * @see "doc/design/doll/summon.md"
  * @see "doc/design/doll/gadget.md"
  */
 public enum DollNature {
-	/** An item-backed doll: it converts to a doll item, the glove recalls it, and it carries a loadout. */
+	/**
+	 * An item-backed doll: it converts to a doll item, the glove recalls it, and it carries a loadout.
+	 */
 	DOLL(true, true, true),
 	/**
-	 * A temporary summon, conjured rather than owned. No item form exists, so its death or the end
-	 * of its lifespan simply drops the entry, the glove cannot recall it, and it carries no loadout:
-	 * the one move it fights with comes from what it is (DollBehaviorRegistry#registerIntrinsic).
+	 * A summon: owned by the ledger entry but with no item form, so its death simply drops the entry,
+	 * the glove cannot recall it, and it carries no loadout — what it does comes from the kind
+	 * itself (an intrinsic or its own tick). Lack of an item is not lack of an owner.
 	 */
-	TIMED_SUMMON(false, false, false),
+	SUMMON(false, false, false),
 	/**
 	 * A gadget: an owned thing that is only itself. It converts back to its item and the glove
 	 * recalls it like a doll, but there is no loadout to edit — what it can do is in its rig.
@@ -31,17 +33,23 @@ public enum DollNature {
 		this.loadoutCapable = loadoutCapable;
 	}
 
-	/** Whether this can ever become a doll item, and with it be parked as {@link DollState#STORED}. */
+	/**
+	 * Whether this can ever become a doll item, and with it be parked as {@link DollState#STORED}.
+	 */
 	public boolean itemizable() {
 		return itemizable;
 	}
 
-	/** Whether the glove recall sweep may take it at all. */
+	/**
+	 * Whether the glove recall sweep may take it at all.
+	 */
 	public boolean recallable() {
 		return recallable;
 	}
 
-	/** Whether the loadout editor opens on it. */
+	/**
+	 * Whether the loadout editor opens on it.
+	 */
 	public boolean loadoutCapable() {
 		return loadoutCapable;
 	}

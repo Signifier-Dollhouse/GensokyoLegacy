@@ -34,6 +34,13 @@
       "respawnTime": 12000,
       "structure": "gensokyolegacy:morichika_shop",
       "wanderRadius": 12
+    },
+    "gensokyolegacy:murasa_minamitsu": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:empty",
+      "wanderRadius": 12
     }
   }
 }

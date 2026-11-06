@@ -30,10 +30,14 @@ import java.util.ArrayList;
  */
 public class PartyGift {
 
-	/** Folder the gift tables live in, under their own character type's namespace. */
+	/**
+	 * Folder the gift tables live in, under their own character type's namespace.
+	 */
 	public static final String TABLE_DIR = "party_gift";
 
-	/** Used for a guest who has no table of her own. */
+	/**
+	 * Used for a guest who has no table of her own.
+	 */
 	public static final ResourceKey<LootTable> DEFAULT_TABLE =
 			ResourceKey.create(Registries.LOOT_TABLE, GensokyoLegacy.loc(TABLE_DIR + "/default"));
 

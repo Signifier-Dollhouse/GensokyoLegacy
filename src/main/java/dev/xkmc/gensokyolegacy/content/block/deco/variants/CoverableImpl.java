@@ -137,9 +137,11 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 		return ans;
 	}
 
-	/** Every coverable block puts the same cover geometry on its own geometry, so the cover models only
+	/**
+	 * Every coverable block puts the same cover geometry on its own geometry, so the cover models only
 	 * depend on the color and are shared by all blocks; the provider caches builders by name, so
-	 * generating the same cover twice is a no-op. */
+	 * generating the same cover twice is a no-op.
+	 */
 	private static void buildCoverModels(RegistrateBlockstateProvider pvd, String suffix, String textureDir, String parent, String textureKey) {
 		for (var e : Color.values()) {
 			if (e.item.asItem() == Items.AIR) continue;

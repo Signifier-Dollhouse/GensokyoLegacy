@@ -49,7 +49,9 @@ public interface DollStray extends DollEntityImpl {
 		return GLMeta.DOLL.type().getOrCreate(sp).rejoin(doll);
 	}
 
-	/** Idle rejoin period, in ticks (one second). */
+	/**
+	 * Idle rejoin period, in ticks (one second).
+	 */
 	int REJOIN_INTERVAL = 20;
 
 	/**

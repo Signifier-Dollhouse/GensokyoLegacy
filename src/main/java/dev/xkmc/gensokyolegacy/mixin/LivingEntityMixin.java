@@ -51,6 +51,13 @@ public abstract class LivingEntityMixin {
 		}
 	}
 
+	@Inject(at = @At("HEAD"), method = "canAttack", cancellable = true)
+	public void gensokyolegacy$canAttack$stun(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
+		if (hasEffect(GLEffects.STUN)) {
+			cir.setReturnValue(false);
+		}
+	}
+
 	@WrapOperation(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getGravity()D"))
 	public double gensokyoLegacy$gravity(LivingEntity instance, Operation<Double> original) {
 		return MixinHookHandlers.getGravity(instance, original.call(instance));

@@ -6,7 +6,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** A Youkai's Feasts saucer dish: one serving, eaten whole, food on the block's own item.
+/**
+ * A Youkai's Feasts saucer dish: one serving, eaten whole, food on the block's own item.
  * <p>Narrowed to {@code FoodSaucerBlock} rather than its {@code BaseSaucerBlock} parent, which
  * also covers {@code EmptySaucerBlock} and would serve nothing.
  *

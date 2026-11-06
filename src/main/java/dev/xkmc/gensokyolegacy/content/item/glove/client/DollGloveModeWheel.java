@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
+import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.common.network.SelectorSelectPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.wheel.PersistentWheel;

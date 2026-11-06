@@ -7,7 +7,9 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
  */
 public final class DollHandLock {
 
-	/** Ticks a spent item stays in hand, however ready its host is to re-arm. */
+	/**
+	 * Ticks a spent item stays in hand, however ready its host is to re-arm.
+	 */
 	public static final int HOLD = 10;
 
 	/**
@@ -16,12 +18,16 @@ public final class DollHandLock {
 	 */
 	private long spentAt = -1000;
 
-	/** Called by a behavior the moment it acts with the item, before it completes. */
+	/**
+	 * Called by a behavior the moment it acts with the item, before it completes.
+	 */
 	public void stamp(long gameTime) {
 		spentAt = gameTime;
 	}
 
-	/** Whether an item was spent within the last {@link #HOLD} ticks. */
+	/**
+	 * Whether an item was spent within the last {@link #HOLD} ticks.
+	 */
 	public boolean isLocked(long gameTime) {
 		return gameTime - spentAt < HOLD;
 	}

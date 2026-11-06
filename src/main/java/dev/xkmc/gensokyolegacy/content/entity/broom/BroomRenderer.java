@@ -17,7 +17,9 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
  */
 public class BroomRenderer extends GeoEntityRenderer<BroomEntity> {
 
-	/** Player pitch range is ±90°; the model gets ±60°. */
+	/**
+	 * Player pitch range is ±90°; the model gets ±60°.
+	 */
 	private static final float PITCH_SCALE = 2.0F / 3.0F;
 
 	public BroomRenderer(EntityRendererProvider.Context context) {
@@ -31,7 +33,7 @@ public class BroomRenderer extends GeoEntityRenderer<BroomEntity> {
 	 */
 	@Override
 	protected void applyRotations(BroomEntity animatable, PoseStack poseStack, float ageInTicks,
-			float rotationYaw, float partialTick, float nativeScale) {
+								  float rotationYaw, float partialTick, float nativeScale) {
 		Player rider = animatable.getRider();
 		float yaw = rotationYaw;
 		float pitch = 0;

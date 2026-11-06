@@ -1,14 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.module;
 
-import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.PartyServe;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.task.party.PartyServe;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
@@ -17,8 +17,8 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -34,7 +34,9 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	private static final ResourceLocation ID = GensokyoLegacy.loc("party");
 
-	/** How long a guest waits at the table before the party dismisses her. */
+	/**
+	 * How long a guest waits at the table before the party dismisses her.
+	 */
 	public static final int ARRIVE_TIMEOUT = 1200;
 
 	/**
@@ -54,11 +56,17 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * be over and there is nothing left to work it out from.
 	 */
 	public enum Origin {
-		/** A clone the party made: no home, nothing to return to, walks away and is gone. */
+		/**
+		 * A clone the party made: no home, nothing to return to, walks away and is gone.
+		 */
 		SUMMONED,
-		/** A resident of a home near the party; goes back to it. */
+		/**
+		 * A resident of a home near the party; goes back to it.
+		 */
 		HOME,
-		/** A visitor in a home near the party; goes back to the visit. */
+		/**
+		 * A visitor in a home near the party; goes back to the visit.
+		 */
 		VISITING
 	}
 
@@ -100,11 +108,15 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private BlockPos seat;
 
-	/** Whether she has claimed it. Gates the party's GATHERING -> FEASTING move. */
+	/**
+	 * Whether she has claimed it. Gates the party's GATHERING -> FEASTING move.
+	 */
 	@SerialField
 	private boolean seated;
 
-	/** Hunger this guest has personally been served; measured against her fulfillment. */
+	/**
+	 * Hunger this guest has personally been served; measured against her fulfillment.
+	 */
 	@SerialField
 	private int eaten = 0;
 
@@ -115,7 +127,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private int appealEaten = 0;
 
-	/** Whether she has left a gift: one per visit, not per departure - both leaving doors pay twice. */
+	/**
+	 * Whether she has left a gift: one per visit, not per departure - both leaving doors pay twice.
+	 */
 	@SerialField
 	private boolean gifted = false;
 
@@ -128,14 +142,18 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	private boolean seatWarned = false;
 
-	/** Paces the attempts; {@link #seatDeadline} is the backstop for the whole episode. */
+	/**
+	 * Paces the attempts; {@link #seatDeadline} is the backstop for the whole episode.
+	 */
 	@SerialField
 	private long seatCheckAt = 0;
 
 	@SerialField
 	private long seatDeadline = 0;
 
-	/** The layout version when she last checked her own chair was still on the list. */
+	/**
+	 * The layout version when she last checked her own chair was still on the list.
+	 */
 	@SerialField
 	private int layoutVersion = -1;
 
@@ -156,11 +174,15 @@ public class PartyModule extends AbstractYoukaiModule {
 	// Serialized here rather than in brain memories, which only survive a save if they
 	// carry a codec. One convention: 0 is not running and a null dish or serve is not held.
 
-	/** The dish she has committed to this round. */
+	/**
+	 * The dish she has committed to this round.
+	 */
 	@SerialField
 	public BlockPos serveDish;
 
-	/** What she is carrying and what it is worth; cleared when the chew banks it. */
+	/**
+	 * What she is carrying and what it is worth; cleared when the chew banks it.
+	 */
 	@SerialField
 	public PartyServe serve;
 
@@ -183,7 +205,9 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	public boolean leaveArmed = false;
 
-	/** Ticks before she stands up. */
+	/**
+	 * Ticks before she stands up.
+	 */
 	@SerialField
 	public int leave = 0;
 
@@ -194,12 +218,16 @@ public class PartyModule extends AbstractYoukaiModule {
 	@SerialField
 	public BlockPos leaveDest;
 
-	/** Remember the one place she is walking to. First writer wins. */
+	/**
+	 * Remember the one place she is walking to. First writer wins.
+	 */
 	public void leaveTo(BlockPos dest) {
 		if (leaveDest == null) leaveDest = dest.immutable();
 	}
 
-	/** The whole machine, wiped. Called on the way in and on the way out, never mid-visit. */
+	/**
+	 * The whole machine, wiped. Called on the way in and on the way out, never mid-visit.
+	 */
 	public void clearMachine() {
 		serveDish = null;
 		serve = null;
@@ -233,35 +261,47 @@ public class PartyModule extends AbstractYoukaiModule {
 		return eaten;
 	}
 
-	/** Appeal she has personally been served; what her gift is sized on. */
+	/**
+	 * Appeal she has personally been served; what her gift is sized on.
+	 */
 	public int appealEaten() {
 		return appealEaten;
 	}
 
-	/** Whether she has already left a gift this visit. */
+	/**
+	 * Whether she has already left a gift this visit.
+	 */
 	public boolean gifted() {
 		return gifted;
 	}
 
-	/** Mark her gift as given. First writer wins, which is the whole of "one gift". */
+	/**
+	 * Mark her gift as given. First writer wins, which is the whole of "one gift".
+	 */
 	public void markGifted() {
 		gifted = true;
 	}
 
-	/** Her claimed chair, or null before she has found one. */
+	/**
+	 * Her claimed chair, or null before she has found one.
+	 */
 	@Nullable
 	public BlockPos seat() {
 		return seat;
 	}
 
-	/** First claim wins, so a table rearranged under her cannot walk her off her chair. */
+	/**
+	 * First claim wins, so a table rearranged under her cannot walk her off her chair.
+	 */
 	public void claimSeat(BlockPos pos) {
 		if (seat != null) return;
 		this.seat = pos.immutable();
 		this.seated = true;
 	}
 
-	/** Whether she has claimed a chair. Gates the party's GATHERING -> FEASTING move. */
+	/**
+	 * Whether she has claimed a chair. Gates the party's GATHERING -> FEASTING move.
+	 */
 	public boolean seated() {
 		return seated;
 	}
@@ -287,23 +327,26 @@ public class PartyModule extends AbstractYoukaiModule {
 		return PartyTaste.of(self.registryAccess(), self.getType());
 	}
 
-	/** Begin attending. Called once, at spawn, by {@code PartySend}. */
+	/**
+	 * Begin attending. Called once, at spawn, by {@code PartySend}.
+	 */
 	public void arrive(UUID host, BlockPos table, ChunkPos partyChunk) {
 		enter(host, table, partyChunk, Origin.SUMMONED, null);
 	}
 
-	/** Begin attending as herself, found on site rather than summoned.
+	/**
+	 * Begin attending as herself, found on site rather than summoned.
 	 *
 	 * @param origin    what she was doing before, which is what she goes back to
 	 * @param originKey the home or the visit that was, or null for a plain clone
 	 */
 	public void join(@Nullable UUID host, BlockPos table, @Nullable ChunkPos partyChunk,
-			Origin origin, @Nullable StructureKey originKey) {
+					 Origin origin, @Nullable StructureKey originKey) {
 		enter(host, table, partyChunk, origin, originKey);
 	}
 
 	private void enter(@Nullable UUID host, BlockPos table, @Nullable ChunkPos partyChunk,
-			Origin origin, @Nullable StructureKey originKey) {
+					   Origin origin, @Nullable StructureKey originKey) {
 		this.host = host;
 		this.table = table.immutable();
 		this.partyChunk = partyChunk;
@@ -317,23 +360,31 @@ public class PartyModule extends AbstractYoukaiModule {
 		self.navCtrl.setWalking();
 	}
 
-	/** Where she was before the party, and so what she is given back to. */
+	/**
+	 * Where she was before the party, and so what she is given back to.
+	 */
 	public Origin origin() {
 		return origin;
 	}
 
-	/** The home or visit she came from, or null for a summoned clone. */
+	/**
+	 * The home or visit she came from, or null for a summoned clone.
+	 */
 	@Nullable
 	public StructureKey originKey() {
 		return originKey;
 	}
 
-	/** A request, not an action: the staggered exit is visible, so the task walks her out. */
+	/**
+	 * A request, not an action: the staggered exit is visible, so the task walks her out.
+	 */
 	public void beginLeave() {
 		leaving = true;
 	}
 
-	/** Whether she has been told to leave. */
+	/**
+	 * Whether she has been told to leave.
+	 */
 	public boolean leaving() {
 		return leaving;
 	}
@@ -362,7 +413,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		return ofOrDefault().hungrySeat();
 	}
 
-	/** How long she sits between dishes once she is satisfied. See {@link #hungrySeat}. */
+	/**
+	 * How long she sits between dishes once she is satisfied. See {@link #hungrySeat}.
+	 */
 	public int fullSeat() {
 		return ofOrDefault().fullSeat();
 	}
@@ -386,7 +439,9 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	// --- seat episode ---
 
-	/** Start a fresh attempt at finding a chair, forgetting the previous failures. */
+	/**
+	 * Start a fresh attempt at finding a chair, forgetting the previous failures.
+	 */
 	public void beginSeatEpisode(long gameTime, int retry, int attempts) {
 		seatFailures = 0;
 		seatWarned = false;
@@ -394,7 +449,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		seatCheckAt = gameTime;
 	}
 
-	/** When the next "is there a chair?" check counts, so it counts once per window. */
+	/**
+	 * When the next "is there a chair?" check counts, so it counts once per window.
+	 */
 	public long seatCheckAt() {
 		return seatCheckAt;
 	}
@@ -403,7 +460,8 @@ public class PartyModule extends AbstractYoukaiModule {
 		seatCheckAt = gameTime + retry;
 	}
 
-	/** Count one failed attempt at a chair, warning the host on the first.
+	/**
+	 * Count one failed attempt at a chair, warning the host on the first.
 	 *
 	 * @return whether this is the first failure, so the caller can send the message
 	 */
@@ -437,7 +495,9 @@ public class PartyModule extends AbstractYoukaiModule {
 
 	// --- walk fallback ---
 
-	/** Remember where she is walking to, and how close she has ever got. */
+	/**
+	 * Remember where she is walking to, and how close she has ever got.
+	 */
 	public void walkingTo(@Nullable BlockPos target, long gameTime) {
 		if (walkTarget != null && walkTarget.equals(target)) return;
 		walkTarget = target;
@@ -449,7 +509,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		walkClosest = Double.MAX_VALUE;
 	}
 
-	/** The block she is currently walking to, for the teleport fallback. */
+	/**
+	 * The block she is currently walking to, for the teleport fallback.
+	 */
 	@Nullable
 	public BlockPos walkTarget() {
 		return walkTarget;
@@ -488,7 +550,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		BrainUtils.setMemory(self, GLBrains.MEM_PARTY.get(), new GlobalPos(sl.dimension(), table));
 	}
 
-	/** The host's party, or null once it has ended or its chunk unloaded. */
+	/**
+	 * The host's party, or null once it has ended or its chunk unloaded.
+	 */
 	@Nullable
 	public PartyAttachment party(ServerLevel sl) {
 		var where = partyChunk != null ? partyChunk : (table == null ? null : new ChunkPos(table));
@@ -500,7 +564,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		return party;
 	}
 
-	/** Take her off the party's roster, so nobody has to go looking for her body. */
+	/**
+	 * Take her off the party's roster, so nobody has to go looking for her body.
+	 */
 	private void dropFromRoster(ServerLevel sl) {
 		if (partyChunk == null) return;
 		var party = PartyAttachment.of(sl, partyChunk);
@@ -592,7 +658,9 @@ public class PartyModule extends AbstractYoukaiModule {
 		restoreWander(sl, key != null ? key : visit.host());
 	}
 
-	/** Clear the party state but leave her standing, so the caller decides. */
+	/**
+	 * Clear the party state but leave her standing, so the caller decides.
+	 */
 	public void leave() {
 		BrainUtils.clearMemory(self, GLBrains.MEM_PARTY.get());
 		clearMachine();

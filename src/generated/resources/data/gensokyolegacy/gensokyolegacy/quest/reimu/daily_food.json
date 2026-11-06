@@ -4,7 +4,38 @@
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
-    "next": "gensokyolegacy:reimu/daily_food/complete/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_agree"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [
+            {
+              "type": "gensokyolegacy:complete_quest"
+            }
+          ],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_agree"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_food/option/complete/handover/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/complete/handover/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/shared/option/daily_handover"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/shared/dialog/daily_gotem"
+    },
     "text": "gensokyolegacy/reimu/shared/option/daily_complete"
   },
   "conditions": [
@@ -18,14 +49,92 @@
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
-    "next": "gensokyolegacy:reimu/daily_food/follow_up/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:simple",
+          "actions": [],
+          "conditions": [],
+          "next": {
+            "animations": [
+              "dialog_think"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_food/option/follow_up/end/leave"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/follow_up/end/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/daily_food/option/follow_up/end"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/follow_up/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/shared/option/daily_follow"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
     "actions": [],
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
-    "next": "gensokyolegacy:reimu/daily_food/start/dialog_1",
+    "next": {
+      "animations": [
+        "dialog_think"
+      ],
+      "options": [
+        {
+          "type": "gensokyolegacy:group",
+          "actions": [],
+          "group": "gensokyolegacy/reimu/shared/option/daily_group",
+          "next": {
+            "animations": [
+              "dialog_decline"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_food/option/start/reject/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/start/reject/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/shared/option/daily_reject"
+        },
+        {
+          "type": "gensokyolegacy:group",
+          "actions": [
+            {
+              "type": "gensokyolegacy:start_quest"
+            }
+          ],
+          "group": "gensokyolegacy/reimu/shared/option/daily_group",
+          "next": {
+            "animations": [
+              "dialog_talk_03"
+            ],
+            "options": [
+              {
+                "type": "gensokyolegacy:simple",
+                "actions": [],
+                "conditions": [],
+                "text": "gensokyolegacy/reimu/daily_food/option/start/accept/end"
+              }
+            ],
+            "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/start/accept/dialog_1"
+          },
+          "text": "gensokyolegacy/reimu/shared/option/daily_accept"
+        }
+      ],
+      "text": "gensokyolegacy/reimu/daily_food/dialog/reimu/daily_food/start/dialog_1"
+    },
     "text": "gensokyolegacy/reimu/shared/option/daily_start"
   },
   "recurrence": {

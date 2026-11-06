@@ -28,7 +28,8 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 		return ans;
 	}
 
-	/** Every talisman context currently armed on this entity, cooldowns already filtered out. One
+	/**
+	 * Every talisman context currently armed on this entity, cooldowns already filtered out. One
 	 * place to build them, so the tick and the two damage hooks cannot drift apart.
 	 */
 	public static List<TalismanContext> activeTalismans(LivingEntity entity) {

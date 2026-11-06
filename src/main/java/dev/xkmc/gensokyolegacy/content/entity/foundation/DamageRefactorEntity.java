@@ -6,12 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -25,8 +20,11 @@ public class DamageRefactorEntity extends PathfinderMob {
 
 	private long antiHealDisableTimestamp;
 
+	protected boolean init;
+
 	protected DamageRefactorEntity(EntityType<? extends DamageRefactorEntity> entityType, Level level) {
 		super(entityType, level);
+		init = true;
 	}
 
 	public boolean invalidTarget(LivingEntity e) {
@@ -183,10 +181,12 @@ public class DamageRefactorEntity extends PathfinderMob {
 
 	@Override
 	public boolean isDeadOrDying() {
+		if (!init) return false;
 		return this.getCombatProgress() <= 0.0F;
 	}
 
 	public boolean isAlive() {
+		if (!init) return true;
 		return !this.isRemoved() && this.getCombatProgress() > 0.0F;
 	}
 

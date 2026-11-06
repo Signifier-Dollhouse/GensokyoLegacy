@@ -3,11 +3,11 @@ package dev.xkmc.gensokyolegacy.content.item.hakkero;
 import dev.xkmc.l2core.base.menu.base.BaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 
-	/** Vanilla's furnace flame, blitted from the GUI atlas exactly as the furnace screen does. */
+	/**
+	 * Vanilla's furnace flame, blitted from the GUI atlas exactly as the furnace screen does.
+	 */
 	private static final ResourceLocation FLAME =
 			ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
 
@@ -34,7 +36,8 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 		renderFuel(g);
 	}
 
-	/** The furnace flame on the fuel slot, drawn upward the way vanilla does it: the top of it
+	/**
+	 * The furnace flame on the fuel slot, drawn upward the way vanilla does it: the top of it
 	 * creeps down as the fuel burns down, and nothing is drawn while no fuel is lit.
 	 */
 	private void renderFuel(GuiGraphics g) {

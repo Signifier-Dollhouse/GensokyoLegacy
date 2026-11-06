@@ -18,14 +18,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * 门帘。一张贴在中线上、双面可见的帘子,贴着贴脸的一格挂,长款往下多吊 {@link #HANGING} 格。
  */
 public class NorenBlock {
 
-	/** 长款比普通款往下多吊的长度 */
+	/**
+	 * 长款比普通款往下多吊的长度
+	 */
 	public static final int HANGING = 4;
 
 	public static DelegateBlock create(BlockBehaviour.Properties p, boolean hanging) {
@@ -61,7 +62,9 @@ public class NorenBlock {
 			return hanging;
 		}
 
-		/** 同花纹的各色门帘,染色时当底料用 */
+		/**
+		 * 同花纹的各色门帘,染色时当底料用
+		 */
 		public TagKey<Item> tag() {
 			return tag;
 		}

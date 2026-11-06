@@ -23,7 +23,9 @@ public interface DollStatus extends DollEntityImpl {
 		return i < 0 || i >= all.length ? DollActionStatus.IDLE : all[i];
 	}
 
-	/** Ordinal of the current (or just-finished iterative) action type, -1 when idle. */
+	/**
+	 * Ordinal of the current (or just-finished iterative) action type, -1 when idle.
+	 */
 	default int getActionStatusType() {
 		return getEntityData().get(DollEntity.DATA_ACTION_TYPE);
 	}

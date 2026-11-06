@@ -19,7 +19,9 @@ public interface DollRig extends GeoEntity {
 	String ONE_SHOT_CONTROLLER = "one_shot";
 	String WINK_CONTROLLER = "wink";
 
-	/** Blend length of the hover and of the one-shots alike, in ticks. */
+	/**
+	 * Blend length of the hover and of the one-shots alike, in ticks.
+	 */
 	int ANIM_TRANSITION = 3;
 
 	/**

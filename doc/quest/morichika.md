@@ -42,27 +42,45 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 
 | Id | Gate | Pay | Get | Stock | Refresh |
 |----|------|-----|-----|-------|---------|
-| `offer_strange_glasses` | none | emerald ×8 | strange glasses ×1 | 1 | 24000 |
-| `offer_guide_book` | adv `main/welcome` | emerald ×1 | tools guide (Patchouli book) ×1 | 1 | 24000 |
-| `offer_koishi_hat` | adv `gensokyolegacy:koishi_hat` | emerald ×32 | koishi hat ×1 | 1 | 168000 |
-| `offer_dagger_glove` | adv `main/obtain_iron_dagger` | emerald ×24 | dagger glove ×1 | 1 | 168000 |
-| `offer_sekibanki_head` | rep ≥ 80 | emerald ×48 | Sekibanki's head ×1 | 1 | 168000 |
+| `sell_bread` | none | bread ×12 | coin ×1 | 16 | 24000 |
+| `sell_potato` | none | potato ×24 | coin ×1 | 16 | 24000 |
+| `sell_carrot` | none | carrot ×24 | coin ×1 | 16 | 24000 |
+| `sell_cooked_chicken` | none | cooked chicken ×4 | coin ×1 | 16 | 24000 |
+| `sell_cooked_porkchop` | none | cooked porkchop ×3 | coin ×1 | 16 | 24000 |
+| `sell_cooked_beef` | none | steak ×3 | coin ×1 | 16 | 24000 |
+| `sell_cooked_mutton` | none | cooked mutton ×3 | coin ×1 | 16 | 24000 |
+| `sell_wool` | none | `#minecraft:wool` ×6 | coin ×1 | 16 | 24000 |
+| `sell_leather` | none | leather ×1 | coin ×1 | 16 | 24000 |
+| `swap_emerald_to_coin_stack` | none | emerald ×8 | coin stack ×1 | 16 | 24000 |
+| `swap_coin_to_emerald` | none | coin ×1 | emerald ×1 | 16 | 24000 |
+| `offer_strange_glasses` | none | coin ×8 | strange glasses ×1 | 1 | 24000 |
+| `offer_guide_book` | adv `main/welcome` | coin ×1 | tools guide (Patchouli book) ×1 | 1 | 24000 |
+| `offer_koishi_hat` | adv `gensokyolegacy:koishi_hat` | coin ×32 | koishi hat ×1 | 1 | 168000 |
+| `offer_dagger_glove` | adv `main/obtain_iron_dagger` | coin ×24 | dagger glove ×1 | 1 | 168000 |
+| `offer_sekibanki_head` | rep ≥ 80 | coin ×48 | Sekibanki's head ×1 | 1 | 168000 |
 
+- The eleven `sell_*` / `swap_*` entries are the shop's restocking side: nine
+  buy everyday supplies from the player for one coin each, and two exchange
+  legacy emeralds at the coin-stack rate (8 emeralds = 1 coin stack, 1 coin = 1
+  emerald). Both swap directions cancel out, so the exchange is a conversion,
+  not a source of money. They have no gate because a shopkeeper buys from
+  anyone, and they are the trades a fresh player can use before any reputation
+  or quest.
 - `offer_guide_book` is gated on the vanilla intro advancement rather than
   anything of Rinnosuke's, so a player who never speaks to him can still pick
-  the book up for one emerald. It is a Patchouli book, registered via
+  the book up for one coin. It is a Patchouli book, registered via
   `PatchouliHelper.getBook`, not an item stack.
 - `offer_koishi_hat` is gated on the `koishi_hat` advancement, which is granted
   by the same event that completes `marisa/koishi_hat` — so the hat is
   *earned* in the Nether, then sold back to you by the shop you have to find
-  first. 32 emeralds and a weekly restock keep it a reward rather than a
+  first. 32 coins and a weekly restock keep it a reward rather than a
   purchase.
 - `offer_dagger_glove` is the one weapon he sells, and it is gated on Sakuya's
   `main/obtain_iron_dagger` rather than on its own `main/obtain_dagger_glove`:
   the glove spends the whole inventory's daggers to turn a stack into a
   pattern, so it is worthless to a player who cannot yet throw one — and by the
   time the offer appears, the player has already seen the counterparty who sells
-  the ammunition ([izayoi_sakuya.md](izayoi_sakuya.md)). 24 emeralds and the same
+  the ammunition ([izayoi_sakuya.md](izayoi_sakuya.md)). 24 coins and the same
   weekly restock as the hat, less than the hat's 32, because unlike the hat this
   one is a tool the player is expected to keep using.
 - `offer_doll_glove` used to live here; it moved to Alice, who actually makes
@@ -74,7 +92,7 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
   reads his own reputation, so it is the shopkeeper's opinion that unlocks it.
   80 sits inside the starting cap of 100, so it is reachable with gifts alone —
   he has no quest of his own to finish first, and nothing about the gate can
-  strand a fresh save. It is also the priciest thing he sells (48 emeralds
+  strand a fresh save. It is also the priciest thing he sells (48 coins
   against the hat's 32 and the glove's 24) and the only one on a weekly
   restock, because a head is a curiosity he has no reason to part with for a
   stranger.

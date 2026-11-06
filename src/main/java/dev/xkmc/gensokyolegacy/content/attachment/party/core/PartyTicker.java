@@ -9,36 +9,42 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Drives the phases of every party in this level. Each one registers its chunk here and only
+/**
+ * Drives the phases of every party in this level. Each one registers its chunk here and only
  * those chunks are swept.
+ *
  * @see "doc/design/party/state.md"
  */
 public class PartyTicker {
 
-	/** How often a party's phases advance, in ticks. */
+	/**
+	 * How often a party's phases advance, in ticks.
+	 */
 	private static final int INTERVAL = 20;
 
-	/** Shortest gap between two of the gathering rockets, in ticks. */
+	/**
+	 * Shortest gap between two of the gathering rockets, in ticks.
+	 */
 	private static final int ROCKET_MIN = 10;
 
-	/** Longest such gap. A drawn one lands on one figure or the other, which is what reads as
-	 *  hand-fired rather than metered. */
+	/**
+	 * Longest such gap. A drawn one lands on one figure or the other, which is what reads as
+	 * hand-fired rather than metered.
+	 */
 	private static final int ROCKET_MAX = 20;
 
-	/** How often the rockets are looked for: the floor of the range, so a drawn gap cannot round
-	 *  below it and the driver stays at 2 Hz instead of 20. */
+	/**
+	 * How often the rockets are looked for: the floor of the range, so a drawn gap cannot round
+	 * below it and the driver stays at 2 Hz instead of 20.
+	 */
 	private static final int ROCKET_CHECK = ROCKET_MIN;
 
-	/** A party open this long with nothing left happening is called off. */
+	/**
+	 * A party open this long with nothing left happening is called off.
+	 */
 	public static final int PARTY_TIMEOUT = 12000;
 
 	/**
@@ -48,15 +54,21 @@ public class PartyTicker {
 	 */
 	public static final int CLOSING_TIMEOUT = 600;
 
-	/** Level -> the chunks currently hosting a party. */
+	/**
+	 * Level -> the chunks currently hosting a party.
+	 */
 	private static final Map<ServerLevel, Set<ChunkPos>> ACTIVE = new ConcurrentHashMap<>();
 
-	/** Remember a chunk as hosting a party, so its phases get advanced. */
+	/**
+	 * Remember a chunk as hosting a party, so its phases get advanced.
+	 */
 	public static void register(ServerLevel level, ChunkPos pos) {
 		ACTIVE.computeIfAbsent(level, e -> Collections.synchronizedSet(new LinkedHashSet<>())).add(pos);
 	}
 
-	/** Stop driving a chunk's party: it ended, or the chunk went away. */
+	/**
+	 * Stop driving a chunk's party: it ended, or the chunk went away.
+	 */
 	public static void unregister(ServerLevel level, ChunkPos pos) {
 		var set = ACTIVE.get(level);
 		if (set == null) return;
@@ -66,12 +78,16 @@ public class PartyTicker {
 		if (set.isEmpty()) ACTIVE.remove(level, set);
 	}
 
-	/** Forget everything about this level; called when it unloads. */
+	/**
+	 * Forget everything about this level; called when it unloads.
+	 */
 	public static void clear(ServerLevel level) {
 		ACTIVE.remove(level);
 	}
 
-	/** Advance every party in this level. Cheap when there are none. */
+	/**
+	 * Advance every party in this level. Cheap when there are none.
+	 */
 	public static void tick(ServerLevel level) {
 		var set = ACTIVE.get(level);
 		if (set == null) return;
@@ -142,7 +158,8 @@ public class PartyTicker {
 		party.sparkAt(time + ROCKET_MIN + level.getRandom().nextInt(ROCKET_MAX - ROCKET_MIN + 1));
 	}
 
-	/** Whether the party is over: a closing one when its roster has drained, an open one when nobody is left
+	/**
+	 * Whether the party is over: a closing one when its roster has drained, an open one when nobody is left
 	 * to invite. The {@code admitted()} check keeps staggered arrival from reading an empty guest list as gone.
 	 */
 	private static boolean finished(ServerLevel level, PartyAttachment party) {
@@ -187,13 +204,17 @@ public class PartyTicker {
 		return true;
 	}
 
-	/** The live guest with this id, or null if she died, left, or unloaded. */
+	/**
+	 * The live guest with this id, or null if she died, left, or unloaded.
+	 */
 	@Nullable
 	private static Entity find(ServerLevel level, UUID id) {
 		return level.getEntity(id);
 	}
 
-	/** Every guest of this party still standing, for the command and for teardown. */
+	/**
+	 * Every guest of this party still standing, for the command and for teardown.
+	 */
 	public static List<YoukaiEntity> guests(ServerLevel level, PartyAttachment party) {
 		var ans = new ArrayList<YoukaiEntity>();
 		BlockPos anchor = party.anchor();
@@ -208,7 +229,9 @@ public class PartyTicker {
 		return ans;
 	}
 
-	/** Guests are restricted well inside this, so a generous box is enough. */
+	/**
+	 * Guests are restricted well inside this, so a generous box is enough.
+	 */
 	private static final int PARTY_GUEST_AREA = 64;
 
 	private PartyTicker() {

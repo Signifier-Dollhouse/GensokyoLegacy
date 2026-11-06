@@ -15,6 +15,7 @@ import java.util.Locale;
 
 /**
  * The glove's modes, each holding a {@link DollGloveHandler} so behaviour never needs a switch.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public enum DollGloveMode {

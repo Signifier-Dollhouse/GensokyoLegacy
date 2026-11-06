@@ -27,8 +27,10 @@ public final class EntityInteractions {
 		PAGES.put(character, page);
 	}
 
-	/** The characters with a page, in declaration order. Asked once JEI is up, by which point the
-	 * registry holds them all; an id that never arrived is skipped rather than drawn blank. */
+	/**
+	 * The characters with a page, in declaration order. Asked once JEI is up, by which point the
+	 * registry holds them all; an id that never arrived is skipped rather than drawn blank.
+	 */
 	public static List<EntityType<?>> characters() {
 		List<EntityType<?>> out = new ArrayList<>();
 		for (var id : PAGES.keySet()) {
@@ -38,8 +40,10 @@ public final class EntityInteractions {
 		return out;
 	}
 
-	/** Never empty for a registered character; empty rather than null for anything else, so a
-	 * character that has not answered to a hand-out cannot make a blank page. */
+	/**
+	 * Never empty for a registered character; empty rather than null for anything else, so a
+	 * character that has not answered to a hand-out cannot make a blank page.
+	 */
 	public static List<EntityInteraction> pageOf(EntityType<?> character) {
 		var id = BuiltInRegistries.ENTITY_TYPE.getKey(character);
 		var page = id == null ? null : PAGES.get(id);

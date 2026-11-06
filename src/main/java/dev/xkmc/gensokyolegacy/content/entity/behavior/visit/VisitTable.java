@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.visit;
 
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.index.IndexStorage;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -10,10 +11,10 @@ import net.minecraft.world.entity.EntityType;
 
 /**
  * When a character visits a given home, a pure function of the host position, the guest type and the
- * game day. Nothing is persisted, so the spawner asking "is she due?" and the visitor asking "am I
- * still due?" cannot disagree.
+ * game day. The only stored state is the day a guest gave up on, read by the spawner and the visitor
+ * alike, so asking "is she due?" never depends on who is asking.
  *
- * @see "doc/design/character_visit.md"
+ * @see "doc/design/structure/character_visit.md"
  */
 public class VisitTable {
 
@@ -32,15 +33,25 @@ public class VisitTable {
 		var visit = StructureConfig.visitOf(sl.registryAccess(), host, guest);
 		if (visit == null) return 0;
 		long dayTime = sl.getDayTime();
+		long day = dayTime / 24000L;
 		int t = (int) (dayTime % 24000L);
 		if (t >= WINDOW) return 0;
+		if (IndexStorage.get(sl).getOrCreate(host).visitDismissed(guest, day)) return 0;
 		double multiplier = GLModConfig.SERVER.visitStayMultiplier.get();
-		var rand = RandomSource.create(seed(host, guest, dayTime / 24000L));
+		var rand = RandomSource.create(seed(host, guest, day));
 		// draw order is part of the schedule: changing it moves every window
 		if (multiplier <= 0 || !visit.roll(rand)) return 0;
 		int stay = Math.clamp(visit.rollStay(rand, multiplier), 1, WINDOW);
 		int start = rand.nextInt(WINDOW - stay + 1);
 		return t < start ? 0 : start + stay - t;
+	}
+
+	/**
+	 * Write off the rest of today's visit for this guest, so a visitor who gave up
+	 * is not put back on site by the scheduler in the same window.
+	 */
+	public static void dismiss(ServerLevel sl, StructureKey host, EntityType<?> guest) {
+		IndexStorage.get(sl).getOrCreate(host).dismissVisit(guest, sl.getDayTime() / 24000L);
 	}
 
 	/**

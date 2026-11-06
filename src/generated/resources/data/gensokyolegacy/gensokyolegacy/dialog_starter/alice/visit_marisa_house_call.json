@@ -6,7 +6,34 @@
       "structure": "gensokyolegacy:marisa_house"
     }
   ],
-  "dialog": "gensokyolegacy:alice/visit_marisa_house/call",
+  "dialog": {
+    "animations": [
+      "dialog_greet"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_04"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/alice/visit_marisa_house/option/terms/end"
+            }
+          ],
+          "text": "gensokyolegacy/alice/visit_marisa_house/dialog/alice/visit_marisa_house/terms_ans"
+        },
+        "text": "gensokyolegacy/alice/visit_marisa_house/option/terms"
+      }
+    ],
+    "text": "gensokyolegacy/alice/visit_marisa_house/dialog/alice/visit_marisa_house/call"
+  },
   "text": "gensokyolegacy/alice/visit_marisa_house/starter/call",
   "weight": 30
 }

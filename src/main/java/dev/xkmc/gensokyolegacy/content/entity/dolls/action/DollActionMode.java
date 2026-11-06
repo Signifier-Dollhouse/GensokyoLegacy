@@ -5,9 +5,13 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.action;
  */
 public enum DollActionMode {
 
-	/** One glove command, one doll, one execution (super, suicide). */
+	/**
+	 * One glove command, one doll, one execution (super, suicide).
+	 */
 	ONE_TIME,
-	/** One glove command fans across dolls, each doll at most once (regular volley). */
+	/**
+	 * One glove command fans across dolls, each doll at most once (regular volley).
+	 */
 	ITERATIVE,
 	/**
 	 * Behaves like {@code ONE_TIME} (one doll, one execution, no chaining) but a player command

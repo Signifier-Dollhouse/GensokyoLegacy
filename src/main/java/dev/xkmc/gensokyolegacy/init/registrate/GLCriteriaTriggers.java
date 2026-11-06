@@ -17,9 +17,11 @@ public class GLCriteriaTriggers {
 	public static final Val<PlayerTrigger> KOISHI_FIRST = CT.reg("koishi_first", PlayerTrigger::new);
 	public static final Val<PlayerTrigger> KOISHI_HAT = CT.reg("koishi_hat", PlayerTrigger::new);
 	public static final Val<FeedCharacterTrigger> FEED_REIMU = CT.reg("feed_reimu", FeedCharacterTrigger::new);
-	/** A fairy was handed a cookie or a cake - the plain one, Cirno, or whoever else carries a
-	 *  {@code FairyFeedModule}. Separate id off {@link #FEED_REIMU} so an advancement can ask for a fairy
-	 *  without spelling out which dish counted: the criterion is about the entity, not the food. */
+	/**
+	 * A fairy was handed a cookie or a cake - the plain one, Cirno, or whoever else carries a
+	 * {@code FairyFeedModule}. Separate id off {@link #FEED_REIMU} so an advancement can ask for a fairy
+	 * without spelling out which dish counted: the criterion is about the entity, not the food.
+	 */
 	public static final Val<FeedCharacterTrigger> FEED_FAIRY = CT.reg("feed_fairy", FeedCharacterTrigger::new);
 
 	public static void register() {

@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.foundation;
 
 import com.google.common.collect.Sets;
-import dev.xkmc.gensokyolegacy.content.block.deco.seat.ChairEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.nbt.CompoundTag;

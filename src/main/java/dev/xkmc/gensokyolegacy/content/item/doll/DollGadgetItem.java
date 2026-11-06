@@ -22,13 +22,17 @@ public class DollGadgetItem extends DollItem {
 		super(props, type);
 	}
 
-	/** Nothing to carry back: a gadget is summoned whole or not at all. */
+	/**
+	 * Nothing to carry back: a gadget is summoned whole or not at all.
+	 */
 	@Override
 	protected ItemStack makeStack(@Nullable DollData data) {
 		return new ItemStack(this);
 	}
 
-	/** A gadget has no loadout, so the click is nothing at all — not an empty editor. */
+	/**
+	 * A gadget has no loadout, so the click is nothing at all — not an empty editor.
+	 */
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
 	}

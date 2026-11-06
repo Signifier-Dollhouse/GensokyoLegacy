@@ -16,7 +16,9 @@ public enum DollActionStatus {
 	 */
 	AUTO;
 
-	/** Sidebar frame color: white idle, yellow preparing, red attacking, green done. */
+	/**
+	 * Sidebar frame color: white idle, yellow preparing, red attacking, green done.
+	 */
 	public int frameColor() {
 		return switch (this) {
 			case IDLE -> 0xFFFFFFFF;

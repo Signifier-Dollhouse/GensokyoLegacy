@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
  * {@link HomeModule} binding, so the sleep/bed subsystem stays unreachable; the visit is not stored as a
  * countdown, only a forced one carries a deadline - a natural one is recomputed from {@link VisitTable} each tick.
  *
- * @see "doc/design/character_visit.md"
+ * @see "doc/design/structure/character_visit.md"
  */
 @SerialClass
 public class VisitModule extends AbstractYoukaiModule {
@@ -139,6 +139,18 @@ public class VisitModule extends AbstractYoukaiModule {
 			if (player.hasLineOfSight(self)) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Give up the rest of this visit's window and drop the character. Used when the
+	 * visitor flees from players who dislike her: the scheduler must not put her
+	 * straight back on site, so the window is written off before she goes.
+	 */
+	public void giveUp() {
+		if (host != null && self.level() instanceof ServerLevel sl) {
+			VisitTable.dismiss(sl, host, self.getType());
+		}
+		dismiss();
 	}
 
 	/**

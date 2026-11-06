@@ -21,11 +21,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public class LargeWaterLilyBlock extends WaterLilyBlock {
 
-	/** How many looks the lily has; the variant property counts them. */
+	/**
+	 * How many looks the lily has; the variant property counts them.
+	 */
 	public static final int VARIANTS = 7;
 	public static final IntegerProperty VARIANT = IntegerProperty.create("variant", 0, VARIANTS - 1);
 
-	/** The pad of the large lily, a thin slab at the height its model draws it. */
+	/**
+	 * The pad of the large lily, a thin slab at the height its model draws it.
+	 */
 	private static final VoxelShape PAD = Block.box(1.0, 9.0, 1.0, 15.0, 10.5, 15.0);
 
 	private static final MapCodec<LargeWaterLilyBlock> CODEC = simpleCodec(LargeWaterLilyBlock::new);
@@ -54,7 +58,7 @@ public class LargeWaterLilyBlock extends WaterLilyBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-	                                          BlockHitResult hitResult) {
+											   BlockHitResult hitResult) {
 		if (level.isClientSide) return InteractionResult.SUCCESS;
 		int next = (state.getValue(VARIANT) + 1) % VARIANTS;
 		level.setBlockAndUpdate(pos, state.setValue(VARIANT, next));

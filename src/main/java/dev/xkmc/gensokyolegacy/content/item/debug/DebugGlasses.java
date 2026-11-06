@@ -37,6 +37,7 @@ public class DebugGlasses extends Item implements IDebugOverlayWand {
 		list.add(GLLang.ItemDebug.GLASS_PATH.get().withStyle(ChatFormatting.GRAY));
 
 		list.add(GLLang.ItemDebug.GLASS_CHARACTER.get().withStyle(ChatFormatting.GRAY));
+		list.add(GLLang.ItemDebug.GLASS_GHOST.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.GLASS_BED.get().withStyle(ChatFormatting.GRAY));
 	}
 

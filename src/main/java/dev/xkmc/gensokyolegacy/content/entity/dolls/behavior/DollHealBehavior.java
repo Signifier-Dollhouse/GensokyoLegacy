@@ -22,7 +22,9 @@ public class DollHealBehavior extends DollBehavior {
 
 	private static final double APPROACH_DIST = 2.0;
 
-	/** Scheduling radius for marked targets; this only enforces leash and arrival. */
+	/**
+	 * Scheduling radius for marked targets; this only enforces leash and arrival.
+	 */
 	public static final double MARK_RANGE = 16.0;
 
 	private int navCooldown;

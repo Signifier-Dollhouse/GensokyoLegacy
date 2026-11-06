@@ -18,7 +18,9 @@ import java.util.List;
  */
 public class HakkeroHandler implements IItemHandlerModifiable {
 
-	/** Answers "can this be smelted in the current mode", for {@link #isItemValid}. */
+	/**
+	 * Answers "can this be smelted in the current mode", for {@link #isItemValid}.
+	 */
 	public interface SmeltCheck {
 		boolean canSmelt(ItemStack stack);
 	}
@@ -35,7 +37,8 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 		return HakkeroData.of(stack);
 	}
 
-	/** Publishes the record. The client writes here too — its throwaway stack is what the menu
+	/**
+	 * Publishes the record. The client writes here too — its throwaway stack is what the menu
 	 * renders from — so only a genuinely empty stack is skipped.
 	 */
 	private void save(HakkeroData data) {
@@ -122,7 +125,9 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 		return false;
 	}
 
-	/** Convenience for the menu: the whole contents as a fresh list, for tooltips and tests. */
+	/**
+	 * Convenience for the menu: the whole contents as a fresh list, for tooltips and tests.
+	 */
 	public List<ItemStack> contents() {
 		HakkeroData data = data();
 		List<ItemStack> list = new ArrayList<>(getSlots());

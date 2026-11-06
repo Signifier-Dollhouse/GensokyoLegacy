@@ -27,15 +27,21 @@ import org.jetbrains.annotations.Nullable;
  */
 public class StoneLanternBlock implements ShapePathFindBlockMethod {
 
-	/** 上下两半由 {@code DoubleBlockImpl} 加上,这里只引用它的属性。 */
+	/**
+	 * 上下两半由 {@code DoubleBlockImpl} 加上,这里只引用它的属性。
+	 */
 	public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 
-	/** 下半格:底座和石柱。 */
+	/**
+	 * 下半格:底座和石柱。
+	 */
 	public static final VoxelShape BOTTOM_SHAPE = Shapes.or(
 			Block.box(0, 0, 0, 16, 2, 16),
 			Block.box(5.5, 2, 5.5, 10.5, 16, 10.5));
 
-	/** 上半格:柱顶、中台、火袋、笠和宝珠。笠的四面是斜的,碰撞盒按外接矩形算。 */
+	/**
+	 * 上半格:柱顶、中台、火袋、笠和宝珠。笠的四面是斜的,碰撞盒按外接矩形算。
+	 */
 	public static final VoxelShape TOP_SHAPE = Shapes.or(
 			Block.box(5.5, 0, 5.5, 10.5, 2, 10.5),
 			Block.box(4, 0, 4, 12, 1.5, 12),
@@ -67,7 +73,9 @@ public class StoneLanternBlock implements ShapePathFindBlockMethod {
 				.modelFile(state.getValue(HALF) == Half.TOP ? empty : whole).build());
 	}
 
-	/** 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。 */
+	/**
+	 * 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。
+	 */
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
 		var helper = new LootHelper(pvd);
 		var pool = LootPool.lootPool().add(helper.item(block.asItem())

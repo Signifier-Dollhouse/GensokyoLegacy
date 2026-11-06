@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Topic list of a conversation - the whole open handshake, as the dialog has no container menu to piggyback on.

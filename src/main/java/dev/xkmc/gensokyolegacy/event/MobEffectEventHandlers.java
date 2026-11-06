@@ -1,22 +1,54 @@
 package dev.xkmc.gensokyolegacy.event;
 
+import dev.xkmc.gensokyolegacy.content.effect.DrowningEffect;
+import dev.xkmc.gensokyolegacy.content.effect.StunEffect;
 import dev.xkmc.gensokyolegacy.content.entity.characters.maiden.MaidenEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MobEffectEventHandlers {
 
+	/** Foodie */
+	@SubscribeEvent
+	public static void onUseTick(LivingEntityUseItemEvent.Tick event) {
+		if (!(event.getEntity() instanceof Player player)) return;
+		if (!player.hasEffect(GLEffects.FOODIE)) return;
+		if (!event.getItem().has(DataComponents.FOOD)) return;
+		int duration = event.getDuration();
+		if (duration > 1) event.setDuration(duration - 1);
+	}
+
+	/** Drowning and Stun */
+	@SubscribeEvent
+	public static void onDamagePost(LivingDamageEvent.Post event) {
+		LivingEntity target = event.getEntity();
+		DamageSource source = event.getSource();
+		if (target.level().isClientSide) return;
+		if (source.is(GLDamageTypes.DROWNING)) return;
+		if (event.getNewDamage() <= 0) return;
+		DrowningEffect.extraDamage(target, event.getNewDamage());
+		if (!target.isAlive()) return;
+		StunEffect.onHit(target, source);
+		DrowningEffect.onHit(target, source);
+	}
+
+	/** Lava Affinity */
 	@SubscribeEvent
 	public static void immunityCheck(EntityInvulnerabilityCheckEvent event) {
 		if (LavaEffectsHelper.fireImmune(event.getEntity(), event.getSource())) {
@@ -24,6 +56,7 @@ public class MobEffectEventHandlers {
 		}
 	}
 
+	/** Koishi */
 	@SubscribeEvent
 	public static void onAttack(LivingIncomingDamageEvent event) {
 		if (event.getSource().getEntity() instanceof LivingEntity le) {
@@ -33,6 +66,7 @@ public class MobEffectEventHandlers {
 		}
 	}
 
+	/** Koishi */
 	@SubscribeEvent
 	public static void onTick(PlayerTickEvent.Post event) {
 		var e = event.getEntity();

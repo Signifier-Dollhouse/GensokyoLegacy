@@ -10,14 +10,18 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Repair tags, in-room boxes and the integrity snapshot box, all template-local; verify with tools/checkconfig.py.
- *  Room boxes (the youkai wander area) hold only in-room air and solid blocks, from verified {@code RoomBoxScanner}
- *  output; house boxes fit building geometry. Primary first, wouldFix second, neither cleared to air. */
+/**
+ * Repair tags, in-room boxes and the integrity snapshot box, all template-local; verify with tools/checkconfig.py.
+ * Room boxes (the youkai wander area) hold only in-room air and solid blocks, from verified {@code RoomBoxScanner}
+ * output; house boxes fit building geometry. Primary first, wouldFix second, neither cleared to air.
+ */
 public class StructureConfigBuilder {
 
-	/** cirno_nest is one 13x8x13 dome, bed at (10,1,7)-(10,1,8), spruce door at (6,1,1) sealing the z0-1 gap: a
-	 *  single sealed chamber of 185 air cells, no interior graph, so plain vanilla pathing works. The two room boxes
-	 *  split it at the pinch, are disjoint in y and spill 18 corner gaps; the door leaf at z1 is a wall. */
+	/**
+	 * cirno_nest is one 13x8x13 dome, bed at (10,1,7)-(10,1,8), spruce door at (6,1,1) sealing the z0-1 gap: a
+	 * single sealed chamber of 185 air cells, no interior graph, so plain vanilla pathing works. The two room boxes
+	 * split it at the pinch, are disjoint in y and spill 18 corner gaps; the door leaf at z1 is a wall.
+	 */
 	public static StructureConfig.Builder cirno() {
 		return StructureConfig.builder()
 				.rooms(List.of(
@@ -31,9 +35,11 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.CIRNO_FIX);
 	}
 
-	/** marisa_house is 30x13x25 with bed at local y=6 (ground feet y=2, upper y=7); west ground splits at the
-	 *  x=9 wall, west upper at x=14, wings join at the x=17/18 archway, east stair shaft at x=23-25. Room boxes
-	 *  are disjoint and a doorway node sits on the air cell inside roomA; wings share a y level, roof included. */
+	/**
+	 * marisa_house is 30x13x25 with bed at local y=6 (ground feet y=2, upper y=7); west ground splits at the
+	 * x=9 wall, west upper at x=14, wings join at the x=17/18 archway, east stair shaft at x=23-25. Room boxes
+	 * are disjoint and a doorway node sits on the air cell inside roomA; wings share a y level, roof included.
+	 */
 	public static StructureConfig.Builder marisa() {
 		return StructureConfig.builder()
 				.interior(marisaInterior())
@@ -66,9 +72,11 @@ public class StructureConfigBuilder {
 		return new StructureInterior(rooms, nodes);
 	}
 
-	/** hakurei_shrine root is 19x14x19 with bed at local (5,2,12)-(5,2,13); other jigsaw parts hang off it.
-	 *  Single box lifted by one to exclude the ground plate; the template holds no yard soil, so the box spans
-	 *  the full footprint. */
+	/**
+	 * hakurei_shrine root is 19x14x19 with bed at local (5,2,12)-(5,2,13); other jigsaw parts hang off it.
+	 * Single box lifted by one to exclude the ground plate; the template holds no yard soil, so the box spans
+	 * the full footprint.
+	 */
 	public static StructureConfig.Builder hakurei() {
 		return StructureConfig.builder()
 				.rooms(List.of(
@@ -81,9 +89,11 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.REIMU_FIX);
 	}
 
-	/** morichika_shop template is 33x18x33 with bed at local y=8. Lower complex (west hall plus mid block, eaves
-	 *  and roof tiers) and east tower with facade trim. Boxes are disjoint; the ground layer, south tree and
-	 *  margin soil stay outside. */
+	/**
+	 * morichika_shop template is 33x18x33 with bed at local y=8. Lower complex (west hall plus mid block, eaves
+	 * and roof tiers) and east tower with facade trim. Boxes are disjoint; the ground layer, south tree and
+	 * margin soil stay outside.
+	 */
 	public static StructureConfig.Builder morichika() {
 		return StructureConfig.builder()
 				.rooms(List.of(
@@ -98,9 +108,11 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.MORICHIKA_FIX);
 	}
 
-	/** alice_house root is 30x23x20, bed upstairs at (21,6,7)-(22,6,8); the other five jigsaw parts are pure yard.
-	 *  House box lifted to y1 and inset so ground plate, yard soil and margin foliage stay out. Rooms are
-	 *  disjoint - west tower, the light slot x10-11 open to the sky at z5-7/z15-17, the wing split at y5. */
+	/**
+	 * alice_house root is 30x23x20, bed upstairs at (21,6,7)-(22,6,8); the other five jigsaw parts are pure yard.
+	 * House box lifted to y1 and inset so ground plate, yard soil and margin foliage stay out. Rooms are
+	 * disjoint - west tower, the light slot x10-11 open to the sky at z5-7/z15-17, the wing split at y5.
+	 */
 	public static StructureConfig.Builder alice() {
 		return StructureConfig.builder()
 				.interior(aliceInterior())
@@ -111,9 +123,11 @@ public class StructureConfigBuilder {
 				.wouldFix(GLStructureTagGen.ALICE_FIX);
 	}
 
-	/** Every room must be wired: {@code findRoute} follows declared nodes only, so an unwired room is unreachable.
-	 *  corridor_up is the exception - wired to the wing, not the tower, so the balcony is no exit onto the drop.
-	 *  The stair node stages clear of the run at (19,1,15) and (15,5,15); stair_hall meets landing at y4/y5. */
+	/**
+	 * Every room must be wired: {@code findRoute} follows declared nodes only, so an unwired room is unreachable.
+	 * corridor_up is the exception - wired to the wing, not the tower, so the balcony is no exit onto the drop.
+	 * The stair node stages clear of the run at (19,1,15) and (15,5,15); stair_hall meets landing at y4/y5.
+	 */
 	private static StructureInterior aliceInterior() {
 		var rooms = new ArrayList<>(List.of(
 				new InteriorRoom("tower_hall", new BoundingBox(2, 1, 7, 9, 17, 15)),

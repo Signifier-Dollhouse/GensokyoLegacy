@@ -30,7 +30,7 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 	private final DollLoadoutItemHandler handler;
 
 	public static DollLoadoutMenu fromNetwork(MenuType<DollLoadoutMenu> type, int wid, Inventory inv,
-											 @Nullable RegistryFriendlyByteBuf buf) {
+											  @Nullable RegistryFriendlyByteBuf buf) {
 		if (buf != null && buf.isReadable(1) && !buf.readBoolean())
 			return new DollLoadoutMenu(type, wid, inv, (PlayerSlot<?>) null);
 		Entity entity = buf != null && buf.isReadable(4) ? inv.player.level().getEntity(buf.readInt()) : null;

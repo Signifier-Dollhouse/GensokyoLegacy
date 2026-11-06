@@ -30,20 +30,28 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod {
 
-	/** 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。 */
+	/**
+	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
+	 */
 	public static final DirectionProperty FACING = BlockTemplates.HORIZONTAL_FACING;
 
-	/** 上下两半由 {@code DoubleBlockImpl} 加上，这里只引用它的属性。 */
+	/**
+	 * 上下两半由 {@code DoubleBlockImpl} 加上，这里只引用它的属性。
+	 */
 	public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 
-	/** 石台、矮木栏、石板三截。木栏只挡 y7..9,再往下是三根细柱,可以从缝里穿过去。 */
+	/**
+	 * 石台、矮木栏、石板三截。木栏只挡 y7..9,再往下是三根细柱,可以从缝里穿过去。
+	 */
 	public static final VoxelShape[] BOTTOM_SHAPES =
 			MagicTableBlock.allFaces(
 					new VoxelBuilder(0, 0, 0, 16, 3, 16),
 					new VoxelBuilder(0, 7, 1, 16, 9, 6),
 					new VoxelBuilder(2, 3, 11, 14, 16, 14));
 
-	/** 石板原本到 y24,搬进上半格还剩 y0..8。 */
+	/**
+	 * 石板原本到 y24,搬进上半格还剩 y0..8。
+	 */
 	public static final VoxelShape[] TOP_SHAPES =
 			MagicTableBlock.allFaces(new VoxelBuilder(2, 0, 11, 14, 8, 14));
 
@@ -70,7 +78,9 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 		pvd.horizontalBlock(block, state -> state.getValue(HALF) == Half.TOP ? empty : whole);
 	}
 
-	/** 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。 */
+	/**
+	 * 上半格是跟着下半格一起没的,只有下半格掉东西,免得拆一次掉两个。
+	 */
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
 		var helper = new LootHelper(pvd);
 		var pool = LootPool.lootPool().add(helper.item(block.asItem())

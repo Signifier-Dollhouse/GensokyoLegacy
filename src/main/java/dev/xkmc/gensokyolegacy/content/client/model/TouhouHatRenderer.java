@@ -35,10 +35,10 @@ public class TouhouHatRenderer implements ICurioRenderer {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext,
-	                                                                      PoseStack pose, RenderLayerParent<T, M> parent,
-	                                                                      MultiBufferSource buffer, int light,
-	                                                                      float swing, float swingAmp, float partial,
-	                                                                      float age, float yaw, float pitch) {
+																		  PoseStack pose, RenderLayerParent<T, M> parent,
+																		  MultiBufferSource buffer, int light,
+																		  float swing, float swingAmp, float partial,
+																		  float age, float yaw, float pitch) {
 		if (!(parent.getModel() instanceof HumanoidModel hm)) return;
 		renderHat(stack, slotContext.entity(), hm, pose, buffer, light, true);
 	}
@@ -49,7 +49,7 @@ public class TouhouHatRenderer implements ICurioRenderer {
 	 * @param followHead apply curios head rotations; the armor layer already inherits head pose
 	 */
 	public static void renderHat(ItemStack stack, LivingEntity entity, HumanoidModel<?> parent,
-	                             PoseStack pose, MultiBufferSource buffer, int light, boolean followHead) {
+								 PoseStack pose, MultiBufferSource buffer, int light, boolean followHead) {
 		if (!(stack.getItem() instanceof TouhouHatItem item)) return;
 		if (item.isModeledHat()) {
 			HeadItemRenderer.render(stack, entity, parent, pose, buffer, light);
@@ -70,7 +70,7 @@ public class TouhouHatRenderer implements ICurioRenderer {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static void copyProperties(HumanoidModel<?> from, HumanoidModel<?> to) {
-		((HumanoidModel) from).copyPropertiesTo((HumanoidModel) to);
+		((HumanoidModel) from).copyPropertiesTo(to);
 	}
 
 }

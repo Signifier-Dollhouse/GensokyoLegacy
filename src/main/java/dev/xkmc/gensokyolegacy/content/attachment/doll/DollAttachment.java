@@ -1,9 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
+import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
@@ -20,17 +26,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Player capability ledger: a doll is always exactly one of {entity + {@link DollData}, item, parked data}.
  * Entries whose {@link DollNature} forbids an item form are never converted, recalled or loaded out —
- * they are dropped instead (timed_summon.md §3).
+ * they are dropped instead (summon.md §3).
  *
  * @see "doc/design/doll/pairing.md"
  */
@@ -69,8 +70,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return commander;
 	}
 
-	/** Sidebar roster in ledger order, pushed via {@code DollRosterToClient}, never serialized.
-	 * One field, both sides: the server's diff baseline and the client's last roster. */
+	/**
+	 * Sidebar roster in ledger order, pushed via {@code DollRosterToClient}, never serialized.
+	 * One field, both sides: the server's diff baseline and the client's last roster.
+	 */
 	private List<DollRosterToClient.Entry> roster = List.of();
 
 	public List<DollRosterToClient.Entry> getRoster() {
@@ -138,7 +141,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	// The ledger key is the entity's own game UUID, minted fresh per materialization: a cloned
 	// spare summons an independent doll, findable via level().getEntity(uuid) (pairing.md §2.2).
 
-	/** Summoned entries on this ledger. */
+	/**
+	 * Summoned entries on this ledger.
+	 */
 	public int summonedCount() {
 		int n = 0;
 		for (DollData data : dolls.values()) {
@@ -168,7 +173,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		UUID uuid = doll.getUUID();
 		DollData data = dolls.get(uuid);
 		if (data == null || !data.isSummoned()) return false;
-		// a timed summon's kind has no item form, so there is nothing here to convert it into
+		// a summon's kind has no item form, so there is nothing here to convert it into
 		if (!data.getNature().itemizable()) return false;
 		if (!hasSlotFor(player)) {
 			player.displayClientMessage(GLLang.Doll.NO_SPACE.get(), true);
@@ -191,7 +196,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		UUID uuid = doll.getUUID();
 		DollData data = dolls.get(uuid);
 		if (data == null || !data.isSummoned()) return false;
-		// STORED means "wants to be an item", which a timed summon never does; TEMP still does,
+		// STORED means "wants to be an item", which a summon never does; TEMP still does,
 		// since it only means "wants to be an entity again"
 		if (intent == DollState.STORED && !data.getNature().itemizable()) return false;
 		doll.writeValuesTo(data);
@@ -201,9 +206,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/** Stray rejoin (control.md §5.4a): an aborted suicide dive is not a death, so the detached
+	/**
+	 * Stray rejoin (control.md §5.4a): an aborted suicide dive is not a death, so the detached
 	 * entry goes back parked TEMP, health and gear untouched, and the stray is discarded rather
-	 * than killed so no death drop fires. False unless stray, alive, and its key is free. */
+	 * than killed so no death drop fires. False unless stray, alive, and its key is free.
+	 */
 	public boolean rejoin(BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
@@ -221,7 +228,9 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	// ---------- glove mass operations ----------
 
-	/** Any doll currently summoned on this ledger. */
+	/**
+	 * Any doll currently summoned on this ledger.
+	 */
 	public boolean hasSummoned() {
 		for (var data : dolls.values()) {
 			if (data.isSummoned()) return true;
@@ -229,9 +238,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return false;
 	}
 
-	/** Glove summon-all: every parked entry (STORED promoted to TEMP) plus every doll item in the
+	/**
+	 * Glove summon-all: every parked entry (STORED promoted to TEMP) plus every doll item in the
 	 * inventory, in a ring around the owner. No ledger cap: as much as possible means everything.
-	 * Returns the dolls summoned. */
+	 * Returns the dolls summoned.
+	 */
 	public int summonAll(ServerPlayer player) {
 		int n = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -256,9 +267,11 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/** Glove recall for strays (control.md §5.4a): itemize every stray within {@code range} blocks,
+	/**
+	 * Glove recall for strays (control.md §5.4a): itemize every stray within {@code range} blocks,
 	 * as recalling a summoned one does. A stray holds no entry, so this scans loaded entities; a
-	 * full inventory stops the sweep. Returns the dolls itemized. */
+	 * full inventory stops the sweep. Returns the dolls itemized.
+	 */
 	public int recallStrays(ServerPlayer player, double range) {
 		AABB box = player.getBoundingBox().inflate(range);
 		List<Entity> strays = player.level().getEntities(player, box,
@@ -274,13 +287,15 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return n;
 	}
 
-	/** Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
-	 * inventory and the stray is discarded; the caller's slot check is the only gate. */
+	/**
+	 * Stray counterpart of {@link #itemize}: the detached entry rides a fresh doll item into the
+	 * inventory and the stray is discarded; the caller's slot check is the only gate.
+	 */
 	private boolean itemizeStray(ServerPlayer player, BaseDollEntity doll) {
 		StrayHost stray = doll.strayHost();
 		if (stray == null || doll.isDeadOrDying()) return false;
 		DollData data = stray.data();
-		// asked before the one-shot take: a refused sweep must not spend a timed summon's entry
+		// asked before the one-shot take: a refused sweep must not spend a summon's entry
 		if (data == null || !data.getNature().itemizable()) return false;
 		stray.take();
 		doll.setStrayHost(null);
@@ -290,10 +305,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return true;
 	}
 
-	/** Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
+	/**
+	 * Glove recall-all: itemize every reachable summoned doll, parking to STORED when the inventory
 	 * is full, then fold all TEMP into STORED. Strays within {@link #STRAY_RECALL_RANGE} ride the
 	 * same sweep. Player-ledger only. Entries whose nature forbids recall are skipped whole — they
-	 * are neither itemized nor parked, and their TEMP stays TEMP. Returns {itemized, parked}. */
+	 * are neither itemized nor parked, and their TEMP stays TEMP. Returns {itemized, parked}.
+	 */
 	public int[] recallAll(ServerPlayer player) {
 		int itemized = recallStrays(player, STRAY_RECALL_RANGE), parked = 0;
 		for (var data : new ArrayList<>(dolls.values())) {
@@ -313,7 +330,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 
 	public boolean tryItemize(ServerPlayer player, DollData data) {
 		if (data.state != DollState.STORED || data.type == null) return false;
-		// nothing to become: a timed summon parked STORED is dropped rather than retried forever,
+		// nothing to become: a summon parked STORED is dropped rather than retried forever,
 		// so the invariant holds here and not only at the two producers that set STORED
 		if (!data.getNature().itemizable()) return drop(data.uuid) != null;
 		ItemStack stack = DollItem.makeItem(data);
@@ -375,8 +392,10 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		maybePushRoster(sp);
 	}
 
-	/** Sidebar roster push (glove.md §2c): rebuild in ledger order, send {@code DollRosterToClient}
-	 * only on a change, and restamp each live entry's formation slot for the follow goal. */
+	/**
+	 * Sidebar roster push (glove.md §2c): rebuild in ledger order, send {@code DollRosterToClient}
+	 * only on a change, and restamp each live entry's formation slot for the follow goal.
+	 */
 	private void maybePushRoster(ServerPlayer player) {
 		var built = commander.roster(player);
 		ArrayList<DollRosterToClient.Entry> next = new ArrayList<>(built.size());
@@ -405,10 +424,12 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		}
 	}
 
-	/** SUMMONED watchdog: a dead entry is STORED and never re-summoned, or dropped outright when it
+	/**
+	 * SUMMONED watchdog: a dead entry is STORED and never re-summoned, or dropped outright when it
 	 * has no item form to repair; an entry that no longer matches reality, or a doll past
 	 * {@link #PULLBACK_DISTANCE} from its owner, is parked TEMP and resummoned near the owner on
-	 * the next tick. */
+	 * the next tick.
+	 */
 	private void tickSummoned(ServerPlayer player, DollData data) {
 		ServerLevel level = getLevel(player, data);
 		if (level == null) {
@@ -416,7 +437,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 			return;
 		}
 		if (data.getHealth() <= 0) {
-			// a timed summon that dies is simply gone: there is no broken item to hand back
+			// a summon that dies is simply gone: there is no broken item to hand back
 			if (data.getNature().itemizable()) data.state = DollState.STORED;
 			else dolls.remove(data.uuid);
 			if (level.getEntity(data.uuid) instanceof BaseDollEntity corpse) {
@@ -467,8 +488,116 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		return player.position().add(0, 1, 0);
 	}
 
+	/**
+	 * Bone-flute binding: turns a wild ghost into an owned one. The ledger entry is created first,
+	 * then the stray is discarded only after materialization succeeded, so a failed bind leaves the
+	 * wild ghost in place.
+	 */
+	public boolean adopt(ServerPlayer player, StrayGhostEntity stray) {
+		if (summonCapped() || stray.isRemoved() || !stray.isAlive()) return false;
+		DollData data = new DollData();
+		data.type = GhostEntity.TYPE;
+		data.state = DollState.SUMMONED;
+		data.dimension = stray.level().dimension().location();
+		data.position = stray.position();
+		data.yRot = stray.getYRot();
+		data.combat = new CombatData(stray.getHealth(), 0);
+		data.variant = stray.getVariant().ordinal();
+		data.power = stray.getPower();
+		data.customName = stray.getCustomName();
+		if (!doSummon(player, data, null)) return false;
+		stray.discard();
+		return true;
+	}
+
+	/**
+	 * Bone-flute release: spawns the wild counterpart first, then removes the owned ghost and its
+	 * entry. A failed spawn keeps the ghost owned.
+	 */
+	public boolean release(ServerPlayer player, GhostEntity ghost) {
+		if (!ghost.isOwner(player)) return false;
+		if (!ghost.getVariant().handler.releasable()) return false;
+		DollData data = dolls.get(ghost.getUUID());
+		if (data == null || !data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) return false;
+		if (data.getHealth() <= 0 || !(ghost.level() instanceof ServerLevel level)) return false;
+		StrayGhostEntity stray = new StrayGhostEntity(GLEntities.STRAY_GHOST.get(), level);
+		stray.moveTo(ghost.getX(), ghost.getY(), ghost.getZ(), ghost.getYRot(), ghost.getXRot());
+		stray.setVariant(ghost.getVariant());
+		stray.setPower(ghost.getPower());
+		stray.setHealth(Math.min(data.getHealth(), stray.getMaxHealth()));
+		stray.setCustomName(ghost.getCustomName());
+		stray.setPersistenceRequired();
+		if (!level.addFreshEntity(stray)) {
+			stray.discard();
+			return false;
+		}
+		ghost.discard();
+		dolls.remove(ghost.getUUID());
+		return true;
+	}
+
 	// ---- spawn + register: the entry is inserted BEFORE addFreshEntity, so the entity's join-level
 	// inverse check finds its SUMMONED entry; oldKey, when set, re-keys to the new entity's uuid.
+
+	/**
+	 * Yuyuko fan binding: a summoned ghost of the given type at full power, near the player.
+	 */
+	public boolean summonGhost(ServerPlayer player, GhostVariant variant, Vec3 pos) {
+		if (summonCapped()) return false;
+		DollData data = new DollData();
+		data.type = GhostEntity.TYPE;
+		data.state = DollState.SUMMONED;
+		data.dimension = player.level().dimension().location();
+		data.position = pos;
+		data.yRot = player.getYRot();
+		data.combat = new CombatData(BaseDollEntity.DEFAULT_MAX_HEALTH, 0);
+		data.variant = variant.ordinal();
+		data.power = GhostPower.MAX;
+		return doSummon(player, data, null);
+	}
+
+	/**
+	 * Yuyuko fan absorption: takes the owned ghost out of the ledger without spawning a wild one.
+	 */
+	public boolean absorb(ServerPlayer player, GhostEntity ghost) {
+		if (!ghost.isOwner(player)) return false;
+		DollData data = dolls.get(ghost.getUUID());
+		if (data == null || !data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) return false;
+		ghost.discard();
+		dolls.remove(ghost.getUUID());
+		return true;
+	}
+
+	/**
+	 * The summoned ghost of {@code variant} with the least power, or null when none is loaded in
+	 * the owner's level. A full ghost is still returned: the fan must not add a second one.
+	 */
+	@Nullable
+	public GhostEntity findSummonedGhost(ServerPlayer player, GhostVariant variant) {
+		GhostEntity best = null;
+		for (DollData data : dolls.values()) {
+			if (!data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) continue;
+			if (data.variant != variant.ordinal()) continue;
+			if (!(player.serverLevel().getEntity(data.uuid) instanceof GhostEntity ghost)) continue;
+			if (!ghost.isAlive() || !ghost.isOwner(player)) continue;
+			if (best == null || ghost.getPower() < best.getPower()) best = ghost;
+		}
+		return best;
+	}
+
+	/**
+	 * Every loaded ghost this player has summoned, as a snapshot: the caller may absorb or release
+	 * them while iterating.
+	 */
+	public List<GhostEntity> summonedGhosts(ServerPlayer player) {
+		List<GhostEntity> ans = new ArrayList<>();
+		for (DollData data : dolls.values()) {
+			if (!data.isSummoned() || !GhostEntity.TYPE.equals(data.type)) continue;
+			if (!(player.serverLevel().getEntity(data.uuid) instanceof GhostEntity ghost)) continue;
+			if (ghost.isAlive() && ghost.isOwner(player)) ans.add(ghost);
+		}
+		return ans;
+	}
 
 	private boolean doSummon(ServerPlayer player, DollData data, @Nullable UUID oldKey) {
 		BaseDollEntity doll = DollSpawn.materialize(player.serverLevel(), player, data);

@@ -74,7 +74,9 @@ public interface DollLoadout extends DollEntityImpl {
 		syncLoadoutMirror();
 	}
 
-	/** Consumes items from a hand slot in the ledger, then refreshes the mirror. */
+	/**
+	 * Consumes items from a hand slot in the ledger, then refreshes the mirror.
+	 */
 	default boolean consumeLoadoutItem(DollSlot slot, int count) {
 		MutableDollInventory inv = loadout();
 		ItemStack live = inv.get(slot);

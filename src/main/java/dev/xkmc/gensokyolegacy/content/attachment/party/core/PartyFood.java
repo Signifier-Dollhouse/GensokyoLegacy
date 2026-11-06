@@ -19,7 +19,9 @@ public record PartyFood(int appeal) {
 		appeal = Math.max(0, appeal);
 	}
 
-	/** The override for this state, or null when there is none. */
+	/**
+	 * The override for this state, or null when there is none.
+	 */
 	@Nullable
 	public static PartyFood of(RegistryAccess access, BlockState state) {
 		return GLMeta.PARTY_FOOD.get(access, state.getBlockHolder());

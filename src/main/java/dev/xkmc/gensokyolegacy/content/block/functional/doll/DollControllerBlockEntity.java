@@ -29,13 +29,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/** Hosts its own {@link DollData} list and is the {@link DollHost} of the dolls it deploys.
+/**
+ * Hosts its own {@link DollData} list and is the {@link DollHost} of the dolls it deploys.
  * The block is never owned by a player, so a deployed doll has no owner and its follow/look goals stay dormant.
- * @see "doc/design/doll/controller.md" */
+ *
+ * @see "doc/design/doll/controller.md"
+ */
 @SerialClass
 public class DollControllerBlockEntity extends BaseBlockEntity implements TickableBlockEntity, DollHost {
 
-	/** Max resident dolls a single controller block can hold. */
+	/**
+	 * Max resident dolls a single controller block can hold.
+	 */
 	public static final int MAX_DOLLS = 4;
 
 	@SerialField
@@ -92,7 +97,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return false;
 	}
 
-	/** Installs a doll item as a resident (STORED), starting at the center of the block above;
+	/**
+	 * Installs a doll item as a resident (STORED), starting at the center of the block above;
 	 * conversion mirrors {@code DollAttachment.summon} via {@link DollData#fromItemData}: significant values, no uuid.
 	 */
 	public boolean install(ItemStack stack) {
@@ -126,7 +132,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return true;
 	}
 
-	/** Re-keys a resident entry to the entity's fresh game uuid BEFORE {@code addFreshEntity}, so the
+	/**
+	 * Re-keys a resident entry to the entity's fresh game uuid BEFORE {@code addFreshEntity}, so the
 	 * join-level inverse check finds its SUMMONED entry. Sync is left to the caller.
 	 */
 	private boolean spawnFromData(DollData data, Vec3 pos) {
@@ -209,7 +216,8 @@ public class DollControllerBlockEntity extends BaseBlockEntity implements Tickab
 		return true;
 	}
 
-	/** The block was broken: never lose a doll. A deployed doll drops its item where it currently is (its
+	/**
+	 * The block was broken: never lose a doll. A deployed doll drops its item where it currently is (its
 	 * recorded spot if it has no live entity); stored dolls drop at the block position.
 	 */
 	public void onDestroy() {

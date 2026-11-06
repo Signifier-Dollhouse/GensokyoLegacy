@@ -1,12 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.*;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.IFixableHomeHolder;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureBoundUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;

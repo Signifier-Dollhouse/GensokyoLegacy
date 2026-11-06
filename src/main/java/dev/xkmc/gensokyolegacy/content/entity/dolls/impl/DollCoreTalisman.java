@@ -24,9 +24,9 @@ public interface DollCoreTalisman extends DollLoadout, TalismanHolder {
 	}
 
 	/**
- * Server tick: one activation sweep, then a mirror refresh if the paper spent a use. The slot is
- * emptied outright on the last use so an idle doll syncs nothing.
- */
+	 * Server tick: one activation sweep, then a mirror refresh if the paper spent a use. The slot is
+	 * emptied outright on the last use so an idle doll syncs nothing.
+	 */
 	default void tickCoreTalisman() {
 		MutableDollInventory inv = asDoll().loadout();
 		ItemStack live = inv.get(DollSlot.CORE);

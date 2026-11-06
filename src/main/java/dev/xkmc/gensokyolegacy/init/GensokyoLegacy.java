@@ -5,10 +5,15 @@ import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
+import dev.xkmc.gensokyolegacy.content.cooldown.CooldownRates;
+import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
@@ -19,16 +24,9 @@ import dev.xkmc.gensokyolegacy.init.data.*;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomes;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLFeatureGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.MagicalForestRegion;
-import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
-import dev.xkmc.gensokyolegacy.init.data.rpg.AliceQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.GiftQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.MarisaQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.MorichikaQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
-import dev.xkmc.gensokyolegacy.init.data.rpg.ReimuQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.SakuyaQDGen;
-import dev.xkmc.gensokyolegacy.init.data.rpg.SuikaQDGen;
+import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
+import dev.xkmc.gensokyolegacy.init.data.rpg.*;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
@@ -55,6 +53,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
@@ -71,7 +70,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = GLPackets.create(3);
+	public static final PacketHandler HANDLER = GLPackets.create(4);
 
 	public GensokyoLegacy() {
 
@@ -104,9 +103,6 @@ public class GensokyoLegacy {
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
 			NeoForge.EVENT_BUS.register(TLMCompat.class);
 		}
-		BorderUmbrellaSelectionListener.register();
-		DollGloveSelectionListener.register();
-		DaggerGloveSelectionListener.register();
 	}
 
 	@SubscribeEvent
@@ -130,6 +126,12 @@ public class GensokyoLegacy {
 	public static void commonSetup(FMLCommonSetupEvent event) {
 		event.enqueueWork(() -> {
 			BlockFoods.register();
+			BorderUmbrellaSelectionListener.register();
+			DollGloveSelectionListener.register();
+			DaggerGloveSelectionListener.register();
+			YuyukoFanSelectionListener.register();
+			AnchorSelectionListener.register();
+			CooldownRates.register(new LivelySource());
 
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
@@ -183,7 +185,9 @@ public class GensokyoLegacy {
 		var alice = new AliceQDGen();
 		var sakuya = new SakuyaQDGen();
 		var suika = new SuikaQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, new GiftQDGen());
+		var cirno = new CirnoQDGen();
+		var yuyuko = new YuyukoQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, new GiftQDGen());
 
 		ReportBlocksInStructure.report();
 	}

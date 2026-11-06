@@ -14,9 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** Effect payload of the sealing pot: owner validity is the block itself, the client visual is the
+/**
+ * Effect payload of the sealing pot: owner validity is the block itself, the client visual is the
  * forcefield texture tinted with the pot's own green.
- * @see "doc/design/barriers.md" */
+ *
+ * @see "doc/design/barriers.md"
+ */
 @SerialClass
 public class SealingEffectData extends EffectData {
 

@@ -14,12 +14,18 @@ import java.util.List;
 public record HakkeroTooltip(List<ItemStack> slots, int[] progress)
 		implements TooltipComponent {
 
-	/** Progress is carried in permille, matching the menu's data slots. */
+	/**
+	 * Progress is carried in permille, matching the menu's data slots.
+	 */
 	public static final int SCALE = 1000;
-	/** Rows of eight: the inputs, the results, then the fuel. */
+	/**
+	 * Rows of eight: the inputs, the results, then the fuel.
+	 */
 	public static final int ROWS = 3;
 
-	/** Progress of one channel, as a 0..1 fraction. */
+	/**
+	 * Progress of one channel, as a 0..1 fraction.
+	 */
 	public float progress(int channel) {
 		if (channel < 0 || channel >= progress.length) return 0.0F;
 		return progress[channel] / (float) SCALE;

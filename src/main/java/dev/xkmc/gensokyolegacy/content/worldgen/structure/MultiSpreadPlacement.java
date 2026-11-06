@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 
-	public static final MapCodec<MultiSpreadPlacement> CODEC = RecordCodecBuilder.<MultiSpreadPlacement>mapCodec((i) -> placementCodec(i).and(
+	public static final MapCodec<MultiSpreadPlacement> CODEC = RecordCodecBuilder.mapCodec((i) -> placementCodec(i).and(
 			i.group(
 					Codec.intRange(1, 4096).fieldOf("spacing").forGetter(MultiSpreadPlacement::spacing),
 					RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(MultiSpreadPlacement::spreadType),
@@ -38,7 +38,7 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 	private final int attempts;
 
 	public MultiSpreadPlacement(Vec3i locateOffset, FrequencyReductionMethod frequencyReductionMethod, float frequency, int salt,
-	                            Optional<ExclusionZone> exclusionZone, int spacing, RandomSpreadType spreadType, int attempts) {
+								Optional<ExclusionZone> exclusionZone, int spacing, RandomSpreadType spreadType, int attempts) {
 		super(locateOffset, frequencyReductionMethod, frequency, salt, exclusionZone, spacing, 0, spreadType);
 		this.spacing = spacing;
 		this.spreadType = spreadType;

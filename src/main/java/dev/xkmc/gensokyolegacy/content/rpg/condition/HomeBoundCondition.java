@@ -36,7 +36,7 @@ public record HomeBoundCondition(
 
 	@Override
 	public boolean test(ServerPlayer pl, YoukaiEntity ch) {
-		boolean hasHome =  ch instanceof SmartYoukaiEntity y && IHomeHolder.of(pl.serverLevel(), y) != null;
+		boolean hasHome = ch instanceof SmartYoukaiEntity y && IHomeHolder.of(pl.serverLevel(), y) != null;
 		return hasHome ^ invert;
 	}
 }

@@ -15,20 +15,19 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Per-mode behavior behind the {@link DollGloveMode} enum, mirroring {@code UmbrellaMode}. Server-side.
+ *
  * @see "doc/design/doll/glove.md"
  */
 public abstract class DollGloveHandler {
 
-	/** Editor-open reach for doll right-click, in blocks (glove.md §2b). */
+	/**
+	 * Editor-open reach for doll right-click, in blocks (glove.md §2b).
+	 */
 	public static final double EDITOR_RANGE = 16;
 
 	public abstract ItemStack icon();
@@ -68,14 +67,15 @@ public abstract class DollGloveHandler {
 		return GLMeta.DOLL.type().getOrCreate(sp);
 	}
 
-	/** Right-click editor shortcut: an owned doll under the crosshair — or any doll if the holder is in
+	/**
+	 * Right-click editor shortcut: an owned doll under the crosshair — or any doll if the holder is in
 	 * creative — opens its loadout instead of the mode action. Unlike attack commands, it re-traces
 	 * fresh and never consults the cached target.
 	 */
 	protected static boolean tryOpenEditor(ServerPlayer sp, DollGloveItem item) {
 		DollEntity doll = rayTraceDoll(sp);
-		// loadoutCapable rather than "has an empty loadout": a timed summon and a gadget have no
-		// editor to open, so the crosshair falls through to the mode action (timed_summon.md §2)
+		// loadoutCapable rather than "has an empty loadout": a summon and a gadget have no
+		// editor to open, so the crosshair falls through to the mode action (summon.md §2)
 		if (doll != null && doll.nature().loadoutCapable() && (doll.isOwner(sp) || sp.getAbilities().instabuild)) {
 			DollLoadoutProvider.open(sp, doll);
 			cooldown(sp, item);

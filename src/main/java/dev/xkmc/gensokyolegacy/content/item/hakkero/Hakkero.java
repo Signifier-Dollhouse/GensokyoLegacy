@@ -55,7 +55,9 @@ public class Hakkero extends Item implements InvClickItem {
 	 * granularity its client tooltip replays at.
 	 */
 	public static final int IDLE_BATCH = 20;
-	/** Thrust given by a kick paid for out of the fuel slot. */
+	/**
+	 * Thrust given by a kick paid for out of the fuel slot.
+	 */
 	public static final float THRUST_FUELLED = 3.0F;
 
 	public Hakkero(Properties properties) {
@@ -254,7 +256,8 @@ public class Hakkero extends Item implements InvClickItem {
 		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
 	}
 
-	/** Opens the menu from an inventory right-click; the cached mouse position centres the
+	/**
+	 * Opens the menu from an inventory right-click; the cached mouse position centres the
 	 * window on the cursor, so without it the first click lands wherever the pointer was.
 	 */
 	@Override
@@ -363,7 +366,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 * Client-side mirror of a {@link #boost} kick, sent because the broom flies client side.
 	 */
 	public record BroomBoostToClient(int broomId, float power,
-	                                 int ticks) implements SerialPacketBase<BroomBoostToClient> {
+									 int ticks) implements SerialPacketBase<BroomBoostToClient> {
 
 		@Override
 		public void handle(Player player) {

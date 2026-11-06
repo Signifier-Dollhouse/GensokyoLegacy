@@ -19,15 +19,9 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * What a loot table can drop, read off the table rather than rolled, so a constant count is exact, not merely
@@ -35,7 +29,8 @@ import java.util.Set;
  */
 public class LootReader {
 
-	private LootReader() {}
+	private LootReader() {
+	}
 
 	/**
 	 * Every loot table a quest reward names, read. Only those: this is all a client is told, and
@@ -115,12 +110,16 @@ public class LootReader {
 		}
 	}
 
-	/** the lower of two bounds, either being unsayable making the whole thing unsayable */
+	/**
+	 * the lower of two bounds, either being unsayable making the whole thing unsayable
+	 */
 	private static @Nullable Integer lo(@Nullable Integer a, @Nullable Integer b) {
 		return a == null || b == null ? null : Math.min(a, b);
 	}
 
-	/** the upper of two bounds, on the same terms as {@link #lo} */
+	/**
+	 * the upper of two bounds, on the same terms as {@link #lo}
+	 */
 	private static @Nullable Integer hi(@Nullable Integer a, @Nullable Integer b) {
 		return a == null || b == null ? null : Math.max(a, b);
 	}
@@ -149,7 +148,10 @@ public class LootReader {
 		return null;
 	}
 
-	/** a span of whole numbers, inclusive */
-	private record Range(int min, int max) {}
+	/**
+	 * a span of whole numbers, inclusive
+	 */
+	private record Range(int min, int max) {
+	}
 
 }

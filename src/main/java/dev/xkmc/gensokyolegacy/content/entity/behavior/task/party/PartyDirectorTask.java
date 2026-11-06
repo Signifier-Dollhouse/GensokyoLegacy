@@ -71,7 +71,9 @@ public class PartyDirectorTask extends PartyTask {
 		if (module.walkStalled(ctx.gameTime(), PartyTasks.WALK_STALL)) teleportTo(ctx, module);
 	}
 
-	/** A guest stuck in a doorway for the rest of a party is worse than one that blinks. */
+	/**
+	 * A guest stuck in a doorway for the rest of a party is worse than one that blinks.
+	 */
 	private void teleportTo(PartyContext ctx, PartyModule module) {
 		var target = module.walkTarget();
 		if (target == null) return;

@@ -5,10 +5,10 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.base.menu.base.BaseContainerMenu;
 import dev.xkmc.l2core.base.menu.base.SpriteManager;
 import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import net.minecraft.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -34,15 +34,20 @@ import org.jetbrains.annotations.Nullable;
 public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 
 	public static final SpriteManager MANAGER = new SpriteManager(GensokyoLegacy.MODID, "mini_hakkero");
-	/** Menu button id of the center mode switch. */
+	/**
+	 * Menu button id of the center mode switch.
+	 */
 	public static final int MODE_BUTTON = 0;
-	/** Progress is synced in permille, which is all the overlay needs and fits a data slot. */
+	/**
+	 * Progress is synced in permille, which is all the overlay needs and fits a data slot.
+	 */
 	private static final int PROGRESS_SCALE = 1000;
 
 	@Nullable
 	private final PlayerSlot<?> slot;
 
-	/** The stack the contents live in: the player's own hakkero on the server, a throwaway one on
+	/**
+	 * The stack the contents live in: the player's own hakkero on the server, a throwaway one on
 	 * the client, carried across by the ordinary container sync as the talisman pocket does.
 	 */
 	private final ItemStack backing;
@@ -52,9 +57,13 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	private final DataSlot[] progress = new DataSlot[HakkeroData.CHANNELS];
 	private final DataSlot burnTime;
 	private final DataSlot burnMax;
-	/** Client-only eased copy of {@link #progress}, driven by {@link #advanceInterpolation}. */
+	/**
+	 * Client-only eased copy of {@link #progress}, driven by {@link #advanceInterpolation}.
+	 */
 	private final float[] smooth = new float[HakkeroData.CHANNELS];
-	/** Client-only wall clock of the last interpolation, in milliseconds. */
+	/**
+	 * Client-only wall clock of the last interpolation, in milliseconds.
+	 */
 	private long lastFrame;
 
 	public static HakkeroMenu fromNetwork(MenuType<?> type, int wid, Inventory inv, @Nullable RegistryFriendlyByteBuf buf) {
@@ -140,7 +149,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		syncState();
 	}
 
-	/** The mode this menu is working in, read from the data slot on both sides: seeded from the
+	/**
+	 * The mode this menu is working in, read from the data slot on both sides: seeded from the
 	 * item on open and kept in step by the button, so the client never reaches for the stack.
 	 */
 	public HakkeroMode getMode() {
@@ -148,12 +158,15 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		return vals[Mth.clamp(mode.get(), 0, vals.length - 1)];
 	}
 
-	/** How far the given channel has progressed, as the fraction the cooldown overlay draws. */
+	/**
+	 * How far the given channel has progressed, as the fraction the cooldown overlay draws.
+	 */
 	public float getProgress(int channel) {
 		return progress[channel].get() / (float) PROGRESS_SCALE;
 	}
 
-	/** The same progress, smoothed: the data slot moves one unit of the recipe's cooking time per
+	/**
+	 * The same progress, smoothed: the data slot moves one unit of the recipe's cooking time per
 	 * tick (half a percent on a 200-tick recipe), so drawing it raw steps the bar twice a second.
 	 */
 	public float getSmoothProgress(int channel) {
@@ -225,7 +238,7 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		boolean moved = id >= 36
 				? moveItemStackTo(stack, 0, 36, false)
 				: moveItemStackTo(stack, 36, 36 + HakkeroData.CHANNELS, true)
-						|| moveItemStackTo(stack, 36 + HakkeroData.FUEL, 37 + HakkeroData.FUEL, false);
+				|| moveItemStackTo(stack, 36 + HakkeroData.FUEL, 37 + HakkeroData.FUEL, false);
 		if (moved) slots.get(id).setChanged();
 		return ItemStack.EMPTY;
 	}
@@ -249,14 +262,18 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 			this.channel = channel;
 		}
 
-		/** Which channel of the item this slot feeds, and so which bar it draws. */
+		/**
+		 * Which channel of the item this slot feeds, and so which bar it draws.
+		 */
 		public int channel() {
 			return channel;
 		}
 
 	}
 
-	/** Outer rim slot: results are taken out, never put in. */
+	/**
+	 * Outer rim slot: results are taken out, never put in.
+	 */
 	public static class ResultSlot extends ItemHandlerCopySlot {
 
 		public ResultSlot(HakkeroHandler handler, int index, int x, int y) {
@@ -270,7 +287,9 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 
 	}
 
-	/** Fuel slot: only accepts something that actually burns. */
+	/**
+	 * Fuel slot: only accepts something that actually burns.
+	 */
 	public static class FuelSlot extends ItemHandlerCopySlot {
 
 		public FuelSlot(HakkeroHandler handler, int index, int x, int y) {
@@ -279,7 +298,8 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 
 	}
 
-	/** The middle of the grid: the hakkero itself, shown as the mode button, backed by an empty
+	/**
+	 * The middle of the grid: the hakkero itself, shown as the mode button, backed by an empty
 	 * container and rebuilt from the synced mode so the tooltip stays honest on both sides.
 	 */
 	public static class ModeSlot extends Slot {

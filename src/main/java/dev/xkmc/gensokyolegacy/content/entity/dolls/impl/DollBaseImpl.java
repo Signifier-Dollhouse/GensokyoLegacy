@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.level.Level;
 
 /**
  * Shared base for all doll impl interfaces: exposes the implementing entity in a typed way so
@@ -15,7 +14,9 @@ public interface DollBaseImpl {
 		return (BaseDollEntity) this;
 	}
 
-	/** The vanilla synced data, redeclared here so defaults can read the accessors. */
+	/**
+	 * The vanilla synced data, redeclared here so defaults can read the accessors.
+	 */
 	SynchedEntityData getEntityData();
 
 }

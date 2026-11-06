@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.sensor;
 
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -41,8 +42,12 @@ public class NearbyPlayerSensor<E extends SmartYoukaiEntity> extends AbstractNea
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !p.canBeSeenAsEnemy());
 		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list.isEmpty() ? null : list.getFirst());
-		if (allHostile && entity.vanishOnDislike()) {
-			entity.discard();
+		// a party guest is not walked out over a disagreement, and a visitor writes
+		// off her window first so the scheduler does not put her straight back
+		if (allHostile && entity.vanishOnDislike() && !entity.isPartying()) {
+			var visit = entity.getModule(VisitModule.class);
+			if (visit.isPresent()) visit.get().giveUp();
+			else entity.discard();
 		}
 	}
 

@@ -35,19 +35,26 @@ import java.util.List;
  */
 public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOverlay.Entry, DollAttackStatusOverlay.AttackSig> {
 
-	/** Frame for a doll busy with a task foreign to the held glove mode (ARGB). */
+	/**
+	 * Frame for a doll busy with a task foreign to the held glove mode (ARGB).
+	 */
 	private static final int PURPLE_FRAME = 0xFFAA00AA;
 
-	/** Frame for the doll under the crosshair, in every mode (ARGB). */
+	/**
+	 * Frame for the doll under the crosshair, in every mode (ARGB).
+	 */
 	private static final int ORANGE_FRAME = 0xFFFFAA00;
 
-	/** No-frame marker: task-less modes and non-hovered rows. */
+	/**
+	 * No-frame marker: task-less modes and non-hovered rows.
+	 */
 	private static final int NO_FRAME = 0;
 
 	public record Entry(ItemStack icon, boolean valid, int frameColor, ItemStack use) {
 	}
 
-	private record Resolved(int id, ItemStack icon, boolean valid, DollActionStatus status, int frameColor, ItemStack use) {
+	private record Resolved(int id, ItemStack icon, boolean valid, DollActionStatus status, int frameColor,
+	                        ItemStack use) {
 	}
 
 	public record EntrySig(int id, boolean valid, DollActionStatus status, int frameColor, boolean useEmpty) {

@@ -14,7 +14,34 @@
       "reputation": 50
     }
   ],
-  "dialog": "gensokyolegacy:reimu/chat_marisa/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_04"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "next": {
+          "animations": [
+            "dialog_talk_01"
+          ],
+          "options": [
+            {
+              "type": "gensokyolegacy:simple",
+              "actions": [],
+              "conditions": [],
+              "text": "gensokyolegacy/reimu/chat_marisa/option/bye"
+            }
+          ],
+          "text": "gensokyolegacy/reimu/chat_marisa/dialog/reimu/chat_marisa/where_ans"
+        },
+        "text": "gensokyolegacy/reimu/chat_marisa/option/where"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/chat_marisa/dialog/reimu/chat_marisa/talk"
+  },
   "text": "gensokyolegacy/reimu/chat_marisa/starter/start",
   "weight": 100
 }

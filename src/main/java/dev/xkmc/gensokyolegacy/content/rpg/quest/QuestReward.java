@@ -9,7 +9,9 @@ public interface QuestReward<T extends Record & QuestReward<T>> extends CodecEle
 
 	void execute(ServerPlayer sp, YoukaiEntity ch);
 
-	/** what the reward is worth, for surfaces that have no inventory to hand (JEI) */
+	/**
+	 * what the reward is worth, for surfaces that have no inventory to hand (JEI)
+	 */
 	Component getDesc();
 
 }

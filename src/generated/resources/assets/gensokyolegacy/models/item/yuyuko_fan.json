@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "gensokyolegacy:item/yuyuko_fan_icon_summon",
+      "predicate": {
+        "gensokyolegacy:yuyuko_fan_display": 1.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/yuyuko_fan_icon_absorb",
+      "predicate": {
+        "gensokyolegacy:yuyuko_fan_display": 2.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/yuyuko_fan_icon_scatter",
+      "predicate": {
+        "gensokyolegacy:yuyuko_fan_display": 3.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/yuyuko_fan_icon_haunting",
+      "predicate": {
+        "gensokyolegacy:yuyuko_fan_display": 4.0
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "gensokyolegacy:item/yuyuko_fan/yuyuko_fan"
+  }
+}

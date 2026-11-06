@@ -92,7 +92,7 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 	}
 
 	private void addOutput(IRecipeLayoutBuilder builder, AlchemyRecipe<?> recipe, int x, int y,
-	                       boolean big, boolean useFluid, boolean useItem) {
+						   boolean big, boolean useFluid, boolean useItem) {
 		var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, x, y);
 		if (big) slot.setOutputSlotBackground();
 		else slot.setStandardSlotBackground();
@@ -115,7 +115,7 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 	private static final int ARROW_W = 30;
 
 	private record Layout(int inputX, int inputY, int inputCols, int arrowX, int arrowY,
-	                      int outX, int outY, int outCount) {
+						  int outX, int outY, int outCount) {
 	}
 
 	private Layout compute(AlchemyRecipe<?> recipe) {

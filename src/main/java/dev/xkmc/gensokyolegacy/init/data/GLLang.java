@@ -379,8 +379,12 @@ public final class GLLang {
 		WAND_BLOCK("Click block to show structure bounds"),
 		WAND_STRUCTURE("Sneak-click block to show structure option screen"),
 		WAND_CHARACTER("Click character to reset global character data for you"),
+		WAND_GHOST("Click a ghost to show its power"),
+		GHOST_WILD("Wild %s: %s / %s power", 3, ChatFormatting.GRAY),
+		GHOST_TAMED("Tamed %s: %s / %s power", 3, ChatFormatting.GRAY),
 		GLASS_PATH("Display character path finding"),
 		GLASS_CHARACTER("Display character info"),
+		GLASS_GHOST("Display ghost power"),
 		GLASS_BED("Display bed info"),
 		DOOR_DEBUG_USE("Right-click: bind nearest youkai"),
 		DOOR_DEBUG_CLICK("Right-click block: tell bound youkai to go there"),
@@ -455,7 +459,7 @@ public final class GLLang {
 		FURNACE_1_DESC("Mode: %s", 1, ChatFormatting.GRAY),
 		FURNACE_2_USE("Right click the item in inventory to open its menu. Click the hakkero in the center to switch modes.", 0, ChatFormatting.GRAY),
 		FURNACE_2_FUEL("Feed it fuel to reach ten times furnace speed.", 0, ChatFormatting.GRAY),
-FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
+		FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fuel and speed up.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -516,7 +520,12 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		SUWAKO_HAT_LORE("A river god's hat, traded for a frog's very specific appetite.", 0, ChatFormatting.GRAY),
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
 		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
-		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY);
+		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY),
+		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY),
+		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY),
+		MINAMITSU_ANCHOR_LORE("Heavy enough to stop a ship, and it still comes back.", 0, ChatFormatting.GRAY),
+		NUE_TRIDENT_LORE("The one you throw is never the one you keep.", 0, ChatFormatting.GRAY),
+		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -557,6 +566,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		UNKNOWN("???", 0, ChatFormatting.GRAY),
 		GIFT_FAVOR("Favor: %s", 1),
 		GIFT_TYPE("Type: %s", 1),
+		BLOW("Right-click to blow a gust", 0, ChatFormatting.AQUA),
 		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
 
 		private final String def;
@@ -952,6 +962,7 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 	}
 
 	// ========== Doll ==========
+
 	/**
 	 * The Sekibanki head's item tooltip. Its own group rather than {@link ItemGlove} or a doll one,
 	 * because the four lines are this gadget's alone: what possession is, is not a doll fact.
@@ -971,6 +982,343 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 			this.def = def;
 			this.argn = argn;
 			this.key = GensokyoLegacy.MODID + ".sekibanki_head." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum Spiritual implements LangEntry {
+		BAR("Spiritual Power: %s / %s", 2, ChatFormatting.AQUA);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Spiritual(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".spiritual." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum Ghost implements LangEntry {
+		CURIOS("Curios Ghost"),
+		FOODIE("Foodie Ghost"),
+		LIVELY("Lively Ghost"),
+		DUAL("Dual Ghost"),
+		HAUNTING("Ghost Butterfly"),
+		NOT_YOURS("This ghost is not yours", 0, ChatFormatting.RED),
+		BIND_FAIL("The ghost resists the flute", 0, ChatFormatting.RED),
+		RELEASE_FAIL("The ghost cannot be released", 0, ChatFormatting.RED),
+		TOO_WEAK("A ghost below %s power cannot be bound", 1, ChatFormatting.RED),
+		LEFT("The ghost's power is too low and it left you", 0, ChatFormatting.YELLOW),
+		FAN_FULL("The fan's spiritual power is full", 0, ChatFormatting.RED),
+		ALREADY_FULL("That ghost is already at full power", 0, ChatFormatting.GRAY),
+		ALL_FULL("Every summoned ghost is already at full power", 0, ChatFormatting.GRAY),
+		FAN_EMPTY("No spiritual power stored", 0, ChatFormatting.RED),
+		NEED_POWER("The fan needs at least %s spiritual power", 1, ChatFormatting.RED),
+		NO_POWER("That ghost has no power left", 0, ChatFormatting.RED),
+		ABSORB_FAIL("The ghost's power cannot be absorbed", 0, ChatFormatting.RED),
+		ABSORBED("Absorbed %s spiritual power", 1),
+		REFILLED("Restored %s spiritual power", 1),
+		RELEASED("The ghost is released", 0),
+		SUMMON_FAIL("The ghost cannot be summoned", 0, ChatFormatting.RED),
+		SUMMONED("Summoned a %s", 1),
+		SUMMON_ALL("Summoned %s ghosts and restored %s spiritual power", 2),
+		ABSORB_ALL("Absorbed %s spiritual power from %s ghosts", 2),
+		RELEASED_ALL("Released %s ghosts", 1),
+		NO_GHOSTS("No summoned ghosts to absorb", 0, ChatFormatting.GRAY),
+		DUAL_WARD("A dual ghost vanished to save your life", 0, ChatFormatting.GOLD),
+		NO_TARGET("No target under your crosshair", 0, ChatFormatting.RED),
+		HAUNT_SUMMONED("A haunting ghost answers the fan", 0),
+		HAUNT_REUSED("The haunting ghost returns to the hunt (%s spiritual power refilled)", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Ghost(String def) {
+			this(def, 0, null);
+		}
+
+		Ghost(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Ghost(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".ghost." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemBoneFlute implements LangEntry {
+		BIND("Right-click a stray ghost with at least 200 power to bind it", 0, ChatFormatting.GRAY),
+		RELEASE("Right-click your own ghost to set it free", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemBoneFlute(String def) {
+			this(def, 0, null);
+		}
+
+		ItemBoneFlute(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".bone_flute." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemYuyukoFan implements LangEntry {
+		MODE_SUMMON("Summon / Refill"),
+		MODE_ABSORB("Absorb All"),
+		MODE_SCATTER("Butterfly Scatter"),
+		MODE_HAUNT("Haunting Ghost"),
+		SELECTED("Selected: %s", 1),
+		STORED("%s: %s / %s", 3, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemYuyukoFan(String def) {
+			this(def, 0, null);
+		}
+
+		ItemYuyukoFan(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemYuyukoFan(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".yuyuko_fan." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemAnchor implements LangEntry {
+		MODE_DESTROY("Destroy"),
+		MODE_VOYAGE("Voyage"),
+		MODE_STORM("Storm"),
+		NEED_POWER("The anchor needs at least %s spiritual power", 1, ChatFormatting.RED);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemAnchor(String def) {
+			this(def, 0, null);
+		}
+
+		ItemAnchor(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemAnchor(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".anchor." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemUfo implements LangEntry {
+		CONTAINS("Contains %s", 1),
+		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemUfo(String def) {
+			this(def, 0, null);
+		}
+
+		ItemUfo(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemUfo(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".ufo." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum Jizo implements LangEntry {
+		NO_XP("Jizo needs a full level of experience to draw on", 0, ChatFormatting.RED),
+		FULL("That item cannot hold any more spiritual power", 0, ChatFormatting.RED),
+		RESTORED("Jizo restored %s spiritual power", 1);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		Jizo(String def) {
+			this(def, 0, null);
+		}
+
+		Jizo(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		Jizo(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".jizo." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -1044,7 +1392,10 @@ FURNACE_2_BOOST("Held in main hand while riding a broom, right click to burn fue
 		for (var group : new LangEntry[][]{
 				Quest.values(), Info.values(), Trade.values(), Misc.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
-				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values()}) {
+				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
+				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
+				ItemAnchor.values(), ItemUfo.values(),
+				Jizo.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
 			}

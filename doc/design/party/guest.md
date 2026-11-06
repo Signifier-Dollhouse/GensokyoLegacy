@@ -358,7 +358,7 @@ Leftover food is untouched, as ever (state.md §2). A party that ends with half 
 2. **`dismiss()` is no longer `discard()`.** A summoned clone is discarded; a character who came as herself is put back, because discarding a resident deletes a real character out of the world over a party. Both go through `completeLeave`, which reads `origin` before clearing it — walk first, clear after, or she resumes her schedule while still walking to the table. It is also the **only** place that reads it, and it guards on `host == null`: the exit is reachable twice in one tick (the module's own tick dismisses a guest whose party is gone, and the director sees the same null), and `leave()` has already reset `origin` to `SUMMONED` by then, so the second run would read a resident as a clone and delete her.
 3. **`VisitModule` stands down while she is partying.** It renews its visit memory every tick and dismisses when the window closes; left alone it fights the party for the entity, dismissing a guest the host is still feeding. One early return on `isPartying()`, and it resumes by itself when the party lets go.
 
-**One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `使用主手物品` runs — the same figure `FairyFeedTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.
+**One number that came from the rig rather than from taste:** `PICKUP_TICKS` is 6, because that is how long `swing` runs — the same figure `FairyFeedTask` times a gesture against. The two gestures are the same clip, so the two timings should be the same number rather than two independently plausible ones.
 
 ## 3. Brain wiring
 

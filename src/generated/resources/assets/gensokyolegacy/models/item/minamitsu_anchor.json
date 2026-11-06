@@ -1,0 +1,53 @@
+{
+  "base": {
+    "parent": "gensokyolegacy:custom/minamitsu_anchor"
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "overrides": [
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_voyage",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 1.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_destroy",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 2.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_storm",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 3.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_voyage",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 4.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_destroy",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 5.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/minamitsu_anchor_icon_storm",
+      "predicate": {
+        "gensokyolegacy:anchor_display": 6.0
+      }
+    }
+  ],
+  "perspectives": {
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "gensokyolegacy:item/anchor/anchor_voyage"
+      }
+    }
+  }
+}

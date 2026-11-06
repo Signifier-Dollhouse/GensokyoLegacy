@@ -42,6 +42,10 @@ public class GLEffects {
 			SparklingEffect::new,
 			"When hit, retaliate with stars");
 
+	public static final LegacyHolder<MobEffect> HAUNTING = genEffect("haunting",
+			HauntingEffect::new,
+			"When hit, retaliate with haunting butterflies");
+
 	public static final LegacyHolder<MobEffect> SHIELD = genEffect("shield",
 			ShieldEffect::new,
 			"Grants 1 absorption");
@@ -49,6 +53,22 @@ public class GLEffects {
 	public static final LegacyHolder<MobEffect> LAVA_AFFINITY = genEffect("lava_affinity",
 			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xAD7A64),
 			"Improve vision under lava. Increase motion speed under lava. Provide fire immunity.");
+
+	public static final LegacyHolder<MobEffect> LIVELY = genEffect("lively",
+			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xFF7FE0C0),
+			"Item cooldowns run 20% faster per level");
+
+	public static final LegacyHolder<MobEffect> FOODIE = genEffect("foodie",
+			() -> new FoodieEffect(MobEffectCategory.BENEFICIAL, 0xFFD27F),
+			"Above 16 hunger, converts 1 hunger into 1 saturation per second. Eat twice as fast.");
+
+	public static final LegacyHolder<MobEffect> DROWNING = genEffect("drowning",
+			DrowningEffect::new,
+			"Take 20% extra drowning damage per level when hurt. Sinks while inside any fluid.");
+
+	public static final LegacyHolder<MobEffect> STUN = genEffect("stun",
+			StunEffect::new,
+			"Cannot attack, jump or use items, and movement is slowed.");
 
 	private static <T extends MobEffect> LegacyHolder<MobEffect> genEffect(String name, NonNullSupplier<T> sup, String desc) {
 		return new SimpleEntry<>(GensokyoLegacy.REGISTRATE.effect(name, sup, desc).lang(MobEffect::getDescriptionId).register());

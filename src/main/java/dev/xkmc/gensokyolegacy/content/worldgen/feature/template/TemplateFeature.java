@@ -162,7 +162,8 @@ public class TemplateFeature extends Feature<TemplateFeatureConfig> {
 			for (int dz = -1; dz <= 1; dz++) {
 				for (int dy = 0; dy < CLEARANCE_HEIGHT; dy++) {
 					BlockState state = level.getBlockState(pos.setWithOffset(base, dx, dy, dz));
-					if (state.is(GLTagGen.TEMPLATE_TRUNK) || state.getBlock() instanceof HugeMushroomBlock) return false;
+					if (state.is(GLTagGen.TEMPLATE_TRUNK) || state.getBlock() instanceof HugeMushroomBlock)
+						return false;
 				}
 			}
 		}

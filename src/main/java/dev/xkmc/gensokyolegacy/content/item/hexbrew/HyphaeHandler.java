@@ -34,9 +34,10 @@ public class HyphaeHandler implements HexBrewHandler {
 		if (level.isClientSide) return;
 		level.levelEvent(2002, BlockPos.containing(pos), 0xFF47C0FC);
 		AABB box = new AABB(pos, pos).inflate(RADIUS);
+		Entity credit = HexBrewHandler.damageOwner(thrower);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
-			if (e == thrower) continue;
-			if (thrower != null && e.isAlliedTo(thrower)) continue;
+			if (e == thrower || e == credit) continue;
+			if (HexBrewHandler.isAllied(e, thrower) || HexBrewHandler.isAllied(e, credit)) continue;
 			if (e.distanceToSqr(pos) > RADIUS * RADIUS) continue;
 			e.addEffect(new MobEffectInstance(GLEffects.HYPHAE_INFECTION.holder(), DURATION, 0));
 		}

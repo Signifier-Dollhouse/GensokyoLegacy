@@ -1,8 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
+import dev.xkmc.gensokyolegacy.content.effect.DanmakuRetaliateEffect;
+import dev.xkmc.gensokyolegacy.content.effect.SparklingEffect;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class StarlightHandler implements HexBrewHandler {
 
-	private static final String OWNER_KEY = "gensokyolegacy:starlight_owner";
 	private static final int DURATION = 3600;
 
 	@Override
@@ -26,24 +26,21 @@ public class StarlightHandler implements HexBrewHandler {
 		if (level.isClientSide) return;
 		level.levelEvent(2002, BlockPos.containing(pos), 0xFFFFF7AE);
 		if (thrower == null) return;
+		Entity credit = HexBrewHandler.damageOwner(thrower);
 		AABB box = new AABB(pos, pos).inflate(4.0);
 		for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, box, en -> true)) {
-			if (e == thrower) continue;
-			if (e.isAlliedTo(thrower)) continue;
+			if (e == thrower || e == credit) continue;
+			if (HexBrewHandler.isAllied(e, thrower) || HexBrewHandler.isAllied(e, credit)) continue;
 			if (e.distanceToSqr(pos) > 16) continue;
-			e.addEffect(new MobEffectInstance(GLEffects.SPARKLING.holder(), DURATION, 0));
-			e.getPersistentData().putUUID(OWNER_KEY, thrower.getUUID());
-			if (thrower instanceof LivingEntity le) {
-				e.hurt(level.damageSources().indirectMagic(thrower, le), 4.0f);
+			DanmakuRetaliateEffect.apply(GLEffects.SPARKLING, e, thrower.getUUID(), DURATION);
+			if (credit != null) {
+				e.hurt(level.damageSources().indirectMagic(thrower, credit), 4.0f);
 			} else {
 				e.hurt(level.damageSources().magic(), 4.0f);
 			}
 		}
 		if (!(thrower instanceof LivingEntity livingOwner)) return;
-		SparklingEventHandler.spawnStars(level, livingOwner, pos, 0.5f);
+		SparklingEffect.spawnStars(level, livingOwner, pos, 0.5f);
 	}
 
-	public static String getOwnerKey() {
-		return OWNER_KEY;
-	}
 }

@@ -17,7 +17,9 @@ import java.util.ArrayList;
  */
 public record GiftTier(int min, int max, ArrayList<GiftEntry> gifts) {
 
-	/** the band as a page says it; the top rung reads as a floor, since it never closes */
+	/**
+	 * the band as a page says it; the top rung reads as a floor, since it never closes
+	 */
 	public Component bandText() {
 		if (max <= 0) return GLLang.JeiExtra.GIFT_BAND_TOP.get(min);
 		return GLLang.JeiExtra.GIFT_BAND.get(min, max);

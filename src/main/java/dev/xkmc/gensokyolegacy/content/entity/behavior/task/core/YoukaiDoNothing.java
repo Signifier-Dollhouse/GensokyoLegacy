@@ -16,7 +16,7 @@ import net.minecraft.world.entity.schedule.Activity;
  * {@link #IDLE_TRICK_COOLDOWN} ticks, and then either: she lies down ({@link GLBrains#NAP}, for a
  * character whose {@link SmartYoukaiEntity#onIdleTask} is above zero, at that chance), or a
  * per-character outdoor idle one-shot is broadcast at a roll (an
- * {@code 闲置动画} fidget for most of them, none for Morichika, Sakuya and Suika). The nap is offered
+ * {@code idle_animation} fidget for most of them, none for Morichika, Sakuya and Suika). The nap is offered
  * first, so a character that naps only fidgets when the nap roll loses - not a second chance at the
  * same thing - and the cooldown is shared either way.
  */

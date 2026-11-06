@@ -38,7 +38,8 @@ public class JitteredGridPlacement extends PlacementModifier {
 			for (int cz = Math.floorDiv(minZ, cell); cz <= Math.floorDiv(minZ + 15, cell); cz++) {
 				BlockPos point = layer.point(seed, cx, cz);
 				if (point == null) continue;
-				if (point.getX() < minX || point.getX() > minX + 15 || point.getZ() < minZ || point.getZ() > minZ + 15) continue;
+				if (point.getX() < minX || point.getX() > minX + 15 || point.getZ() < minZ || point.getZ() > minZ + 15)
+					continue;
 				ans.add(point.atY(pos.getY()));
 			}
 		}

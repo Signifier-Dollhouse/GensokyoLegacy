@@ -6,7 +6,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.80'
-    id 'net.darkhax.curseforgegradle' version '[1.1.24,1.2)'
+    id 'net.darkhax.curseforgegradle' version '1.1.28'
     id "at.stnwtr.gradle-secrets-plugin" version "1.0.1"
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -72,7 +72,11 @@ neoForge {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    // Registrate's datagen manifest, not a game resource.
+    exclude '.cache/**'
+}
 
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
@@ -193,6 +197,8 @@ dependencies {
     implementation "dev.xkmc:youkaisfeasts:1.1.0"
     implementation "dev.xkmc:l2harvester:3.0.0"
     implementation "dev.xkmc:twilightdelight:3.2.6-slim"
+    implementation "curse.maven:lionfish-api-1001614:6168249"
+    implementation "curse.maven:lendercataclysm-551586:7578941"
 
     implementation "mezz.jei:jei-${jei_minecraft_version}:${jei_version}"
 

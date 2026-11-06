@@ -5,6 +5,19 @@
       "type": "gensokyolegacy:home_bound"
     }
   ],
-  "dialog": "gensokyolegacy:marisa/chat/hi",
+  "dialog": {
+    "animations": [
+      "dialog_confused"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/marisa/chat/option/hi/end"
+      }
+    ],
+    "text": "gensokyolegacy/marisa/chat/dialog/marisa/chat/hi"
+  },
   "text": "gensokyolegacy/marisa/chat/starter/start"
 }

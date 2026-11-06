@@ -13,7 +13,9 @@ import net.minecraft.world.entity.LivingEntity;
  */
 public interface DaggerGloveRune {
 
-	/** Ticks this rune adds to the shot's cooldown, on top of the mode's own. Zero for a free rune. */
+	/**
+	 * Ticks this rune adds to the shot's cooldown, on top of the mode's own. Zero for a free rune.
+	 */
 	int cooldownCost();
 
 	/**

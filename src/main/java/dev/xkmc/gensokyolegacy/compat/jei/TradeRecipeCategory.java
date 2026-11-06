@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.compat.jei;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -15,12 +16,13 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-/** One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
+/**
+ * One {@link TradeOffer} as a JEI recipe: what the character takes in, what it hands back, who
  * the counterparty is, and how deep its stock is. Remaining stock is per-player state and stays
- * on the trade screen. */
+ * on the trade screen.
+ */
 public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, TradeRecipeCategory> {
 
 	private static final int COLS = 3;
@@ -43,7 +45,7 @@ public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, 
 
 	public TradeRecipeCategory init(IGuiHelper helper) {
 		this.background = helper.createBlankDrawable(WIDTH, HEIGHT);
-		this.icon = helper.createDrawableItemStack(Items.EMERALD.getDefaultInstance());
+		this.icon = helper.createDrawableItemStack(GLItems.COIN.asStack());
 		return this;
 	}
 
@@ -77,7 +79,7 @@ public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, 
 
 	@Override
 	public void getTooltip(ITooltipBuilder tooltip, Holder<TradeOffer> recipe,
-			IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+						   IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
 		var offer = recipe.value();
 		if (offer.ingredients().size() > MAX_INGREDIENTS)
 			tooltip.add(GLLang.JeiExtra.MORE.get(offer.ingredients().size() - MAX_INGREDIENTS));

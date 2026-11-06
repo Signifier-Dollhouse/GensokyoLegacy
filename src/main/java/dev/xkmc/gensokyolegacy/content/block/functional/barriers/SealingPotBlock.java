@@ -18,9 +18,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** Behavior of the sealing pot: owns one area effect that cancels hostile natural spawns, and
+/**
+ * Behavior of the sealing pot: owns one area effect that cancels hostile natural spawns, and
  * refuses placement in a chunk another pot already seals.
- * @see "doc/design/barriers.md" */
+ *
+ * @see "doc/design/barriers.md"
+ */
 public class SealingPotBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod {
 
 	@Override

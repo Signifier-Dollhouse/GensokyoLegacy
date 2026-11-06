@@ -9,7 +9,20 @@
       "reputation": 50
     }
   ],
-  "dialog": "gensokyolegacy:reimu/chat_shrine_close/talk",
+  "dialog": {
+    "animations": [
+      "dialog_talk_01"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/reimu/chat_shrine_close/option/bye"
+      }
+    ],
+    "text": "gensokyolegacy/reimu/chat_shrine_close/dialog/reimu/chat_shrine_close/talk"
+  },
   "text": "gensokyolegacy/reimu/chat_shrine_close/starter/start",
   "weight": 30
 }

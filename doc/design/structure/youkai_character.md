@@ -16,8 +16,8 @@ Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed
 | `DamageRefactorEntity` | `content/entity/foundation/DamageRefactorEntity.java` | Replaces `LivingEntity.health` with `CombatProgress` (`@SerialField maxProgress/progress/oldProgress`). Guards `die`/`isDeadOrDying` via progress. |
 | `DamageClampEntity` | `content/entity/foundation/DamageClampEntity.java` | Adds boss bar, `hurtCD`, speed clamp via `maxSpeed`, non-danmaku damage division. |
 | `CharacterData` | `content/attachment/character/CharacterData.java:11` | `@SerialClass` per-character (`EntityType` key). `@SerialField int reputation` **plus `int reputationCap`** (quests raise the ceiling; simple actions never pass it), `Map<String,Long> timers` (per-action cooldowns via `isAvailable`/`setTimer`), `@SerialField FeedModuleData foodData`. `gainReputation(val, softCap, capIncrease, maxCap)` halves the gain past `softCap`; `loseReputation` floors at `-150`. Design: `reputation.md`. |
-| `ReputationConstants` | `content/attachment/character/ReputationConstants.java` | Every tuning number in one place: bounds `-300..300`, `INITIAL_CAP 100`, thresholds `150/-50/-150`, `KILLED_RESTORE 0`, `COMBAT_SAFE_THRESHOLD 0`, `DEATH_LOSS 200`, hurt losses `1/5/10/20`, `FEED_SOFT_CAP`/`GIFT_SOFT_CAP 150`, `DAILY_DECAY_AMOUNT 1`. |
-| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` at `dayTime==0` calls `dailyUpdate` on every entry. `allTypes`/`reset`/`clearAll` for the quest and admin surfaces. |
+| `ReputationConstants` | `content/attachment/character/ReputationConstants.java` | Every tuning number in one place: bounds `-300..300`, `INITIAL_CAP 100`, thresholds `150/-50/-150`, `KILLED_RESTORE 0`, `COMBAT_SAFE_THRESHOLD 0`, `DEATH_LOSS 200`, hurt losses `1/5/10/20`, `FEED_SOFT_CAP`/`GIFT_SOFT_CAP 150`, `DAILY_DECAY_AMOUNT 1`, `NEGATIVE_HALF_THRESHOLD -20`, `NEGATIVE_RECOVER_AMOUNT 10`. |
+| `CharacterAttachment` | `content/attachment/character/CharacterAttachment.java:15` | `PlayerCapabilityTemplate<CharacterAttachment>` (`l2core AttReg`). `@SerialField Map<EntityType<?>,CharacterData>` (LinkedHashMap). `tick` compares the overworld day index (shifted to roll over at midnight) with `lastDailyDay` and calls `dailyUpdate(daysPassed)` on every entry. `allTypes`/`reset`/`clearAll` for the quest and admin surfaces. |
 | `CharDataHolder` | `content/attachment/character/CharDataHolder.java` | `record(CharacterData data, Player player, EntityType<?> type, @Nullable YoukaiEntity e)` — transient facade. Every mutator (`onHurt`/`onKilledByCharacter`/`onKillCharacter`/`feed`/`gain`) syncs afterwards, so callers never sync by hand. |
 | `ReputationState` | `content/attachment/character/ReputationState.java:15` | `FRIEND/STRANGER/JERK/ENEMY`. `toInfo(reputation, cap)` colored text, `asTargetKind()` → `TargetKind.WORTHY/NONE/ENEMY`. |
 | `FeedModuleData` | `content/attachment/character/FeedModuleData.java` | `@SerialClass Map<Item,Integer> statistics` + `List<Item> history` (MEMORY 10, RATE 0.9). `feed()` returns diminishing multiplier `1/(1+sum(0.9^n))`. |
@@ -164,9 +164,9 @@ Priority scale (lower wins), 100 apart, documented in full as a block in `GLBrai
 
 The rungs are deliberate — `TaskBoard` injects a prioritized activity's memory as `VALUE_ABSENT` into every less prioritized activity, so a visitor keeps the ability to talk and trade, a party guest additionally never sleeps or goes home and never wanders off to visit, a visitor never hunts, and a napping character is still talked to. The gaps are 100 apart only so there is always an open hundred to slot a new activity into.
 
-`NAP(500)` is Suika's alone, and is the shape to copy for a new self-terminating activity: `MEM_NAP` is written with an expiry by `YoukaiDoNothing` (rolled from `SmartYoukaiEntity#napChance`, which every other character returns 0 for), the brain moves her into NAP on the next tick, and `YoukaiNapTask` holds the `侧卧` pose until the memory runs out or something above 500 takes over.
+`NAP(500)` is Suika's alone, and is the shape to copy for a new self-terminating activity: `MEM_NAP` is written with an expiry by `YoukaiDoNothing` (rolled from `SmartYoukaiEntity#napChance`, which every other character returns 0 for), the brain moves her into NAP on the next tick, and `YoukaiNapTask` holds the `lie_01` pose until the memory runs out or something above 500 takes over.
 
-A rung is about the activity, not about the body. TALK(300) above NAP(500) means a conversation is what *runs* while she is lying there — the dialog, the topics, the trade — while `YoukaiNapTask#canStillUse` deliberately accepts TALK as well as NAP so the pose survives it. She answers in `侧卧_交流`, and if the conversation outlives the nap's memory she stays down three more seconds (`WAKE_UP_TICKS`) rather than standing up the instant the dialogue closes. That write has to live in `canStillUse` and not in `tick`: `Behavior#tickOrStop` checks `canStillUse` first, so a re-arm in `tick` would land one tick after she was already told to stand. Compare `FairyFleeTask`, which is the other half of the trade — there the activity is what has to be noticed.
+A rung is about the activity, not about the body. TALK(300) above NAP(500) means a conversation is what *runs* while she is lying there — the dialog, the topics, the trade — while `YoukaiNapTask#canStillUse` deliberately accepts TALK as well as NAP so the pose survives it. She answers in `lie_01_talk`, and if the conversation outlives the nap's memory she stays down three more seconds (`WAKE_UP_TICKS`) rather than standing up the instant the dialogue closes. That write has to live in `canStillUse` and not in `tick`: `Behavior#tickOrStop` checks `canStillUse` first, so a re-arm in `tick` would land one tick after she was already told to stand. Compare `FairyFleeTask`, which is the other half of the trade — there the activity is what has to be noticed.
 
 ### 3.4 Damage & Reputation
 
@@ -199,7 +199,7 @@ killedEntity(level, entity):
 - repeated while still a STRANGER or better (`reputation>=-50`) → `-10`
 - repeated below `-50` → `-20`
 
-Daily decay: `dailyUpdate()` moves `DAILY_DECAY_AMOUNT 1` toward `reputationCap * GLModConfig.SERVER.reputationDecayFloor` when positive, and back up toward 0 when below `THRESHOLD_JERK`. Raising the cap via quests raises the floor with it.
+Daily update: `CharacterAttachment` compares the overworld day index (day time shifted so the rollover is midnight) with persisted `lastDailyDay`. Each advance calls `dailyUpdate(daysPassed)`: positive reputation moves `DAILY_DECAY_AMOUNT 1` toward `reputationCap * GLModConfig.SERVER.reputationDecayFloor` once, and negative reputation recovers one step per elapsed day (at or below `NEGATIVE_HALF_THRESHOLD -20` it halves, above it gains `NEGATIVE_RECOVER_AMOUNT 10`, capped at 0). Raising the cap via quests raises the floor with it. See `doc/design/structure/reputation.md`.
 
 `CombatToClient` sync via `GensokyoLegacy.HANDLER.toTrackingPlayers` on every `CombatProgress.set`.
 
@@ -233,8 +233,9 @@ CharacterAttachment:
   NBT: player NBT, copyOnDeath handled by cap
   Sync: CharDataHolder.sync() → if ServerPlayer → HANDLER.toClientPlayer(new CharDataToClient(type, uuid, data))
   Client: CharDataToClient.handle → GLMeta.CHAR.type().getOrCreate(player).replace(target,data)
-  Tick: CharacterAttachment.tick(Player) server only at dayTime==0 → dailyUpdate: drift 1 toward
-        reputationCap*GLModConfig.SERVER.reputationDecayFloor, or back toward 0 when below -150
+  Tick: CharacterAttachment.tick(ServerPlayer) compares the overworld day index with lastDailyDay →
+        dailyUpdate(daysPassed): drift 1 toward reputationCap*GLModConfig.SERVER.reputationDecayFloor once,
+        then one negative-recovery step per elapsed day
 ```
 
 ### 3.7 Navigation

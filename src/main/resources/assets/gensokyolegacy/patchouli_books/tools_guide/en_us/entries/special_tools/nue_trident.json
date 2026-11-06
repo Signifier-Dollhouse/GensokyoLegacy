@@ -1,0 +1,16 @@
+{
+  "name": "Nue's Trident",
+  "icon": "gensokyolegacy:nue_trident",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)A stolen hand$()$(br)A creature hit by the copy takes trident damage, and whatever it was holding is replaced by a UFO. Mobs always drop that UFO when they die, so the stolen item is never lost."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Opening a UFO$()$(br)Hold right-click with the UFO for two seconds to get the stored stack back, count and all."
+    }
+  ]
+}

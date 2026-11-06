@@ -10,8 +10,12 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
+import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitScheduler;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitTable;
@@ -29,9 +33,6 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -44,15 +45,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -85,7 +85,9 @@ public class GLCommands {
 	private static final SimpleCommandExceptionType ERROR_NO_PARTY_PLAYER =
 			new SimpleCommandExceptionType(Component.literal("A party is planned against a player's reputation"));
 
-	/** How far {@code /gensokyo party} will look for the table being aimed at. */
+	/**
+	 * How far {@code /gensokyo party} will look for the table being aimed at.
+	 */
 	private static final double PARTY_TABLE_REACH = 8;
 
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_CHARACTER = (ctx, builder) -> {
@@ -478,7 +480,9 @@ public class GLCommands {
 		return 1;
 	}
 
-	/** The party table the player is looking at, or null when they are not looking at one. */
+	/**
+	 * The party table the player is looking at, or null when they are not looking at one.
+	 */
 	@Nullable
 	private static BlockPos partyTable(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
 		var hit = sp.pick(PARTY_TABLE_REACH, 0, false);
@@ -487,7 +491,9 @@ public class GLCommands {
 		return sp.serverLevel().getBlockState(pos).is(GLTagGen.PARTY_TABLE) ? pos : null;
 	}
 
-	/** Where the party is looked for when not aimed at a table: where the player stands. */
+	/**
+	 * Where the party is looked for when not aimed at a table: where the player stands.
+	 */
 	private static BlockPos partyTableOrPosition(CommandContext<CommandSourceStack> ctx, ServerPlayer sp) {
 		var table = partyTable(ctx, sp);
 		return table != null ? table : sp.blockPosition();
@@ -511,7 +517,9 @@ public class GLCommands {
 		return sp;
 	}
 
-	/** Why a plan failed, or the appeal line when it succeeded. */
+	/**
+	 * Why a plan failed, or the appeal line when it succeeded.
+	 */
 	private static Component refusalText(PartySend.Outcome outcome) {
 		var refusal = outcome.refusal();
 		if (refusal == null) return Component.empty();
@@ -602,8 +610,8 @@ public class GLCommands {
 		data.progress.clear();
 		data.requirementData.clear();
 		for (var reward : quest.value().rewards()) {
-			if (reward instanceof ReputationReward r) {
-				charHolder(sp, quest.value().character()).gain(r.reputation(), r.softCap(), r.capIncrease(), r.maxCap());
+			if (reward instanceof ReputationReward(int reputation, int softCap, int capIncrease, int maxCap)) {
+				charHolder(sp, quest.value().character()).gain(reputation, softCap, capIncrease, maxCap);
 			} else {
 				reward.execute(sp, null);
 			}
