@@ -43,6 +43,115 @@ produce them.
 | `checkinterior.py` | validates a *proposed* room/node set (the values are duplicated in the file header) |
 | `checkconfig.py` | validates the **generated datamap JSON** against the shipped template — this is the one that gates |
 | `stripjarjar.py` | strips the jar-in-jar payload from a `libs/` mod jar — unrelated to structures, listed here because it lives in `tools/` |
+| `terrain.py` | exports a biome map, a height map and a climate parameter map of a dimension from its worldgen json — also unrelated to structures, same reason |
+| `cave_bands.py` | plots the biome bands the climate grid cuts, by continentalness and height, and derives their depth thresholds |
+
+### Terrain maps
+
+`terrain.py` renders three previews of a dimension at one pixel per chunk, 512x512
+chunks (4096x4096 blocks) by default:
+
+```sh
+python3 tools/terrain.py gensokyolegacy:gensokyo
+python3 tools/terrain.py gensokyolegacy:gensokyo --seed 9094732767959603503 --size 1024
+```
+
+out/terrain/<dimension>_biomes.png
+:   every biome in its own color. A Gensokyo palette sits in front of Minecraft's map
+    palette — water blue, the mountain and the settlement dark red, the summit white, the
+    two open-ground bands green and yellow — so a map reads as terrain and not as eighteen
+    unrelated hues
+out/terrain/<dimension>_height.png
+:   blue below sea level, then one color per 16 blocks of height above it
+out/terrain/<dimension>_parameters.png
+:   the eight regions `temperature` / `vegetation` / `erosion` tile the parameter space
+    into, each axis cut once at 0. This is the partition the climate grid is built out of,
+    drawn with the biome grid dropped, so it shows which part of the map each axis decides
+out/terrain/<dimension>.txt
+:   biome colors, map shares, the eight parameter regions and their shares, height histogram
+
+The dimension json names a biome source and a noise settings entry, and the noise
+settings entry carries the whole noise router, so the tool reads the terrain the same
+way the game does rather than mirroring `NoiseRouterData`. Vanilla density functions
+and noise parameters come from the NeoForge client-extra jar (found automatically, or
+`--vanilla`); the mod's own come from `src/generated/resources`.
+
+The height map is the **terrain** surface, the topmost block whose density is positive,
+so under sea level it shows the sea floor and not the water surface — what the game
+stores in `WORLD_SURFACE` is the water, a few blocks higher. Caves and the
+`base_3d_noise` "cheese" term are dropped for speed; `--caves` and `--cheese` keep
+them. Neither is worth the cost at one pixel per chunk, and the surface still lands
+within a few blocks of the generated world.
+
+Run it after changing the offset spline, the biome grid, or anything else that moves
+the terrain. The peak reaching 220, 14% of the map under water and a quarter of it
+above y 80 are the numbers `doc/design/gensokyo_dimension.md` claims, and the map
+shows them at a glance.
+
+### Cave report
+
+At one pixel per chunk a cave is at most a pixel of noise, so `--voids` walks the world
+vertically instead: 676 columns 24 blocks apart, every 4 blocks of y, evaluating the
+router's full `final_density` against the cave-free surface as the datum.
+
+```sh
+python3 tools/terrain.py gensokyolegacy:gensokyo --voids --seed -1838080655014084215 --cheese
+```
+
+out/terrain/<dimension>_caves.txt
+:   carved share of the rock under the surface by band, the share of columns that are
+    open at the surface, the share with a void 40 blocks deep, and the depth of the
+    roof over the shallowest cave
+
+It is the source of the numbers in `doc/design/gensokyo_dimension.md` §8. Pass
+`--cheese`, since dropping `base_3d_noise` moves the surface the report measures from.
+
+### Biome band graph
+
+`cave_bands.py` plots the bands the climate grid cuts, continentalness across and height up,
+and derives the bounds they come from. The grid picks a biome per 4x4x4 cell by nearest-cell
+lookup over seven climate axes, and two of them do the underground classification: `depth` and
+`continentalness`. Depth is 3d and reads about 0 at a column's own surface, falling one unit per
+128 blocks; continentalness fixes the height band. So the grid draws a curve in that plane, and
+where that curve lands in y is a property of the offset spline rather than of the numbers written
+in the source. This measures it instead of assuming it.
+
+```sh
+python3 tools/cave_bands.py gensokyolegacy:gensokyo --seed -1838080655014084215 --origin=-384,-384
+```
+
+out/terrain/<dimension>_cave_bands.png
+:   one column per 0.02 continentalness bucket, coloured into the three families, with the terrain
+    surface and both cuts drawn over it
+
+out/terrain/<dimension>_cave_bands.txt
+:   the table to quote in the design doc: the bounds, the share of each family that a cell claims,
+    the cave band thickness, and where the underground reaches
+
+**Solid fill is a cell that claims the column; pale fill lost on the quadratic falloff.**
+`Climate.ParameterPoint.fitness` is the sum of the squared distance outside each axis span, so a
+query lands in a *box* around a climate cell and the boundaries are hyperbolae. Inside its own box
+a cell wins outright; between boxes the nearest one wins on the quadratic. The tint is therefore
+not slack in the numbers — it is where the bounds are genuinely being interpolated rather than
+claimed, and the percentage of each family that is claimed is printed in the legend. Two
+consequences worth knowing before reading a graph: the boundary between two spans sits at the
+**midpoint** of their bounds, not at either bound, so a pair of bounds can be positioned
+independently of the line they draw; and past `C_HI` the underground is not claimed at all and has
+to earn the region back with a squared continentalness penalty, which is what lets the cave take
+the deep rock at high continentalness.
+
+`--bounds` is the default and gives one cave climate region: `D_S` (surface depth upper),
+`D_C0` / `D_C1` (cave depth lower / upper), `D_U` (underground depth lower), `C_LO` (cave
+continentalness lower) and `C_HI` (underground continentalness upper). Note `D_S + D_U` fixes the
+lowland cut, since that cut is their midpoint — keeping the lowlands where they are means the two
+must sum to 1.0.
+
+`--slices N` instead derives N cave regions from the measured curve, each thresholded at the
+largest depth at the cap inside it. Equal depth spans minimise how far the cap can stray, and the
+floor over N slices is the total depth range divided by N — no choice of edges beats it.
+
+The tool **exits non-zero if any column's underground reaches above `--cap-y`**, so it can gate the
+change it describes.
 
 ### Stripping jarJar from a dev jar
 
