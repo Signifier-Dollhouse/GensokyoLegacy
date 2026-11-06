@@ -122,6 +122,9 @@ Four things follow from gating at the *pool*:
 | Sakuya | 0–50, 50–100, 100–400, 400+ | the iron dagger, then the dagger glove. The wide rung is 300 of appeal because it holds a single item, and a band as narrow as the ones below it would be walked past in one sitting |
 | Alice | 0–50, 50–100, 100–400, 400+ | the doll lance, then a doll — she gives up a doll, not the star wand |
 | Morichika | 0–50, 50–100, 100–200, 200+ | his stock, split by what it is: the curios (`strange_glasses`, `cat_bell`, `mermaid_pearl`, `straw_hat`) then the tools (`mini_hakkero_prototype`, `centipickaxe`, `dowser`). He has no belongings of his own, only stock |
+| Suika | 0–50, 50–400, 400+ | her gourd on the top rung; the wide middle rung is nothing but sake, because an oni eats and drinks more than most |
+| Yuyuko | 0–500, 500–2000, 2000+ | her fan on the top rung; a whole evening has to pass 2000 appeal before she parts with it |
+| Minamitsu | 0–50, 50–1000, 1000+ | her anchor on the top rung; the wide middle rung is sake and beer, the one thing a ship ghost always shares |
 | *default* | 0–50, 50–100, 100–150 | *(none)* — an unlisted character has nothing that is hers, so her ladder is three generic rungs and stops there |
 
 **The whole ladder is on the page.** A gift is otherwise invisible until it happens, and a host who cannot see the rungs cannot lay a spread that reaches one. JEI has a page per character (`PartyGiftCategory`), one row per rung with the appeal band that reaches it, and each gift's chance of being drawn in the slot tooltip. Loot tables are not synced, so the server reads every ladder on a datapack sync and sends it (`PartyGiftToClient`), keyed by entity type — the `party_taste` rows are the roster, so those and only those characters have a page, and one with no table of her own gets the fallback ladder on hers.

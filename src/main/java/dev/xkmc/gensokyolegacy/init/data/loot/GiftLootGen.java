@@ -91,7 +91,9 @@ public class GiftLootGen {
 		gift(pvd, "morichika_rinnosuke", morichika());
 		gift(pvd, "ibuki_suika", suika());
 		gift(pvd, "saigyouji_yuyuko", yuyuko());
-		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko());
+		gift(pvd, "murasa_minamitsu", minamitsu());
+		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko(),
+				minamitsu());
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class GiftLootGen {
 	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
 		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
 				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika",
-				"saigyouji_yuyuko"};
+				"saigyouji_yuyuko", "murasa_minamitsu"};
 		for (int i = 0; i < ladders.length; i++) {
 			var name = names[i];
 			var table = returnTable(ladders[i]);
@@ -237,6 +239,19 @@ public class GiftLootGen {
 						gift(GLItems.FANCY_FAN, 20),
 						gift(GLDecoBlocks.STURDY_TEDDY_BEAR, 20)),
 				tier(2000, 0, gift(GLItems.YUYUKO_FAN, 10)));
+	}
+
+	/**
+	 * A ship ghost parts with her own anchor only after a whole evening has passed a thousand appeal;
+	 * the long middle rung is drink, the one thing she is always willing to share.
+	 */
+	private static List<Tier> minamitsu() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 1000, gift(GLItems.TENGU_SAKE, 20),
+						gift(GLItems.GHOST_SAKE, 20),
+						gift(GLItems.ZUN_BEER, 20)),
+				tier(1000, 0, gift(GLItems.MINAMITSU_ANCHOR, 10)));
 	}
 
 	/**
