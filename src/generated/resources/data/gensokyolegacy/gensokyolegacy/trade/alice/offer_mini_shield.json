@@ -10,6 +10,10 @@
     {
       "count": 4,
       "item": "minecraft:iron_ingot"
+    },
+    {
+      "count": 1,
+      "item": "minecraft:gold_ingot"
     }
   ],
   "recurrence": {

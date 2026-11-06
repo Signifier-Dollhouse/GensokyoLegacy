@@ -161,7 +161,7 @@ The doll's shield check is not `instanceof ShieldItem` but `DollShieldItem.isShi
 
 ### Where it comes from
 
-Alice sells one a day for four iron (`alice/offer_mini_shield`), half the lance's price and the same daily restock — it is her work, and a doll's shield is what her dolls carry.
+Alice sells one a day for four iron and one gold ingot (`alice/offer_mini_shield`), half the lance's iron plus gold for the trim, and the same daily restock — it is her work, and a doll's shield is what her dolls carry.
 
 ### Model
 
