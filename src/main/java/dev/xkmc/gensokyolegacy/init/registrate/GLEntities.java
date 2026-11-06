@@ -289,7 +289,7 @@ public class GLEntities {
 			COIN = GensokyoLegacy.REGISTRATE
 					.<CoinDanmakuBulletEntity>entity("coin_danmaku", CoinDanmakuBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
-					.renderer(() -> ItemBulletRenderer<CoinDanmakuBulletEntity>::new)
+					.renderer(() -> NoFadeBulletRenderer<CoinDanmakuBulletEntity>::new)
 					.register();
 
 			// the bounded anchor is a real projectile: the client must see where it stopped
