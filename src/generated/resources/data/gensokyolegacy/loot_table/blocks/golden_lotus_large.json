@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "gensokyolegacy:golden_lotus_large",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ],
           "name": "gensokyolegacy:golden_lotus_large"
         }
       ],

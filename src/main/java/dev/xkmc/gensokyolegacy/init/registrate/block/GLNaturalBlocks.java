@@ -18,6 +18,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
 import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import dev.xkmc.l2core.serial.loot.LootHelper;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.Direction;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -65,7 +67,8 @@ public class GLNaturalBlocks {
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
 	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
-	public static final BlockEntry<SimpleBushBlock> GOLDEN_LOTUS_SMALL, GOLDEN_LOTUS_MEDIUM, GOLDEN_LOTUS_LARGE;
+	public static final BlockEntry<SimpleBushBlock> GOLDEN_LOTUS_SMALL, GOLDEN_LOTUS_MEDIUM;
+	public static final BlockEntry<DoublePlantBlock> GOLDEN_LOTUS_LARGE;
 	public static final BlockEntry<SimpleBushBlock> TOWER_GRASS_SMALL, TOWER_GRASS_LARGE;
 	public static final BlockEntry<BirdNestBlock> BIRD_NEST;
 	public static final BlockEntry<WaterloggedBushBlock> FLAME_CATTAIL;
@@ -128,7 +131,21 @@ public class GLNaturalBlocks {
 
 		GOLDEN_LOTUS_SMALL = regGoldenLotus(reg, "small");
 		GOLDEN_LOTUS_MEDIUM = regGoldenLotus(reg, "medium");
-		GOLDEN_LOTUS_LARGE = regGoldenLotus(reg, "large");
+		GOLDEN_LOTUS_LARGE = reg.block("golden_lotus_large", DoublePlantBlock::new)
+				.initialProperties(() -> Blocks.POPPY)
+				.blockstate(GLNaturalBlocks::genLargeLotusState)
+				.loot((pvd, block) -> {
+					var helper = new LootHelper(pvd);
+					pvd.add(block, LootTable.lootTable().withPool(pvd.applyExplosionCondition(block, LootPool.lootPool()
+							.add(LootItem.lootTableItem(block)
+									.when(helper.enumState(block, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))))));
+				})
+				.tag(BlockTags.TALL_FLOWERS)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tag(ItemTags.TALL_FLOWERS)
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
+				.register();
 		TOWER_GRASS_SMALL = regTowerGrass(reg, "small");
 		TOWER_GRASS_LARGE = regTowerGrass(reg, "large");
 
@@ -414,6 +431,27 @@ public class GLNaturalBlocks {
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
 				.build()
 				.register();
+	}
+
+	private static void genLargeLotusState(DataGenContext<Block, DoublePlantBlock> ctx, RegistrateBlockstateProvider pvd) {
+		var texture = pvd.modLoc("block/nature/" + ctx.getName());
+		pvd.getVariantBuilder(ctx.get()).forAllStates(state -> {
+			var half = state.getValue(DoublePlantBlock.HALF);
+			int v = half == DoubleBlockHalf.UPPER ? 0 : 8;
+			var model = pvd.models().cross(ctx.getName() + "_" + half.getSerializedName(), texture)
+					.renderType("cutout")
+					.element().from(0.8f, 0, 8).to(15.2f, 16, 8).shade(false)
+					.rotation().origin(8, 8, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+					.face(Direction.NORTH).uvs(0, v, 16, v + 8).texture("#cross").end()
+					.face(Direction.SOUTH).uvs(0, v, 16, v + 8).texture("#cross").end()
+					.end()
+					.element().from(8, 0, 0.8f).to(8, 16, 15.2f).shade(false)
+					.rotation().origin(8, 8, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+					.face(Direction.WEST).uvs(0, v, 16, v + 8).texture("#cross").end()
+					.face(Direction.EAST).uvs(0, v, 16, v + 8).texture("#cross").end()
+					.end();
+			return ConfiguredModel.builder().modelFile(model).build();
+		});
 	}
 
 	private static BlockEntry<SimpleBushBlock> regTowerGrass(L2Registrate reg, String size) {
