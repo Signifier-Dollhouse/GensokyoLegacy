@@ -51,13 +51,7 @@
     "gensokyolegacy:ghost_fire_mushroom_block": {
       "chance": 0.85
     },
-    "gensokyolegacy:golden_lotus_large": {
-      "chance": 0.65
-    },
-    "gensokyolegacy:golden_lotus_medium": {
-      "chance": 0.65
-    },
-    "gensokyolegacy:golden_lotus_small": {
+    "gensokyolegacy:golden_lotus": {
       "chance": 0.65
     },
     "gensokyolegacy:hyphae": {

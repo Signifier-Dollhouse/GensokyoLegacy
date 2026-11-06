@@ -1,0 +1,55 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "gensokyolegacy:golden_lotus",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "part": "lower"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "add": false,
+                  "count": 2.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "gensokyolegacy:golden_lotus"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "gensokyolegacy:golden_lotus",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "part": "single"
+                  }
+                }
+              ],
+              "name": "gensokyolegacy:golden_lotus"
+            }
+          ]
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:blocks/golden_lotus"
+}

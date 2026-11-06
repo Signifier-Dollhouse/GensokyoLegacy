@@ -15,21 +15,24 @@ import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
 import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
 import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorModel;
 import dev.xkmc.gensokyolegacy.content.item.anchor.DropletDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.character.*;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
-import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
-import dev.xkmc.gensokyolegacy.content.item.ghost.*;
+import dev.xkmc.gensokyolegacy.content.item.ghost.BoneFluteItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.ButterflyDanmakuItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanMode;
 import dev.xkmc.gensokyolegacy.content.item.gift.*;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveModel;
@@ -38,11 +41,11 @@ import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroData;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMode;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroPrototype;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
-import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
-import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyDustItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FairyIceItem;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
+import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
@@ -72,8 +75,8 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
@@ -681,13 +684,13 @@ public class GLItems {
 			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
 			// The melee bonus is one below the danmaku damage so that base 1 + bonus equals the thrown hit.
 			IRON_DAGGER = reg.item("iron_dagger", p -> new IronDaggerItem(p
-					.attributes(ItemAttributeModifiers.builder()
-							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
-									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
-									EquipmentSlotGroup.MAINHAND)
-							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
-									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-							.build())))
+							.attributes(ItemAttributeModifiers.builder()
+									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+													DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+											EquipmentSlotGroup.MAINHAND)
+									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+											-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.build())))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
@@ -707,13 +710,13 @@ public class GLItems {
 			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
 			// Same melee profile as the dagger it launches: the throw copies the holder's attack damage.
 			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)
-					.attributes(ItemAttributeModifiers.builder()
-							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
-									DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
-									EquipmentSlotGroup.MAINHAND)
-							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
-									-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-							.build())))
+							.attributes(ItemAttributeModifiers.builder()
+									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+													DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
+											EquipmentSlotGroup.MAINHAND)
+									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+											-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.build())))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
@@ -722,13 +725,13 @@ public class GLItems {
 			// A pickaxe that throws itself. TOOL gives it diamond harvesting without durability, and
 			// the durability bar is free for the spiritual pool.
 			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
-					.attributes(ItemAttributeModifiers.builder()
-							.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 14.0,
-									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-							.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2,
-									AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-							.build())
-					.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
+							.attributes(ItemAttributeModifiers.builder()
+									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 14.0,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2,
+											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+									.build())
+							.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
 					.model(AnchorModel::model)
 					.tag(ItemTags.PICKAXES, ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE,
 							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
@@ -830,6 +833,8 @@ public class GLItems {
 		GLFluids.register();
 
 		GLBlocks.register();
+
+		reg.defaultCreativeTab(TAB.key());
 
 		// debug
 		{

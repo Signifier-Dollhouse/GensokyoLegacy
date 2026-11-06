@@ -1,0 +1,31 @@
+{
+  "variants": {
+    "part=lower,size=0": {
+      "model": "gensokyolegacy:block/golden_lotus_0"
+    },
+    "part=lower,size=1": {
+      "model": "gensokyolegacy:block/golden_lotus_1"
+    },
+    "part=lower,size=2": {
+      "model": "gensokyolegacy:block/golden_lotus_2_lower"
+    },
+    "part=single,size=0": {
+      "model": "gensokyolegacy:block/golden_lotus_0"
+    },
+    "part=single,size=1": {
+      "model": "gensokyolegacy:block/golden_lotus_1"
+    },
+    "part=single,size=2": {
+      "model": "gensokyolegacy:block/golden_lotus_2_lower"
+    },
+    "part=upper,size=0": {
+      "model": "gensokyolegacy:block/golden_lotus_0"
+    },
+    "part=upper,size=1": {
+      "model": "gensokyolegacy:block/golden_lotus_1"
+    },
+    "part=upper,size=2": {
+      "model": "gensokyolegacy:block/golden_lotus_2_upper"
+    }
+  }
+}

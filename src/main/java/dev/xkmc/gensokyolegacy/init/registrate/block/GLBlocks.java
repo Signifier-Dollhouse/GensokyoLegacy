@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -81,7 +82,6 @@ public class GLBlocks {
 		}
 	}
 
-
 	public static final BlockEntry<BasePortalBlock> GAP_PORTAL;
 	public static final BlockEntityEntry<GapPortalBlockEntity> GAP_BE;
 
@@ -95,7 +95,6 @@ public class GLBlocks {
 
 	public static final BlockEntry<YoukaiBedBlock>[] BEDS;
 	public static final BlockEntityEntry<YoukaiBedBlockEntity> BE_BED;
-
 
 	static {
 
@@ -183,7 +182,7 @@ public class GLBlocks {
 
 		}
 
-
+		GensokyoLegacy.REGISTRATE.defaultCreativeTab(GLDecoBlocks.TAB.key());
 		BEDS = new BlockEntry[Beds.values().length];
 		for (var e : Beds.values()) {
 			String name = e.name().toLowerCase(Locale.ROOT);

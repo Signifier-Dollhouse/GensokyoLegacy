@@ -2,6 +2,6 @@
   "parent": "minecraft:block/cross",
   "render_type": "minecraft:cutout",
   "textures": {
-    "cross": "gensokyolegacy:block/nature/golden_lotus_small"
+    "cross": "gensokyolegacy:block/nature/golden_lotus_1"
   }
 }
