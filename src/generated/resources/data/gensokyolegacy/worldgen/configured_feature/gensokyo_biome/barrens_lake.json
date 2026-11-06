@@ -324,7 +324,7 @@
             }
           ]
         },
-        "chance": 0.15,
+        "chance": 0.2,
         "target": "floating"
       }
     ],

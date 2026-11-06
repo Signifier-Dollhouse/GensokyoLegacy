@@ -360,6 +360,8 @@ plants, and the patch the Misty Lake and the ravine lay down grow the same plant
 | `muenzuka_trees` / `muenzuka_litter` | 4 trees, locust half, purple cherry a quarter / 2 patches | muenzuka |
 | `village_flowers` | 4 patches | plain of the past |
 | `barrens_scrub` | 3 patches | barrens |
+| `barrens_golden_lotus` | 1 patch, 12 tries, small 40 % / mid 40 % / large 20 % | barrens |
+| `barrens_tower_grass` | 1 patch, 16 tries, small 50 % / large 50 % | barrens |
 | `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
 | `barrens_stone_lantern` | 4 tries in 1 patch per chunk, on the floor | barrens |
 | `barrens_jizo` | 24 tries in 1 patch, all four kinds, on the floor | barrens |
@@ -549,6 +551,11 @@ The jizo, the gravestone and the stone lantern are the only patches drawn by `ge
 than by vanilla's own `simple_block`: they are `DoubleBlockImpl` delegates occupying two blocks, and `simple_block`
 writes only the bottom half. A top half with nothing under it passes the placement predicate and then drops off on the
 first neighbour update, so the feature writes both halves itself.
+
+`barrens_golden_lotus` is drawn by a feature of its own, `gensokyolegacy:golden_lotus`. The lotus grows through three
+sizes as one block and only the large size is a double plant, with halves named `part` rather than `half`, so
+`double_block` cannot place it. The patch weights the sizes 40 / 40 / 20 and the feature writes both halves when the
+drawn size is large.
 
 They are the only patches in the tail placed by `Registrar.floor(...)` rather than `cover(...)`, and that one word is
 the whole of why they work. Everything else decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts

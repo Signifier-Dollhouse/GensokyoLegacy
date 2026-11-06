@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.DoubleBlockFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.GoldenLotusFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MudWaterloggedVegetationPatchFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterConfig;
@@ -68,6 +69,8 @@ public class GLWorldGen {
 	public static final Val<LakeFeature> LAKE = FR.reg("lake", () -> new LakeFeature(LakeConfig.CODEC));
 	public static final Val<DoubleBlockFeature> DOUBLE_BLOCK =
 			FR.reg("double_block", () -> new DoubleBlockFeature(SimpleBlockConfiguration.CODEC));
+	public static final Val<GoldenLotusFeature> GOLDEN_LOTUS =
+			FR.reg("golden_lotus", () -> new GoldenLotusFeature(SimpleBlockConfiguration.CODEC));
 	public static final Val<MudWaterloggedVegetationPatchFeature> MUD_WATERLOGGED_VEGETATION_PATCH =
 			FR.reg("mud_waterlogged_vegetation_patch", () -> new MudWaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC));
 	public static final Val<StairPoolFeature> STAIR_POOL =
