@@ -45,6 +45,9 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/cirno/gift/neutral.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/gift/dislike.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/marisa/gift/like.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/minamitsu/gift/dislike.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/minamitsu/gift/like.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/minamitsu/gift/neutral.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/morichika/gift/dislike.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/morichika/gift/like.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog/reimu/gift/dislike.json",
@@ -76,6 +79,7 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_kourindou_wander.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_shrine_calm.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/marisa/visit_shrine_donate.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/minamitsu/gift.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat_marisa.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/dialog_starter/morichika/chat_reimu.json",
@@ -129,6 +133,7 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_nether_wart.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_shroomlight.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_spider_eye.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/minamitsu/offer_anchor.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_dagger_glove.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_guide_book.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_koishi_hat.json",
@@ -677,6 +682,7 @@
     "gensokyolegacy:party_gift/izayoi_sakuya": "src/generated/resources/data/gensokyolegacy/loot_table/party_gift/izayoi_sakuya.json",
     "gensokyolegacy:party_gift/kirisame_marisa": "src/generated/resources/data/gensokyolegacy/loot_table/party_gift/kirisame_marisa.json",
     "gensokyolegacy:party_gift/morichika_rinnosuke": "src/generated/resources/data/gensokyolegacy/loot_table/party_gift/morichika_rinnosuke.json",
+    "gensokyolegacy:party_gift/murasa_minamitsu": "src/generated/resources/data/gensokyolegacy/loot_table/party_gift/murasa_minamitsu.json",
     "gensokyolegacy:party_gift/saigyouji_yuyuko": "src/generated/resources/data/gensokyolegacy/loot_table/party_gift/saigyouji_yuyuko.json"
   },
   "itemTags": {
@@ -715,13 +721,13 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "ba92ad32a63f5a626d5492894ca7015f",
+  "revision": "bc93fd44f63e920419ff995e70f19642",
   "stats": {
     "quest": 27,
-    "dialog": 19,
-    "dialog_starter": 34,
-    "trade": 60,
-    "files": 140,
+    "dialog": 22,
+    "dialog_starter": 35,
+    "trade": 61,
+    "files": 145,
     "recipes": 328,
     "guideEntries": 100
   }
