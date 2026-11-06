@@ -83,6 +83,7 @@ import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransforms
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class GLItems {
@@ -574,8 +575,16 @@ public class GLItems {
 			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> {
 						var base = pvd.handheld(ctx, pvd.modLoc("item/yuyuko_fan/" + ctx.getName()));
-						// icon variants for the wheel/selector display stacks (cf. umbrella_display)
 						var modes = YuyukoFanMode.values();
+						for (int i = 0; i < modes.length; i++) {
+							String name = modes[i].name().toLowerCase(Locale.ROOT);
+							base.override()
+									.predicate(GensokyoLegacy.loc("yuyuko_fan_mode"), i)
+									.model(pvd.withExistingParent("item/yuyuko_fan_" + name, "item/handheld")
+											.texture("layer0", pvd.modLoc("item/yuyuko_fan/" + modes[i].textureName())))
+									.end();
+						}
+						// last in the file: vanilla bakes overrides in reverse, so icon stacks match these first
 						for (int i = 0; i < modes.length; i++) {
 							base.override()
 									.predicate(GensokyoLegacy.loc("yuyuko_fan_display"), i + 1)

@@ -108,9 +108,12 @@ power so it can be read without opening the tooltip.
   is summoned: the power refills it (only the power actually added is spent) and it is sent at the
   new target.
 
-The selector icons are flat per-mode fan icons (`textures/item/yuyuko_fan/<mode>_icon.png`, the
-haunting mode named `haunting`), drawn through the `yuyuko_fan_display` model override: a display
-stack carries the mode plus the `icon` marker, and the predicate returns the mode ordinal + 1.
+Held stacks follow the mode through the `yuyuko_fan_mode` model override: the mode ordinal picks
+the held texture (`textures/item/yuyuko_fan/<texture>.png`, summon and haunt both using
+`haunting`, scatter `scatter`, absorb the default `yuyuko_fan`). A display stack carrying the
+`icon` marker uses the separate `yuyuko_fan_display` predicate (ordinal + 1) for its flat selector
+icon (`<mode>_icon.png`, the haunting mode named `haunting`); those overrides come last in the
+model, so vanilla's reverse baking tests them before the held range.
 
 ### 4.1 Haunting ghost
 

@@ -83,12 +83,19 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 	}
 
 	/**
-	 * Model-override value for {@code gensokyolegacy:yuyuko_fan_display}: plain stacks keep the base
-	 * model (0), an {@code ICON} stack uses its mode's icon range.
+	 * Model-override value for {@code gensokyolegacy:yuyuko_fan_mode}: the mode's ordinal selects
+	 * the held texture.
+	 */
+	public static float modePredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		return getMode(stack).ordinal();
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:yuyuko_fan_display}: 0 on a held stack, and the
+	 * mode's ordinal + 1 on an {@code ICON} stack drawing a selector icon.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		if (!stack.has(GLItems.ICON.get())) return 0;
-		return getMode(stack).ordinal() + 1;
+		return stack.has(GLItems.ICON.get()) ? getMode(stack).ordinal() + 1 : 0;
 	}
 
 	/**
