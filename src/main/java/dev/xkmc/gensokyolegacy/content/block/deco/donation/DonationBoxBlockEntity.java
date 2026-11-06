@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.base.LocatedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.type.BlockMethod;
@@ -24,9 +25,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Donation box bound to a character's bed. Trades gold for reputation under the same soft cap as
- * feeding, so a fortune of emeralds cannot stand in for quest progress.
+ * feeding, so a fortune of coins cannot stand in for quest progress.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/structure/reputation.md"
  */
 @SerialClass
 public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebugInfoBlockEntity {
@@ -38,8 +39,8 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 	}
 
 	/**
-	 * Per-item value in reputation, counted in nuggets: nugget 1, emerald 3, ingot 9, block 81; anything else is worth
-	 * 0.
+	 * Per-item value in reputation, counted in nuggets: nugget 1, emerald or coin 3, coin stack 24, ingot 9, block
+	 * 81; anything else is worth 0.
 	 */
 	public void take(@Nullable Player player, ItemStack stack) {
 		if (key == null) return;
@@ -48,8 +49,10 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 		if (bed == null) return;
 		var holder = CharDataHolder.getUnbounded(player, bed.type());
 		int value = 0;
-		if (stack.is(Items.EMERALD)) {
+		if (stack.is(Items.EMERALD) || stack.is(GLItems.COIN.get())) {
 			value = 3;
+		} else if (stack.is(GLItems.COIN_STACK.get())) {
+			value = 24;
 		} else if (stack.is(Items.GOLD_INGOT)) {
 			value = 9;
 		} else if (stack.is(Items.GOLD_NUGGET)) {

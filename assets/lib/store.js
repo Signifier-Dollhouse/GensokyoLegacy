@@ -329,7 +329,7 @@ export async function loadCurrencyTag() {
   if (tag) return tag;
   // The two currencies the game accepts, should the tag be missing. Cached rather than
   // returned, since the trade list and the item index both read it from the store.
-  const fallback = new Set(["minecraft:emerald", "minecraft:gold_ingot"]);
+  const fallback = new Set(["gensokyolegacy:coin", "minecraft:gold_ingot"]);
   store.tags.set(CURRENCY, fallback);
   return fallback;
 }
