@@ -1,0 +1,24 @@
+{
+	"-slash": true,
+	"gensokyolegacy": {
+		"minamitsu": {
+			"chat": {
+				"greeting": "你现在站在我的甲板上。说吧，有什么事。",
+				"visit_greeting": "远离大海的客人。你想要什么？",
+				"party_greeting": "宴会？好吧——我就为这一晚离开船。",
+				"trade": "你需要我做什么？"
+			},
+			"gift": {
+				"dialog": {
+					"like": "眼光不错。那我就收下了。",
+					"neutral": "给我的礼物？那我就不客气了。",
+					"dislike": "这东西在船上没用。你自己留着吧。",
+					"return": "给——这是我以前捞上来的。归你了。"
+				},
+				"option": {
+					"return/take": "谢了，我收下。"
+				}
+			}
+		}
+	}
+}

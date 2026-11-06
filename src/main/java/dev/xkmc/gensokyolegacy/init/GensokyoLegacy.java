@@ -188,7 +188,9 @@ public class GensokyoLegacy {
 		var suika = new SuikaQDGen();
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, new GiftQDGen());
+		var minamitsu = new MinamitsuQDGen();
+		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko,
+				minamitsu, new GiftQDGen());
 
 		ReportBlocksInStructure.report();
 	}

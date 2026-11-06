@@ -76,6 +76,12 @@ public class GiftQDGen extends QuestDialogData {
 				"I'm sorry, but I can't accept this one.",
 				"This is for you. I hope you'll like it too.",
 				"(Accept the thank-you gift)");
+		pair("minamitsu", GLEntities.MINAMITSU.get(), leave, YoukaiAnim.TALK_05, 10,
+				"You have a good eye. I'll take it, then.",
+				"A gift? Don't mind if I do.",
+				"I've no use for this aboard a ship. Keep it.",
+				"Here — I hauled this up a while back. It's yours.",
+				"Thanks. I'll take it.");
 	}
 
 	/**

@@ -1,0 +1,31 @@
+{
+  "character": "gensokyolegacy:murasa_minamitsu",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 80
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 18,
+      "item": "minecraft:chain"
+    },
+    {
+      "count": 3,
+      "item": "minecraft:anvil"
+    },
+    {
+      "count": 1,
+      "item": "minecraft:heart_of_the_sea"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 168000
+  },
+  "result": {
+    "count": 1,
+    "id": "gensokyolegacy:minamitsu_anchor"
+  }
+}
