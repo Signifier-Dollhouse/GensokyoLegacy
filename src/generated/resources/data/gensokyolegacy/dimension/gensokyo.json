@@ -126,7 +126,7 @@
           }
         },
         {
-          "biome": "gensokyolegacy:human_village",
+          "biome": "gensokyolegacy:plain_of_the_past",
           "parameters": {
             "continentalness": [
               -0.427,

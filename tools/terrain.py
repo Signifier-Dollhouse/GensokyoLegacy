@@ -1111,7 +1111,7 @@ GENSAKYO_COLORS = {
     "misty_lake": (34, 78, 158), "misty_lake_shore": (120, 170, 214),
     # lower ground: plains first, so the yellows read as the sunny end of the plain
     "sunflower_plains": (222, 224, 118), "muenzuka": (170, 186, 96),
-    "human_village": (198, 198, 74), "myouren_temple_barrens": (196, 168, 84),
+    "plain_of_the_past": (198, 198, 74), "myouren_temple_barrens": (196, 168, 84),
     # upper ground: the same greens pushed darker, which is the only hint the map gives of height
     "magical_forest": (74, 148, 74), "bamboo_forest_of_the_lost": (96, 172, 92),
     "sakura_forest": (140, 190, 110), "hill_of_the_nameless": (122, 158, 68),

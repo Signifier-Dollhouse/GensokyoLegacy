@@ -380,7 +380,7 @@ public final class GLLang {
 	 */
 	public enum Biome implements LangEntry {
 		MUENZUKA("muenzuka", "Muenzuka"),
-		HUMAN_VILLAGE("human_village", "Human Village"),
+		PLAIN_OF_THE_PAST("plain_of_the_past", "Plain of the Past"),
 		MYOUREN_TEMPLE_BARRENS("myouren_temple_barrens", "Myouren Temple Barrens"),
 		MAGICAL_FOREST("magical_forest", "Forest of Magic"),
 		BAMBOO_FOREST_OF_THE_LOST("bamboo_forest_of_the_lost", "Bamboo Forest of the Lost"),

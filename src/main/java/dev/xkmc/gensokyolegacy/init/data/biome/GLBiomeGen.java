@@ -32,7 +32,7 @@ public class GLBiomeGen {
 		AbstractBiomeGen.build(init,
 				new GapBiomeGen(),
 				new MagicalForestBiomeGen(), new SakuraForestBiomeGen(),
-				new MuenzukaBiomeGen(), new HumanVillageBiomeGen(), new MyourenTempleBarrensBiomeGen(),
+				new MuenzukaBiomeGen(), new PlainOfThePastBiomeGen(), new MyourenTempleBarrensBiomeGen(),
 				new BambooForestOfTheLostBiomeGen(), new HillOfTheNamelessBiomeGen(),
 				new UntroddenValleyBiomeGen(), new GenbuRavineBiomeGen(),
 				new YoukaiMountainFoothillsBiomeGen(), new SanctuaryBiomeGen(),
@@ -125,7 +125,7 @@ public class GLBiomeGen {
 				.add(UntroddenValleyBiomeGen.KEY).add(YoukaiMountainFoothillsBiomeGen.KEY)
 				.add(TenguSettlementBiomeGen.KEY);
 		pvd.addTag(IS_PLAINS)
-				.add(HumanVillageBiomeGen.KEY).add(SunflowerPlainsBiomeGen.KEY)
+				.add(PlainOfThePastBiomeGen.KEY).add(SunflowerPlainsBiomeGen.KEY)
 				.add(HillOfTheNamelessBiomeGen.KEY);
 		// the mountain band and the two fixed locations above it
 		pvd.addTag(IS_MOUNTAIN)
@@ -139,7 +139,7 @@ public class GLBiomeGen {
 				.add(FormerHellBiomeGen.KEY).add(HellOfBlazingFiresBiomeGen.KEY)
 				.add(MountainInteriorBiomeGen.KEY);
 		pvd.addTag(IS_SPOOKY).add(MuenzukaBiomeGen.KEY).add(HillOfTheNamelessBiomeGen.KEY);
-		pvd.addTag(IS_FLORAL).add(HumanVillageBiomeGen.KEY).add(SanctuaryBiomeGen.KEY)
+		pvd.addTag(IS_FLORAL).add(PlainOfThePastBiomeGen.KEY).add(SanctuaryBiomeGen.KEY)
 				.add(HillOfTheNamelessBiomeGen.KEY);
 		pvd.addTag(IS_WET).add(GenbuRavineBiomeGen.KEY)
 				.add(MistyLakeBiomeGen.KEY).add(MistyLakeShoreBiomeGen.KEY);

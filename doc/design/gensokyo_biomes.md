@@ -43,7 +43,7 @@ guide's order. Nothing is repeated and nothing is left over.
 
 | band | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|
-| lower ground | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
+| lower ground | sunflower_plains | muenzuka | plain_of_the_past | myouren_temple_barrens |
 | upper ground | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
 | Mountain | untrodden_valley | genbu_ravine | youkai_mountain_foothills | sanctuary |
 
@@ -81,7 +81,7 @@ beside them.
 | biome | features after | why |
 |---|---|---|
 | `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, a quarter of the purple cherry, the rest the oak and birch that grew here before — see §2.2 |
-| `human_village` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
+| `plain_of_the_past` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
 | `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
@@ -358,7 +358,7 @@ plants, and the patch the Misty Lake and the ravine lay down grow the same plant
 | `stone_lantern` | 4 tries in 1 patch per chunk, on the floor | muenzuka |
 | `ghost_flowers` | 3 patches | muenzuka |
 | `muenzuka_trees` / `muenzuka_litter` | 4 trees, locust half, purple cherry a quarter / 2 patches | muenzuka |
-| `village_flowers` | 4 patches | human village |
+| `village_flowers` | 4 patches | plain of the past |
 | `barrens_scrub` | 3 patches | barrens |
 | `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
 | `barrens_stone_lantern` | 4 tries in 1 patch per chunk, on the floor | barrens |
@@ -731,7 +731,7 @@ grove                     12.34%      peak                      5.49%
 ocean                     10.84%      magical_forest            5.45%
 myouren_temple_barrens     7.11%      genbu_ravine              5.31%
 muenzuka                   7.05%      sanctuary                 5.17%
-human_village              6.38%      beach                     4.75%
+plain_of_the_past         6.38%       beach                     4.75%
 bamboo_forest_of_the_lost  6.25%      sakura_forest             4.64%
 hill_of_the_nameless       6.10%      untrodden_valley          3.74%
 sunflower_plains           5.94%      youkai_mountain_foothills 3.44%
@@ -784,7 +784,7 @@ surface, so the top-layer step has nothing to act on. Spawns are empty and the t
 
 Nothing in this dimension freezes on the strength of the climate grid. The grid picks *which biome* a column is; the
 snow line is a property of that biome's own `temperature` field, and the two are deliberately decoupled — `muenzuka`
-is the cold humid cell of the lower ground and does not snow, while `human_village` is the hot dry cell and could have
+is the cold humid cell of the lower ground and does not snow, while `plain_of_the_past` is the hot dry cell and could have
 been anything.
 
 The chain, all of it vanilla:
@@ -802,7 +802,7 @@ So the threshold is **0.15 of an altitude-adjusted temperature**, not of the dec
 |---|---|---|---|---|---|
 | myouren_temple_barrens | 0.2 | 66 … 96 | 0.03 | 0.17 | no |
 | muenzuka | 0.3 | 66 … 96 | 0.03 | 0.27 | no |
-| human_village | 0.8 | 66 … 96 | 0.03 | 0.77 | no |
+| plain_of_the_past | 0.8 | 66 … 96 | 0.03 | 0.77 | no |
 | sunflower_plains | 0.8 (copy) | 66 … 96 | 0.03 | 0.77 | no |
 | magical_forest | 0.7 | 66 … 96 | 0.03 | 0.67 | no |
 | sakura_forest | 0.5 | 66 … 96 | 0.03 | 0.47 | no |
@@ -919,7 +919,7 @@ and gravel: `onGround(tries, palette, blocks...)` is the general form, and `onDi
 
 The guide asks for the Scarlet Devil Mansion and the tengu buildings as structures, with terrain validity and
 spacing. No such templates exist — the mod's only structures are the character homes and Cirno's nest — so both
-settlements land as the natural ground they sit on, exactly as `human_village` does. That is a separate job with a
+settlements land as the natural ground they sit on, exactly as `plain_of_the_past` does. That is a separate job with a
 separate template budget, and the guide is explicit that these must not be faked with random placed features.
 
 ---

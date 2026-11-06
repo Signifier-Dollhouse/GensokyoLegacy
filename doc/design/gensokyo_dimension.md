@@ -230,14 +230,14 @@ surface half of the list is still 17 points.
 
 | | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|
-| **erosion < −0.01** (lower ground) | sunflower_plains | muenzuka | human_village | myouren_temple_barrens |
+| **erosion < −0.01** (lower ground) | sunflower_plains | muenzuka | plain_of_the_past | myouren_temple_barrens |
 | **erosion > 0.01** (upper ground) | magical_forest | bamboo_forest_of_the_lost | sakura_forest | hill_of_the_nameless |
 
 Three things follow, and none of them is free.
 
 **The two grounds interleave instead of stacking.** Before, the lower ground was everything below y 80 and the upper
 ground everything above it, so the height said which one you were in. Now it is erosion, and the same height carries
-both — `human_village` reaches y 96 and `magical_forest` comes down to y 66. The guide's own bands (64–80 / 80–96)
+both — `plain_of_the_past` reaches y 96 and `magical_forest` comes down to y 66. The guide's own bands (64–80 / 80–96)
 survive as *names*, and `gensokyo_biomes.md` maps them here.
 
 **Erosion is one of the four `*_small` axes, not vanilla's.** It is `gensokyolegacy:erosion_small` — vanilla's
@@ -414,7 +414,7 @@ What doubling an axis actually costs was measured rather than assumed, on 512 ×
 |---|---|---|
 | sunflower_plains | 199 patches, mean 76 | 385, mean 55 |
 | muenzuka | 193, mean 62 | 388, mean 55 |
-| human_village | 198, mean 59 | 358, mean 44 |
+| plain_of_the_past | 198, mean 59 | 358, mean 44 |
 | myouren_temple_barrens | 157, mean 68 | 319, mean 47 |
 | magical_forest | 366, mean 68 | 328, mean 43 |
 | sakura_forest | 336, mean 62 | 332, mean 55 |

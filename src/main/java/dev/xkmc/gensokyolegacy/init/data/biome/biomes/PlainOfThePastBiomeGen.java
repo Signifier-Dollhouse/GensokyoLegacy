@@ -20,14 +20,14 @@ import java.util.List;
  *
  * @see "doc/design/gensokyo_biomes.md"
  */
-public class HumanVillageBiomeGen extends AbstractBiomeGen {
+public class PlainOfThePastBiomeGen extends AbstractBiomeGen {
 
-	public static final ResourceKey<Biome> KEY = biome("human_village");
+	public static final ResourceKey<Biome> KEY = biome("plain_of_the_past");
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> VILLAGE_FLOWERS = cf("village_flowers");
 	private static final ResourceKey<PlacedFeature> VILLAGE_FLOWERS_PF = pf("village_flowers");
 
-	public HumanVillageBiomeGen() {
+	public PlainOfThePastBiomeGen() {
 		super(KEY);
 	}
 

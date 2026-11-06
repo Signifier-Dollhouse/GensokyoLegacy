@@ -31,8 +31,8 @@ Use established English names for known Touhou locations where possible. A few e
 |---|---|---|---|
 | lower ground | sunflower plains | **Sunflower Plains** | Existing Minecraft biome name; use only if this is intentionally the vanilla-like sunflower biome. |
 | lower ground | 无缘冢 | **Muenzuka** | Established English spelling. A lonely burial ground for the unconnected/deceased; avoid making it a generic flower meadow. |
-| lower ground | 人里 | **Human Village** | Established location name. |
-| lower ground | 命莲寺荒原 | **Myouren Temple Barrens** | Descriptive biome name based on Myouren Temple; “Barrens” is a biome label, not a separate canonical location. Consider “Myouren Temple Wastes” if the landscape is rocky/ruined. |
+| lower ground | 旧日平原 | **Plain of the Past** | Project name, not a canon location; the hot dry cell of the lower ground. Renamed from `human_village`. |
+| lower ground | 圣辇之地 | **Myouren Temple Barrens** | The Sacred Palanquin’s land (圣辇 refers to the 圣辇船); “Barrens” is a biome label, not a separate canonical location. The English display name follows the registry id. |
 | upper ground | 魔法森林 | **Forest of Magic** | Established English name. |
 | upper ground | 迷途竹林 | **Bamboo Forest of the Lost** | Established English name. |
 | upper ground | 樱花森林 | **Sakura Forest** | Descriptive biome label; “Cherry Blossom Forest” is clearer to players, but “Sakura Forest” has a fantasy-biome feel. |
@@ -51,7 +51,7 @@ Suggested registry IDs (illustrative; follow the mod's existing naming conventio
 ```text
 gensokyolegacy:sunflower_plains
 gensokyolegacy:muenzuka
-gensokyolegacy:human_village
+gensokyolegacy:plain_of_the_past
 gensokyolegacy:myouren_temple_barrens
 gensokyolegacy:forest_of_magic
 gensokyolegacy:bamboo_forest_of_the_lost
@@ -95,7 +95,7 @@ For each biome, implement a coherent feature palette rather than a large random 
 - Atmosphere: subdued foliage palette and optional low-frequency particles; do not make the whole biome a poisonous hazard unless gameplay calls for it.
 - Avoid: cheerful, dense sunflower-like flower carpets. Keep it visually distinct from Hill of the Nameless.
 
-### 3.3 Human Village
+### 3.3 Plain of the Past
 
 **Visual target:** cultivated, navigable countryside around a safe settlement.
 
@@ -360,7 +360,7 @@ To minimize duplication, define palettes instead of 16 unrelated surface functio
 
 | Palette | Suggested biomes | Top / near-surface material |
 |---|---|---|
-| Open grassland | Sunflower Plains, Human Village, Sanctuary | grass, dirt; paths and fields via features |
+| Open grassland | Sunflower Plains, Plain of the Past, Sanctuary | grass, dirt; paths and fields via features |
 | Woodland | Forest of Magic, Bamboo Forest of the Lost, Sakura Forest | grass/podzol/rooted dirt; biome identity mainly from vegetation |
 | Quiet/neglected ground | Muenzuka, Hill of the Nameless | grass/coarse dirt/podzol, scattered stones |
 | Dry / weathered | Myouren Temple Barrens | coarse dirt, gravel, exposed stone |
@@ -427,7 +427,6 @@ Prefer reusing existing vanilla placed features when they meet the need. For cus
 
 Use these as naming/API references; project-specific implementation should still follow the actual codebase.
 
-- Touhou Wiki — [Human Village](https://en.touhouwiki.net/wiki/Human_Village)
 - Touhou Wiki — [Myouren Temple](https://en.touhouwiki.net/wiki/Myouren_Temple)
 - Touhou Wiki — [Hill of the Nameless](https://en.touhouwiki.net/wiki/Perfect_Memento_in_Strict_Sense/Hill_of_the_Nameless)
 - Touhou Wiki — [Youkai Mountain](https://en.touhouwiki.net/wiki/Youkai_Mountain), including the Untrodden Valley and mountain foothills

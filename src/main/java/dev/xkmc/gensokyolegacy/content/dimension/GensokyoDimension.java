@@ -311,7 +311,7 @@ public class GensokyoDimension {
 			List.of(new Cell(MistyLakeShoreBiomeGen.KEY, FULL_PLANE, FULL_PLANE)),
 			List.of(new Cell(SunflowerPlainsBiomeGen.KEY, HOT, HUMID, LOW_EROSION),
 					new Cell(MuenzukaBiomeGen.KEY, COLD, HUMID, LOW_EROSION),
-					new Cell(HumanVillageBiomeGen.KEY, HOT, DRY, LOW_EROSION),
+					new Cell(PlainOfThePastBiomeGen.KEY, HOT, DRY, LOW_EROSION),
 					new Cell(MyourenTempleBarrensBiomeGen.KEY, COLD, DRY, LOW_EROSION),
 					new Cell(MagicalForestBiomeGen.KEY, HOT, HUMID, HIGH_EROSION),
 					new Cell(BambooForestOfTheLostBiomeGen.KEY, COLD, HUMID, HIGH_EROSION),
