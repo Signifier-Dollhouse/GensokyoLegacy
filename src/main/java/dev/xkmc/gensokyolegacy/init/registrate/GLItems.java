@@ -310,7 +310,6 @@ public class GLItems {
 		{
 			COIN = reg.item("coin", CoinItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
-					.tag(DanmakuItems.Bullet.CIRCLE.tag)
 					.lang("Coin").register();
 			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
 			COIN_STACK = reg.item("coin_stack", Item::new)
@@ -675,7 +674,6 @@ public class GLItems {
 
 			STAR_WAND = reg.item("star_wand", p -> new StarWandItem(p.rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.tag(DanmakuItems.Bullet.STAR.tag)
 					.lang("Star Wand").tab(TAB.key())
 					.register();
 
@@ -702,7 +700,6 @@ public class GLItems {
 								.perspective(ItemDisplayContext.GUI, guiModel)
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(DanmakuItems.Bullet.DAGGER.tag)
 					.lang("Iron Dagger").tab(TAB.key())
 					.register();
 
