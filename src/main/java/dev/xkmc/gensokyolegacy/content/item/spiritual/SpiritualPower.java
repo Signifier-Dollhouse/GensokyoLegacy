@@ -43,7 +43,6 @@ public final class SpiritualPower {
 	 * Adds {@code delta} clamped to the pool and returns the amount actually accepted.
 	 */
 	public static int add(ItemStack stack, int delta) {
-		if (delta <= 0) return 0;
 		int old = get(stack);
 		int next = Mth.clamp(old + delta, 0, max(stack));
 		set(stack, next);
