@@ -23,13 +23,30 @@ public class SheddingLeavesBlock extends LeavesBlock {
 
 	private static final MapCodec<SheddingLeavesBlock> CODEC = simpleCodec(SheddingLeavesBlock::new);
 	/**
+	 * The chance per random tick that a leaf falls and the carpet below grows.
+	 */
+	public static final float SHED_CHANCE = 0.1F;
+	/**
+	 * A particle spawns one tick in this many.
+	 */
+	public static final int PARTICLE_RATE = 10;
+	/**
 	 * The petal or the leaf that falls out of the canopy.
 	 */
 	private final Supplier<ParticleOptions> particle;
+	private final float shedChance;
+	private final int particleRate;
 
 	public SheddingLeavesBlock(Properties properties, Supplier<ParticleOptions> particle) {
+		this(properties, particle, SHED_CHANCE, PARTICLE_RATE);
+	}
+
+	public SheddingLeavesBlock(Properties properties, Supplier<ParticleOptions> particle,
+							   float shedChance, int particleRate) {
 		super(properties);
 		this.particle = particle;
+		this.shedChance = shedChance;
+		this.particleRate = particleRate;
 	}
 
 	public SheddingLeavesBlock(Properties properties) {
@@ -52,7 +69,7 @@ public class SheddingLeavesBlock extends LeavesBlock {
 		super.randomTick(state, level, pos, random);
 		if (!level.getBlockState(pos).is(this)) return;
 		var kind = FallenLeafKind.of(this);
-		if (kind != null && random.nextFloat() < 0.1F) {
+		if (kind != null && random.nextFloat() < shedChance) {
 			FallenLeavesBlock.accumulate(level, pos, kind, random);
 		}
 	}
@@ -60,7 +77,7 @@ public class SheddingLeavesBlock extends LeavesBlock {
 	@Override
 	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
 		super.animateTick(state, level, pos, random);
-		if (random.nextInt(10) == 0) {
+		if (random.nextInt(particleRate) == 0) {
 			BlockPos below = pos.below();
 			BlockState belowState = level.getBlockState(below);
 			if (!isFaceFull(belowState.getCollisionShape(level, below), Direction.UP)) {

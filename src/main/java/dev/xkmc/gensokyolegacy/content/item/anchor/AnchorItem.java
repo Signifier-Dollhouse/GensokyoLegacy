@@ -265,8 +265,8 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		sp.getCooldowns().addCooldown(item, COOLDOWN);
 		sp.swing(hand, true);
 		sp.awardStat(Stats.ITEM_USED.get(item));
-		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.TRIDENT_THROW.value(),
-				SoundSource.PLAYERS, 1F, 1F);
+		var sound = type.isStorm() ? SoundEvents.TRIDENT_RIPTIDE_1 : SoundEvents.TRIDENT_THROW;
+		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), sound.value(), SoundSource.PLAYERS, 1F, 1F);
 		return true;
 	}
 

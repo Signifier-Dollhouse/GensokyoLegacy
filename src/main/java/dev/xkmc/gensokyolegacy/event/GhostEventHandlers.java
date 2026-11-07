@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.effect.SpiritualEffect;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -15,7 +17,8 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 /**
- * A dual ghost spends itself in place of its owner, and undead kills feed the spiritual pool.
+ * A dual ghost spends itself in place of its owner, and undead or stray-doll kills feed the
+ * spiritual pool.
  *
  * @see "doc/design/doll/ghost_power.md"
  */
@@ -38,14 +41,24 @@ public class GhostEventHandlers {
 	}
 
 	/**
-	 * An undead kill feeds the spiritual pool of whatever the killer holds, split across the hands.
+	 * An undead kill feeds the spiritual pool of whatever the killer carries, spread over the whole
+	 * inventory.
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onUndeadExperienceDrop(LivingExperienceDropEvent event) {
 		if (event.isCanceled() || !event.getEntity().getType().is(EntityTypeTags.UNDEAD)) return;
 		Player player = event.getAttackingPlayer();
 		if (player == null) return;
-		SpiritualPower.addToHeld(player, event.getDroppedExperience());
+		SpiritualPower.restore(player, event.getDroppedExperience());
+	}
+
+	/**
+	 * A stray doll rewards its player kill credit with the spiritual effect.
+	 */
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void onStrayDollDeath(LivingDeathEvent event) {
+		if (event.isCanceled() || !(event.getEntity() instanceof StrayDollEntity doll)) return;
+		if (doll.getKillCredit() instanceof Player player) SpiritualEffect.addSpiritual(player, 100);
 	}
 
 }

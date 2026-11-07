@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "gensokyolegacy:myouren_temple_barrens",
+  "spawners": {
+    "type": "gensokyolegacy:stray_ghost",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 10
+  }
+}

@@ -97,7 +97,7 @@ The paper / redstone / gunpowder restock is what makes 2.2 self-funding: the
 quest's own inputs are also the shop's inputs, so completing it opens a supply
 loop rather than a one-off errand.
 
-### Offering (player buys, quest gated)
+### Offering (player buys, quest or reputation gated)
 
 The `gap_portal` trade is the odd one out — it is paid in materials (purple
 wool, ender eye, ender pearl, crying obsidian) rather than coins, which the
@@ -111,6 +111,7 @@ UI renders as a craft-style processing trade rather than a purchase.
 | `offer_hydrophobic_talisman` | 2.2 | coin ×4 | hydrophobic talisman ×1 | 16 | 24000 |
 | `offer_lava_talisman` | 2.2 | coin ×4 | lava talisman ×1 | 16 | 24000 |
 | `offer_talisman_pocket` | 2.2 | coin ×16 | talisman pocket ×1 | 4 | 24000 |
+| `offer_lucky_tea` | rep **> 80** (strict; emitted as `SelfReputationCondition(81)`) | coin ×16 | lucky tea ×1 | 16 | 24000 |
 | `offer_border_umbrella` | 3.2 | coin ×48 | border umbrella ×1 | 1 | 168000 |
 | `gap_portal` | 2.3 | purple wool ×2 + ender eye ×2 + ender pearl ×2 + crying obsidian ×2 | gap portal ×1 | 1 | 6000 |
 

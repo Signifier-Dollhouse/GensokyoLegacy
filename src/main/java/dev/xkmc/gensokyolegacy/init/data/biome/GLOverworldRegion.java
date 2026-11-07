@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -50,6 +51,16 @@ public class GLOverworldRegion extends Region {
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
 				.forEach(point -> builder.add(point, MagicalForestBiomeGen.KEY));
+		new ParameterUtils.ParameterPointListBuilder()
+				.temperature(ParameterUtils.Temperature.ICY, ParameterUtils.Temperature.COOL)
+				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.DRY, ParameterUtils.Humidity.ARID)
+				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
+				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
+				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
+				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
+						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
+				.build()
+				.forEach(point -> builder.add(point, MyourenTempleBarrensBiomeGen.KEY));
 		builder.build().forEach(mapper);
 	}
 

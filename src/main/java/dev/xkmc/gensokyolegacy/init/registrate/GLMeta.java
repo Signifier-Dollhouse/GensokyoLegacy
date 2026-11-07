@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.misc.ChunkMiscDataAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
@@ -79,6 +80,9 @@ public class GLMeta {
 
 	public static final AttVal.CapVal<LevelChunk, ChunkAreaAttachment> CHUNK_EFFECT =
 			ATT.entity("chunk_area", ChunkAreaAttachment.class, ChunkAreaAttachment::new, LevelChunk.class, e -> true);
+
+	public static final AttVal.CapVal<LevelChunk, ChunkMiscDataAttachment> CHUNK_MISC =
+			ATT.entity("chunk_misc", ChunkMiscDataAttachment.class, ChunkMiscDataAttachment::new, LevelChunk.class, e -> true);
 
 	public static final DataMapReg<Block, BedData> BED_DATA =
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);

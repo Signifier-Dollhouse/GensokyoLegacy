@@ -2,7 +2,9 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -26,6 +28,10 @@ public class GLBiomeModifierGen {
 			ctx.register(biomeMod("plain_fairy"), new BiomeModifiers.AddSpawnsBiomeModifier(
 					ctx.lookup(Registries.BIOME).getOrThrow(GLBiomeGen.PLAIN_FAIRY_SPAWN),
 					List.of(new MobSpawnSettings.SpawnerData(GLEntities.PLAIN_FAIRY.get(), 10, 3, 3))
+			));
+			ctx.register(biomeMod("stray_ghost"), new BiomeModifiers.AddSpawnsBiomeModifier(
+					HolderSet.direct(ctx.lookup(Registries.BIOME).getOrThrow(MyourenTempleBarrensBiomeGen.KEY)),
+					List.of(new MobSpawnSettings.SpawnerData(GLEntities.STRAY_GHOST.get(), 10, 1, 1))
 			));
 		});
 	}

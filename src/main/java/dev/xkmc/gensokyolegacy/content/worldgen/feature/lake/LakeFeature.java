@@ -181,7 +181,7 @@ public class LakeFeature extends Feature<LakeConfig> {
 		BlockPos top = surface.above();
 		for (var deco : config.decorations()) {
 			if (deco.target() == LakeConfig.Target.FLOATING) {
-				if (depth >= 2 && level.getBlockState(top).isAir() && rand.nextFloat() < deco.chance())
+				if (depth >= 1 && level.getBlockState(top).isAir() && rand.nextFloat() < deco.chance())
 					setBlock(level, top, deco.block().getState(rand, top));
 			} else if (deco.target() == LakeConfig.Target.SHALLOW && depth == 1) {
 				if (level.getBlockState(surface).is(Blocks.WATER) && level.getBlockState(top).isAir() &&

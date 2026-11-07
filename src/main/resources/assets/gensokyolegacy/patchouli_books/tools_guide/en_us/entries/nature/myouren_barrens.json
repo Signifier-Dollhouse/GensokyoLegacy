@@ -1,0 +1,73 @@
+{
+  "name": "Myouren Temple Barrens",
+  "icon": "gensokyolegacy:gravestone",
+  "category": "gensokyolegacy:nature",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "The Land",
+      "text": "The land around the Myouren Temple. Tower grass grows among golden lotus and wild flowers, lakes are scattered across the wild, and locust trees stand over the graves. The temple's pools still hold their lilies, and wild ghosts drift through the fields."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:gravestone",
+      "title": "Grave Offerings",
+      "text": "A gravestone takes a food offering. The food must be worth at least 5 saturation and carry no harmful effect; it is eaten over five seconds while light circles the stone, and a wild ghost rises above the grave. The container the food leaves behind stays on the gravestone. Taking the offering back stops the ritual, and a gravestone in the same chunk will not summon again until a minute has passed."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:bone_flute",
+      "title": "Bone Flute",
+      "text": "Right-click a stray ghost with at least 200 power to bind it to you; right-click one of your own ghosts to set it free. A bound ghost follows you and slowly spends its power, and below 200 power it leaves on its own."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:minamitsu_anchor",
+        "gensokyolegacy:yuyuko_fan"
+      ],
+      "title": "Spiritual Power",
+      "text": "Some items carry a spiritual power pool, shown as a cyan bar:$(br2)$(l:special_tools/minamitsu_anchor)Minamitsu's Anchor$(/l)$(br)$(l:special_tools/yuyuko_fan)Yuyuko's Fan$(/l)",
+	  "_website_marker": true
+	},
+    {
+      "type": "patchouli:text",
+      "title": "Refilling the Pool",
+      "text": "Kill undead: the experience a kill would drop restores power to the items you carry. Food carrying the Spiritual effect also restores power over time. The last way is to trade experience for power at a Jizo."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:jizo",
+        "gensokyolegacy:jizo_straw_hat",
+        "gensokyolegacy:jizo_myouren",
+        "gensokyolegacy:jizo_narumi"
+      ],
+      "title": "Jizo",
+      "text": "Right-click a Jizo with a spiritual item in hand. It takes one whole experience level and the progress into the next, and returns it as spiritual power: 2 per experience point by default. The four carvings differ only in look."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:golden_lotus",
+      "title": "Golden Lotus",
+      "text": "The temple's flower, growing through three sizes. Only the largest is a double plant, and breaking it yields two. It advances on its own only when planted on farmland, while bone meal can force it on any ground; the large size also needs a free block above. The blooms are a plant ingredient, so a lotus bed is a crop as much as an ornament."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:large_water_lily",
+        "gensokyolegacy:small_water_lily",
+        "gensokyolegacy:tower_grass_small",
+        "gensokyolegacy:tower_grass_large",
+        "gensokyolegacy:spooky_bush",
+        "gensokyolegacy:locust_sapling",
+        "gensokyolegacy:locust_log",
+        "gensokyolegacy:locust_hollow_log"
+      ],
+      "title": "Lilies, Grass and Locust",
+      "text": "Small and large water lilies float on the temple's pools. The large one has seven looks — pad, bud, bloom and seed pod among them — and right-clicking a placed lily cycles through them. Tower grass is harvested for Mystical Straw. Spooky bushes grow among the flowers. The locust, with its sapling, hollow log and fallen leaves, is the tree that grows back over a grave."
+    }
+  ]
+}

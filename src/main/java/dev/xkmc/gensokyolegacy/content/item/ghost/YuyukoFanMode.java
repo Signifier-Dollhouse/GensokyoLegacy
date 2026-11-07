@@ -40,7 +40,19 @@ public enum YuyukoFanMode {
 	}
 
 	/**
-	 * Sub-model id suffix for this mode's icon ({@code item/yuyuko_fan/<name>_icon}).
+	 * Held texture for this mode under {@code item/yuyuko_fan/}: summon and haunt borrow the
+	 * haunting ghost's skin, scatter has its own, absorb keeps the default fan.
+	 */
+	public String textureName() {
+		return switch (this) {
+			case SUMMON, HAUNT -> "haunting";
+			case SCATTER -> "scatter";
+			case ABSORB -> "yuyuko_fan";
+		};
+	}
+
+	/**
+	 * Sub-model id suffix for this mode's selector icon ({@code item/yuyuko_fan/<name>_icon}).
 	 */
 	public String iconName() {
 		return switch (this) {

@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/gravestone",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/gravestone",
+    "particle": "gensokyolegacy:block/deco/gravestone"
+  }
+}

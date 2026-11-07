@@ -63,6 +63,10 @@ public class GLParticles {
 			() -> new SimpleParticleType(false),
 			() -> ParticleSupplier.spriteSet(() -> FallingLeafParticle.Provider::new));
 
+	public static final Val<SimpleParticleType> LOCUST_LEAF = GensokyoLegacy.REGISTRATE.particle("locust_leaf",
+			() -> new SimpleParticleType(false),
+			() -> ParticleSupplier.spriteSet(() -> FallingLeafParticle.Provider::new));
+
 	public static void register() {
 
 	}

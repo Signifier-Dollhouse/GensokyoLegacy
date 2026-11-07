@@ -51,22 +51,22 @@
     "gensokyolegacy:ghost_fire_mushroom_block": {
       "chance": 0.85
     },
-    "gensokyolegacy:golden_lotus_large": {
-      "chance": 0.65
-    },
-    "gensokyolegacy:golden_lotus_medium": {
-      "chance": 0.65
-    },
-    "gensokyolegacy:golden_lotus_small": {
+    "gensokyolegacy:golden_lotus": {
       "chance": 0.65
     },
     "gensokyolegacy:hyphae": {
       "chance": 0.5
     },
+    "gensokyolegacy:locust_fallen_leaves": {
+      "chance": 0.3
+    },
     "gensokyolegacy:locust_leaves": {
       "chance": 0.3
     },
     "gensokyolegacy:locust_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:mixed_fallen_leaves": {
       "chance": 0.3
     },
     "gensokyolegacy:mixed_maple_fallen_leaves": {
@@ -113,6 +113,9 @@
     },
     "gensokyolegacy:red_mushroom_stem": {
       "chance": 0.65
+    },
+    "gensokyolegacy:spooky_bush": {
+      "chance": 0.3
     },
     "gensokyolegacy:star_flower": {
       "chance": 0.65

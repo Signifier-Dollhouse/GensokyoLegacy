@@ -151,12 +151,6 @@ public abstract class AbstractBiomeGen {
 			VegetationPlacements.PATCH_GRASS_PLAIN, VegetationPlacements.FLOWER_MEADOW,
 			VegetationPlacements.TREES_MEADOW);
 
-	protected static final List<ResourceKey<PlacedFeature>> BADLANDS_GROUND = List.of(
-			CavePlacements.GLOW_LICHEN, VegetationPlacements.PATCH_GRASS_BADLANDS,
-			VegetationPlacements.PATCH_DEAD_BUSH_BADLANDS, VegetationPlacements.BROWN_MUSHROOM_NORMAL,
-			VegetationPlacements.RED_MUSHROOM_NORMAL, VegetationPlacements.PATCH_SUGAR_CANE_BADLANDS,
-			VegetationPlacements.PATCH_PUMPKIN, VegetationPlacements.PATCH_CACTUS_DECORATED);
-
 	/** The windswept pair, which the cliff and the foothills both take; the badlands ground is all either of them has. */
 	protected static final List<ResourceKey<PlacedFeature>> CLIFF_GROUND = List.of(
 			CavePlacements.GLOW_LICHEN, VegetationPlacements.TREES_WINDSWEPT_HILLS,

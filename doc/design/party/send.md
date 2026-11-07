@@ -123,7 +123,7 @@ Four things follow from gating at the *pool*:
 | Alice | 0–50, 50–100, 100–400, 400+ | the doll lance, then a doll — she gives up a doll, not the star wand |
 | Morichika | 0–50, 50–100, 100–200, 200+ | his stock, split by what it is: the curios (`strange_glasses`, `cat_bell`, `mermaid_pearl`, `straw_hat`) then the tools (`mini_hakkero_prototype`, `centipickaxe`, `dowser`). He has no belongings of his own, only stock |
 | Suika | 0–50, 50–400, 400+ | her gourd on the top rung; the wide middle rung is nothing but sake, because an oni eats and drinks more than most |
-| Yuyuko | 0–500, 500–2000, 2000+ | her fan on the top rung; a whole evening has to pass 2000 appeal before she parts with it |
+| Yuyuko | 0–500, 500–1000, 1000–2000, 2000+ | her fan on the top rung; a whole evening has to pass 2000 appeal before she parts with it. The ghost dango sits alone on the rung below, where a guest has eaten enough for the sweet but not for the fan |
 | Minamitsu | 0–50, 50–1000, 1000+ | her anchor on the top rung; the wide middle rung is sake and beer, the one thing a ship ghost always shares |
 | *default* | 0–50, 50–100, 100–150 | *(none)* — an unlisted character has nothing that is hers, so her ladder is three generic rungs and stops there |
 

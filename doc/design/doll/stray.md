@@ -99,6 +99,9 @@ not associated with any player.
   `NearestAttackableTargetGoal`: the doll only fights what hit it first, which is what "neutral"
   means here.
 - **Look alive** — `LookAtPlayerGoal(this, Player.class, 8.0F)` and `RandomLookAroundGoal(this)`.
+- **Spear** — if it spawns in the `magical_forest` biome, a 50% roll puts a `doll_lance` in its main
+  hand; the item drops on death like any equipment.
+- **Spiritual reward** — a player kill credit receives `SpiritualEffect.addSpiritual(player, 100)`.
 - **Sound** — none (the dolls are silent); optional idle particles later.
 
 Attributes: `Monster.createMonsterAttributes()` as a convenient builder, then `MAX_HEALTH 20`,
@@ -143,7 +146,7 @@ Use its own `geo/stray_doll.geo.json`, `animations/stray_doll.animation.json` an
   release, command). Strays are rare and must not despawn while the player fetches a flute.
 - **No loot**, no ledger, no item form. Killing one loses its variant.
 - Attributes: `MAX_HEALTH 20`, `MOVEMENT_SPEED 0.25`, `FLYING_SPEED 0.3`, `FOLLOW_RANGE 16`;
-  `MobCategory.MONSTER`, `.sized(0.4F, 0.9F).clientTrackingRange(10)`.
+  `MobCategory.CREATURE`, `.sized(0.4F, 0.9F).clientTrackingRange(10)`.
 
 ### 5.2 Variant data and rendering
 
@@ -496,14 +499,14 @@ is already in an inconsistent state and the reconciliation pass will handle it.
 | constant | name | class | category | extras |
 |---|---|---|---|---|
 | `STRAY_DOLL` | `stray_doll` | `StrayDollEntity` | `MONSTER` | attributes, spawn egg, no loot, carry-on tag, renderer |
-| `STRAY_GHOST` | `stray_ghost` | `StrayGhostEntity` | `MONSTER` | attributes, spawn egg, no loot, carry-on tag, renderer |
+| `STRAY_GHOST` | `stray_ghost` | `StrayGhostEntity` | `CREATURE` | attributes, spawn egg, no loot, carry-on tag, renderer, `ON_GROUND` spawn placement on lit animals-spawnable ground |
 | `GHOST` | `ghost` | `GhostEntity` | `MISC` | `BaseDollEntity` attributes, no spawn egg, no loot table (MISC entities cannot have one), carry-on tag, renderer |
 
 `GhostEntity.TYPE`/`StrayGhostEntity.TYPE` are `GensokyoLegacy.loc(...)` constants used by the flute
 and `DollData`. `GhostEntity.TYPE` is the one `DollData.type` stores.
 
-The stray-ghost egg is not in the brief (which asks for one on the wild doll), but it is added for
-two reasons: the flute has no other target in creative, and no natural spawn exists yet (§12).
+The stray-ghost egg is not in the brief (which asks for one on the wild doll), but it is kept for
+creative use now that the barrens spawn exists (§11).
 
 ### 10.2 `GLItems`, `GLEffects`, `GLLang`
 
@@ -561,15 +564,14 @@ two reasons: the flute has no other target in creative, and no natural spawn exi
 - **Effect refresh while parked** — no entity, no aura; the 3-second tail is the only grace.
 - **Multiple ghosts** — same variant refreshes, different variants stack by kind; the cap still
   limits the total.
-- **Natural spawn** — explicitly out of scope for both wild types. The consequence is that stray
-  ghosts currently come only from the spawn egg or from releasing an owned ghost; the flute has no
-  survival source until a natural-spawn pass adds one.
+- **Natural spawn** — a `stray_ghost` biome modifier adds the ghost to Myouren Temple Barrens, weight
+  10, one at a time, under the same lit animals-spawnable ground rule as the plain fairy. The egg and
+  the flute's release path remain the other sources.
 
 ## 12. Open questions
 
-1. **First ghost acquisition** — with no natural spawn, the bone flute is circular in survival.
-   Decide whether stray ghosts get a natural-spawn pass (and where) later; the spawn egg and the
-   flute's release path are the current sources.
+1. **First ghost acquisition** — the barrens spawn gives the bone flute a survival source; whether
+   the spawn rate is enough for a first bind is still to be playtested.
 2. **Flute recipe** — no recipe is generated yet. Decide between bone + bamboo, bone + stick, or a
    ritual/crafting-gated source.
 3. **Textures/animations** — final art, and whether strays should get a desaturated overlay instead of

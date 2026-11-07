@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -64,16 +65,64 @@ public final class SpiritualPower {
 		return Mth.clamp(Math.round(13.0F * get(stack) / max), 0, 13);
 	}
 
-	public static int addToHeld(Player player, int power) {
-		List<ItemStack> held = new ArrayList<>();
-		for (ItemStack stack : player.getHandSlots()) {
-			if (max(stack) > 0) held.add(stack);
+	/**
+	 * Feeds {@code power} into the spiritual items the player carries, as evenly as the priority
+	 * order allows: main hand, off hand, equipment, hotbar, then the rest of the inventory.
+	 *
+	 * @return the power actually stored
+	 */
+	public static int restore(Player player, int power) {
+		if (power <= 0) return 0;
+		List<ItemStack> targets = carriers(player);
+		if (targets.isEmpty()) return 0;
+		int n = targets.size();
+		int share = power / n;
+		if (share == 0) {
+			int given = add(targets.getFirst(), 1);
+			List<ItemStack> rest = new ArrayList<>(targets.subList(1, n));
+			var random = player.getRandom();
+			for (int i = 0; i < power - 1 && !rest.isEmpty(); i++) {
+				given += add(rest.remove(random.nextInt(rest.size())), 1);
+			}
+			return given;
 		}
-		if (held.isEmpty() || power <= 0) return 0;
-		for (ItemStack stack : held) {
-			power -= add(stack, power);
+		int given = 0;
+		for (ItemStack stack : targets) {
+			given += add(stack, share);
 		}
-		return power;
+		if (given < power) {
+			given += add(targets.getFirst(), power - given);
+			for (int i = 1; i < n && given < power; i++) {
+				given += add(targets.get(i), power - given);
+			}
+		}
+		return given;
+	}
+
+	/**
+	 * The carrier stacks with room left, in the order they are served: hands, equipment, hotbar,
+	 * then inventory.
+	 */
+	private static List<ItemStack> carriers(Player player) {
+		List<ItemStack> ans = new ArrayList<>();
+		collect(ans, player.getMainHandItem());
+		collect(ans, player.getOffhandItem());
+		for (var slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+				EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+			collect(ans, player.getItemBySlot(slot));
+		}
+		for (ItemStack stack : player.getInventory().items) {
+			collect(ans, stack);
+		}
+		return ans;
+	}
+
+	private static void collect(List<ItemStack> list, ItemStack stack) {
+		if (max(stack) <= 0 || get(stack) >= max(stack)) return;
+		for (ItemStack other : list) {
+			if (other == stack) return;
+		}
+		list.add(stack);
 	}
 
 }

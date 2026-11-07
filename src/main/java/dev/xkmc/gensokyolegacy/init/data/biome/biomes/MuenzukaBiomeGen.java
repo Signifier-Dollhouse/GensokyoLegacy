@@ -86,7 +86,7 @@ public class MuenzukaBiomeGen extends AbstractBiomeGen {
 				.add(Blocks.COBBLESTONE, 3).add(Blocks.MOSSY_COBBLESTONE, 2).add(Blocks.CRACKED_STONE_BRICKS, 1).build()));
 		// one marker standing up, where the patch above it is low rubble lying on the ground
 		FeatureUtils.register(ctx, GRAVESTONE, Feature.RANDOM_PATCH, patch(4, 7, 0,
-				new Palette().add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
+				new Palette().add(GLFurniture.GRAVESTONE, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));
 		// the other thing a graveyard leaves standing, scattered the way the markers are
 		FeatureUtils.register(ctx, STONE_LANTERN, Feature.RANDOM_PATCH, patch(4, 7, 0,
 				new Palette().add(GLFurniture.STONE_LANTERN, 1).build(), GLWorldGen.DOUBLE_BLOCK.get()));

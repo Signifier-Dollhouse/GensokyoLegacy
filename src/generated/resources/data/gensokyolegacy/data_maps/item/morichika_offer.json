@@ -1,5 +1,11 @@
 {
   "values": {
+    "gensokyolegacy:bone_flute": {
+      "maxPrice": 18,
+      "maxStock": 1,
+      "minPrice": 12,
+      "minStock": 1
+    },
     "gensokyolegacy:cat_bell": {
       "maxPrice": 12,
       "maxStock": 1,

@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.init.registrate.block;
 
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlock;
@@ -63,7 +62,8 @@ public class GLFurniture {
 	public static final BlockEntry<DelegateBlock> MAGIC_TABLE, SEWING_MACHINE, MAGIC_POTION_BOTTLE, CANDLESTICK;
 
 	public static final BlockEntry<DelegateBlock> JIZO, JIZO_STRAW_HAT, JIZO_MYOUREN, JIZO_NARUMI,
-			WASTELAND_GRAVESTONE_SMALL;
+			GRAVESTONE;
+	public static final BlockEntityEntry<GravestoneBlockEntity> GRAVESTONE_BE;
 
 	static {
 
@@ -344,18 +344,19 @@ public class GLFurniture {
 			JIZO_MYOUREN = registerJizo(reg, "jizo_myouren", JizoBlock.HEAD_TOP_SHAPE);
 			JIZO_NARUMI = registerJizo(reg, "jizo_narumi", JizoBlock.HAT_TOP_SHAPE);
 
-			WASTELAND_GRAVESTONE_SMALL = reg.block("wasteland_gravestone_small", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new WastelandGravestoneBlock(), new DoubleBlockImpl()))
+			GRAVESTONE = reg.block("gravestone", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new GravestoneBlock(), new DoubleBlockImpl(),
+							GravestoneBlockEntity.BE))
 					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
-					.blockstate((ctx, pvd) -> WastelandGravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.blockstate((ctx, pvd) -> GravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(
-									RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, Items.STONE)
-							.pattern("A  ").pattern("A  ").pattern("BCB")
-							.define('A', Items.STONE).define('B', Items.STONE_SLAB).define('C', Items.SOUL_SOIL)
-							.save(pvd))
 					.simpleItem()
-					.loot(WastelandGravestoneBlock::genLoot)
+					.loot(GravestoneBlock::genLoot)
+					.register();
+
+			GRAVESTONE_BE = reg.blockEntity("gravestone", GravestoneBlockEntity::new)
+					.validBlock(GRAVESTONE)
+					.renderer(() -> GravestoneRenderer::new)
 					.register();
 		}
 	}
@@ -376,8 +377,8 @@ public class GLFurniture {
 				.properties(p -> p.mapColor(color).strength(0.5F).sound(SoundType.WOOD).noOcclusion()
 						.lightLevel(s -> 15))
 				.blockstate((ctx, pvd) -> {
-					var normal = buildLanternModel(pvd, ctx.getName(), false);
-					var connected = buildLanternModel(pvd, ctx.getName(), true);
+					var normal = GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), false);
+					var connected = GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), true);
 					var builder = pvd.getVariantBuilder(ctx.get());
 					for (Direction dir : Direction.Plane.HORIZONTAL) {
 						// 文字面在模型北面：north 不旋转，south 180，west 90，east 270
@@ -411,14 +412,6 @@ public class GLFurniture {
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
 				.build()
 				.register();
-	}
-
-	private static ModelFile buildLanternModel(RegistrateBlockstateProvider pvd, String name, boolean connected) {
-		return pvd.models().getBuilder("block/furniture/" + name + (connected ? "_connected" : ""))
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/lantern")))
-				.texture("0", pvd.modLoc("block/furniture/" + name + (connected ? "_connected" : "")))
-				.texture("particle", pvd.modLoc("block/furniture/" + name))
-				.renderType("cutout");
 	}
 
 	public static void register() {

@@ -60,12 +60,10 @@ public class GLClient {
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
-			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"),
-					DaggerGloveItem::displayPredicate);
-			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"),
-					AnchorItem::displayPredicate);
-			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"),
-					YuyukoFanItem::displayPredicate);
+			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"), DaggerGloveItem::displayPredicate);
+			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"), AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_mode"), YuyukoFanItem::modePredicate);
+			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"), YuyukoFanItem::displayPredicate);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);

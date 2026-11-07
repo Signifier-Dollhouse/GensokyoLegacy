@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import dev.xkmc.gensokyolegacy.content.dimension.EmptyChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoChunkGenerator;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.DoubleBlockFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.GoldenLotusFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MudWaterloggedVegetationPatchFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.dripleaf.DripleafScatterConfig;
@@ -17,6 +18,8 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateBlendPr
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateReplaceProcessor;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateStructureFeature;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateStructureProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.*;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
@@ -48,6 +51,8 @@ public class GLWorldGen {
 	private static final SR<StructureProcessorType<?>> PROCESSORS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PROCESSOR);
 	public static final Val<StructureProcessorType<SetDataProcessor>> SET_DATA = PROCESSORS.reg("set_data", () -> () -> SetDataProcessor.CODEC);
 	public static final Val<StructureProcessorType<TemplateBlendProcessor>> TEMPLATE_BLEND = PROCESSORS.reg("template_blend", () -> () -> TemplateBlendProcessor.CODEC);
+	public static final Val<StructureProcessorType<TemplateStructureProcessor>> TEMPLATE_STRUCTURE_PROCESSOR = PROCESSORS.reg(
+			"template_structure", () -> () -> TemplateStructureProcessor.CODEC);
 	public static final Val<StructureProcessorType<TemplateReplaceProcessor>> TEMPLATE_REPLACE = PROCESSORS.reg(
 			"template_replace", () -> () -> TemplateReplaceProcessor.CODEC);
 
@@ -65,9 +70,13 @@ public class GLWorldGen {
 	private static final SR<Feature<?>> FR = SR.of(GensokyoLegacy.REG, BuiltInRegistries.FEATURE);
 	public static final Map<MushroomFeatures.MushroomTreeType, Val<AbstractHugeMushroomFeature>> MUSHROOM_TREES;
 	public static final Val<TemplateFeature> TEMPLATE = FR.reg("template", () -> new TemplateFeature(TemplateFeatureConfig.CODEC));
+	public static final Val<TemplateStructureFeature> TEMPLATE_STRUCTURE = FR.reg("template_structure",
+			() -> new TemplateStructureFeature(TemplateFeatureConfig.CODEC));
 	public static final Val<LakeFeature> LAKE = FR.reg("lake", () -> new LakeFeature(LakeConfig.CODEC));
 	public static final Val<DoubleBlockFeature> DOUBLE_BLOCK =
 			FR.reg("double_block", () -> new DoubleBlockFeature(SimpleBlockConfiguration.CODEC));
+	public static final Val<GoldenLotusFeature> GOLDEN_LOTUS =
+			FR.reg("golden_lotus", () -> new GoldenLotusFeature(SimpleBlockConfiguration.CODEC));
 	public static final Val<MudWaterloggedVegetationPatchFeature> MUD_WATERLOGGED_VEGETATION_PATCH =
 			FR.reg("mud_waterlogged_vegetation_patch", () -> new MudWaterloggedVegetationPatchFeature(VegetationPatchConfiguration.CODEC));
 	public static final Val<StairPoolFeature> STAIR_POOL =
