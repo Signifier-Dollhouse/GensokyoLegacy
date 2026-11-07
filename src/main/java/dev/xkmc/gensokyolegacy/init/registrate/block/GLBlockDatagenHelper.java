@@ -6,20 +6,36 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+
+import java.util.List;
 
 public class GLBlockDatagenHelper {
 	public static BlockEntry<SimpleBushBlock> regTowerGrass(L2Registrate reg, String size) {
@@ -30,7 +46,7 @@ public class GLBlockDatagenHelper {
 						.withExistingParent(ctx.getName(), pvd.modLoc("custom/nature/tower_grass"))
 						.texture("1", pvd.modLoc("block/nature/" + ctx.getName()))
 						.texture("particle", pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
-				.loot(RegistrateBlockLootTables::dropSelf)
+				.loot(GLBlockDatagenHelper::towerGrassLoot)
 				.item()
 				.model((ctx, pvd) -> {
 					var base = pvd.nested().parent(new ModelFile.UncheckedModelFile(
@@ -44,6 +60,20 @@ public class GLBlockDatagenHelper {
 				})
 				.build()
 				.register();
+	}
+
+	private static void towerGrassLoot(RegistrateBlockLootTables tb, Block block) {
+		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
+				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
+						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
+								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
+										tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
+										MinMaxBounds.Ints.atLeast(1)))))));
+		tb.add(block, LootTable.lootTable()
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
+						.add(LootItem.lootTableItem(block)))
+				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk.invert())
+						.add(LootItem.lootTableItem(GLItems.MYSTICAL_STRAW.get()))));
 	}
 
 	/**
