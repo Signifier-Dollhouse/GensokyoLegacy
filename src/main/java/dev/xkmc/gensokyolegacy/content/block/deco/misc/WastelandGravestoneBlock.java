@@ -14,10 +14,10 @@ import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -87,6 +87,10 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 		if (state.getValue(HALF) != Half.BOTTOM ||
 				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		// An offering already on the grave (including during the ritual) must reach useWithoutItem,
+		// which is the only way to take it back and halt the summon.
+		if (be.busy() || !be.stack.isEmpty())
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if (!isFood(stack)) {
 			tell(player, GLLang.Gravestone.PLACE_FOOD);
 			return ItemInteractionResult.SUCCESS;
@@ -95,8 +99,6 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 			tell(player, GLLang.Gravestone.NOT_OFFERING);
 			return ItemInteractionResult.SUCCESS;
 		}
-		if (be.busy() || !be.stack.isEmpty())
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if (level instanceof ServerLevel sl && !WastelandGravestoneBlockEntity.canSummon(sl, pos)) {
 			tell(player, GLLang.Gravestone.SUMMON_COOLDOWN);
 			return ItemInteractionResult.SUCCESS;
@@ -127,7 +129,7 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 	}
 
 	private static void tell(Player player, GLLang.LangEntry msg) {
-		if (player instanceof ServerPlayer sp) sp.sendSystemMessage(msg.get());
+		if (player instanceof ServerPlayer sp) sp.sendSystemMessage(msg.get(), true);
 	}
 
 	private static boolean isFood(ItemStack stack) {
