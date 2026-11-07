@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
@@ -15,6 +16,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -81,9 +84,23 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 
 	@Override
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if (state.getValue(HALF) != Half.BOTTOM || !isFood(stack) ||
-				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be) || !be.stack.isEmpty() || be.busy())
+		if (state.getValue(HALF) != Half.BOTTOM ||
+				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if (!isFood(stack)) {
+			tell(player, GLLang.Gravestone.PLACE_FOOD);
+			return ItemInteractionResult.SUCCESS;
+		}
+		if (!WastelandGravestoneBlockEntity.isOffering(stack.getFoodProperties(player))) {
+			tell(player, GLLang.Gravestone.NOT_OFFERING);
+			return ItemInteractionResult.SUCCESS;
+		}
+		if (be.busy() || !be.stack.isEmpty())
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if (level instanceof ServerLevel sl && !WastelandGravestoneBlockEntity.canSummon(sl, pos)) {
+			tell(player, GLLang.Gravestone.SUMMON_COOLDOWN);
+			return ItemInteractionResult.SUCCESS;
+		}
 		if (!level.isClientSide) {
 			be.stack = stack.copyWithCount(1);
 			stack.shrink(1);
@@ -96,13 +113,21 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 	@Override
 	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (state.getValue(HALF) != Half.BOTTOM || !player.getMainHandItem().isEmpty() ||
-				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be) || be.stack.isEmpty() || be.busy())
+				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be))
 			return InteractionResult.PASS;
+		if (be.stack.isEmpty()) {
+			tell(player, GLLang.Gravestone.PLACE_FOOD);
+			return InteractionResult.SUCCESS;
+		}
 		if (!level.isClientSide) {
 			be.take(player);
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5F, 0.8F);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	private static void tell(Player player, GLLang.LangEntry msg) {
+		if (player instanceof ServerPlayer sp) sp.sendSystemMessage(msg.get());
 	}
 
 	private static boolean isFood(ItemStack stack) {

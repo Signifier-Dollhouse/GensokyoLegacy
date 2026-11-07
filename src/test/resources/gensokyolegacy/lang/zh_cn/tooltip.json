@@ -219,6 +219,11 @@
 			"full": "该物品的灵力已满",
 			"restored": "地藏恢复了 %s 点灵力"
 		},
+		"gravestone": {
+			"not_offering": "这似乎不适合作为供品",
+			"summon_cooldown": "这附近似乎没有足够的灵气",
+			"place_food": "放置食物作为供品以召唤幽灵"
+		},
 		"yuyuko_fan": {
 			"mode_summon": "召唤 / 补充",
 			"mode_absorb": "全部吸收",

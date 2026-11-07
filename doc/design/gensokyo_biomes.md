@@ -75,8 +75,8 @@ Two consequences, both load-bearing:
 
 Climate, colours and features are all spelled out per biome, because a copy of `minecraft:forest` that keeps
 `minecraft:forest`'s sky colour is not a Muenzuka. **Spawns are empty in every biome**: natural spawning in Gensokyo
-belongs to the mod's own entities, added by the `plain_fairy` biome modifier, not to a vanilla spawn table copied in
-beside them.
+belongs to the mod's own entities, added by the `plain_fairy` and `stray_ghost` biome modifiers, not to a vanilla
+spawn table copied in beside them.
 
 | biome | features after | why |
 |---|---|---|

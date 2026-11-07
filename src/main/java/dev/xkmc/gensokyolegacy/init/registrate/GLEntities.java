@@ -54,6 +54,7 @@ import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.EntityLootGen;
+import dev.xkmc.gensokyolegacy.util.MobSpawnRules;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.MobCategory;
@@ -234,12 +235,15 @@ public class GLEntities {
 					.register();
 
 			STRAY_GHOST = GensokyoLegacy.REGISTRATE
-					.entity("stray_ghost", StrayGhostEntity::new, MobCategory.MONSTER)
+					.entity("stray_ghost", StrayGhostEntity::new, MobCategory.CREATURE)
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(StrayGhostEntity::createAttributes)
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.loot(EntityLootGen::noLoot)
 					.spawnEgg(0xBFD8E6, 0x5A7D8C).build()
+					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::onLitAnimalGround,
+							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.renderer(() -> StrayGhostRenderer::new)
 					.register();
 

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
+import dev.xkmc.gensokyolegacy.content.attachment.misc.ChunkMiscDataAttachment;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
@@ -16,6 +17,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -36,7 +39,13 @@ public class WastelandGravestoneBlockEntity extends PlateBlockEntity implements 
 	/**
 	 * Five seconds of end rod while the offering is consumed.
 	 */
-	public static final int RITUAL_TICKS = 100;
+	public static final int RITUAL_TICKS = ChunkMiscDataAttachment.SUMMON_LOCK;
+
+	/**
+	 * The hidden saturation the offering must be worth: nutrition x modifier x 2, the value the
+	 * hunger bar restores.
+	 */
+	public static final float MIN_SATURATION = 5;
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<WastelandGravestoneBlockEntity>(
 			GLFurniture.WASTELAND_GRAVESTONE_BE, WastelandGravestoneBlockEntity.class) {
@@ -57,14 +66,53 @@ public class WastelandGravestoneBlockEntity extends PlateBlockEntity implements 
 		return ritual > 0;
 	}
 
+	/**
+	 * A worthy offering is worth at least {@link #MIN_SATURATION} saturation and carries no
+	 * harmful effect.
+	 */
+	public static boolean isOffering(@Nullable FoodProperties props) {
+		if (props == null || props.nutrition() * props.saturation() * 2 < MIN_SATURATION) return false;
+		for (FoodProperties.PossibleEffect effect : props.effects()) {
+			var holder = effect.effect().getEffect();
+			if (holder != null && holder.value().getCategory() == MobEffectCategory.HARMFUL) return false;
+		}
+		return true;
+	}
+
 	public void startRitual() {
 		ritual = RITUAL_TICKS;
+		if (level instanceof ServerLevel sl)
+			ChunkMiscDataAttachment.of(sl.getChunkAt(getBlockPos())).startSummon(sl.getGameTime());
+		notifyTile();
+	}
+
+	public static boolean canSummon(ServerLevel level, BlockPos pos) {
+		return ChunkMiscDataAttachment.of(level.getChunkAt(pos)).canSummon(level.getGameTime());
+	}
+
+	/**
+	 * Taking the offering back during the ritual halts it; the chunk keeps only the start lock.
+	 */
+	@Override
+	public void take(Player player) {
+		// super.take syncs the tile, so the halted ritual reaches the client with the empty stack
+		ritual = 0;
+		super.take(player);
+	}
+
+	private void halt() {
+		if (ritual <= 0) return;
+		ritual = 0;
 		notifyTile();
 	}
 
 	@Override
 	public void tick() {
 		if (ritual <= 0 || level == null) return;
+		if (stack.isEmpty()) {
+			halt();
+			return;
+		}
 		if (level.isClientSide) {
 			ritual--;
 			spawnParticle();
@@ -107,6 +155,7 @@ public class WastelandGravestoneBlockEntity extends PlateBlockEntity implements 
 		ghost.setPower(GhostPowerHolder.wildPower(level.getRandom()));
 		ghost.setPersistenceRequired();
 		level.addFreshEntity(ghost);
+		ChunkMiscDataAttachment.of(level.getChunkAt(pos)).finishSummon(level.getGameTime());
 		level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5, pos.getY() + 1.0,
 				pos.getZ() + 0.5, 24, 0.4, 0.6, 0.4, 0.02);
 	}
