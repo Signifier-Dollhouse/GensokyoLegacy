@@ -1,9 +1,9 @@
 {
-  "feature": "gensokyolegacy:gensokyo_biome/barrens_jizo",
+  "feature": "gensokyolegacy:gensokyo_biome/barrens_tomb",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
-      "chance": 20
+      "chance": 12
     },
     {
       "type": "minecraft:in_square"

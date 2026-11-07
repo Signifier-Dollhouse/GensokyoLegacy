@@ -23,6 +23,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import javax.annotation.Nullable;
@@ -83,7 +84,7 @@ public class TemplateFeature extends Feature<TemplateFeatureConfig> {
 				.setLiquidSettings(LiquidSettings.IGNORE_WATERLOGGING)
 				// template states are self-consistent; skipping shape updates also avoids a tick per leaf
 				.setKnownShape(true)
-				.addProcessor(new TemplateBlendProcessor(config.rootDepth()));
+				.addProcessor(createProcessor(config));
 		config.processors().value().list().forEach(settings::addProcessor);
 		if (level instanceof WorldGenRegion region) {
 			ChunkPos center = region.getCenter();
@@ -96,6 +97,13 @@ public class TemplateFeature extends Feature<TemplateFeatureConfig> {
 			post.value().place(level, ctx.chunkGenerator(), random, base);
 		}
 		return true;
+	}
+
+	/**
+	 * The built-in blend rule, replaced by a subclass for templates that are not vegetation.
+	 */
+	protected StructureProcessor createProcessor(TemplateFeatureConfig config) {
+		return new TemplateBlendProcessor(config.rootDepth());
 	}
 
 	/**

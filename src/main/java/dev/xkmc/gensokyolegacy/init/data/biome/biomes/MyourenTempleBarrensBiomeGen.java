@@ -3,10 +3,11 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 import dev.xkmc.gensokyolegacy.content.block.nature.GoldenLotusBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
@@ -14,7 +15,9 @@ import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
@@ -22,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.List;
@@ -31,8 +33,8 @@ import java.util.List;
  * The cold dry cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the scrubby barrens
  * the temple sits in, with a little extra gold in it.
  * <p>
- * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, a row of the
- * four jizo in every chunk, and a small wasteland gravestone every third. A temple does not leave its grounds tidy.
+ * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, and one of
+ * three hand-built tombs every dozen chunks. A temple does not leave its grounds tidy.
  * <p>
  * The pools are the one thing the dry waste has that the badlands base does not: a temple keeps its water, and the
  * lilies in it are the mod's own.
@@ -45,10 +47,8 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> BARRENS_SCRUB = cf("barrens_scrub");
 	private static final ResourceKey<PlacedFeature> BARRENS_SCRUB_PF = pf("barrens_scrub");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> GRAVESTONE = cf("barrens_gravestone");
-	private static final ResourceKey<PlacedFeature> GRAVESTONE_PF = pf("barrens_gravestone");
-	private static final ResourceKey<ConfiguredFeature<?, ?>> JIZO = cf("barrens_jizo");
-	private static final ResourceKey<PlacedFeature> JIZO_PF = pf("barrens_jizo");
+	private static final ResourceKey<ConfiguredFeature<?, ?>> TOMB = cf("barrens_tomb");
+	private static final ResourceKey<PlacedFeature> TOMB_PF = pf("barrens_tomb");
 	private static final ResourceKey<PlacedFeature> LOCUST_TREES_PF = pf("barrens_locust_trees");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> GOLDEN_LOTUS = cf("barrens_golden_lotus");
 	private static final ResourceKey<PlacedFeature> GOLDEN_LOTUS_PF = pf("barrens_golden_lotus");
@@ -79,7 +79,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 								VegetationPlacements.BROWN_MUSHROOM_NORMAL,
 								VegetationPlacements.RED_MUSHROOM_NORMAL,
 								GOLDEN_LOTUS_PF, BARRENS_SCRUB_PF,
-								JIZO_PF, GRAVESTONE_PF))
+								TOMB_PF))
 						.topLayer(FREEZE_TOP_LAYER), null);
 	}
 
@@ -101,17 +101,13 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 						.add(lotus.setValue(GoldenLotusBlock.SIZE, 1), 40)
 						.add(lotus.setValue(GoldenLotusBlock.SIZE, GoldenLotusBlock.LARGE), 20).build(),
 				GLWorldGen.GOLDEN_LOTUS.get()));
-		// one marker standing up, left out here as it is on the valley floor
-		FeatureUtils.register(ctx, GRAVESTONE, GLWorldGen.DOUBLE_BLOCK.get(), new SimpleBlockConfiguration(new Palette()
-				.add(GLFurniture.WASTELAND_GRAVESTONE_SMALL, 1)
-				.add(GLFurniture.STONE_LANTERN, 1)
-				.build()));
-		// all four colourways in one patch, so a clump of them is a row of a village rather than four of one kind
-		FeatureUtils.register(ctx, JIZO, GLWorldGen.DOUBLE_BLOCK.get(), new SimpleBlockConfiguration(new Palette()
-				.add(GLFurniture.JIZO, 1)
-				.add(GLFurniture.JIZO_MYOUREN, 1)
-				.add(GLFurniture.JIZO_NARUMI, 1)
-				.add(GLFurniture.JIZO_STRAW_HAT, 1).build()));
+		// three hand-built tomb plots: a grave, its lanterns and the offerings left on it
+		var tombs = SimpleWeightedRandomList.<ResourceLocation>builder();
+		for (int i = 1; i <= 3; i++) {
+			tombs.add(GensokyoLegacy.loc("myouren_temple/tomb_0" + i), 1);
+		}
+		FeatureUtils.register(ctx, TOMB, GLWorldGen.TEMPLATE_STRUCTURE.get(), new TemplateFeatureConfig(
+				tombs.build(), TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT, 2, 0, 0, 0, List.of()));
 		// the pool: a small one dug into the waste, with the mod's lilies on it
 		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.SURFACE, 0,
@@ -127,8 +123,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(4));
 		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS), CountPlacement.of(2));
-		reg.floor(JIZO_PF, reg.feature(JIZO), RarityFilter.onAverageOnceEvery(20));
-		reg.floor(GRAVESTONE_PF, reg.feature(GRAVESTONE), RarityFilter.onAverageOnceEvery(20));
+		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
 		reg.placed(LAKE_PF, reg.feature(LAKE), RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(),
 				HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES),

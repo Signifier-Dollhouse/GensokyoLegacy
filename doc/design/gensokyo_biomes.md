@@ -362,9 +362,7 @@ plants, and the patch the Misty Lake and the ravine lay down grow the same plant
 | `barrens_scrub` | 3 patches | barrens |
 | `barrens_golden_lotus` | 1 patch, 12 tries, small 40 % / mid 40 % / large 20 % | barrens |
 | `barrens_tower_grass` | 1 patch, 16 tries, small 50 % / large 50 % | barrens |
-| `barrens_gravestone` | 4 tries in 1 patch per chunk, on the floor | barrens |
-| `barrens_stone_lantern` | 4 tries in 1 patch per chunk, on the floor | barrens |
-| `barrens_jizo` | 24 tries in 1 patch, all four kinds, on the floor | barrens |
+| `barrens_tomb` | 1 in 12 chunks, one of three hand-built NBT plots, on the floor | barrens |
 | `barrens_locust_trees` | 6 trees | barrens |
 | `barrens_lake` | 1 in 16 chunks, a pool with the mod's lilies on it | barrens |
 | `hill_of_the_nameless_flowers` | 7 patches | hill of the nameless |
@@ -552,16 +550,23 @@ than by vanilla's own `simple_block`: they are `DoubleBlockImpl` delegates occup
 writes only the bottom half. A top half with nothing under it passes the placement predicate and then drops off on the
 first neighbour update, so the feature writes both halves itself.
 
+The barrens' tomb is not a patch at all. It is a hand-built NBT plot placed by `gensokyolegacy:template_structure`, the
+structure-side twin of the magical forest's `template` feature: same terrain checks and random rotation, but the blocks
+are placed as authored instead of being blended into vegetation. The three `myouren_temple/tomb_0*` templates carry a
+grave, its lanterns and the offerings left on it; the plot needs flat dirt (`max_slope` 0) and replaces the grass and
+flowers inside its footprint rather than being refused by them.
+
 `barrens_golden_lotus` is drawn by a feature of its own, `gensokyolegacy:golden_lotus`. The lotus grows through three
 sizes as one block and only the large size is a double plant, with halves named `part` rather than `half`, so
 `double_block` cannot place it. The patch weights the sizes 40 / 40 / 20 and the feature writes both halves when the
 drawn size is large.
 
-They are the only patches in the tail placed by `Registrar.floor(...)` rather than `cover(...)`, and that one word is
-the whole of why they work. Everything else decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts
-leaves** — a locust canopy six blocks up *is* the surface of its column by the time the tail runs, so a deco placed
-with it lands on the roof of the tree. `floor` uses `MOTION_BLOCKING_NO_LEAVES` instead, which returns the ground the
-surface rule actually laid down, and the jizo then stand on the floor whether or not a tree is over them.
+The standing decos and the tomb are the only features in the tail placed by `Registrar.floor(...)` rather than
+`cover(...)`, and that one word is the whole of why they work. Everything else decorates with
+`HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts leaves** — a locust canopy six blocks up *is* the surface of its
+column by the time the tail runs, so a deco placed with it lands on the roof of the tree. `floor` uses
+`MOTION_BLOCKING_NO_LEAVES` instead, which returns the ground the surface rule actually laid down, and the jizo and the
+tomb then sit on the floor whether or not a tree is over them.
 
 The difference is not cosmetic. Under `cover` the decos were also *invisible under canopy*: the only defence against
 landing on the roof was that leaves are not in `BlockTags.DIRT`, so the predicate refused the try — which also meant
@@ -583,13 +588,11 @@ offset as `nextInt(y_spread + 1) - nextInt(y_spread + 1)`, so at the vanilla 3 o
 the terrain surface at all and the rest are spent where the block below is not the one the heightmap promised. That is
 affordable in a patch of 24 grass and not in a patch of four gravestones, which is why `patch(...)` names the spread.
 
-| placed feature | patches | tries | placement |
+| placed feature | count | content | placement |
 |---|---|---|---|
-| `barrens_jizo` | 1 per chunk | 24, all four kinds | `floor` |
-| `barrens_gravestone` | 1 per chunk | 4 | `floor` |
-| `barrens_stone_lantern` | 1 per chunk | 4 | `floor` |
-| `gravestone` (muenzuka) | 1 per chunk | 4 | `floor` |
-| `stone_lantern` (muenzuka) | 1 per chunk | 4 | `floor` |
+| `barrens_tomb` | 1 in 12 chunks | one of three hand-built NBT plots | `floor` |
+| `gravestone` (muenzuka) | 1 per chunk | 4 tries | `floor` |
+| `stone_lantern` (muenzuka) | 1 per chunk | 4 tries | `floor` |
 
 Tries are the whole of a patch's density, so a feature is only as common as it is set to be. An earlier gravestone of
 **two** tries behind a `RarityFilter(3)` — two thirds of a try per chunk against the jizo's 24 — was thirty-six times
@@ -600,11 +603,11 @@ When that does not settle it, the command does, placing the feature under the pl
 rarity filter or `BiomeFilter` in the way:
 
 ```
-/place feature gensokyolegacy:gensokyo_biome/barrens_jizo ~ ~ ~
+/place feature gensokyolegacy:gensokyo_biome/barrens_tomb ~ ~ ~
 ```
 
-Jizo appearing means the feature is sound and the problem is the predicate or the density; nothing appearing means
-`DoubleBlockFeature` itself is wrong. `/place feature` is the first thing to reach for and the density is the last
+A tomb appearing means the feature is sound and the problem is the predicate or the density; nothing appearing means
+the template feature itself is wrong. `/place feature` is the first thing to reach for and the density is the last
 thing to change.
 
 ### Deliberately not done

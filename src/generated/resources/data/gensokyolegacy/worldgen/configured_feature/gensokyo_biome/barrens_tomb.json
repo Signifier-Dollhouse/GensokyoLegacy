@@ -1,0 +1,23 @@
+{
+  "type": "gensokyolegacy:template_structure",
+  "config": {
+    "footprint_radius": 2,
+    "ground": "#minecraft:dirt",
+    "max_slope": 0,
+    "root_depth": 0,
+    "templates": [
+      {
+        "data": "gensokyolegacy:myouren_temple/tomb_01",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:myouren_temple/tomb_02",
+        "weight": 1
+      },
+      {
+        "data": "gensokyolegacy:myouren_temple/tomb_03",
+        "weight": 1
+      }
+    ]
+  }
+}
