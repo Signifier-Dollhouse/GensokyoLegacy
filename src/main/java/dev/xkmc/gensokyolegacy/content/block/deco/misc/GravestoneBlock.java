@@ -40,10 +40,10 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 荒原小墓碑。底下整格是石台,北边横一道矮木栏,石板立在南边;下半格还能摆一份食物。
+ * 墓碑。底下整格是石台,北边横一道矮木栏,石板立在南边;下半格还能摆一份食物。
  * 模型高过 y16,所以摆两格:下半格画整个模型,上半格不画东西,两半靠 {@code DoubleBlockImpl} 绑在一起。
  */
-public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod,
+public class GravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod,
 		UseItemOnBlockMethod, UseWithoutItemBlockMethod {
 
 	/**
@@ -85,7 +85,7 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 	@Override
 	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (state.getValue(HALF) != Half.BOTTOM ||
-				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be))
+				!(level.getBlockEntity(pos) instanceof GravestoneBlockEntity be))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		// An offering already on the grave (including during the ritual) must reach useWithoutItem,
 		// which is the only way to take it back and halt the summon.
@@ -95,11 +95,11 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 			tell(player, GLLang.Gravestone.PLACE_FOOD);
 			return ItemInteractionResult.SUCCESS;
 		}
-		if (!WastelandGravestoneBlockEntity.isOffering(stack.getFoodProperties(player))) {
+		if (!GravestoneBlockEntity.isOffering(stack.getFoodProperties(player))) {
 			tell(player, GLLang.Gravestone.NOT_OFFERING);
 			return ItemInteractionResult.SUCCESS;
 		}
-		if (level instanceof ServerLevel sl && !WastelandGravestoneBlockEntity.canSummon(sl, pos)) {
+		if (level instanceof ServerLevel sl && !GravestoneBlockEntity.canSummon(sl, pos)) {
 			tell(player, GLLang.Gravestone.SUMMON_COOLDOWN);
 			return ItemInteractionResult.SUCCESS;
 		}
@@ -115,7 +115,7 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 	@Override
 	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (state.getValue(HALF) != Half.BOTTOM || !player.getMainHandItem().isEmpty() ||
-				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be))
+				!(level.getBlockEntity(pos) instanceof GravestoneBlockEntity be))
 			return InteractionResult.PASS;
 		if (be.stack.isEmpty()) {
 			tell(player, GLLang.Gravestone.PLACE_FOOD);
@@ -138,7 +138,7 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name) {
 		var whole = pvd.models().getBuilder("block/" + name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/wasteland_gravestone")))
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/gravestone")))
 				.texture("all", pvd.modLoc("block/deco/" + name))
 				.texture("particle", pvd.modLoc("block/deco/" + name))
 				.renderType("cutout");

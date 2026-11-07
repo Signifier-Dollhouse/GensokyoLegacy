@@ -62,8 +62,8 @@ public class GLFurniture {
 	public static final BlockEntry<DelegateBlock> MAGIC_TABLE, SEWING_MACHINE, MAGIC_POTION_BOTTLE, CANDLESTICK;
 
 	public static final BlockEntry<DelegateBlock> JIZO, JIZO_STRAW_HAT, JIZO_MYOUREN, JIZO_NARUMI,
-			WASTELAND_GRAVESTONE_SMALL;
-	public static final BlockEntityEntry<WastelandGravestoneBlockEntity> WASTELAND_GRAVESTONE_BE;
+			GRAVESTONE;
+	public static final BlockEntityEntry<GravestoneBlockEntity> GRAVESTONE_BE;
 
 	static {
 
@@ -344,19 +344,19 @@ public class GLFurniture {
 			JIZO_MYOUREN = registerJizo(reg, "jizo_myouren", JizoBlock.HEAD_TOP_SHAPE);
 			JIZO_NARUMI = registerJizo(reg, "jizo_narumi", JizoBlock.HAT_TOP_SHAPE);
 
-			WASTELAND_GRAVESTONE_SMALL = reg.block("wasteland_gravestone_small", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new WastelandGravestoneBlock(), new DoubleBlockImpl(),
-							WastelandGravestoneBlockEntity.BE))
+			GRAVESTONE = reg.block("gravestone", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new GravestoneBlock(), new DoubleBlockImpl(),
+							GravestoneBlockEntity.BE))
 					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
-					.blockstate((ctx, pvd) -> WastelandGravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+					.blockstate((ctx, pvd) -> GravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.simpleItem()
-					.loot(WastelandGravestoneBlock::genLoot)
+					.loot(GravestoneBlock::genLoot)
 					.register();
 
-			WASTELAND_GRAVESTONE_BE = reg.blockEntity("wasteland_gravestone_small", WastelandGravestoneBlockEntity::new)
-					.validBlock(WASTELAND_GRAVESTONE_SMALL)
-					.renderer(() -> WastelandGravestoneRenderer::new)
+			GRAVESTONE_BE = reg.blockEntity("gravestone", GravestoneBlockEntity::new)
+					.validBlock(GRAVESTONE)
+					.renderer(() -> GravestoneRenderer::new)
 					.register();
 		}
 	}

@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * @see "doc/design/gravestone.md"
  */
 @SerialClass
-public class WastelandGravestoneBlockEntity extends PlateBlockEntity implements TickableBlockEntity {
+public class GravestoneBlockEntity extends PlateBlockEntity implements TickableBlockEntity {
 
 	/**
 	 * Five seconds of end rod while the offering is consumed.
@@ -47,18 +47,18 @@ public class WastelandGravestoneBlockEntity extends PlateBlockEntity implements 
 	 */
 	public static final float MIN_SATURATION = 5;
 
-	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<WastelandGravestoneBlockEntity>(
-			GLFurniture.WASTELAND_GRAVESTONE_BE, WastelandGravestoneBlockEntity.class) {
+	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<GravestoneBlockEntity>(
+			GLFurniture.GRAVESTONE_BE, GravestoneBlockEntity.class) {
 		@Override
-		public @Nullable WastelandGravestoneBlockEntity createTileEntity(BlockPos pos, BlockState state) {
-			return state.getValue(WastelandGravestoneBlock.HALF) == Half.TOP ? null : super.createTileEntity(pos, state);
+		public @Nullable GravestoneBlockEntity createTileEntity(BlockPos pos, BlockState state) {
+			return state.getValue(GravestoneBlock.HALF) == Half.TOP ? null : super.createTileEntity(pos, state);
 		}
 	};
 
 	@SerialField
 	private int ritual;
 
-	public WastelandGravestoneBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+	public GravestoneBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 

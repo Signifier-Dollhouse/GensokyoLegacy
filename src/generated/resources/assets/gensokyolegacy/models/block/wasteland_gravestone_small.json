@@ -1,8 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/deco/wasteland_gravestone",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "all": "gensokyolegacy:block/deco/wasteland_gravestone_small",
-    "particle": "gensokyolegacy:block/deco/wasteland_gravestone_small"
-  }
-}

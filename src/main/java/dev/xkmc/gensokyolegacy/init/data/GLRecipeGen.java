@@ -418,7 +418,7 @@ public class GLRecipeGen {
 	}
 
 	private static void myouren(RegistrateRecipeProvider pvd) {
-		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.WASTELAND_GRAVESTONE_SMALL)::unlockedBy, Items.STONE)
+		GLRecipeGen.unlock(pvd, ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, GLFurniture.GRAVESTONE)::unlockedBy, Items.STONE)
 				.pattern(" A ").pattern(" A ").pattern("BCB")
 				.define('A', Items.STONE)
 				.define('B', Items.STONE_SLAB)

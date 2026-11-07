@@ -2,7 +2,7 @@
   "name": "妖精",
   "icon": "gensokyolegacy:fairy_cake",
   "category": "gensokyolegacy:nature",
-  "sortnum": 2,
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:spotlight",

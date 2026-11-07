@@ -1,0 +1,73 @@
+{
+  "name": "圣辇之地",
+  "icon": "gensokyolegacy:gravestone",
+  "category": "gensokyolegacy:nature",
+  "advancement": "gensokyolegacy:main/welcome",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "这片土地",
+      "text": "命莲寺外的土地。塔禾在地涌金莲与野花间生长，旷野里还散布着湖泊。槐树立在坟茔之上，寺里的水塘仍养着睡莲，田野间游荡着野生的幽灵。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:gravestone",
+      "title": "坟前供品",
+      "text": "墓碑可以放一份食物作为供品。供品至少要有 5 点饱和度，且不能带有害效果；它会在五秒内被吃掉，光在碑上盘旋，随后一只野生幽灵从坟头升起。食物留下的容器会留在墓碑上。把供品取回就会中止仪式。同一区块的墓碑要等一分钟才能再次召唤。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:bone_flute",
+      "title": "骨笛",
+      "text": "右键力量不低于 200 的流浪幽灵，即可将它绑在身边；右键自己的幽灵则将其放归。被绑定的幽灵会跟随你，同时缓慢消耗力量，低于 200 点便会自行离开。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:minamitsu_anchor",
+        "gensokyolegacy:yuyuko_fan"
+      ],
+      "title": "灵力",
+      "text": "有些物品自带灵力池，以一道青色耐久条显示：$(br2)$(l:special_tools/minamitsu_anchor)村纱水蜜的锚$(/l)$(br)$(l:special_tools/yuyuko_fan)幽幽子的扇子$(/l)",
+	  "_website_marker": true
+    },
+    {
+      "type": "patchouli:text",
+      "title": "回充灵力",
+      "text": "击杀亡灵：根据会掉落的经验同时给物品补充灵力。带有「气质」效果的食物也会随时间补充灵力。最后一种办法，是拿经验去地藏那里换。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:jizo",
+        "gensokyolegacy:jizo_straw_hat",
+        "gensokyolegacy:jizo_myouren",
+        "gensokyolegacy:jizo_narumi"
+      ],
+      "title": "地藏",
+      "text": "手持带有灵力池的物品右键地藏。它会收走一整级经验及当前进度，按每点经验 2 点灵力（默认值）换算成灵力。四种造像只是外观不同。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:golden_lotus",
+      "title": "地涌金莲",
+      "text": "命莲寺的花，会经历三个大小。只有最大的一档是双格植物，破坏时掉落两朵。种在耕地上时才会自行生长，骨粉则能在任何能存活的地面上催熟；长到最大还需要上方留出一格。花可作植物材料，所以一片金莲既是景致，也是作物。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:large_water_lily",
+        "gensokyolegacy:small_water_lily",
+        "gensokyolegacy:tower_grass_small",
+        "gensokyolegacy:tower_grass_large",
+        "gensokyolegacy:spooky_bush",
+        "gensokyolegacy:locust_sapling",
+        "gensokyolegacy:locust_log",
+        "gensokyolegacy:locust_hollow_log"
+      ],
+      "title": "睡莲、塔禾与槐树",
+      "text": "大大小小的睡莲浮在寺里的水塘上。大睡莲有七种姿态——浮叶、花苞、盛放、莲蓬都在其中——右键已放置的睡莲可以依次切换。塔禾能收获魔法干草。阴森灌木长在花丛间。槐树——连同树苗、树洞原木和落叶——是会从坟头重新长起来的那棵树。"
+    }
+  ]
+}
