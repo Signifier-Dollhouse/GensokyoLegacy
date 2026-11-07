@@ -23,7 +23,9 @@ public enum FallenLeafKind {
 	YELLOW_MAPLE("yellow_maple", Family.MAPLE),
 	MIXED_MAPLE("mixed_maple", Family.MAPLE),
 	PINK_CHERRY("pink_cherry", Family.CHERRY),
-	PURPLE_CHERRY("purple_cherry", Family.CHERRY);
+	PURPLE_CHERRY("purple_cherry", Family.CHERRY),
+	LOCUST("locust", Family.OTHER),
+	MIXED("mixed", Family.OTHER);
 
 	/**
 	 * Maples of different colours share one carpet, cherries of different colours do not.
@@ -55,10 +57,14 @@ public enum FallenLeafKind {
 	}
 
 	/**
-	 * Whether two species share one carpet: the maples do, the cherries do not.
+	 * The carpet two species share, or null when they do not mix: the maples share one among
+	 * themselves, the locust and a mixed carpet take in every species.
 	 */
-	public static boolean mixes(@Nullable FallenLeafKind a, @Nullable FallenLeafKind b) {
-		return a != null && b != null && a.family() == Family.MAPLE && b.family() == Family.MAPLE;
+	public static @Nullable FallenLeafKind mix(@Nullable FallenLeafKind a, @Nullable FallenLeafKind b) {
+		if (a == null || b == null || a == b) return null;
+		if (a == MIXED || b == MIXED || a == LOCUST || b == LOCUST) return MIXED;
+		if (a.family() == Family.MAPLE && b.family() == Family.MAPLE) return MIXED_MAPLE;
+		return null;
 	}
 
 	/**

@@ -147,17 +147,17 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 			}
 			return;
 		}
-		if (FallenLeafKind.mixes(found, kind)) {
-			// two maples of different colours share one carpet
-			BlockState mixed = FallenLeafKind.MIXED_MAPLE.fallenLeaves().defaultBlockState()
-					.setValue(FACING, state.getValue(FACING));
-			if (found == FallenLeafKind.MIXED_MAPLE) {
-				// the carpet is already a mix of maples, the leaf only makes it denser
+		FallenLeafKind mix = FallenLeafKind.mix(found, kind);
+		if (mix != null) {
+			// two species share one carpet
+			BlockState mixed = mix.fallenLeaves().defaultBlockState().setValue(FACING, state.getValue(FACING));
+			if (found == mix) {
+				// the carpet is already a mix, the leaf only makes it denser
 				if (layers == SHALLOW) {
 					level.setBlock(pos, mixed.setValue(LAYERS, DENSE), Block.UPDATE_ALL);
 				}
 			} else {
-				// another maple takes over, the carpet keeps how deep it is
+				// the leaf takes over, the carpet keeps how deep it is
 				level.setBlock(pos, mixed.setValue(LAYERS, layers), Block.UPDATE_ALL);
 			}
 			return;

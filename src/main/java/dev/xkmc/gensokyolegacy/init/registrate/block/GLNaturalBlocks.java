@@ -73,7 +73,8 @@ public class GLNaturalBlocks {
 	public static final BlockEntry<EvergreenVineBodyBlock> EVERGREEN_VINE_PLANT;
 	public static final BlockEntry<FallenLeavesBlock> CEDAR_FALLEN_LEAVES, ORANGE_MAPLE_FALLEN_LEAVES,
 			RED_MAPLE_FALLEN_LEAVES, YELLOW_MAPLE_FALLEN_LEAVES, MIXED_MAPLE_FALLEN_LEAVES,
-			PINK_CHERRY_FALLEN_LEAVES, PURPLE_CHERRY_FALLEN_LEAVES;
+			PINK_CHERRY_FALLEN_LEAVES, PURPLE_CHERRY_FALLEN_LEAVES, LOCUST_FALLEN_LEAVES,
+			MIXED_FALLEN_LEAVES;
 
 	// one wood per species, shared by every leaf colour grown on it. The cherries need none: they
 	// grow on minecraft:cherry_log
@@ -281,6 +282,8 @@ public class GLNaturalBlocks {
 		MIXED_MAPLE_FALLEN_LEAVES = GLBlockDatagenHelper.regFallenLeaves(reg, "mixed_maple_fallen_leaves");
 		PINK_CHERRY_FALLEN_LEAVES = GLBlockDatagenHelper.regFallenLeaves(reg, "pink_cherry_fallen_leaves");
 		PURPLE_CHERRY_FALLEN_LEAVES = GLBlockDatagenHelper.regFallenLeaves(reg, "purple_cherry_fallen_leaves");
+		LOCUST_FALLEN_LEAVES = GLBlockDatagenHelper.regFallenLeaves(reg, "locust_fallen_leaves");
+		MIXED_FALLEN_LEAVES = GLBlockDatagenHelper.regFallenLeaves(reg, "mixed_fallen_leaves");
 
 		// 青杉
 		BLUE_FUR_SET = new TreeSet(
@@ -320,7 +323,10 @@ public class GLNaturalBlocks {
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE),
 				"locust_hollow_log");
 		LOCUST_SET = new TreeSet(reg, LOCUST_WOOD, "locust",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST);
+				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST,
+				// half the particles and half the litter of the other trees
+				p -> new SheddingLeavesBlock(p, () -> GLParticles.LOCUST_LEAF.get(),
+						SheddingLeavesBlock.SHED_CHANCE / 4, SheddingLeavesBlock.PARTICLE_RATE * 4));
 
 		CYAN_MUSHROOM_STEM = MushroomSet.regStem(reg, "cyan_mushroom");
 		PURPLE_MUSHROOM_STEM = MushroomSet.regStem(reg, "purple_mushroom");

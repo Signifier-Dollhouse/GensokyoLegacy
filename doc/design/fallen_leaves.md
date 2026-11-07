@@ -1,20 +1,20 @@
 # Fallen Leaves — petals out of the canopy, litter under the tree
 
-> Status: implemented. Cherry and maple trees shed their own petals or leaves, and the litter under
-> the tree grows into a carpet of fallen leaves.
+> Status: implemented. Cherry, maple and locust trees shed their own petals or leaves, and the
+> litter under the tree grows into a carpet of fallen leaves.
 
 The vanilla cherry tree drops cherry petals out of its crown (`CherryLeavesBlock.animateTick` →
-`ParticleTypes.CHERRY_LEAVES`). The mod's cherry and maple trees do the same with their own colours,
-and they also pile up the leaves they drop on the ground.
+`ParticleTypes.CHERRY_LEAVES`). The mod's cherry, maple and locust trees do the same with their own
+colours, and they also pile up the leaves they drop on the ground.
 
 ## 1. Pieces
 
 | Class | File | Role |
 |---|---|---|
-| `SheddingLeavesBlock` | `content/block/nature/SheddingLeavesBlock.java` | The leaves of the cherry and the maple. Sheds a petal or a leaf under the crown, and lets a carpet of fallen leaves grow below. Extends the vanilla `LeavesBlock`, so the distance, the decay and the rain behave as usual. |
+| `SheddingLeavesBlock` | `content/block/nature/SheddingLeavesBlock.java` | The leaves of the cherry, the maple and the locust. Sheds a petal or a leaf under the crown, and lets a carpet of fallen leaves grow below. Extends the vanilla `LeavesBlock`, so the distance, the decay and the rain behave as usual. |
 | `FallenLeavesBlock` | `content/block/nature/FallenLeavesBlock.java` | The carpet on the ground, shallow or dense. Owns the rules of §3. |
-| `FallenLeafKind` | `content/block/nature/FallenLeafKind.java` | The species of a carpet: maple, cherry or cedar, and the block of the carpet of that species. |
-| `FallingLeafParticle` | `content/particle/FallingLeafParticle.java` | The particle itself: the drift of the vanilla cherry petal, ten variants of the petal. |
+| `FallenLeafKind` | `content/block/nature/FallenLeafKind.java` | The species of a carpet: maple, cherry, locust or cedar, and the block of the carpet of that species. |
+| `FallingLeafParticle` | `content/particle/FallingLeafParticle.java` | The particle itself: the drift of the vanilla cherry petal, ten variants of the petal (eight for the locust). |
 | `GLParticles` | `init/registrate/GLParticles.java` | One particle type per species. |
 
 The kind of a block is read off its registry name, so `<id>_leaves` and `<id>_fallen_leaves` are the
@@ -25,7 +25,8 @@ same species without a second table to keep in sync: `orange_maple_leaves` and
 
 `SheddingLeavesBlock.animateTick` spawns one particle below the leaf, the way the vanilla cherry
 leaves do: every tick with a chance of one in ten, and only when the block below has no full top
-face, so the petal falls through the crown instead of resting on the leaves under it.
+face, so the petal falls through the crown instead of resting on the leaves under it. The locust
+spawns one in twenty instead, half as many particles as the other trees.
 
 | Tree | Particle | Textures |
 |---|---|---|
@@ -34,9 +35,10 @@ face, so the petal falls through the crown instead of resting on the leaves unde
 | Orange maple | `gensokyolegacy:orange_maple_leaf` | `orange_maple_leaf_01..10` |
 | Red maple | `gensokyolegacy:red_maple_leaf` | `red_maple_leaf_01..10` |
 | Yellow maple | `gensokyolegacy:yellow_maple_leaf` | `yellow_maple_leaf_01..10` |
+| Locust | `gensokyolegacy:locust_leaf` | `locust_leaf_01..08` |
 
 The textures are the artwork of the species, cut down to 6×6 particles; they use the same palette as
-the leaves of the tree and as the carpet of fallen leaves below it. The ten textures of a species are
+the leaves of the tree and as the carpet of fallen leaves below it. The textures of a species are
 variants of the same petal, not the frames of an animation: every particle picks one of them at random
 and keeps it for its whole fall.
 
@@ -47,7 +49,8 @@ as a wisp behind the bullet instead of a petal drifting down.
 
 ## 3. The carpet under the tree
 
-Every leaf of a cherry or a maple tree has a chance of one in ten per random tick to drop a leaf.
+Every leaf of a cherry, maple or locust tree has a chance per random tick to drop a leaf: one in ten
+for the cherry and the maple, one in twenty for the locust, which litters half as fast.
 The leaf falls straight down: the search goes down at most eight blocks, and stops at the first
 block with a full top face — the ground the carpet lies on. Air, plants and the leaves of the tree
 itself are passed through; water and any other block stop the search, so no carpet grows on a lake.
@@ -68,10 +71,20 @@ A carpet met on the way is not covered by a new one, it grows instead:
 | dense, another maple | it becomes a mixed maple carpet, still dense |
 | shallow, a mixed maple | it grows denser, still mixed |
 | dense, a mixed maple | nothing |
+| shallow, a carpet the locust leaf mixes with | it becomes a mixed carpet, still shallow |
+| dense, a carpet the locust leaf mixes with | it becomes a mixed carpet, still dense |
+| shallow, a locust carpet, leaf of any species | it becomes a mixed carpet, still shallow |
+| dense, a locust carpet, leaf of any species | it becomes a mixed carpet, still dense |
+| shallow, a mixed carpet | it grows denser, still mixed |
+| dense, a mixed carpet | nothing |
 
 Two maples of different colours share one carpet, because they are the same tree in three autumn
 colours and grow side by side; the mixed carpet keeps the mix and never turns back into a single
 colour. Two cherries do not mix: the pink cherry takes the carpet of the purple cherry over.
+
+The locust mixes with every species: a leaf of it falling on any other carpet turns it into a mixed
+carpet, and a leaf of any species falling on a locust carpet does the same. A mixed carpet keeps the
+mix whatever falls on it after that.
 
 The carpet that a leaf falls on keeps its orientation, so the patch under the tree does not turn
 around when one species takes it over.

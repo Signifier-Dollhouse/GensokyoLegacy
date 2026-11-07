@@ -57,10 +57,16 @@
     "gensokyolegacy:hyphae": {
       "chance": 0.5
     },
+    "gensokyolegacy:locust_fallen_leaves": {
+      "chance": 0.3
+    },
     "gensokyolegacy:locust_leaves": {
       "chance": 0.3
     },
     "gensokyolegacy:locust_sapling": {
+      "chance": 0.3
+    },
+    "gensokyolegacy:mixed_fallen_leaves": {
       "chance": 0.3
     },
     "gensokyolegacy:mixed_maple_fallen_leaves": {
