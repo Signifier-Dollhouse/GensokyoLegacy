@@ -348,7 +348,7 @@ own small pad and the large one, each in its own facing, and the large one in ea
 place (`GensokyoBiomeFeatures.lilies()`), so the lake the magical forest digs and the pool the barrens digs grow the same
 plants, and the patch the Misty Lake and the ravine lay down grow the same plants as the lakes do.
 
-**One lake** — `former_hell_lake`, see §2.1. It is the only feature in the tail that is not a patch of blocks.
+**One lake** — `former_hell_lake`, see §2.1.
 
 | placed feature | tries / count | used by |
 |---|---|---|
@@ -553,25 +553,25 @@ first neighbour update, so the feature writes both halves itself.
 The barrens' tomb is not a patch at all. It is a hand-built NBT plot placed by `gensokyolegacy:template_structure`, the
 structure-side twin of the magical forest's `template` feature: same terrain checks and random rotation, but the blocks
 are placed as authored instead of being blended into vegetation. The three `myouren_temple/tomb_0*` templates carry a
-grave, its lanterns and the offerings left on it; the plot needs flat dirt (`max_slope` 0) and replaces the grass and
-flowers inside its footprint rather than being refused by them.
+grave, its lanterns and the offerings left on it; the plot needs flat dirt (`max_slope` 0) and clears the plants it
+stands on rather than being refused by them.
 
 `barrens_golden_lotus` is drawn by a feature of its own, `gensokyolegacy:golden_lotus`. The lotus grows through three
 sizes as one block and only the large size is a double plant, with halves named `part` rather than `half`, so
 `double_block` cannot place it. The patch weights the sizes 40 / 40 / 20 and the feature writes both halves when the
 drawn size is large.
 
-The standing decos and the tomb are the only features in the tail placed by `Registrar.floor(...)` rather than
-`cover(...)`, and that one word is the whole of why they work. Everything else decorates with
-`HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts leaves** — a locust canopy six blocks up *is* the surface of its
-column by the time the tail runs, so a deco placed with it lands on the roof of the tree. `floor` uses
-`MOTION_BLOCKING_NO_LEAVES` instead, which returns the ground the surface rule actually laid down, and the jizo and the
-tomb then sit on the floor whether or not a tree is over them.
+The muenzuka gravestone and stone lantern, and the barrens tomb, are the only features in the tail placed by
+`Registrar.floor(...)` rather than `cover(...)`, and that one word is the whole of why they work. Everything else
+decorates with `HEIGHTMAP_WORLD_SURFACE`, and **that heightmap counts leaves** — a locust canopy six blocks up *is*
+the surface of its column by the time the tail runs, so a deco placed with it lands on the roof of the tree. `floor`
+uses `MOTION_BLOCKING_NO_LEAVES` instead, which returns the ground the surface rule actually laid down, and the decos
+and the tomb then sit on the floor whether or not a tree is over them.
 
 The difference is not cosmetic. Under `cover` the decos were also *invisible under canopy*: the only defence against
 landing on the roof was that leaves are not in `BlockTags.DIRT`, so the predicate refused the try — which also meant
-every column with a tree over it could never carry a jizo at all. On `floor` the predicate is read at the floor, so
-it describes what it says, and a grove of locust is exactly where the roadside row goes.
+every column with a tree over it could never carry a gravestone at all. On `floor` the predicate is read at the floor,
+so it describes what it says, and a grove of locust is exactly where the graveyard's markers go.
 
 Two things follow that are worth keeping separate:
 
@@ -595,9 +595,10 @@ affordable in a patch of 24 grass and not in a patch of four gravestones, which 
 | `stone_lantern` (muenzuka) | 1 per chunk | 4 tries | `floor` |
 
 Tries are the whole of a patch's density, so a feature is only as common as it is set to be. An earlier gravestone of
-**two** tries behind a `RarityFilter(3)` — two thirds of a try per chunk against the jizo's 24 — was thirty-six times
-rarer and read as *not spawning at all* rather than as sparse. When a thing is "not appearing", the first question is
-how much rarer it is than the thing that is appearing, not whether its feature runs.
+**two** tries behind a `RarityFilter(3)` — two thirds of a try per chunk against the 24 tries of the patch it was
+meant to sit beside — was thirty-six times rarer and read as *not spawning at all* rather than as sparse. When a thing
+is "not appearing", the first question is how much rarer it is than the thing that is appearing, not whether its
+feature runs.
 
 When that does not settle it, the command does, placing the feature under the player's feet with none of the biome's
 rarity filter or `BiomeFilter` in the way:

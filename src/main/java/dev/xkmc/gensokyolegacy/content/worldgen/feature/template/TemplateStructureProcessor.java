@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import javax.annotation.Nullable;
 
 /**
- * Places a structure template over air and vegetation, with none of the support rules a vegetation template needs.
+ * Places a structure template over air and plants, with none of the support rules a vegetation template needs.
  */
 public class TemplateStructureProcessor extends StructureProcessor {
 
@@ -26,7 +26,9 @@ public class TemplateStructureProcessor extends StructureProcessor {
 			StructureBlockInfo blockInfo, StructureBlockInfo rel, StructurePlaceSettings settings) {
 		BlockState world = level.getBlockState(rel.pos());
 		if (world.is(BlockTags.FEATURES_CANNOT_REPLACE)) return null;
-		return TemplateBlendProcessor.isSoft(world) ? rel : null;
+		if (TemplateBlendProcessor.isSoft(world)) return rel;
+		// bushes such as the barrens' spooky bush have no collision but are not replaceable
+		return world.getCollisionShape(level, rel.pos()).isEmpty() ? rel : null;
 	}
 
 	@Override
