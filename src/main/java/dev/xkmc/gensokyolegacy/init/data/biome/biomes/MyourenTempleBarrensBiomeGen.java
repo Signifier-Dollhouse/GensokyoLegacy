@@ -92,6 +92,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 				.add(Blocks.OXEYE_DAISY, 1)
 				.add(GLNaturalBlocks.TOWER_GRASS_SMALL, 2)
 				.add(GLNaturalBlocks.TOWER_GRASS_LARGE, 2)
+				.add(GLNaturalBlocks.SPOOKY_BUSH, 4)
 				.add(Blocks.SHORT_GRASS, 8).build()));
 		// the temple's own flower: mostly the two low sizes, and a large one in five
 		BlockState lotus = GLNaturalBlocks.GOLDEN_LOTUS.get().defaultBlockState();

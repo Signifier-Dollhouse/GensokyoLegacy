@@ -65,6 +65,7 @@ public class GLNaturalBlocks {
 	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
 	public static final BlockEntry<GoldenLotusBlock> GOLDEN_LOTUS;
 	public static final BlockEntry<SimpleBushBlock> TOWER_GRASS_SMALL, TOWER_GRASS_LARGE;
+	public static final BlockEntry<SimpleBushBlock> SPOOKY_BUSH;
 	public static final BlockEntry<BirdNestBlock> BIRD_NEST;
 	public static final BlockEntry<WaterloggedBushBlock> FLAME_CATTAIL;
 	public static final BlockEntry<SimpleBushBlock> BRACKEN;
@@ -138,6 +139,20 @@ public class GLNaturalBlocks {
 				.register();
 		TOWER_GRASS_SMALL = GLBlockDatagenHelper.regTowerGrass(reg, "small");
 		TOWER_GRASS_LARGE = GLBlockDatagenHelper.regTowerGrass(reg, "large");
+
+		// 阴森灌木: a low bush of the waste, the block texture twice the size of the item icon
+		SPOOKY_BUSH = reg.block("spooky_bush", p -> new SimpleBushBlock(p, Block.box(1, 0, 1, 15, 15, 15)))
+				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.GRASS)
+						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models()
+						.withExistingParent(ctx.getName(), pvd.modLoc("custom/nature/spooky_bush"))
+						.texture("1", pvd.modLoc("block/nature/" + ctx.getName()))
+						.texture("particle", pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.loot(RegistrateBlockLootTables::dropSelf)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+				.build()
+				.register();
 
 		BIRD_NEST = reg.block("bird_nest", BirdNestBlock::new)
 				.properties(p -> p.mapColor(MapColor.WOOD).strength(0.2f).sound(SoundType.GRASS)

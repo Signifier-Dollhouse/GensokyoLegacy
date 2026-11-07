@@ -46,6 +46,12 @@
               },
               {
                 "data": {
+                  "Name": "gensokyolegacy:spooky_bush"
+                },
+                "weight": 4
+              },
+              {
+                "data": {
                   "Name": "minecraft:short_grass"
                 },
                 "weight": 8

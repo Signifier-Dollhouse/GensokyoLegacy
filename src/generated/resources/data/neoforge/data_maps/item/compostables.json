@@ -114,6 +114,9 @@
     "gensokyolegacy:red_mushroom_stem": {
       "chance": 0.65
     },
+    "gensokyolegacy:spooky_bush": {
+      "chance": 0.3
+    },
     "gensokyolegacy:star_flower": {
       "chance": 0.65
     },
