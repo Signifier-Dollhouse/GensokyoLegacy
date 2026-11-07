@@ -30,6 +30,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -80,6 +81,8 @@ public class GLNaturalBlocks {
 	// one wood per species, shared by every leaf colour grown on it. The cherries need none: they
 	// grow on minecraft:cherry_log
 	public static final WoodSet MAPLE_WOOD, LOCUST_WOOD;
+	public static final BlockEntry<Block> LOCUST_PLANKS;
+	public static final BlockEntry<RotatedPillarBlock> STRIPPED_LOCUST_LOG, STRIPPED_LOCUST_WOOD;
 
 	public static final TreeSet BLUE_FUR_SET, ORANGE_MAPLE_SET, RED_MAPLE_SET, YELLOW_MAPLE_SET,
 			PINK_CHERRY_SET, PURPLE_CHERRY_SET, LOCUST_SET;
@@ -332,11 +335,40 @@ public class GLNaturalBlocks {
 				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.PURPLE_CHERRY_BLOSSOM.get()));
 
-		// 槐: the only tree with a hollow trunk
-		LOCUST_WOOD = new WoodSet(reg, "locust", Items.OAK_PLANKS,
-				Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE),
-				"locust_hollow_log");
+		// 槐: the only tree with a hollow trunk, and the only one with planks and a stripped trunk of its own
+		var locustProp = BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE);
+		LOCUST_PLANKS = reg.block("locust_planks", Block::new)
+				.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_PURPLE))
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
+						pvd.modLoc("block/wood/" + ctx.getName()))))
+				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
+				.item().tag(ItemTags.PLANKS).build()
+				.register();
+		STRIPPED_LOCUST_LOG = reg.block("stripped_locust_log", RotatedPillarBlock::new)
+				.properties(p -> locustProp)
+				.blockstate((ctx, pvd) -> GLBlockDatagenHelper.genColumnState(ctx, pvd,
+						pvd.modLoc("block/wood/stripped_locust_log_side"),
+						pvd.modLoc("block/wood/locust_log_top")))
+				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+				.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
+				.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+								RecipeCategory.BUILDING_BLOCKS, LOCUST_PLANKS.get(), 4)::unlockedBy, ctx.get().asItem())
+						.requires(ctx.get()).save(pvd, GensokyoLegacy.loc("stripped_locust_log_to_locust_planks")))
+				.register();
+		STRIPPED_LOCUST_WOOD = reg.block("stripped_locust_wood", RotatedPillarBlock::new)
+				.properties(p -> locustProp)
+				.blockstate((ctx, pvd) -> {
+					var side = pvd.modLoc("block/wood/stripped_locust_log_side");
+					GLBlockDatagenHelper.genColumnState(ctx, pvd, side, side);
+				})
+				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+				.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
+				.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
+								RecipeCategory.BUILDING_BLOCKS, LOCUST_PLANKS.get(), 4)::unlockedBy, ctx.get().asItem())
+						.requires(ctx.get()).save(pvd, GensokyoLegacy.loc("stripped_locust_wood_to_locust_planks")))
+				.register();
+		LOCUST_WOOD = new WoodSet(reg, "locust", LOCUST_PLANKS, STRIPPED_LOCUST_LOG, STRIPPED_LOCUST_WOOD,
+				locustProp, "locust_hollow_log");
 		LOCUST_SET = new TreeSet(reg, LOCUST_WOOD, "locust",
 				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST,
 				// half the particles and half the litter of the other trees
@@ -430,8 +462,8 @@ public class GLNaturalBlocks {
 	}
 
 	/**
-	 * The log and wood of one species, shared by every leaf colour grown on it. An axe strips both to the vanilla
-	 * block named by the caller, since no mod wood has a stripped variant of its own.
+	 * The log and wood of one species, shared by every leaf colour grown on it. An axe strips both to the block
+	 * supplied by the caller, which may be a vanilla block or one of this mod's own.
 	 */
 	public static class WoodSet {
 
@@ -444,7 +476,13 @@ public class GLNaturalBlocks {
 
 		public WoodSet(L2Registrate reg, String id, Item planks, Block strippedLog, Block strippedWood,
 					   BlockBehaviour.Properties logProp, @Nullable String hollowLogId) {
-			log = reg.block(id + "_log", p -> new StrippableWoodBlock(() -> strippedLog, p))
+			this(reg, id, () -> planks, () -> strippedLog, () -> strippedWood, logProp, hollowLogId);
+		}
+
+		public WoodSet(L2Registrate reg, String id, Supplier<? extends ItemLike> planks,
+					   Supplier<? extends Block> strippedLog, Supplier<? extends Block> strippedWood,
+					   BlockBehaviour.Properties logProp, @Nullable String hollowLogId) {
+			log = reg.block(id + "_log", p -> new StrippableWoodBlock(strippedLog::get, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> GLBlockDatagenHelper.genColumnState(ctx, pvd,
 							pvd.modLoc("block/wood/" + ctx.getName() + "_side"),
@@ -452,10 +490,10 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-									RecipeCategory.BUILDING_BLOCKS, planks, 4)::unlockedBy, ctx.get().asItem())
-							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_log", planks))))
+									RecipeCategory.BUILDING_BLOCKS, planks.get(), 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_log", planks.get()))))
 					.register();
-			wood = reg.block(id + "_wood", p -> new StrippableWoodBlock(() -> strippedWood, p))
+			wood = reg.block(id + "_wood", p -> new StrippableWoodBlock(strippedWood::get, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> {
 						var side = pvd.modLoc("block/wood/" + id + "_log_side");
@@ -464,10 +502,10 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 					.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 					.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
-									RecipeCategory.BUILDING_BLOCKS, planks, 4)::unlockedBy, ctx.get().asItem())
-							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_wood", planks))))
+									RecipeCategory.BUILDING_BLOCKS, planks.get(), 4)::unlockedBy, ctx.get().asItem())
+							.requires(ctx.get()).save(pvd, GensokyoLegacy.loc(plankRecipe(id + "_wood", planks.get()))))
 					.register();
-			hollowLog = hollowLogId == null ? null : reg.block(hollowLogId, p -> new StrippableWoodBlock(() -> strippedLog, p))
+			hollowLog = hollowLogId == null ? null : reg.block(hollowLogId, p -> new StrippableWoodBlock(strippedLog::get, p))
 					.properties(p -> logProp)
 					.blockstate((ctx, pvd) -> {
 						var side = pvd.modLoc("block/wood/" + hollowLogId + "_side");
@@ -481,8 +519,8 @@ public class GLNaturalBlocks {
 		/**
 		 * {@code maple_log} cut into {@code oak_planks} -> {@code maple_log_to_oak_planks}.
 		 */
-		private static String plankRecipe(String id, Item planks) {
-			return id + "_to_" + BuiltInRegistries.ITEM.getKey(planks).getPath();
+		private static String plankRecipe(String id, ItemLike planks) {
+			return id + "_to_" + BuiltInRegistries.ITEM.getKey(planks.asItem()).getPath();
 		}
 	}
 

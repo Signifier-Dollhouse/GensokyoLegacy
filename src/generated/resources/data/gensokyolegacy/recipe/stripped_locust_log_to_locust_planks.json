@@ -3,11 +3,11 @@
   "category": "building",
   "ingredients": [
     {
-      "item": "gensokyolegacy:locust_log"
+      "item": "gensokyolegacy:stripped_locust_log"
     }
   ],
   "result": {
     "count": 4,
-    "id": "minecraft:oak_planks"
+    "id": "gensokyolegacy:locust_planks"
   }
 }
