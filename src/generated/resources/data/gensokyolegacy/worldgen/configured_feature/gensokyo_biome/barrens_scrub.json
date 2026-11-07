@@ -10,27 +10,45 @@
             "entries": [
               {
                 "data": {
-                  "Name": "minecraft:dead_bush"
+                  "Name": "minecraft:cornflower"
                 },
-                "weight": 3
+                "weight": 1
               },
               {
                 "data": {
-                  "Name": "minecraft:short_grass"
+                  "Name": "minecraft:dandelion"
                 },
-                "weight": 3
+                "weight": 1
               },
               {
                 "data": {
-                  "Name": "minecraft:coarse_dirt"
+                  "Name": "minecraft:azure_bluet"
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "minecraft:oxeye_daisy"
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "gensokyolegacy:tower_grass_small"
                 },
                 "weight": 2
               },
               {
                 "data": {
-                  "Name": "minecraft:gravel"
+                  "Name": "gensokyolegacy:tower_grass_large"
                 },
-                "weight": 1
+                "weight": 2
+              },
+              {
+                "data": {
+                  "Name": "minecraft:short_grass"
+                },
+                "weight": 8
               }
             ]
           }

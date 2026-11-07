@@ -7,18 +7,18 @@
   },
   "downfall": 0.2,
   "effects": {
-    "fog_color": 12626040,
-    "foliage_color": 9076560,
-    "grass_color": 10129244,
+    "fog_color": 6060204,
+    "foliage_color": 5798989,
+    "grass_color": 7309146,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
       "sound": "minecraft:ambient.cave",
       "tick_delay": 6000
     },
-    "sky_color": 8233727,
-    "water_color": 7035445,
-    "water_fog_color": 329011
+    "sky_color": 5927298,
+    "water_color": 6389697,
+    "water_fog_color": 4279688
   },
   "features": [
     [],
@@ -61,8 +61,7 @@
       "minecraft:ore_gold_extra",
       "minecraft:disk_sand",
       "minecraft:disk_clay",
-      "minecraft:disk_gravel",
-      "gensokyolegacy:gensokyo_biome/barrens_coarse_dirt"
+      "minecraft:disk_gravel"
     ],
     [],
     [
@@ -70,17 +69,11 @@
       "minecraft:spring_lava"
     ],
     [
+      "gensokyolegacy:gensokyo_biome/barrens_locust_trees",
       "minecraft:glow_lichen",
-      "minecraft:patch_grass_badlands",
-      "minecraft:patch_dead_bush_badlands",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
-      "minecraft:patch_sugar_cane_badlands",
-      "minecraft:patch_pumpkin",
-      "minecraft:patch_cactus_decorated",
-      "gensokyolegacy:gensokyo_biome/barrens_locust_trees",
       "gensokyolegacy:gensokyo_biome/barrens_golden_lotus",
-      "gensokyolegacy:gensokyo_biome/barrens_tower_grass",
       "gensokyolegacy:gensokyo_biome/barrens_scrub",
       "gensokyolegacy:gensokyo_biome/barrens_jizo",
       "gensokyolegacy:gensokyo_biome/barrens_gravestone"
