@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.trigger.FeedCharacterTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GapBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
@@ -106,6 +107,7 @@ public class GLAdvGen {
 								LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
 										resolveBiome(pvd, MagicalForestBiomeGen.KEY),
 										resolveBiome(pvd, SakuraForestBiomeGen.KEY),
+										resolveBiome(pvd, MyourenTempleBarrensBiomeGen.KEY),
 										resolveBiome(pvd, GapBiomeGen.KEY)))))
 						.add(fedAFairy()),
 				"Welcome to Gensokyo", "Find your way in this new world");

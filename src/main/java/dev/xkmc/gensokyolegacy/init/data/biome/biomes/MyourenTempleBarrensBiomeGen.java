@@ -85,16 +85,15 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	@Override
 	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
-		FeatureUtils.register(ctx, BARRENS_SCRUB, Feature.RANDOM_PATCH, onDirt(30, new Palette()
+		FeatureUtils.register(ctx, BARRENS_SCRUB, Feature.RANDOM_PATCH, onDirt(80, new Palette()
 				.add(Blocks.CORNFLOWER, 1)
 				.add(Blocks.DANDELION, 1)
 				.add(Blocks.AZURE_BLUET, 1)
 				.add(Blocks.OXEYE_DAISY, 1)
-				.add(Blocks.MOSSY_COBBLESTONE, 1)
 				.add(GLNaturalBlocks.TOWER_GRASS_SMALL, 2)
 				.add(GLNaturalBlocks.TOWER_GRASS_LARGE, 2)
-				.add(GLNaturalBlocks.SPOOKY_BUSH, 4)
-				.add(Blocks.SHORT_GRASS, 12).build()));
+				.add(GLNaturalBlocks.SPOOKY_BUSH, 8)
+				.add(Blocks.SHORT_GRASS, 64).build()));
 		// the temple's own flower: mostly the two low sizes, and a large one in five
 		BlockState lotus = GLNaturalBlocks.GOLDEN_LOTUS.get().defaultBlockState();
 		FeatureUtils.register(ctx, GOLDEN_LOTUS, Feature.RANDOM_PATCH, patch(6, 7, 3, new Palette()
@@ -122,7 +121,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	@Override
 	protected void placed(Registrar reg) {
 		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
-		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(5));
+		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(8));
 		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS), CountPlacement.of(2));
 		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
