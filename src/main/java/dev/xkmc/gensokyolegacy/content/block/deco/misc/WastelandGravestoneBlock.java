@@ -8,9 +8,20 @@ import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
+import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
+import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -19,16 +30,18 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 荒原小墓碑。底下整格是石台,北边横一道矮木栏,石板立在南边。
+ * 荒原小墓碑。底下整格是石台,北边横一道矮木栏,石板立在南边;下半格还能摆一份食物。
  * 模型高过 y16,所以摆两格:下半格画整个模型,上半格不画东西,两半靠 {@code DoubleBlockImpl} 绑在一起。
  */
-public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod {
+public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod,
+		UseItemOnBlockMethod, UseWithoutItemBlockMethod {
 
 	/**
 	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
@@ -64,6 +77,36 @@ public class WastelandGravestoneBlock implements ShapePathFindBlockMethod, Defau
 	public @Nullable VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
 		int facing = state.getValue(FACING).get2DDataValue();
 		return state.getValue(HALF) == Half.TOP ? TOP_SHAPES[facing] : BOTTOM_SHAPES[facing];
+	}
+
+	@Override
+	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (state.getValue(HALF) != Half.BOTTOM || !isFood(stack) ||
+				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be) || !be.stack.isEmpty() || be.busy())
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if (!level.isClientSide) {
+			be.stack = stack.copyWithCount(1);
+			stack.shrink(1);
+			be.startRitual();
+			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5F, 1.2F);
+		}
+		return ItemInteractionResult.SUCCESS;
+	}
+
+	@Override
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+		if (state.getValue(HALF) != Half.BOTTOM || !player.getMainHandItem().isEmpty() ||
+				!(level.getBlockEntity(pos) instanceof WastelandGravestoneBlockEntity be) || be.stack.isEmpty() || be.busy())
+			return InteractionResult.PASS;
+		if (!level.isClientSide) {
+			be.take(player);
+			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5F, 0.8F);
+		}
+		return InteractionResult.SUCCESS;
+	}
+
+	private static boolean isFood(ItemStack stack) {
+		return stack.get(DataComponents.FOOD) != null;
 	}
 
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name) {

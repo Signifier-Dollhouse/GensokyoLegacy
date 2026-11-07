@@ -63,6 +63,7 @@ public class GLFurniture {
 
 	public static final BlockEntry<DelegateBlock> JIZO, JIZO_STRAW_HAT, JIZO_MYOUREN, JIZO_NARUMI,
 			WASTELAND_GRAVESTONE_SMALL;
+	public static final BlockEntityEntry<WastelandGravestoneBlockEntity> WASTELAND_GRAVESTONE_BE;
 
 	static {
 
@@ -344,12 +345,18 @@ public class GLFurniture {
 			JIZO_NARUMI = registerJizo(reg, "jizo_narumi", JizoBlock.HAT_TOP_SHAPE);
 
 			WASTELAND_GRAVESTONE_SMALL = reg.block("wasteland_gravestone_small", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new WastelandGravestoneBlock(), new DoubleBlockImpl()))
+							BlockTemplates.HORIZONTAL, new WastelandGravestoneBlock(), new DoubleBlockImpl(),
+							WastelandGravestoneBlockEntity.BE))
 					.properties(p -> p.mapColor(MapColor.STONE).strength(1.5F).sound(SoundType.STONE).noOcclusion())
 					.blockstate((ctx, pvd) -> WastelandGravestoneBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					.simpleItem()
 					.loot(WastelandGravestoneBlock::genLoot)
+					.register();
+
+			WASTELAND_GRAVESTONE_BE = reg.blockEntity("wasteland_gravestone_small", WastelandGravestoneBlockEntity::new)
+					.validBlock(WASTELAND_GRAVESTONE_SMALL)
+					.renderer(() -> WastelandGravestoneRenderer::new)
 					.register();
 		}
 	}
