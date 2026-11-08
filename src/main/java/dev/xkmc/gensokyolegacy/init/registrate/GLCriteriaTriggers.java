@@ -23,6 +23,9 @@ public class GLCriteriaTriggers {
 	 * without spelling out which dish counted: the criterion is about the entity, not the food.
 	 */
 	public static final Val<FeedCharacterTrigger> FEED_FAIRY = CT.reg("feed_fairy", FeedCharacterTrigger::new);
+	public static final Val<PlayerTrigger> GRAVESTONE_SUMMON = CT.reg("gravestone_summon", PlayerTrigger::new);
+	public static final Val<PlayerTrigger> BIND_GHOST = CT.reg("bind_ghost", PlayerTrigger::new);
+	public static final Val<PlayerTrigger> JIZO_RESTORE = CT.reg("jizo_restore", PlayerTrigger::new);
 
 	public static void register() {
 

@@ -1,0 +1,26 @@
+{
+  "parent": "gensokyolegacy:main/gravestone_summon",
+  "criteria": {
+    "0": {
+      "trigger": "gensokyolegacy:bind_ghost"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.bind_ghost.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:bone_flute"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.bind_ghost.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

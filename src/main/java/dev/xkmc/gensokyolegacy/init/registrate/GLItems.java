@@ -603,7 +603,7 @@ public class GLItems {
 					})
 					.lang("Yuyuko's Fan")
 					.tab(TAB.key())
-					.tag(L2ISTagGen.SELECTABLE)
+					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
 					.register();
 
 			DOLL_GLOVE = reg.item("doll_glove", DollGloveItem::new)
@@ -742,7 +742,7 @@ public class GLItems {
 					.tag(ItemTags.PICKAXES, ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE,
 							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
 					.lang("Minamitsu's Anchor").tab(TAB.key())
-					.tag(L2ISTagGen.SELECTABLE)
+					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
 					.register();
 
 			// the water twin: never held, only drawn by an unbound storm anchor, which must switch models

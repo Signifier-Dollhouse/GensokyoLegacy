@@ -87,8 +87,12 @@ public class MorichikaQDGen extends QuestDialogData {
 		trade("swap_coin_to_emerald", GLEntities.MORICHIKA.get(), new ItemStack(Items.EMERALD),
 				new TradeRecurrence(16, 24000), item(GLItems.COIN.get(), 1));
 
-		trade("brew_golden_lotus_tea", GLEntities.MORICHIKA.get(), GLItems.GOLDEN_LOTUS_TEA.asStack(),
-				new TradeRecurrence(16, 24000), item(GLNaturalBlocks.GOLDEN_LOTUS.get(), 2));
+		// The tea only restores a spiritual pool, so it waits until the customer owns something
+		// that has one.
+		trade("brew_golden_lotus_tea", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_SPIRITUAL_TOOL)),
+				GLItems.GOLDEN_LOTUS_TEA.asStack(),
+				new TradeRecurrence(16, 24000), List.of(item(GLNaturalBlocks.GOLDEN_LOTUS.get(), 2))));
 
 		trade("offer_koishi_hat", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.KOISHI_HAT)),

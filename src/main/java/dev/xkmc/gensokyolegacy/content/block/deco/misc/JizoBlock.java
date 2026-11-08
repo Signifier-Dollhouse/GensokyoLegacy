@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.util.ExperienceHelper;
 import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
@@ -122,6 +123,7 @@ public class JizoBlock implements ShapePathFindBlockMethod, DefaultStateBlockMet
 		}
 		level.playSound(null, pos, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 0.8F, 1.2F);
 		sp.displayClientMessage(GLLang.Jizo.RESTORED.get(restored), true);
+		if (restored > 0) GLCriteriaTriggers.JIZO_RESTORE.get().trigger(sp);
 		sp.swing(hand, true);
 		return ItemInteractionResult.SUCCESS;
 	}

@@ -1,0 +1,33 @@
+{
+  "parent": "gensokyolegacy:main/welcome",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#gensokyolegacy:spiritual_tools"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_spiritual_tool.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:minamitsu_anchor"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_spiritual_tool.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
