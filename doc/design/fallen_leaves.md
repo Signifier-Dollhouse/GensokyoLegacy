@@ -1,7 +1,7 @@
 # Fallen Leaves — petals out of the canopy, litter under the tree
 
 > Status: implemented. Cherry, maple and locust trees shed their own petals or leaves, and the
-> litter under the tree grows into a carpet of fallen leaves.
+> litter under the tree grows into a carpet of fallen leaves on the ground or on still water.
 
 The vanilla cherry tree drops cherry petals out of its crown (`CherryLeavesBlock.animateTick` →
 `ParticleTypes.CHERRY_LEAVES`). The mod's cherry, maple and locust trees do the same with their own
@@ -12,7 +12,8 @@ colours, and they also pile up the leaves they drop on the ground.
 | Class | File | Role |
 |---|---|---|
 | `SheddingLeavesBlock` | `content/block/nature/SheddingLeavesBlock.java` | The leaves of the cherry, the maple and the locust. Sheds a petal or a leaf under the crown, and lets a carpet of fallen leaves grow below. Extends the vanilla `LeavesBlock`, so the distance, the decay and the rain behave as usual. |
-| `FallenLeavesBlock` | `content/block/nature/FallenLeavesBlock.java` | The carpet on the ground, shallow or dense. Owns the rules of §3. |
+| `FallenLeavesBlock` | `content/block/nature/FallenLeavesBlock.java` | The carpet on the ground or on still water, shallow or dense. Owns the rules of §3. |
+| `FallenLeavesItem` | `content/block/nature/FallenLeavesItem.java` | The item: places the carpet on the ground as usual, or on the surface of a still water source the way a lily pad does. |
 | `FallenLeafKind` | `content/block/nature/FallenLeafKind.java` | The species of a carpet: maple, cherry, locust or cedar, and the block of the carpet of that species. |
 | `FallingLeafParticle` | `content/particle/FallingLeafParticle.java` | The particle itself: the drift of the vanilla cherry petal, ten variants of the petal (eight for the locust). |
 | `GLParticles` | `init/registrate/GLParticles.java` | One particle type per species. |
@@ -53,7 +54,9 @@ Every leaf of a cherry, maple or locust tree has a chance per random tick to dro
 for the cherry and the maple, one in twenty for the locust, which litters half as fast.
 The leaf falls straight down: the search goes down at most eight blocks, and stops at the first
 block with a full top face — the ground the carpet lies on. Air, plants and the leaves of the tree
-itself are passed through; water and any other block stop the search, so no carpet grows on a lake.
+itself are passed through. A still water source is a surface too: the carpet floats on the top water
+block, the way a lily pad does, and never sinks into the lake. Flowing water and any other block stop
+the search, so no carpet forms on a stream or a waterfall.
 
 A carpet is either **shallow** (`layers=2`, a thin layer of leaves lying on the ground) or **dense**
 (`layers=1`, the leaves piled up on each other). A carpet that meets the ground is shallow, and it
@@ -86,6 +89,10 @@ The locust mixes with every species: a leaf of it falling on any other carpet tu
 carpet, and a leaf of any species falling on a locust carpet does the same. A mixed carpet keeps the
 mix whatever falls on it after that.
 
+A carpet also drifts on its own: each random tick a single-colour maple carpet has a 5% chance to
+become a mixed maple carpet, and a locust carpet a 5% chance to become a mixed carpet. The layers
+and the orientation stay as they were. A mixed carpet is already mixed and never changes back.
+
 The carpet that a leaf falls on keeps its orientation, so the patch under the tree does not turn
 around when one species takes it over.
 
@@ -95,9 +102,16 @@ around when one species takes it over.
   distance to the log is at the maximum, so only the shell of the crown would drop leaves and the
   carpet would be a ring around the trunk. `SheddingLeavesBlock.isRandomlyTicking` returns true for
   every state, and the litter fills the whole area under the crown.
-- **The search stops at the first solid ground.** A carpet on a slab or on a wall would float, and
-  the leaves of the tree itself are not ground either.
+- **The search stops at the first solid ground or still water surface.** A carpet on a slab or on a
+  wall would float, and the leaves of the tree itself are not ground either.
+- **Only still water carries a carpet.** A source block is a surface, so a pond keeps the leaves;
+  flowing water is not, so a stream or a waterfall washes them away instead of holding them. The item
+  raycasts for a water source the way a lily pad does, so the player cannot place a carpet into
+  flowing water either.
 - **The carpet is placed on any ground with a full top face** — grass, dirt, stone, sand, planks.
   A plant standing there is broken, and the carpet takes its place.
 - **The kind comes from the registry name.** A second table mapping blocks to species would have to
   be kept in sync with the registrations by hand.
+- **A lone maple or locust carpet mixes itself.** A tree that stands on its own would still litter
+  a single colour, but the maples and the locust are meant to grow side by side, so their carpets
+  drift to the mixed variant rather than staying one species forever.

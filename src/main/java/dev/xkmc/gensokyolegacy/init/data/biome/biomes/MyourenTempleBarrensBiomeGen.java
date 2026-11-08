@@ -122,7 +122,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	protected void placed(Registrar reg) {
 		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(8));
-		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS), CountPlacement.of(2));
+		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS),RarityFilter.onAverageOnceEvery(8));
 		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
 		reg.placed(LAKE_PF, reg.feature(LAKE), RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(),

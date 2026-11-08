@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -37,8 +40,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * One carpet of fallen leaves under a tree: a thin layer of leaves, which packs into a dense carpet when
- * right-clicked with itself.
+ * One carpet of fallen leaves under a tree: a thin layer of leaves on the ground or on still water, which
+ * packs into a dense carpet when right-clicked with itself.
  *
  * @see "doc/design/fallen_leaves.md"
  */
@@ -66,6 +69,10 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	 * The chance that a dense carpet of another species is taken over.
 	 */
 	private static final float TAKEOVER_CHANCE = 0.3F;
+	/**
+	 * The chance per random tick that a maple or a locust carpet turns into its mixed variant.
+	 */
+	private static final float MIX_CHANCE = 0.05F;
 
 	public FallenLeavesBlock(Properties properties) {
 		super(properties, LAYER);
@@ -84,6 +91,11 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	}
 
 	@Override
+	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+		return super.mayPlaceOn(state, level, pos) || isWaterSurface(level, pos);
+	}
+
+	@Override
 	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
 		return this.defaultBlockState().setValue(LAYERS, 2)
 				.setValue(FACING, context.getHorizontalDirection().getOpposite());
@@ -98,6 +110,17 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 			return ItemInteractionResult.SUCCESS;
 		}
 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	}
+
+	@Override
+	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+		var kind = FallenLeafKind.of(this);
+		if (kind == null) return;
+		var mixed = kind.mixed();
+		if (mixed == null || random.nextFloat() >= MIX_CHANCE) return;
+		level.setBlock(pos, mixed.fallenLeaves().defaultBlockState()
+				.setValue(LAYERS, state.getValue(LAYERS))
+				.setValue(FACING, state.getValue(FACING)), Block.UPDATE_ALL);
 	}
 
 	@Override
@@ -122,10 +145,10 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 				carpet.accumulate(level, below, state, kind, random);
 				return;
 			}
-			if (state.isFaceSturdy(level, below, Direction.UP)) {
-				// the ground: the carpet lies right on top of it
+			if (state.isFaceSturdy(level, below, Direction.UP) || isWaterSurface(level, below)) {
+				// the ground or a still water surface: the carpet lies right on top of it
 				BlockPos spot = below.above();
-				if (level.getBlockState(spot).canBeReplaced()) {
+				if (level.getFluidState(spot).isEmpty() && level.getBlockState(spot).canBeReplaced()) {
 					place(level, spot, kind, random);
 				}
 				return;
@@ -179,6 +202,15 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 			level.destroyBlock(pos, true);
 		}
 		level.setBlock(pos, state, Block.UPDATE_ALL);
+	}
+
+	/**
+	 * A still water source, the surface a carpet floats on. Flowing water is not a surface: it stops the search.
+	 */
+	private static boolean isWaterSurface(BlockGetter level, BlockPos pos) {
+		FluidState fluid = level.getFluidState(pos);
+		return fluid.is(FluidTags.WATER) && fluid.isSource()
+				&& level.getFluidState(pos.above()).isEmpty();
 	}
 
 	/**

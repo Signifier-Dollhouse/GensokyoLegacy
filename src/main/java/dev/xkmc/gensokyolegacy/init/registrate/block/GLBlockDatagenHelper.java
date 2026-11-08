@@ -5,6 +5,7 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
+import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesItem;
 import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
@@ -39,7 +40,7 @@ import java.util.List;
 
 public class GLBlockDatagenHelper {
 	public static BlockEntry<SimpleBushBlock> regTowerGrass(L2Registrate reg, String size) {
-		return reg.block("tower_grass_" + size, p -> new SimpleBushBlock(p, Block.box(0, 0, 0, 16, 27, 16)))
+		return reg.block("tower_grass_" + size, SimpleBushBlock::new)
 				.properties(p -> p.mapColor(MapColor.PLANT).instabreak().sound(SoundType.GRASS)
 						.noOcclusion().noCollission().pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models()
@@ -81,7 +82,7 @@ public class GLBlockDatagenHelper {
 	 */
 	public static BlockEntry<FallenLeavesBlock> regFallenLeaves(L2Registrate reg, String id) {
 		return reg.block(id, FallenLeavesBlock::new)
-				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission())
+				.properties(p -> p.mapColor(MapColor.PLANT).sound(SoundType.GRASS).noOcclusion().noCollission().randomTicks())
 				.blockstate((ctx, pvd) -> {
 					var layer1 = pvd.models().getBuilder("block/" + ctx.getName() + "_layer1")
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
@@ -103,7 +104,7 @@ public class GLBlockDatagenHelper {
 					}
 				})
 				.loot(FallenLeavesBlock::loot)
-				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+				.item(FallenLeavesItem::new).model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/" + id + "_layer1")))
 				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))

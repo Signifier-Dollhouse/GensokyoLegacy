@@ -5,6 +5,7 @@ import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -43,7 +44,8 @@ public record VariantImpl(int max, IntegerProperty variant) implements
 
 	@Override
 	public BlockState getStateForPlacement(BlockState state, BlockPlaceContext ctx) {
-		return state.setValue(variant, ctx.getLevel().random.nextInt(0, max + 1));
+		long seed = state.getBlock().defaultBlockState().getSeed(ctx.getClickedPos());
+		return state.setValue(variant, RandomSource.create(seed).nextInt(max + 1));
 	}
 
 }

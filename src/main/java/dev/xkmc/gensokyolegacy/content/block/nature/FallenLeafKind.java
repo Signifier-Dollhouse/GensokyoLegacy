@@ -68,6 +68,18 @@ public enum FallenLeafKind {
 	}
 
 	/**
+	 * The mixed carpet this species turns into on its own: a single-colour maple joins the other
+	 * maples, the locust joins every species. Null for the species that have no mixed carpet.
+	 */
+	public @Nullable FallenLeafKind mixed() {
+		return switch (this) {
+			case ORANGE_MAPLE, RED_MAPLE, YELLOW_MAPLE -> MIXED_MAPLE;
+			case LOCUST -> MIXED;
+			default -> null;
+		};
+	}
+
+	/**
 	 * The carpet of fallen leaves of this species.
 	 */
 	public Block fallenLeaves() {

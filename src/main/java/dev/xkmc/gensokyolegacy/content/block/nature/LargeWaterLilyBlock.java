@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.nature;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -53,7 +54,8 @@ public class LargeWaterLilyBlock extends WaterLilyBlock {
 	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockState state = super.getStateForPlacement(context);
 		if (state == null) return null;
-		return state.setValue(VARIANT, context.getLevel().getRandom().nextInt(VARIANTS));
+		long seed = state.getBlock().defaultBlockState().getSeed(context.getClickedPos());
+		return state.setValue(VARIANT, RandomSource.create(seed).nextInt(VARIANTS));
 	}
 
 	@Override
