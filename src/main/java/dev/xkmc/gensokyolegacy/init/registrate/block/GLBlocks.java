@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketBlock;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
@@ -90,6 +91,8 @@ public class GLBlocks {
 
 	public static final BlockEntry<DelegateBlock> SEALING_POT;
 
+	public static final BlockEntry<DelegateBlock> TREASURE_BASKET;
+
 	public static final BlockEntry<DelegateBlock> PLATE;
 	public static final BlockEntityEntry<PlateBlockEntity> PLATE_BE;
 
@@ -144,6 +147,20 @@ public class GLBlocks {
 							pvd.models().getBuilder("block/" + ctx.getName())
 									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
 									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
+									.renderType("cutout")))
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
+					.build()
+					.register();
+
+			// 宝物篮：截留范围内超时消失的物品，暂用封魔壶的外观
+			TREASURE_BASKET = GensokyoLegacy.REGISTRATE.block("treasure_basket", p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape(), new TreasureBasketBlock()))
+					.properties(p -> p.mapColor(MapColor.NONE).strength(2.0F).sound(SoundType.STONE).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+							pvd.models().getBuilder("block/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/sealing_pot")))
+									.texture("all", pvd.modLoc("block/utensil/sealing_pot"))
 									.renderType("cutout")))
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
