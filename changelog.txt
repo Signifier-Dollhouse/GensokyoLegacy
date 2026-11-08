@@ -1,8 +1,10 @@
 1.0.7
-- wild dolls, wild ghost, and tamed ghost
-- bone flute, yuyuko fan, nue's trident, anchor
+- new biome: myouren temple barren
+- wild ghost, and tamed ghost
+- bone flute, yuyuko fan, anchor
 - coins replacing emerald as currency
 - fix character reputation restore from negative being too slow
+- fix structure search lag
 - fix doll damage won't aggravate target
 - fix doll being recolored by other player
 
