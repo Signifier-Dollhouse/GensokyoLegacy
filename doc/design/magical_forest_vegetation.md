@@ -269,7 +269,7 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 池塘不是植被层，排在更早的 `LAKES` 步（`MagicalForestBiomeGen#build`），这样所有树都在水面刻好之后才放：
 
 - 每 6 区块平均一个（`RarityFilter.onAverageOnceEvery(6)`），只长在干燥陆地上，不会铺到海洋上（`SurfaceWaterDepthFilter.forMaxDepth(0)` + `BiomeFilter`），并与 §8 那组建筑（魔理沙的家、香霖堂、博丽神社、爱丽丝的家）保持 11 格距离。
-- `LakeFeature`（`mode = surface`）在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。同一个 feature 的 `mode = underground` 是旧地狱洞窟里的水潭，见 `gensokyo_biomes.md` §2.1。
+- `LakeFeature`（`mode = surface`）在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。岸线比水面低一格的柱子用岸边方块补平，不会因此否决整个池塘。同一个 feature 的 `mode = underground` 是旧地狱洞窟里的水潭，见 `gensokyo_biomes.md` §2.1。
 - **树不会长进水里**：`TemplateFeature` 自带"锚点地面无流体"的检查，池塘先刻好，巨木/大树自然就避开了，不需要额外的排斥过滤器。
 
 ---

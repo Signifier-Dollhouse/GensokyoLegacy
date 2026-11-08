@@ -236,6 +236,8 @@ public class LakeMaker {
 
 	/**
 	 * A pond is only dug into ground: its rim under the waterline is solid, and nothing floods it from above.
+	 * A rim column a single block low is the edge of a bank and not a hole: {@link #genSurface} paves its top
+	 * row with the rim's own block, so it does not fail the fit.
 	 */
 	private boolean groundFits(WorldGenLevel level, BlockPos origin) {
 		int depth = config.shape().depth();
@@ -247,8 +249,11 @@ public class LakeMaker {
 					pos.setWithOffset(origin, dx - maxHor / 2, dy, dz - maxHor / 2);
 					BlockState block = level.getBlockState(pos);
 					if (dy >= depth && block.liquid()) return false;
+					// a top rim cell one block low, standing on ground, is paved by genSurface; deeper cells reject
+					boolean lowRim = depth > 1 && dy == depth - 1 && block.isAir()
+							&& level.getBlockState(pos.below()).isSolid();
 					// rim below the waterline must be solid ground: no ponds on ocean or over cavities
-					if (dy < depth && !block.isSolid()) return false;
+					if (dy < depth && !block.isSolid() && !lowRim) return false;
 				}
 			}
 		}
