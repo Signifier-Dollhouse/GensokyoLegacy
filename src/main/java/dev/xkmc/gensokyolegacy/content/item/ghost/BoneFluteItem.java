@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -58,6 +59,7 @@ public class BoneFluteItem extends Item {
 				return InteractionResult.FAIL;
 			}
 			play(sp, 1.2F);
+			GLCriteriaTriggers.BIND_GHOST.get().trigger(sp);
 		} else {
 			GhostEntity ghost = (GhostEntity) target;
 			if (!ghost.isOwner(sp)) {

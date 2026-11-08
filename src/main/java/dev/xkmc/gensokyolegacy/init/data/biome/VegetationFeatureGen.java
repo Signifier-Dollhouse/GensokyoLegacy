@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFea
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 /**
- * The configured features that are trees rather than anything a single biome lays down: the mod's own mushrooms and
- * blue firs, which the magical forest's templates place and which a sapling regrows into.
+ * The configured features that are trees rather than anything a single biome lays down: the mod's own mushrooms, blue
+ * firs and the locust sapling's mixed tree, which the magical forest's templates place and which a sapling regrows into.
  * <p>
  * Everything else is a biome's business. {@code BiomeGen.build} owns the single {@code CONFIGURED_FEATURE} bootstrap
  * and calls this first, so a biome can put a tree in its own list without this file naming it.
@@ -35,6 +35,8 @@ public class VegetationFeatureGen {
 		}
 		for (var type : TreeType.values()) {
 			ctx.register(type.cfKey, type.createConfiguredFeature());
+			if (type.saplingShape.isPresent())
+				ctx.register(type.saplingTree.orElseThrow(), type.createSaplingFeature());
 		}
 	}
 

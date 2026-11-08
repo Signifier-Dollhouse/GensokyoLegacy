@@ -9,9 +9,11 @@ import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2core.serial.advancements.AdvancementGenerator;
 import dev.xkmc.l2core.serial.advancements.CriterionBuilder;
 import net.minecraft.advancements.Advancement;
@@ -61,6 +63,13 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_FAIRY_ICE_CRYSTAL = GensokyoLegacy.loc("main/obtain_fairy_ice_crystal");
 	public static final ResourceLocation OBTAIN_FROZEN_FROG = GensokyoLegacy.loc("main/obtain_frozen_frog");
 	public static final ResourceLocation OBTAIN_WINGS = GensokyoLegacy.loc("main/obtain_wings");
+
+	public static final ResourceLocation GRAVESTONE_SUMMON = GensokyoLegacy.loc("main/gravestone_summon");
+	public static final ResourceLocation BIND_GHOST = GensokyoLegacy.loc("main/bind_ghost");
+	public static final ResourceLocation OBTAIN_YUYUKO_FAN = GensokyoLegacy.loc("main/obtain_yuyuko_fan");
+	public static final ResourceLocation OBTAIN_SPIRITUAL_TOOL = GensokyoLegacy.loc("main/obtain_spiritual_tool");
+	public static final ResourceLocation JIZO_RESTORE = GensokyoLegacy.loc("main/jizo_restore");
+	public static final ResourceLocation GAIN_SPIRITUAL = GensokyoLegacy.loc("main/gain_spiritual");
 
 	/**
 	 * The criterion both feed advancements share, built off the entity type rather than the food: the dish is always
@@ -179,6 +188,35 @@ public class GLAdvGen {
 						anyItem(GLItems.ICE_WINGS.asItem(), GLItems.FAIRY_WINGS.asItem()),
 						"Wings", "Obtain a pair of wings")
 				.type(AdvancementType.TASK, false, false, false);
+		// The ghost chain starts at the grave: the offering is what brings a stray into the world,
+		// and the flute is the next step that keeps it.
+		var gravestone = root.create("gravestone_summon", GLFurniture.GRAVESTONE.asItem(),
+						CriterionBuilder.player(GLCriteriaTriggers.GRAVESTONE_SUMMON.get()),
+						"Grave Offering", "Summon a ghost with an offering at a gravestone")
+				.type(AdvancementType.TASK, true, true, false);
+		var bindGhost = gravestone.create("bind_ghost", GLItems.BONE_FLUTE.get(),
+						CriterionBuilder.player(GLCriteriaTriggers.BIND_GHOST.get()),
+						"Bone Flute", "Bind a wild ghost with a bone flute")
+				.type(AdvancementType.TASK, true, true, false);
+		bindGhost.create("obtain_yuyuko_fan", GLItems.YUYUKO_FAN.get(),
+						CriterionBuilder.item(GLItems.YUYUKO_FAN.get()),
+						"Yuyuko's Fan", "Obtain Yuyuko's Fan")
+				.type(AdvancementType.TASK, true, true, false);
+		// Spiritual power is its own branch: the fan and the anchor both carry a pool, so the icon
+		// is the anchor and the tag keeps future carriers from needing a second advancement.
+		var spiritualTool = root.create("obtain_spiritual_tool", GLItems.MINAMITSU_ANCHOR.get(),
+						CriterionBuilder.item(GLTagGen.SPIRITUAL_TOOLS),
+						"Spiritual Tool", "Obtain a tool that holds spiritual power")
+				.type(AdvancementType.TASK, true, true, false);
+		spiritualTool.create("jizo_restore", GLFurniture.JIZO.asItem(),
+						CriterionBuilder.player(GLCriteriaTriggers.JIZO_RESTORE.get()),
+						"Jizo's Blessing", "Restore spiritual power at a Jizo statue")
+				.type(AdvancementType.TASK, true, true, false);
+		spiritualTool.create("gain_spiritual", GLItems.GOLDEN_LOTUS_TEA.get(),
+						CriterionBuilder.one(EffectsChangedTrigger.TriggerInstance.hasEffects(
+								MobEffectsPredicate.Builder.effects().and(GLEffects.SPIRITUAL))),
+						"Spiritual Surge", "Gain the Spiritual effect")
+				.type(AdvancementType.TASK, true, true, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),
 						"Paper Talismans", "Obtain a paper talisman")

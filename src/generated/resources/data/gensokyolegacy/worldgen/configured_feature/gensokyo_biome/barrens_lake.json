@@ -348,12 +348,12 @@
     "mode": "surface",
     "shape": {
       "component_radius": 6,
-      "depth": 3,
+      "depth": 2,
       "margin": 2,
-      "max_component": 4,
+      "max_component": 5,
       "max_height": 6,
       "max_width": 18,
-      "min_component": 2
+      "min_component": 3
     }
   }
 }

@@ -43,6 +43,11 @@ public class GLTagGen {
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 
 	/**
+	 * Items carrying a {@code spiritual_power_max} component, so an advancement can ask for any of them.
+	 */
+	public static final TagKey<Item> SPIRITUAL_TOOLS = item("spiritual_tools");
+
+	/**
 	 * The player-facing spell card items, distinct from danmaku_api's own {@code preset_spell}.
 	 */
 	public static final TagKey<Item> SPELL_CARD = item("spell_card");

@@ -1,0 +1,26 @@
+{
+  "parent": "gensokyolegacy:main/welcome",
+  "criteria": {
+    "0": {
+      "trigger": "gensokyolegacy:gravestone_summon"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.gravestone_summon.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:gravestone"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.gravestone_summon.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

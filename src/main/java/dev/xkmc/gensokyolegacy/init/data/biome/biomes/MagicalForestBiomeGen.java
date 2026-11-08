@@ -334,7 +334,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 				.setValue(SmallDripleafBlock.FACING, Direction.NORTH);
 		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.SURFACE, 0,
-				new LakeConfig.Shape(4, 24, 8, 3, 5, 8, 3),
+				new LakeConfig.Shape(3, 24, 8, 3, 5, 8, 3),
 				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.CLAY.defaultBlockState(),
 						Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState()),
 				List.of(

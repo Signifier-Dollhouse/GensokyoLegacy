@@ -1,0 +1,26 @@
+{
+  "parent": "gensokyolegacy:main/obtain_spiritual_tool",
+  "criteria": {
+    "0": {
+      "trigger": "gensokyolegacy:jizo_restore"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.jizo_restore.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:jizo"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.jizo_restore.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

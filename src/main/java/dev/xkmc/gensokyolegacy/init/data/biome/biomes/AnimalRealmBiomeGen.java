@@ -77,7 +77,7 @@ public class AnimalRealmBiomeGen extends AbstractBiomeGen {
 		// is the order the two hell rows are written in.
 		FeatureUtils.register(ctx, ANIMAL_REALM_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.UNDERGROUND, 5,
-				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 1),
+				new LakeConfig.Shape(3, 20, 11, 3, 4, 6, 1),
 				new LakeConfig.Material(Blocks.LAVA.defaultBlockState(), Blocks.AIR.defaultBlockState(),
 						Blocks.NETHERRACK.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
 	}

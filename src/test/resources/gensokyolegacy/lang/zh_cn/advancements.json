@@ -105,6 +105,30 @@
 				"obtain_wings": {
 					"title": "翅膀",
 					"description": "获得一对翅膀"
+				},
+				"gravestone_summon": {
+					"title": "墓碑供奉",
+					"description": "在墓碑上供奉食物，召唤一只幽灵"
+				},
+				"bind_ghost": {
+					"title": "骨笛",
+					"description": "用骨笛收服一只野生幽灵"
+				},
+				"obtain_yuyuko_fan": {
+					"title": "幽幽子的扇子",
+					"description": "获得幽幽子的扇子"
+				},
+				"obtain_spiritual_tool": {
+					"title": "灵力容器",
+					"description": "获得一件可以储存灵力的工具"
+				},
+				"jizo_restore": {
+					"title": "地藏的庇佑",
+					"description": "在地藏像前恢复灵力"
+				},
+				"gain_spiritual": {
+					"title": "灵力涌动",
+					"description": "获得灵力效果"
 				}
 			}
 		}

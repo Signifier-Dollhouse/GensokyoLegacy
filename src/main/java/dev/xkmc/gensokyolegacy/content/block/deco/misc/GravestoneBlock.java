@@ -106,7 +106,7 @@ public class GravestoneBlock implements ShapePathFindBlockMethod, DefaultStateBl
 		if (!level.isClientSide) {
 			be.stack = stack.copyWithCount(1);
 			stack.shrink(1);
-			be.startRitual();
+			be.startRitual(player);
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5F, 1.2F);
 		}
 		return ItemInteractionResult.SUCCESS;

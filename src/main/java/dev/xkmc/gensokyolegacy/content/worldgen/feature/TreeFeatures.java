@@ -19,6 +19,8 @@ import net.minecraft.util.valueproviders.WeightedListInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration.TreeConfigurationBuilder;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.CherryFoliagePlacer;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePl
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.CherryTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 
 import java.util.List;
@@ -83,6 +86,24 @@ public class TreeFeatures {
 					"maple_tree_01", "maple_tree_02", "maple_tree_03", "maple_tree_04", "maple_tree_05");
 		}
 
+		/**
+		 * The five hand-built locust trunks, one of which a sapling grows into.
+		 */
+		TreeShape LOCUST = new Templates("locust_1", "locust_2", "locust_3", "locust_4", "locust_5");
+
+		/**
+		 * The first shape with the given chance and the second otherwise, through vanilla's random selector.
+		 */
+		record Pick(TreeShape first, float firstChance, TreeShape second) implements TreeShape {
+			@Override
+			public ConfiguredFeature<?, ?> build(BlockStateProvider log, BlockStateProvider leaves) {
+				var firstPlaced = Holder.direct(new PlacedFeature(Holder.direct(first.build(log, leaves)), List.of()));
+				var secondPlaced = Holder.direct(new PlacedFeature(Holder.direct(second.build(log, leaves)), List.of()));
+				return new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(
+						List.of(new WeightedPlacedFeature(firstPlaced, firstChance)), secondPlaced));
+			}
+		}
+
 		record Templates(Supplier<Map<Block, Block>> replacements, String... ids) implements TreeShape {
 			Templates(String... ids) {
 				this(Map::of, ids);
@@ -123,8 +144,9 @@ public class TreeFeatures {
 						() -> GLNaturalBlocks.YELLOW_MAPLE_FALLEN_LEAVES.get())),
 		PINK_CHERRY("pink_cherry_tree", () -> GLNaturalBlocks.PINK_CHERRY_SET, TreeShape.CHERRY),
 		PURPLE_CHERRY("purple_cherry_tree", () -> GLNaturalBlocks.PURPLE_CHERRY_SET, TreeShape.CHERRY),
-		LOCUST("locust_tree", () -> GLNaturalBlocks.LOCUST_SET,
-				new TreeShape.Templates("locust_1", "locust_2", "locust_3", "locust_4", "locust_5")),
+		LOCUST("locust_tree", () -> GLNaturalBlocks.LOCUST_SET, TreeShape.LOCUST,
+				new TreeShape.Pick(TreeShape.CHERRY, 0.5F, TreeShape.LOCUST),
+				ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc("locust_sapling_tree"))),
 		;
 
 		public final String id;
@@ -136,22 +158,32 @@ public class TreeFeatures {
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree;
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega;
 		public final Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant;
+		// what a sapling grows when that is not simply the worldgen shape
+		public final Optional<TreeShape> saplingShape;
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
 				 ResourceKey<ConfiguredFeature<?, ?>> saplingTree,
 				 ResourceKey<ConfiguredFeature<?, ?>> saplingMega, ResourceKey<ConfiguredFeature<?, ?>> saplingGiant) {
-			this(id, set, shape, Optional.of(saplingTree), Optional.of(saplingMega), Optional.of(saplingGiant));
+			this(id, set, shape, Optional.of(saplingTree), Optional.of(saplingMega), Optional.of(saplingGiant),
+					Optional.empty());
 		}
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape) {
 			this(id, set, shape, Optional.of(ResourceKey.create(Registries.CONFIGURED_FEATURE, GensokyoLegacy.loc(id))),
-					Optional.empty(), Optional.empty());
+					Optional.empty(), Optional.empty(), Optional.empty());
+		}
+
+		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape, TreeShape saplingShape,
+				 ResourceKey<ConfiguredFeature<?, ?>> saplingTree) {
+			this(id, set, shape, Optional.of(saplingTree), Optional.empty(), Optional.empty(),
+					Optional.of(saplingShape));
 		}
 
 		TreeType(String id, Supplier<GLNaturalBlocks.TreeSet> set, TreeShape shape,
 				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingTree,
 				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingMega,
-				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant) {
+				 Optional<ResourceKey<ConfiguredFeature<?, ?>>> saplingGiant,
+				 Optional<TreeShape> saplingShape) {
 			this.id = id;
 			this.shape = shape;
 			this.set = set;
@@ -159,9 +191,18 @@ public class TreeFeatures {
 			this.saplingTree = saplingTree;
 			this.saplingMega = saplingMega;
 			this.saplingGiant = saplingGiant;
+			this.saplingShape = saplingShape;
 		}
 
 		public ConfiguredFeature<?, ?> createConfiguredFeature() {
+			return build(shape);
+		}
+
+		public ConfiguredFeature<?, ?> createSaplingFeature() {
+			return build(saplingShape.orElseThrow());
+		}
+
+		private ConfiguredFeature<?, ?> build(TreeShape shape) {
 			var set = this.set.get();
 			return shape.build(BlockStateProvider.simple(set.trunk.get()), BlockStateProvider.simple(set.leaves.get()));
 		}

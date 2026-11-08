@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPowerHolder;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostVariant;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
+import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
@@ -15,7 +16,9 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.Util;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +29,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * The one food item the gravestone serves. Storage and pickup are the plate's; the difference is
@@ -58,6 +63,12 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 	@SerialField
 	private int ritual;
 
+	/**
+	 * Who started the ritual, so the advancement fires for them when the ghost appears.
+	 */
+	@SerialField
+	private UUID summoner = Util.NIL_UUID;
+
 	public GravestoneBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
@@ -79,8 +90,9 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 		return true;
 	}
 
-	public void startRitual() {
+	public void startRitual(Player player) {
 		ritual = RITUAL_TICKS;
+		summoner = player.getUUID();
 		if (level instanceof ServerLevel sl)
 			ChunkMiscDataAttachment.of(sl.getChunkAt(getBlockPos())).startSummon(sl.getGameTime());
 		notifyTile();
@@ -97,6 +109,7 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 	public void take(Player player) {
 		// super.take syncs the tile, so the halted ritual reaches the client with the empty stack
 		ritual = 0;
+		summoner = Util.NIL_UUID;
 		super.take(player);
 	}
 
@@ -144,7 +157,12 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 		stack = props == null ? ItemStack.EMPTY
 				: props.usingConvertsTo().map(ItemStack::copy).orElse(ItemStack.EMPTY);
 		notifyTile();
-		if (level instanceof ServerLevel sl) summon(sl, variant);
+		if (level instanceof ServerLevel sl) {
+			summon(sl, variant);
+			if (sl.getServer().getPlayerList().getPlayer(summoner) instanceof ServerPlayer sp)
+				GLCriteriaTriggers.GRAVESTONE_SUMMON.get().trigger(sp);
+			summoner = Util.NIL_UUID;
+		}
 	}
 
 	private void summon(ServerLevel level, GhostVariant variant) {

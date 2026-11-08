@@ -269,7 +269,7 @@ datagen 注册两个 `worldgen/noise`（`magical_forest_type`：firstOctave −7
 池塘不是植被层，排在更早的 `LAKES` 步（`MagicalForestBiomeGen#build`），这样所有树都在水面刻好之后才放：
 
 - 每 6 区块平均一个（`RarityFilter.onAverageOnceEvery(6)`），只长在干燥陆地上，不会铺到海洋上（`SurfaceWaterDepthFilter.forMaxDepth(0)` + `BiomeFilter`），并与 §8 那组建筑（魔理沙的家、香霖堂、博丽神社、爱丽丝的家）保持 11 格距离。
-- `LakeFeature`（`mode = surface`）在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。同一个 feature 的 `mode = underground` 是旧地狱洞窟里的水潭，见 `gensokyo_biomes.md` §2.1。
+- `LakeFeature`（`mode = surface`）在一个 24×24 的框内（`margin = 3`）合并 3–5 个半径 8 的椭球，实测半径约 6–9 格；水下铺黏土、四周垫泥土、岸边是草皮，再按 `decorations` 列表在水边种睡莲、小垂叶、菖蒲。岸线比水面低一格的柱子用岸边方块补平，不会因此否决整个池塘。同一个 feature 的 `mode = underground` 是旧地狱洞窟里的水潭，见 `gensokyo_biomes.md` §2.1。
 - **树不会长进水里**：`TemplateFeature` 自带"锚点地面无流体"的检查，池塘先刻好，巨木/大树自然就避开了，不需要额外的排斥过滤器。
 
 ---
@@ -333,11 +333,11 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 六个 `TreeType` 最初只注册 configured feature，树苗是它们唯一的入口；现在其中六个也参与世界生成：三档枫树由「山脚 → 天狗集落 → 无人之谷」这条枫林带种下（无人之谷另有橡树与白桦，枫树占一半），粉樱取代原版 `minecraft:trees_cherry` 种满樱花森林，紫樱只长在无之塚这一个墓地群系（无之塚槐树占一半、紫樱占四分之一，余下是橡树与白桦，共四棵一块），命莲寺原野全是槐树六棵一块。共享的是 configured feature，每片林子几棵树是各群系自己的 placed feature。枫林带、樱花林与无之塚都另铺一层本物种的落叶地毯（枫林带三种枫叶混铺，樱花林只落粉樱，无之塚只落紫樱），铺法就是魔法森林那套 `canopy` + `MOTION_BLOCKING_NO_LEAVES` heightmap，现已提到 `Registrar.litter` 上供普通群系使用。详见 `gensokyo_biomes.md` §2.2。
 
-树形由 `TreeFeatures.TreeShape` 给出：枫、槐使用手工模板，樱用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以樱树照常会掉最外圈叶子。
+树形由 `TreeFeatures.TreeShape` 给出：枫、槐使用手工模板（槐树苗另有一半长成樱树的树形），樱用原版 `minecraft:cherry` 的 `CherryTrunkPlacer` + `CherryFoliagePlacer`。原版 `TreeFeature` 放置后按树干重算 `distance`，所以樱树照常会掉最外圈叶子。
 
 红、橙、黄枫树苗自然生长或骨粉催熟时，共用 `magical_forest/tree/maple_tree_01` 到 `maple_tree_05` 五种手工树形，各占 20%，再随机旋转、镜像。模板按槐树的规则去空气、居中树干锚点、重算叶片距离，保留枫木朝向、落叶层数和树干蘑菇。原模板使用红枫叶，`TemplateReplaceProcessor` 在放置时将树叶与落叶替换为树苗对应的颜色，并保留 `distance`、`persistent`、`waterlogged`、`layers` 和 `facing`；共用同一份模板，不复制三套 NBT。替换发生在模板混合处理之后，装饰支撑检查仍由 `TemplateBlendProcessor` 完成。生长沿用槐树的地面、树根和净空配置。
 
-槐树的 `locust_tree` 改用 `TemplateFeature`，单棵树苗自然生长或骨粉催熟时，从 `magical_forest/tree/locust_1` 到 `locust_5` 五个手工模板中等权随机选一个，再随机旋转、镜像。模板来自 `huaishu_01.nbt` 到 `huaishu_05.nbt`：去除空气，以最低层槐木中离该层质心最近的一格为锚点，裁剪并补齐到奇数宽深，使锚点位于底面中心；树叶重算 `distance`，距离 ≤ 6 的设为 `persistent=false`，距离 7 的保留。原有方块相对位置、木头朝向和空心槐木均保留。生长只检查树苗脚下的泥土地面，不要求周边地面平整，底层树根最多下延 3 格，不附加地表装饰。
+槐树的 `locust_tree` 改用 `TemplateFeature`，从 `magical_forest/tree/locust_1` 到 `locust_5` 五个手工模板中等权随机选一个，再随机旋转、镜像。模板来自 `huaishu_01.nbt` 到 `huaishu_05.nbt`：去除空气，以最低层槐木中离该层质心最近的一格为锚点，裁剪并补齐到奇数宽深，使锚点位于底面中心；树叶重算 `distance`，距离 ≤ 6 的设为 `persistent=false`，距离 7 的保留。原有方块相对位置、木头朝向和空心槐木均保留。生长只检查树苗脚下的泥土地面，不要求周边地面平整，底层树根最多下延 3 格，不附加地表装饰。种下的槐树苗另走 `locust_sapling_tree`：一半概率长成原版樱树的树形（`CherryTrunkPlacer` + `CherryFoliagePlacer`，树干与树叶仍是槐木 / 槐叶），另一半仍从五个模板中等权随机选一个，两者由 `minecraft:random_selector` 各占 50%。世界生成的无之塚与命莲寺原野仍只种 `locust_tree` 的模板树形。
 
 ---
 

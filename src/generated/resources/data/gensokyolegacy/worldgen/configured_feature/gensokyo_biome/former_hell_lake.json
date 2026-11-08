@@ -16,7 +16,7 @@
     "mode": "underground",
     "shape": {
       "component_radius": 6,
-      "depth": 4,
+      "depth": 3,
       "margin": 1,
       "max_component": 4,
       "max_height": 11,

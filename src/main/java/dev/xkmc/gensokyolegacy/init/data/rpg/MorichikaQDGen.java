@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
@@ -85,6 +86,13 @@ public class MorichikaQDGen extends QuestDialogData {
 				new TradeRecurrence(16, 24000), item(Items.EMERALD, 8));
 		trade("swap_coin_to_emerald", GLEntities.MORICHIKA.get(), new ItemStack(Items.EMERALD),
 				new TradeRecurrence(16, 24000), item(GLItems.COIN.get(), 1));
+
+		// The tea only restores a spiritual pool, so it waits until the customer owns something
+		// that has one.
+		trade("brew_golden_lotus_tea", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(new HasAdvancementCondition(GLAdvGen.OBTAIN_SPIRITUAL_TOOL)),
+				GLItems.GOLDEN_LOTUS_TEA.asStack(),
+				new TradeRecurrence(16, 24000), List.of(item(GLNaturalBlocks.GOLDEN_LOTUS.get(), 2))));
 
 		trade("offer_koishi_hat", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.KOISHI_HAT)),
