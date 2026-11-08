@@ -76,7 +76,7 @@ public class FormerHellBiomeGen extends AbstractBiomeGen {
 		// reads as a ledge floating over nothing.
 		FeatureUtils.register(ctx, FORMER_HELL_LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.UNDERGROUND, 5,
-				new LakeConfig.Shape(4, 20, 11, 3, 4, 6, 1),
+				new LakeConfig.Shape(3, 20, 11, 3, 4, 6, 1),
 				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.AIR.defaultBlockState(),
 						Blocks.STONE_BRICKS.defaultBlockState(), Blocks.AIR.defaultBlockState()), List.of()));
 	}

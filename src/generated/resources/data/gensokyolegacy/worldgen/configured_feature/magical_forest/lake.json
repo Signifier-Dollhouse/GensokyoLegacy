@@ -401,7 +401,7 @@
     "mode": "surface",
     "shape": {
       "component_radius": 8,
-      "depth": 4,
+      "depth": 3,
       "margin": 3,
       "max_component": 5,
       "max_height": 8,

@@ -111,7 +111,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		// the pool: a small one dug into the waste, with the mod's lilies on it
 		FeatureUtils.register(ctx, LAKE, GLWorldGen.LAKE.get(), new LakeConfig(
 				LakeConfig.Mode.SURFACE, 0,
-				new LakeConfig.Shape(3, 18, 6, 2, 4, 6, 2),
+				new LakeConfig.Shape(2, 18, 6, 3, 5, 6, 2),
 				new LakeConfig.Material(Blocks.WATER.defaultBlockState(), Blocks.CLAY.defaultBlockState(),
 						Blocks.COARSE_DIRT.defaultBlockState(), Blocks.COARSE_DIRT.defaultBlockState()),
 				List.of(new LakeConfig.Deco(LakeConfig.Target.FLOATING,

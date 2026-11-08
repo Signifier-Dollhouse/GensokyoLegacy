@@ -77,12 +77,12 @@ public class LakeMaker {
 		int radius = shape.componentRadius();
 		int offset = shape.margin();
 		int bottom = 2;
-		int maxThick = Math.min(depth, maxVer - bottom - 2);
-		// A blob is dropped inside the water zone rather than inside the box, so that its middle is `depth` - 1 blocks
-		// of water deep and only its rim tapers: a box taller than its lake carries room above the waterline only so
-		// that the clearance can be checked, and spreading the blobs over the box would leave them a lens of water
-		// sitting on the bed. The mask may still reach past the waterline into the air the maker cuts above it.
-		int bodyLow = bottom - 1;
+		boolean surface = config.mode() == LakeConfig.Mode.SURFACE;
+		// A pond's blob spans the water zone and the air pocket above it, so it is taller than a pool's.
+		int maxThick = surface ? Math.min(depth + 1, maxVer - 2) : Math.min(depth, maxVer - bottom - 2);
+		// Blobs sit inside the water zone so only the rim tapers, though the mask may reach into the air above.
+		// A pond's blob starts below the box floor, or the strict test loses row 0 and the pond is two blocks shallow.
+		int bodyLow = surface ? -1 : bottom - 1;
 		int bodyHigh = bodyTop();
 		Arrays.fill(valid, 0);
 		for (int trial = 0; trial < size; trial++) {
@@ -105,7 +105,7 @@ public class LakeMaker {
 					double y2 = 1 - x0 * x0 - z0 * z0;
 					if (y2 < 0) continue;
 					double vy = Math.sqrt(y2) * (ry / 2);
-					int minY = Math.max(bodyLow, (int) (dy - vy));
+					int minY = Math.max(Math.max(bodyLow, 0), (int) (dy - vy));
 					int maxY = Math.min(bodyHigh, (int) (dy + vy));
 					int mask = 0;
 					for (int y = minY; y <= maxY; y++) {
@@ -118,6 +118,7 @@ public class LakeMaker {
 				}
 			}
 		}
+		if (surface) levelSurface(depth);
 		for (int dx = 0; dx < maxHor; dx++) {
 			for (int dz = 0; dz < maxHor; dz++) {
 				int index = dx * maxHor + dz;
@@ -146,6 +147,21 @@ public class LakeMaker {
 			edge = copy;
 		}
 		if (config.mode() == LakeConfig.Mode.UNDERGROUND) resolve(level, origin);
+	}
+
+	/**
+	 * A pond's surface is level: every column the blobs reach below the waterline is filled up to it, so only the
+	 * bottom follows the blob and a thin blob cannot leave the surface a block low.
+	 */
+	private void levelSurface(int depth) {
+		int water = (1 << depth) - 1;
+		for (int i = 0; i < valid.length; i++) {
+			int mask = valid[i];
+			if (mask == 0) continue;
+			int low = Integer.numberOfTrailingZeros(mask);
+			if (low >= depth) continue;
+			valid[i] = mask | (water & ~((1 << low) - 1));
+		}
 	}
 
 	/**
@@ -213,6 +229,17 @@ public class LakeMaker {
 			if (isValid(dx, dy, dz)) return dy;
 		}
 		return -1;
+	}
+
+	/**
+	 * Whether this footprint column is part of the pond rather than its rim. A pond's water can reach row 0, which
+	 * {@link #waterBottom} skips because the cavern pool keeps its bed there.
+	 */
+	private boolean holdsWater(int dx, int dz) {
+		for (int dy = 0; dy < config.shape().depth(); dy++) {
+			if (isValid(dx, dy, dz)) return true;
+		}
+		return false;
 	}
 
 	/**
@@ -294,9 +321,7 @@ public class LakeMaker {
 		return true;
 	}
 
-	/**
-	 * The highest block of the carved body: {@code depth} - 1 of water and two blocks of air above it.
-	 */
+	/** The highest block of the carved body: the air pocket above the waterline at {@code depth} - 1. */
 	private int bodyTop() {
 		return Math.min(maxVer - 2, config.shape().depth() + 2);
 	}
@@ -315,6 +340,7 @@ public class LakeMaker {
 		var pos = new BlockPos.MutableBlockPos();
 		for (int dx = 0; dx < maxHor; dx++) {
 			for (int dz = 0; dz < maxHor; dz++) {
+				boolean water = holdsWater(dx, dz);
 				for (int dy = 0; dy < maxVer; dy++) {
 					boolean body = isValid(dx, dy, dz);
 					if (!body && !isEdge(dx, dy, dz)) continue;
@@ -327,23 +353,30 @@ public class LakeMaker {
 						}
 						continue;
 					}
-					if ((dy < depth || state.isSolid() && rand.nextInt(2) != 0) &&
-							!state.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) {
-						boolean surface = dy >= depth - 1;
-						boolean isWet = isWet(dx, dy, dz);
-						if (surface) {
-							pos.move(Direction.UP);
-							surface = level.getBlockState(pos).isAir();
-							pos.move(Direction.DOWN);
+					if (state.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) continue;
+					// Above the waterline, ground raised over a pond column is opened so it cannot roof the water;
+					// the same row over a rim column is the bank and gets capped instead.
+					if (dy >= depth) {
+						if (water) {
+							if (canReplaceBlock(state)) parent.setAir(level, pos);
+							continue;
 						}
-						if (surface) {
-							if (isWet && rand.nextFloat() < 0.4f)
-								parent.setBarrier(level, pos, material.barrier());
-							else parent.setBarrier(level, pos, material.surface());
-						} else if (isWet && rand.nextFloat() < 0.7f)
-							parent.setBarrier(level, pos, material.barrier());
-						else parent.setBarrier(level, pos, material.padding());
+						if (!state.isSolid()) continue;
 					}
+					boolean surface = dy >= depth - 1;
+					boolean isWet = isWet(dx, dy, dz);
+					if (surface) {
+						pos.move(Direction.UP);
+						surface = level.getBlockState(pos).isAir();
+						pos.move(Direction.DOWN);
+					}
+					if (surface) {
+						if (isWet && rand.nextFloat() < 0.4f)
+							parent.setBarrier(level, pos, material.barrier());
+						else parent.setBarrier(level, pos, material.surface());
+					} else if (isWet && rand.nextFloat() < 0.7f)
+						parent.setBarrier(level, pos, material.barrier());
+					else parent.setBarrier(level, pos, material.padding());
 				}
 			}
 		}
