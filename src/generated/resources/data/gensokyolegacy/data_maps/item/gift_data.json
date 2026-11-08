@@ -35,6 +35,11 @@
       "cooldown": 1000,
       "favor": 5
     },
+    "gensokyolegacy:golden_lotus_tea": {
+      "type": "DRINK",
+      "cooldown": 1000,
+      "favor": 4
+    },
     "gensokyolegacy:kappa_bento": {
       "type": "FOOD",
       "cooldown": 1000,

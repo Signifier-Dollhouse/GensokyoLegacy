@@ -126,11 +126,10 @@ public class GLItems {
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
 	public static final ItemEntry<UfoItem> UFO;
 
-	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE;
+	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE, LUCKY_TEA, ZUN_BEER, GOLDEN_LOTUS_TEA;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
 	public static final ItemEntry<Item> FAIRY_CAKE;
 	public static final ItemEntry<MagicBookItem> MAGIC_BOOK;
-	public static final ItemEntry<DrinkGiftItem> LUCKY_TEA, ZUN_BEER;
 	public static final ItemEntry<Item> MAGIC_CANDY, KAPPA_BENTO, GHOST_DANGO;
 	public static final ItemEntry<FancyFanItem> FANCY_FAN;
 
@@ -427,6 +426,13 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
 					.lang("Hakurei's Lucky Tea").register();
+
+			GOLDEN_LOTUS_TEA = reg.item("golden_lotus_tea", p -> new DrinkGiftItem(p.food(sake(
+							new MobEffectInstance(MobEffects.REGENERATION, 600, 0),
+							new MobEffectInstance(GLEffects.SPIRITUAL, 600, 0)))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
+					.lang("Golden Lotus Tea").register();
 
 			// haste II: the same effect as the tea's, one potency up
 			ZUN_BEER = reg.item("zun_beer", p -> new DrinkGiftItem(p.food(sake(
