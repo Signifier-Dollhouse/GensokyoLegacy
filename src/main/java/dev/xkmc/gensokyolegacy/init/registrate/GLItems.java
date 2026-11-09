@@ -369,7 +369,6 @@ public class GLItems {
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Tengu Sake").register();
 
-			// TODO placeholder favor / cooldown
 			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
 			GHOST_SAKE = reg.item("ghost_sake", p -> new DrinkGiftItem(p.food(sake(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
@@ -576,6 +575,7 @@ public class GLItems {
 			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Bone Flute")
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
 					.tab(TAB.key())
 					.register();

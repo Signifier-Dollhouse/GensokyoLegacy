@@ -68,7 +68,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	@Override
 	protected Biome build(BootstrapContext<Biome> ctx) {
-		return biome(false, 0.2f, 0.2f, 0x617fc1, 0x414d88, 0x5c78ac, 0x5a7182, 0x6f875a, 0x587c4d,
+		return biome(true, 0.2f, 0.2f, 0x617fc1, 0x414d88, 0x5c78ac, 0x5a7182, 0x6f875a, 0x587c4d,
 				new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(join(LAVA_LAKES, List.of(LAKE_PF)))
