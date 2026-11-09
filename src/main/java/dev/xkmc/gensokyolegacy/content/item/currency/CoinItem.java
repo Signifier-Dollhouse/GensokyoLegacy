@@ -9,12 +9,18 @@ import dev.xkmc.danmakuapi.content.spell.mover.RectMover;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.CoinDanmakuBulletEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 /**
  * A coin thrown as a yellow circle danmaku. A paid throw arcs down under gravity and lands as the
@@ -48,6 +54,11 @@ public class CoinItem extends DanmakuItem {
 		super.spawnBullet(danmaku, player, level, event);
 	}
 
+
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+		list.add(GLLang.ItemCommon.CURRENCY.get());
+	}
 
 	protected int cooldown() {
 		return 10;

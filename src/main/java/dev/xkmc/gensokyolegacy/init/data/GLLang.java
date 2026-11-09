@@ -625,7 +625,8 @@ public final class GLLang {
 		GIFT_FAVOR("Favor: %s", 1),
 		GIFT_TYPE("Type: %s", 1),
 		BLOW("Right-click to blow a gust", 0, ChatFormatting.AQUA),
-		INFINITE("Never runs out", 0, ChatFormatting.AQUA);
+		INFINITE("Never runs out", 0, ChatFormatting.AQUA),
+		CURRENCY("Currency to trade with characters", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -874,7 +875,8 @@ public final class GLLang {
 		TRADE("jei.gensokyolegacy.trade", "Trade"),
 		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
 		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
-		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction");
+		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction"),
+		SHELF_OFFER("jei.gensokyolegacy.shelf_offer", "Morichika Shelf Offers");
 
 		private final String def;
 		private final int argn;
@@ -926,14 +928,17 @@ public final class GLLang {
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
 		REWARD_LOOT("Loot table: %s", 1),
-		GIFT_BAND("%s-%s", 2),
+		GIFT_BAND("< %s", 1),
 		GIFT_BAND_TOP("%s+", 1),
 		GIFT_CHANCE("Chance: %s%%", 1),
 		GIFT_NOTE("One gift each; the appeal she ate picks how generous she is", 0),
 		MORE_RUNGS("+%s more rungs", 1),
 		KIND_FEED("Feeding", 0),
 		FEED_WORTH("+%s reputation", 1),
-		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1);
+		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1),
+		SHELF_PRICE("Price: %s", 1),
+		SHELF_STOCK("Stock: %s", 1),
+		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0);
 
 		private final String def;
 		private final int argn;

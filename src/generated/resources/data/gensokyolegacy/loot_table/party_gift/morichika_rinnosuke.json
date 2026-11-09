@@ -113,6 +113,11 @@
           "type": "minecraft:item",
           "name": "gensokyolegacy:dowser",
           "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "gensokyolegacy:bone_flute",
+          "weight": 10
         }
       ],
       "rolls": 1.0

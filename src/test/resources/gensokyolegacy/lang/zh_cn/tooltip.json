@@ -31,7 +31,8 @@
 			"infinite": "取之不尽",
 			"blow": "右键吹出一阵风",
 			"has_ability": "持有幻想乡身份的",
-			"unknown": "???"
+			"unknown": "???",
+			"currency": "与角色交易用的货币"
 		},
 		"lore": {
 			"furnace_1_lore": "嗡鸣的便携魔法炉，可缓慢冶炼物品格相邻的物品",

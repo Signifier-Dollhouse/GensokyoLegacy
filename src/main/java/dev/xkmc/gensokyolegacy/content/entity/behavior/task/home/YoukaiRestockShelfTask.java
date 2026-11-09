@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.task.home;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeBlockKind;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.HomeSearchUtil;
 import dev.xkmc.gensokyolegacy.content.attachment.index.BedRefData;
+import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
@@ -112,13 +113,9 @@ public class YoukaiRestockShelfTask<E extends SmartYoukaiEntity> extends Abstrac
 		var holder = holders.get(rand.nextInt(holders.size()));
 		offer = new ItemStack(holder.value());
 		var data = GLMeta.MORICHIKA_OFFER.get(level.registryAccess(), holder);
-		if (data == null) {
-			stock = 1;
-			cost = 1;
-		} else {
-			stock = data.rollStock(rand);
-			cost = data.rollPrice(rand);
-		}
+		if (data == null) data = MorichikaOfferData.DEFAULT;
+		stock = data.rollStock(rand);
+		cost = data.rollPrice(rand);
 		return true;
 	}
 
