@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.sakuya;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class SakuyaModel extends DefaultedEntityGeoModel<SakuyaEntity> {
+public class SakuyaModel extends HeadBoneGeoModel<SakuyaEntity> {
 
 	public SakuyaModel() {
 		super(GensokyoLegacy.loc("sakuya"), "Head");

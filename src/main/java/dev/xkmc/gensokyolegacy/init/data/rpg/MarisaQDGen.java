@@ -26,17 +26,17 @@ import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -66,8 +66,8 @@ public class MarisaQDGen extends QuestDialogData {
 	public static final String KOISHI_PROOF = "b-proof";
 	private static final ResourceLocation QUEST_REIMU_OMINOUS = GensokyoLegacy.loc("reimu/ominous_banner");
 
-	private static final ResourceLocation ADV_NETHER = ResourceLocation.withDefaultNamespace("nether/root");
-	private static final ResourceLocation ADV_FORTRESS = ResourceLocation.withDefaultNamespace("nether/find_fortress");
+	private static final ResourceLocation ADV_NETHER = new ResourceLocation("minecraft", "nether/root");
+	private static final ResourceLocation ADV_FORTRESS = new ResourceLocation("minecraft", "nether/find_fortress");
 
 	private final String byeKey;
 	private final String dailyGroupKey;
@@ -682,26 +682,23 @@ public class MarisaQDGen extends QuestDialogData {
 										option("complete/handover/end", completeEnd)))));
 	}
 
-	private ItemStack witchStrong(Holder<Potion> potion) {
+	private ItemStack witchStrong(Potion potion) {
 		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), 1);
-		stack.set(DataComponents.POTION_CONTENTS, witchContents(potion, 2));
+		witchContents(potion, 2).write(stack);
 		return stack;
 	}
 
-	private ItemStack witchLong(Holder<Potion> potion) {
+	private ItemStack witchLong(Potion potion) {
 		var stack = new ItemStack(HexBrew.WITCH_HEXBREW.bottle.get(), 4);
-		stack.set(DataComponents.POTION_CONTENTS, witchContents(potion, 1));
+		witchContents(potion, 1).write(stack);
 		return stack;
 	}
 
-	private PotionContents witchContents(Holder<Potion> potion, int durationMul) {
-		var effects = potion.value().getEffects().stream()
+	private PotionData witchContents(Potion potion, int durationMul) {
+		var effects = potion.getEffects().stream()
 				.map(e -> new MobEffectInstance(e.getEffect(), e.getDuration() * durationMul, e.getAmplifier()))
 				.toList();
-		for (var e : effects)
-			e.getCures().clear();
-		return new PotionContents(Optional.empty(), Optional.of(PotionContents.getColor(potion)),
-				effects);
+		return PotionData.effects(PotionUtils.getColor(potion), effects);
 	}
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,

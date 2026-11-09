@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
@@ -19,10 +19,10 @@ public record GiftReturnCondition() implements QuestCondition<GiftReturnConditio
 	/**
 	 * No fields: the bar is the character's own threshold, not something a dialog spells out.
 	 */
-	public static final MapCodec<GiftReturnCondition> CODEC = MapCodec.unit(GiftReturnCondition::new);
+	public static final Codec<GiftReturnCondition> CODEC = Codec.unit(GiftReturnCondition::new);
 
 	@Override
-	public MapCodec<GiftReturnCondition> codec() {
+	public Codec<GiftReturnCondition> codec() {
 		return CODEC;
 	}
 

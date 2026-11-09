@@ -1,16 +1,13 @@
 package dev.xkmc.gensokyolegacy.init.data.structure;
 
-import com.tterrag.registrate.providers.DataProviderInitializer;
-import com.tterrag.registrate.providers.RegistrateDataMapProvider;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
-import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.*;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
-import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -18,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
-import net.neoforged.neoforge.common.util.Lazy;
+import net.minecraftforge.common.util.Lazy;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -160,31 +157,6 @@ public class GLStructureGen {
 
 	private static final Supplier<List<StructStructure>> STRUCTURES = Lazy.of(GLStructureGen::initStructures);
 
-	public static void dataMap(RegistrateDataMapProvider pvd) {
-		var bedReg = pvd.builder(GLMeta.BED_DATA.reg());
-		var entityReg = pvd.builder(GLMeta.ENTITY_DATA.reg());
-		var structureReg = pvd.builder(GLMeta.STRUCTURE_DATA.reg());
-		for (var e : STRUCTURES.get()) {
-			var config = e.config();
-			for (var bedData : e.beds()) {
-				for (var bed : bedData.bed())
-					bedReg.add(bed, new BedData(bedData.entity().value()), false);
-				entityReg.add(bedData.entity(), bedData.data().withId(e.id()), false);
-				config.addEntity(bedData.entity().value());
-			}
-			for (var entry : e.visits().entrySet())
-				config.visit(entry.getKey(), entry.getValue());
-			structureReg.add(e.id(), config.build(), false);
-		}
-
-		// Minamitsu has no preset home yet: her bed binds to any custom home
-		// (StructureKey.support() accepts every custom key), so a player-built
-		// room holding a Minamitsu bed claims her and respawns her there.
-		bedReg.add(GLBlocks.Beds.MINAMITSU.holder(), new BedData(GLEntities.MINAMITSU.get()), false);
-		entityReg.add(GLEntities.MINAMITSU,
-				CharacterConfig.forStructure(6000, 12000, 12, 30), false);
-	}
-
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.PROCESSOR_LIST, ctx -> {
 			for (var e : STRUCTURES.get()) {
@@ -206,7 +178,7 @@ public class GLStructureGen {
 		init.add(Registries.STRUCTURE_SET, ctx -> {
 			for (var entry : groups().entrySet()) {
 				var members = entry.getValue();
-				var first = members.getFirst();
+				var first = members.get(0);
 				for (var e : members) {
 					if (e.spacing() != first.spacing() || e.attempts() != first.attempts()) {
 						throw new IllegalStateException("structures sharing set " + entry.getKey() +

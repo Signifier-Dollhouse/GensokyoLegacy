@@ -25,7 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -157,9 +158,9 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 	}
 
 	@Override
-	public void defineSynchedData(SynchedEntityData.Builder builder) {
-		super.defineSynchedData(builder);
-		builder.define(POSSESSOR, Optional.empty());
+	public void defineSynchedData() {
+		super.defineSynchedData();
+		entityData.define(POSSESSOR, Optional.empty());
 	}
 
 	// ---- possession: the owner's eyes, hands and movement keys, for a spell ----
@@ -425,7 +426,7 @@ public class SekibankiHeadEntity extends BaseDollEntity {
 				ClipContext.Fluid.NONE, this)).getBlockPos().equals(pos)) return;
 		if (!level.mayInteract(player, pos)) return;
 		BlockState state = level.getBlockState(pos);
-		InteractionResult result = state.useWithoutItem(level, player, hit);
+		InteractionResult result = state.use(level, player, InteractionHand.MAIN_HAND, hit);
 		if (result.shouldSwing()) player.swing(InteractionHand.MAIN_HAND, true);
 		player.connection.send(new ClientboundBlockUpdatePacket(level, pos));
 		player.connection.send(new ClientboundBlockUpdatePacket(level, pos.relative(hit.getDirection())));

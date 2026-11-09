@@ -12,8 +12,8 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceLocation;
@@ -324,7 +324,7 @@ public class PartyModule extends AbstractYoukaiModule {
 	 * reachable if a datapack removes the row mid-party.
 	 */
 	public PartyTaste taste() {
-		return PartyTaste.of(self.registryAccess(), self.getType());
+		return PartyTaste.of(self.level().registryAccess(), self.getType());
 	}
 
 	/**
@@ -547,7 +547,7 @@ public class PartyModule extends AbstractYoukaiModule {
 			dismiss();
 			return;
 		}
-		BrainUtils.setMemory(self, GLBrains.MEM_PARTY.get(), new GlobalPos(sl.dimension(), table));
+		BrainUtils.setMemory(self, GLBrains.MEM_PARTY.get(), GlobalPos.of(sl.dimension(), table));
 	}
 
 	/**

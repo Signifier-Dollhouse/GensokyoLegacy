@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -21,14 +20,15 @@ public class GridExclusionFilter extends PlacementFilter {
 	public record Entry(GridLayer layer, int distance) {
 
 		public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
-				GridLayer.CODEC.forGetter(Entry::layer),
+				GridLayer.CODEC.fieldOf("layer").forGetter(Entry::layer),
 				Codec.intRange(1, 64).fieldOf("distance").forGetter(Entry::distance)
 		).apply(i, Entry::new));
 
 	}
 
-	public static final MapCodec<GridExclusionFilter> CODEC = Entry.CODEC.listOf().fieldOf("layers")
-			.xmap(GridExclusionFilter::new, e -> e.layers);
+	public static final Codec<GridExclusionFilter> CODEC = RecordCodecBuilder.<GridExclusionFilter>create(i -> i.group(
+			Entry.CODEC.listOf().fieldOf("layers").forGetter(e -> e.layers)
+	).apply(i, GridExclusionFilter::new));
 
 	private final List<Entry> layers;
 

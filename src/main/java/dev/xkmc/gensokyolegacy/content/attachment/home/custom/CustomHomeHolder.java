@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.CustomStructureBoundUpdateToClient;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SimplePacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -27,7 +27,7 @@ public record CustomHomeHolder(
 	public static CustomHomeHolder create(ServerLevel level, BlockPos pos) {
 		if (!level.isLoaded(pos)) return null;
 		var chunk = level.getChunkAt(pos);
-		var att = chunk.getData(GLMeta.STRUCTURE.get());
+		var att = GLMeta.STRUCTURE.type().getOrCreate(chunk);
 		var home = new CustomHomeData();
 		var ans = new CustomHomeHolder(level, chunk, StructureKey.custom(level.dimension(), pos), att, home);
 		home.checkInit(ans);
@@ -39,7 +39,7 @@ public record CustomHomeHolder(
 	public static CustomHomeHolder of(ServerLevel level, BlockPos pos) {
 		if (!level.isLoaded(pos)) return null;
 		var chunk = level.getChunkAt(pos);
-		var att = chunk.getData(GLMeta.STRUCTURE.get());
+		var att = GLMeta.STRUCTURE.type().getOrCreate(chunk);
 		var home = att.custom.get(pos);
 		if (home == null) return null;
 		return new CustomHomeHolder(level, chunk, StructureKey.custom(level.dimension(), pos), att, home);
@@ -106,14 +106,14 @@ public record CustomHomeHolder(
 	}
 
 	@Override
-	public SimplePacketBase toBoundPacket() {
+	public RecordPacketBase toBoundPacket() {
 		return new CustomStructureBoundUpdateToClient(
 				key(), data().room
 		);
 	}
 
 	@Override
-	public SimplePacketBase getUpdatePacket() {
+	public RecordPacketBase getUpdatePacket() {
 		return data().getAbnormality(key);
 	}
 

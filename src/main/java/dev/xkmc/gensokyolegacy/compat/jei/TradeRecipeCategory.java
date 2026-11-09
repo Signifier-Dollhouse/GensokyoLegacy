@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -71,7 +71,7 @@ public class TradeRecipeCategory extends BaseRecipeCategory<Holder<TradeOffer>, 
 	public void createRecipeExtras(IRecipeExtrasBuilder builder, Holder<TradeOffer> recipe, IFocusGroup focuses) {
 		var offer = recipe.value();
 		int textWidth = WIDTH - 2 * GLJeiUtil.PAD;
-		builder.addRecipeArrowWidget().setPosition(ARROW_X, ROW_Y);
+		builder.addRecipeArrow().setPosition(ARROW_X, ROW_Y);
 		GLJeiUtil.text(builder, offer.character().getDescription(), GLJeiUtil.PAD, TEXT_Y, textWidth, GLJeiUtil.LINE);
 		GLJeiUtil.text(builder, GLLang.JeiExtra.MAX_STOCK.get(offer.recurrence().maxStock()),
 				GLJeiUtil.PAD, TEXT_Y + GLJeiUtil.LINE, textWidth, GLJeiUtil.LINE);

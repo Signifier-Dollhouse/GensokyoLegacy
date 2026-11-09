@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature.template;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -30,7 +30,7 @@ import java.util.*;
  */
 public class TemplateBlendProcessor extends StructureProcessor {
 
-	public static final MapCodec<TemplateBlendProcessor> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<TemplateBlendProcessor> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.intRange(0, 16).fieldOf("root_depth").forGetter(e -> e.rootDepth)
 	).apply(i, TemplateBlendProcessor::new));
 

@@ -25,12 +25,13 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2library.base.L2Registrate;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -47,9 +48,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -94,8 +93,8 @@ public class GLDecoBlocks {
 
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
-		TAB = reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
-				e -> e.icon(() -> GLDecoBlocks.TATAMI_BLOCK.asItem().getDefaultInstance()));
+		TAB = SimpleEntry.of(reg.buildModCreativeTab("building_blocks", "Gensokyo Legacy - Building Blocks",
+				e -> e.icon(() -> GLDecoBlocks.TATAMI_BLOCK.asItem().getDefaultInstance())));
 
 		// decorative small placeable items not primarily for building
 		{
@@ -112,10 +111,10 @@ public class GLDecoBlocks {
 					.item()
 					.properties(p -> p.rarity(Rarity.RARE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.TOY))
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+
+					
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 2, 3))
+
 					.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 					.build()
 					.register();
@@ -153,7 +152,7 @@ public class GLDecoBlocks {
 							pvd.models().cubeAll(ctx.getName(),
 									pvd.modLoc("block/deco/paper_window"))))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
+					.item().build()
 					.register();
 
 			// 障子方块
@@ -163,7 +162,7 @@ public class GLDecoBlocks {
 							pvd.models().cubeAll(ctx.getName(),
 									pvd.modLoc("block/deco/shoji_frame"))))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
+					.item().build()
 					.register();
 
 			// 纸窗板
@@ -171,11 +170,11 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
 							pvd.modLoc("block/deco/paper_window"),
-							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+							new ResourceLocation("minecraft", "block/spruce_planks")))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("block/deco/paper_window")))
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
+
 					.build()
 					.register();
 
@@ -190,7 +189,7 @@ public class GLDecoBlocks {
 						.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 						.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
 						.tag(GLTagGen.SLIDING_DOOR_ITEM)
-						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+
 						.build()
 						.loot(SlidingDoorJsons::genLoot)
 						.register();
@@ -201,11 +200,11 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.NONE).strength(0.3F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> pvd.paneBlock(ctx.get(),
 							pvd.modLoc("block/deco/shoji_frame"),
-							ResourceLocation.withDefaultNamespace("block/spruce_planks")))
+							new ResourceLocation("minecraft", "block/spruce_planks")))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("block/deco/shoji_frame")))
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(25))
+
 					.build()
 					.register();
 		}
@@ -236,7 +235,7 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.SAND).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 					.blockstate(CushionBlock::buildStates)
 					.item().tag(GLTagGen.CUSHIONS)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(50)).build()
+					.build()
 					.register();
 
 			for (DyeColor col : DyeColor.values()) {
@@ -244,7 +243,7 @@ public class GLDecoBlocks {
 						.properties(p -> p.mapColor(MapColor.byId(14 + col.getId())).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())
 						.blockstate(CushionBlock::buildStates)
 						.item().tag(GLTagGen.CUSHIONS)
-						.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(50)).build()
+						.build()
 						.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
 										RecipeCategory.DECORATIONS, ctx.get())::unlockedBy, DyeItem.byColor(col))
 								.requires(GLTagGen.CUSHIONS).requires(col.getTag()).save(pvd))
@@ -261,7 +260,7 @@ public class GLDecoBlocks {
 					.blockstate(LargeTableBlock::buildStates)
 					.tag(GLTagGen.TABLE, GLTagGen.LARGE_TABLE, BlockTags.MINEABLE_WITH_AXE)
 					.item().tag(GLTagGen.TABLE_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.build()
 					.loot(LargeTableBlock::genLoot)
 					.register();
 
@@ -272,13 +271,13 @@ public class GLDecoBlocks {
 					.blockstate(LargeChairBlock::buildStates)
 					.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.build()
 					.loot(LargeChairBlock::genLoot)
 					.register();
 
 			// 木凳
 			e.stool = reg.block(name + "_chair", p -> ISeatableBlock.of(
-							BlockBehaviour.Properties.ofFullCopy(e.plankProp), 12 / 16f, new WoodChairBlock(), new SeatableImpl()))
+							BlockBehaviour.Properties.copy(e.plankProp), 12 / 16f, new WoodChairBlock(), new SeatableImpl()))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().getBuilder("block/" + ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/wooden_large_chair")))
 							.texture("all", pvd.modLoc("block/wood/" + ctx.getName()))
@@ -286,7 +285,7 @@ public class GLDecoBlocks {
 							.renderType("cutout")))
 					.tag(GLTagGen.STOOL, BlockTags.MINEABLE_WITH_AXE)
 					.item().tag(GLTagGen.STOOL_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.build()
 					.register();
 
 			e.wall = reg.block(name + "_plank_wall", Block::new)
@@ -299,7 +298,7 @@ public class GLDecoBlocks {
 					})
 					.tag(GLTagGen.PLANK_WALL, BlockTags.MINEABLE_WITH_AXE)
 					.item().tag(GLTagGen.PLANK_WALL_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150)).build()
+					.build()
 					.register();
 
 			var doorTop = GensokyoLegacy.loc("block/wood/" + name + "_sliding_door_top");
@@ -311,7 +310,7 @@ public class GLDecoBlocks {
 					.tag(GLTagGen.SLIDING_DOOR, BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> SlidingDoorJsons.genItemModel(ctx, pvd, doorTop, doorBottom, doorSide))
 					.tag(GLTagGen.SLIDING_DOOR_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+
 					.build()
 					.loot(SlidingDoorJsons::genLoot)
 					.register();
@@ -324,7 +323,7 @@ public class GLDecoBlocks {
 				.blockstate(LargeChairBlock::buildStates)
 				.tag(GLTagGen.CHAIR, BlockTags.MINEABLE_WITH_AXE)
 				.item().model(LargeChairBlock::genItemModel).tag(GLTagGen.CHAIR_ITEM)
-				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(400)).build()
+				.build()
 				.loot(LargeChairBlock::genLoot)
 				.register();
 
@@ -373,7 +372,7 @@ public class GLDecoBlocks {
 			for (int i = 0; i < TILE_COLORS.length; i++) {
 				var col = TILE_COLORS[i];
 				TILE_SETS[i] = new BrickSet(reg, col.getName() + "_tiles",
-						BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
+						BlockBehaviour.Properties.copy(Blocks.DEEPSLATE).mapColor(MapColor.byId(14 + col.getId())),
 						"tiles/", BlockTags.MINEABLE_WITH_PICKAXE);
 			}
 
@@ -438,7 +437,7 @@ public class GLDecoBlocks {
 			this.slab = slab;
 			this.stairs = stairs;
 			name = name().toLowerCase(Locale.ROOT);
-			tex = ResourceLocation.withDefaultNamespace("block/" + name + "_planks");
+			tex = new ResourceLocation("minecraft", "block/" + name + "_planks");
 		}
 
 		@Override
@@ -448,7 +447,7 @@ public class GLDecoBlocks {
 
 		@Override
 		public BlockBehaviour.Properties prop() {
-			return BlockBehaviour.Properties.ofFullCopy(plankProp);
+			return BlockBehaviour.Properties.copy(plankProp);
 		}
 
 		@Override
@@ -468,7 +467,7 @@ public class GLDecoBlocks {
 
 		@Override
 		public Holder<Block> vertical() {
-			return vertical;
+			return vertical.get().builtInRegistryHolder();
 		}
 
 		@Override
@@ -536,7 +535,7 @@ public class GLDecoBlocks {
 					.blockstate((ctx, pvd) -> pvd.slabBlock(ctx.get(),
 							pvd.models().slab(ctx.getName(), side, side, side),
 							pvd.models().slabTop(ctx.getName() + "_top", side, side, side),
-							new ModelFile.UncheckedModelFile(block.get().builtInRegistryHolder().getKey().location().withPrefix("block/"))))
+							new ModelFile.UncheckedModelFile(BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/"))))
 					.tag(tool, BlockTags.SLABS).item().tag(ItemTags.SLABS).build()
 					.recipe(this::genSlab).register();
 			vertical = reg.block(id + "_vertical_slab", p ->

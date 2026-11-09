@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -51,15 +51,15 @@ public class CatBell extends Item {
 		if (player instanceof ServerPlayer sp) {
 			var cat = new Cat(EntityType.CAT, sp.serverLevel());
 			cat.finalizeSpawn(sp.serverLevel(), sp.serverLevel().getCurrentDifficultyAt(sp.blockPosition()),
-					MobSpawnType.MOB_SUMMONED, null);
+					MobSpawnType.MOB_SUMMONED, null, null);
 			cat.moveTo(sp.position());
 			cat.addTag("CatBell");
-			cat.setTame(true, true);
+			cat.setTame(true);
 			cat.setOwnerUUID(sp.getUUID());
 			cat.startRiding(player, true);
 			sp.serverLevel().addFreshEntity(cat);
 			if (!player.isCreative()) {
-				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				stack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
 			}
 			player.getCooldowns().addCooldown(this, 100);
 		}
@@ -67,14 +67,14 @@ public class CatBell extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.CAT_BELL_LORE.get());
 	}
 
 
 	public record MountToClient(
 			int catId, int playerId, boolean ride
-	) implements SerialPacketBase<MountToClient> {
+	) implements RecordPacketBase {
 
 		@Override
 		public void handle(Player player) {

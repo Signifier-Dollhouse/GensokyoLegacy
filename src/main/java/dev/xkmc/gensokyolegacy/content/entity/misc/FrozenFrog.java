@@ -63,7 +63,7 @@ public class FrozenFrog extends ThrowableItemProjectile {
 			Frog frog = EntityType.FROG.create(level());
 			if (frog != null) {
 				if (getItem().getItem() instanceof FrozenFrogItem item)
-					frog.setVariant(level().registryAccess().holderOrThrow(item.variant));
+					frog.setVariant(item.variant);
 				frog.moveTo(getX(), getY(), getZ(), getYRot(), 0);
 				frog.setHealth(1);
 				level().addFreshEntity(frog);

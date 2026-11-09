@@ -22,10 +22,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
@@ -69,16 +69,16 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		super.defineSynchedData(builder);
-		builder.define(DATA_VARIANT, GhostVariant.CURIOS.ordinal());
-		builder.define(DATA_POWER, GhostPower.WILD_MIN);
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		entityData.define(DATA_VARIANT, GhostVariant.CURIOS.ordinal());
+		entityData.define(DATA_POWER, GhostPower.WILD_MIN);
 	}
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
-										MobSpawnType reason, @Nullable SpawnGroupData spawnData) {
-		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData);
+										MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag pTag) {
+		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData, pTag);
 		setPersistenceRequired();
 		if (reason == MobSpawnType.SPAWN_EGG || reason == MobSpawnType.COMMAND || reason == MobSpawnType.NATURAL) {
 			setVariant(GhostVariant.random(getRandom()));

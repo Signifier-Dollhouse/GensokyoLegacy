@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.area;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ public record AreaEffectSyncPacket(
 		Action action,
 		UUID id,
 		@Nullable AreaEffectEntry entry
-) implements SerialPacketBase<AreaEffectSyncPacket> {
+) implements RecordPacketBase {
 
 	public enum Action {
 		ADD, UPDATE, REMOVE

@@ -74,7 +74,7 @@ public class FoldedPaperTalisman extends TalismanCurioItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		TalismanPaperItem paper = paper(stack);
 		if (paper == null) {
 			list.add(GLLang.Talisman.BLANK.get());

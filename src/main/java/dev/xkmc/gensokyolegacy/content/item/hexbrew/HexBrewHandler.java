@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import com.tterrag.registrate.builders.ItemBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import net.minecraft.core.component.DataComponentType;
+import dev.xkmc.gensokyolegacy.util.PotionData;
+import dev.xkmc.l2library.base.L2Registrate;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,10 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public interface HexBrewHandler {
 
@@ -55,17 +52,18 @@ public interface HexBrewHandler {
 		return UseAnim.DRINK;
 	}
 
-	default List<DataComponentType<?>> getComponentsToCopy() {
-		return List.of();
+	default boolean copiesPotion() {
+		return false;
+	}
+
+	default PotionData defaultPotion() {
+		return PotionData.EMPTY;
 	}
 
 	default Item.Properties modify(Item.Properties p) {
 		return p.stacksTo(16);
 	}
 
-	default <T extends MutableDataComponentHolder> T withDefaultDataForDisplay(T stack) {
-		return stack;
-	}
 
 	default boolean potionTexture() {
 		return false;

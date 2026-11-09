@@ -29,7 +29,7 @@ public class MermaidPearl extends Item {
 			sp.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 1200, 0, false, false, true), sp);
 			sp.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 1200, 0, false, false, true), sp);
 			if (!player.isCreative()) {
-				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				stack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
 			}
 			player.getCooldowns().addCooldown(this, 100);
 		}
@@ -37,7 +37,7 @@ public class MermaidPearl extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.MERMAID_PEARL_LORE.get());
 	}
 

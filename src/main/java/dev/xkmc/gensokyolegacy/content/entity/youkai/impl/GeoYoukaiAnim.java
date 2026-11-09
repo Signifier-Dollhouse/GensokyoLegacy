@@ -3,7 +3,8 @@ package dev.xkmc.gensokyolegacy.content.entity.youkai.impl;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.List;
 import java.util.Optional;

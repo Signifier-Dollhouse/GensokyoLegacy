@@ -1,12 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMisc;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.Serializer;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -26,11 +28,22 @@ import java.util.Set;
  */
 public record AppealConsumedCondition(int min, int max, boolean invert) implements LootItemCondition {
 
-	public static final MapCodec<AppealConsumedCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			Codec.INT.optionalFieldOf("min", 0).forGetter(AppealConsumedCondition::min),
-			Codec.INT.optionalFieldOf("max", Integer.MAX_VALUE).forGetter(AppealConsumedCondition::max),
-			Codec.BOOL.optionalFieldOf("invert", false).forGetter(AppealConsumedCondition::invert)
-	).apply(i, AppealConsumedCondition::new));
+	public static final Serializer<AppealConsumedCondition> SERIALIZER = new Serializer<>() {
+		@Override
+		public void serialize(JsonObject json, AppealConsumedCondition cond, JsonSerializationContext ctx) {
+			json.addProperty("min", cond.min);
+			json.addProperty("max", cond.max);
+			json.addProperty("invert", cond.invert);
+		}
+
+		@Override
+		public AppealConsumedCondition deserialize(JsonObject json, JsonDeserializationContext ctx) {
+			return new AppealConsumedCondition(
+					GsonHelper.getAsInt(json, "min", 0),
+					GsonHelper.getAsInt(json, "max", Integer.MAX_VALUE),
+					GsonHelper.getAsBoolean(json, "invert", false));
+		}
+	};
 
 	/**
 	 * At least {@code min} appeal.

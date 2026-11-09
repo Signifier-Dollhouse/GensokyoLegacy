@@ -2,12 +2,12 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -21,8 +21,8 @@ import java.util.List;
 @SerialClass
 public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 
-	public PotionStageRecipe() {
-		super(GLRecipes.ALCHEMY_STAGE_POTION.get());
+	public PotionStageRecipe(ResourceLocation id) {
+		super(id, GLRecipes.ALCHEMY_STAGE_POTION.get());
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 	}
 
 	@Override
-	public int getColor(AlchemyInv inv, HolderLookup.Provider access) {
+	public int getColor(AlchemyInv inv, RegistryAccess access) {
 		return calculateMixColor(inv);
 	}
 
@@ -50,8 +50,8 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 		for (ItemStack stack : inv.list()) {
 			if (stack.isEmpty()) continue;
 			if (!isPotion(stack)) continue;
-			PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-			if (contents == null) continue;
+			var contents = PotionData.read(stack);
+			if (contents.isEmpty()) continue;
 			int col = getPotionColor(contents);
 			if (col == -1) continue;
 			rSum += (col >> 16) & 0xFF;
@@ -81,23 +81,15 @@ public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {
 		return stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION);
 	}
 
-	private static int getPotionColor(PotionContents contents) {
+	private static int getPotionColor(PotionData contents) {
 		// own colour if it has one, otherwise average the effect colours below
-		try {
-			int c = contents.getColor();
-			if (c != -1) return c;
-		} catch (Exception ignored) {
-		}
+		int c = contents.getColor();
+		if (c != -1) return c;
 		var effects = contents.getAllEffects();
-		boolean empty = true;
-		for (var ignored : effects) {
-			empty = false;
-			break;
-		}
-		if (empty) return -1;
+		if (effects.isEmpty()) return -1;
 		int r = 0, g = 0, b = 0, n = 0;
 		for (var e : effects) {
-			int col = e.getEffect().value().getColor();
+			int col = e.getEffect().getColor();
 			r += (col >> 16) & 0xFF;
 			g += (col >> 8) & 0xFF;
 			b += col & 0xFF;

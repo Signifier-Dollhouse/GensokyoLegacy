@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 	 */
 	private void save(HakkeroData data) {
 		if (stack.isEmpty()) return;
-		stack.set(GLItems.DC_HAKKERO_INV, data);
+		GLItems.DC_HAKKERO_INV.set(stack, data);
 	}
 
 	private static boolean isInput(int slot) {
@@ -81,7 +81,7 @@ public class HakkeroHandler implements IItemHandlerModifiable {
 		if (!isItemValid(slot, in)) return in;
 		ItemStack current = getStackInSlot(slot);
 		if (current.isEmpty()) return simulate ? shrink(in, in.getCount()) : commit(slot, in, in.getCount());
-		if (!ItemStack.isSameItemSameComponents(current, in)) return in;
+		if (!ItemStack.isSameItemSameTags(current, in)) return in;
 		int room = Math.min(current.getMaxStackSize(), getSlotLimit(slot)) - current.getCount();
 		int move = Math.min(room, in.getCount());
 		if (move <= 0) return in;

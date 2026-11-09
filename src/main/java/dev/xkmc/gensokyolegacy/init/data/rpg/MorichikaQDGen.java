@@ -10,7 +10,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
+import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

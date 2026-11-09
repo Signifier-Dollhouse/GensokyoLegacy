@@ -7,8 +7,8 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -120,7 +120,7 @@ public class VisitModule extends AbstractYoukaiModule {
 		if (remaining(sl) > 0) {
 			// set on the first tick, not in enter(): the brain may not exist yet
 			// at spawn time
-			BrainUtils.setMemory(self, GLBrains.MEM_VISIT.get(), new GlobalPos(host.getDim(), host.pos()));
+			BrainUtils.setMemory(self, GLBrains.MEM_VISIT.get(), GlobalPos.of(host.getDim(), host.pos()));
 			return;
 		}
 		if (noDisappear > 0) return;

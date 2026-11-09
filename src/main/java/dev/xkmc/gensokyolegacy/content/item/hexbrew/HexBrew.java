@@ -8,13 +8,11 @@ import dev.xkmc.gensokyolegacy.content.fluid.VirtualFluidBuilder;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLFluids;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.MutableDataComponentHolder;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Locale;
 
@@ -56,7 +54,7 @@ public enum HexBrew {
 				.defaultLang().register();
 		var builder = GensokyoLegacy.REGISTRATE.item(id + "_bottle",
 						p -> new HexBrewBottleItem(this, fluid::getSource,
-								handler.modify(p).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)))
+								handler.modify(p)))
 				.model((ctx, pvd) -> {
 					var b = pvd.getBuilder(ctx.getName())
 							.parent(new ModelFile.UncheckedModelFile("item/generated"))
@@ -70,20 +68,11 @@ public enum HexBrew {
 	}
 
 	public void copyToFluid(ItemStack from, FluidStack to) {
-		for (DataComponentType<?> type : handler.getComponentsToCopy()) {
-			copyComponent(type, from, to);
-		}
+		if (handler.copiesPotion()) PotionData.read(from).write(to);
 	}
 
 	public void copyToItem(FluidStack from, ItemStack to) {
-		for (DataComponentType<?> type : handler.getComponentsToCopy()) {
-			copyComponent(type, from, to);
-		}
-	}
-
-	public static <T> void copyComponent(DataComponentType<T> type, MutableDataComponentHolder from, MutableDataComponentHolder to) {
-		T val = from.get(type);
-		if (val != null) to.set(type, val);
+		if (handler.copiesPotion()) PotionData.read(from).write(to);
 	}
 
 	public Fluid getSource() {

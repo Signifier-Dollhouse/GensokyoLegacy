@@ -2,11 +2,11 @@ package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.base.menu.base.BaseContainerMenu;
-import dev.xkmc.l2core.base.menu.base.SpriteManager;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2library.base.menu.base.BaseContainerMenu;
+import dev.xkmc.l2library.base.menu.base.SpriteManager;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.Util;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -18,7 +18,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.neoforged.neoforge.items.ItemHandlerCopySlot;
+import dev.xkmc.gensokyolegacy.compat.neoforge.ItemHandlerCopySlot;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -66,7 +66,7 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	 */
 	private long lastFrame;
 
-	public static HakkeroMenu fromNetwork(MenuType<?> type, int wid, Inventory inv, @Nullable RegistryFriendlyByteBuf buf) {
+	public static HakkeroMenu fromNetwork(MenuType<?> type, int wid, Inventory inv, @Nullable FriendlyByteBuf buf) {
 		return new HakkeroMenu(type, wid, inv, null);
 	}
 
@@ -93,21 +93,21 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	 * check, so a stack is never offered to a slot the server would then refuse.
 	 */
 	private boolean canSmelt(ItemStack stack) {
-		var level = player.level();
+		var level = inventory.player.level();
 		return getMode().findRecipe(level, stack) != null;
 	}
 
 	private void addHakkeroSlots() {
 		for (int i = 0; i < HakkeroData.CHANNELS; i++) {
 			final int index = i;
-			getLayout().getSlot("in" + i, (x, y) -> new InputSlot(handler, index, x, y), this::addSlot);
+			sprite.get().getSlot("in" + i, (x, y) -> new InputSlot(handler, index, x, y), this::addSlot);
 		}
 		for (int i = 0; i < HakkeroData.CHANNELS; i++) {
 			final int index = HakkeroData.CHANNELS + i;
-			getLayout().getSlot("out" + i, (x, y) -> new ResultSlot(handler, index, x, y), this::addSlot);
+			sprite.get().getSlot("out" + i, (x, y) -> new ResultSlot(handler, index, x, y), this::addSlot);
 		}
-		getLayout().getSlot("fuel", (x, y) -> new FuelSlot(handler, HakkeroData.FUEL, x, y), this::addSlot);
-		getLayout().getSlot("core", (x, y) -> new ModeSlot(this, x, y), this::addSlot);
+		sprite.get().getSlot("fuel", (x, y) -> new FuelSlot(handler, HakkeroData.FUEL, x, y), this::addSlot);
+		sprite.get().getSlot("core", (x, y) -> new ModeSlot(this, x, y), this::addSlot);
 	}
 
 	/**
@@ -120,10 +120,10 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		HakkeroMode mode = getMode();
 		for (int i = 0; i < HakkeroData.CHANNELS; i++) {
 			ItemStack in = data.get(i);
-			AbstractCookingRecipe rec = in.isEmpty() ? null : mode.findRecipe(player.level(), in);
+			AbstractCookingRecipe rec = in.isEmpty() ? null : mode.findRecipe(inventory.player.level(), in);
 			float f = rec == null ? 0.0F : data.progress(i, rec.getCookingTime());
 			// a data slot is a short on the wire, so the fraction is clamped into permille
-			progress[i].set(Math.clamp((int) (f * PROGRESS_SCALE), 0, PROGRESS_SCALE));
+			progress[i].set(Mth.clamp((int) (f * PROGRESS_SCALE), 0, PROGRESS_SCALE));
 		}
 		burnTime.set(data.burnTime());
 		burnMax.set(data.burnMax());
@@ -132,7 +132,7 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	@Override
 	public void slotsChanged(Container cont) {
 		super.slotsChanged(cont);
-		if (!player.level().isClientSide()) syncState();
+		if (!inventory.player.level().isClientSide()) syncState();
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	 * {@code inventoryTick} does the actual smelting — this only mirrors it.
 	 */
 	public void tick() {
-		if (player.level().isClientSide()) return;
+		if (inventory.player.level().isClientSide()) return;
 		syncState();
 	}
 
@@ -180,14 +180,14 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 	 * increments get spread, and the first frame seeds {@link #smooth} instead of easing towards it.
 	 */
 	public void advanceInterpolation() {
-		if (!player.level().isClientSide()) return;
+		if (!inventory.player.level().isClientSide()) return;
 		long now = Util.getMillis();
 		if (lastFrame == 0) {
 			lastFrame = now;
 			for (int i = 0; i < smooth.length; i++) smooth[i] = getProgress(i);
 			return;
 		}
-		float dt = Math.clamp((now - lastFrame) / 50.0F, 0.0F, 4.0F);
+		float dt = Mth.clamp((now - lastFrame) / 50.0F, 0.0F, 4.0F);
 		lastFrame = now;
 		if (dt <= 0.0F) return;
 		for (int i = 0; i < smooth.length; i++) {
@@ -199,7 +199,7 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 				smooth[i] = target; // too far to be a step: this is a reset, not progress
 			} else {
 				// close roughly a fifth of the remaining gap per tick, frame-rate independent
-				smooth[i] = cur + (target - cur) * Math.clamp(dt * 0.2F, 0.0F, 1.0F);
+				smooth[i] = cur + (target - cur) * Mth.clamp(dt * 0.2F, 0.0F, 1.0F);
 			}
 		}
 	}
@@ -334,11 +334,6 @@ public class HakkeroMenu extends BaseContainerMenu<HakkeroMenu> {
 		@Override
 		public boolean allowModification(Player player) {
 			return false;
-		}
-
-		@Override
-		public boolean isFake() {
-			return true;
 		}
 
 	}

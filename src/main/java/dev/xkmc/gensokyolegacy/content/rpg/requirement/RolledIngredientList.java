@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientList;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ public class RolledIngredientList extends QuestRequirementData implements Ingred
 	@Nullable
 	private ItemStack findMatching(ItemStack stack) {
 		for (var existing : rolled) {
-			if (ItemStack.isSameItemSameComponents(existing, stack)) {
+			if (ItemStack.isSameItemSameTags(existing, stack)) {
 				return existing;
 			}
 		}

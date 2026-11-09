@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.MobCategory;
@@ -30,9 +30,9 @@ public record StructSimpleBuilding(
 ) implements StructBuilding {
 
 	@Override
-	public void registerTemplatePools(BootstrapContext<StructureTemplatePool> ctx, ResourceLocation id) {
+	public void registerTemplatePools(BootstapContext<StructureTemplatePool> ctx, ResourceLocation id) {
 		var empty = ctx.lookup(Registries.TEMPLATE_POOL)
-				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.withDefaultNamespace("empty")));
+				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecraft", "empty")));
 		var list = ctx.lookup(Registries.PROCESSOR_LIST)
 				.getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, id));
 		ctx.register(ResourceKey.create(Registries.TEMPLATE_POOL, id), new StructureTemplatePool(empty, List.of(
@@ -41,13 +41,13 @@ public record StructSimpleBuilding(
 	}
 
 	@Override
-	public void registerProcessors(BootstrapContext<StructureProcessorList> ctx, ResourceLocation id) {
+	public void registerProcessors(BootstapContext<StructureProcessorList> ctx, ResourceLocation id) {
 		ctx.register(ResourceKey.create(Registries.PROCESSOR_LIST, id),
 				new StructureProcessorList(processors()));
 	}
 
 	@Override
-	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
+	public void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new JigsawStructure(

@@ -10,7 +10,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraft.tags.FluidTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -95,19 +95,19 @@ public class TravelModeUtil {
 	}
 
 	private static boolean isSupport(BlockState state) {
-		return state.blocksMotion() || state.getFluidState().is(Tags.Fluids.WATER);
+		return state.blocksMotion() || state.getFluidState().is(FluidTags.WATER);
 	}
 
 	public static Vec3 adjustToFreeSpace(ServerLevel level, LivingEntity entity, Vec3 dst) {
 		var dim = entity.getDimensions(Pose.STANDING);
-		if (dim.width() * dim.width() * dim.height() > 64) return dst;
-		Vec3 center = dst.add(0, dim.height() / 2.0, 0);
-		double xz = Math.max(0, dim.width() - 1) + 1e-6;
-		double y = Math.max(0, dim.height() - 1) + 1e-6;
+		if (dim.width * dim.width * dim.height > 64) return dst;
+		Vec3 center = dst.add(0, dim.height / 2.0, 0);
+		double xz = Math.max(0, dim.width - 1) + 1e-6;
+		double y = Math.max(0, dim.height - 1) + 1e-6;
 		VoxelShape shape = Shapes.create(AABB.ofSize(center, xz, y, xz));
-		var found = level.findFreePosition(entity, shape, center, dim.width(), dim.height(), dim.width());
+		var found = level.findFreePosition(entity, shape, center, dim.width, dim.height, dim.width);
 		if (found.isPresent()) {
-			return found.get().add(0, -dim.height() / 2.0, 0);
+			return found.get().add(0, -dim.height / 2.0, 0);
 		}
 		return dst;
 	}

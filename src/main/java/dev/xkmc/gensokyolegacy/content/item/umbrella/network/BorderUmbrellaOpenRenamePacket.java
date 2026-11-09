@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.umbrella.network;
 
 import dev.xkmc.gensokyolegacy.content.item.umbrella.screen.BorderUmbrellaNameScreen;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +10,7 @@ public record BorderUmbrellaOpenRenamePacket(int slot,
 											 String currentName,
 											 BlockPos pos,
 											 ResourceLocation dim,
-											 boolean overwrite) implements SerialPacketBase<BorderUmbrellaOpenRenamePacket> {
+											 boolean overwrite) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

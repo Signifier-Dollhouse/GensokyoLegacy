@@ -193,6 +193,9 @@ dependencies {
 
     implementation fg.deobf("curse.maven:better-advancements-272515:6010300")
     implementation fg.deobf("curse.maven:touhou-little-maid-355044:6440955")
+    // TLM bundles this as an obfuscation-safe jar-in-jar for runtime; javac still needs it to
+    // resolve EntityMaidRenderer's BedrockModel type argument.
+    compileOnly files("libs/simplebedrockmodel-1.20.1-release-1.1.0.jar")
     implementation fg.deobf("curse.maven:jade-324717:4654448")
     compileOnly fg.deobf("curse.maven:create-328085:6255513")
 

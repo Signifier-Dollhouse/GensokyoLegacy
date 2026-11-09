@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public record DoorRequestToServer(UUID id) implements SerialPacketBase<DoorRequestToServer> {
+public record DoorRequestToServer(UUID id) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

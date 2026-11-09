@@ -1,8 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.attachment.area;
 
-import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.LinkedHashSet;
@@ -17,6 +21,8 @@ import java.util.UUID;
  */
 @SerialClass
 public class ChunkAreaAttachment extends GeneralCapabilityTemplate<LevelChunk, ChunkAreaAttachment> {
+
+	public static final Capability<ChunkAreaAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	@SerialField
 	private final Set<UUID> effectIds = new LinkedHashSet<>();

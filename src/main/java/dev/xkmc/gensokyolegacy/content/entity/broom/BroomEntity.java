@@ -19,10 +19,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
@@ -217,8 +217,10 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	}
 
 	@Override
-	public Vec3 getPassengerRidingPosition(Entity passenger) {
-		return position().add(Vec3.directionFromRotation(0, getYRot()).scale(SEAT_FORWARD)).add(0, SEAT_UP, 0);
+	protected void positionRider(Entity passenger, Entity.MoveFunction moveFunction) {
+		if (!hasPassenger(passenger)) return;
+		Vec3 pos = position().add(Vec3.directionFromRotation(0, getYRot()).scale(SEAT_FORWARD)).add(0, SEAT_UP, 0);
+		moveFunction.accept(passenger, pos.x, pos.y, pos.z);
 	}
 
 	/**
@@ -259,7 +261,7 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+	protected void defineSynchedData() {
 	}
 
 	@Override

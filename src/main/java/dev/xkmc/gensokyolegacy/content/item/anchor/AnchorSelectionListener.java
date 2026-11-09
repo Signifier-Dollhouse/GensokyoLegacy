@@ -47,12 +47,13 @@ public class AnchorSelectionListener extends IItemSelector implements WheelAdapt
 	}
 
 	@Override
-	public int getIndex(Player player, ItemStack stack) {
-		return AnchorItem.getMode(stack).ordinal();
+	public int getIndex(Player player) {
+		ItemStack held = getHeldAnchor(player);
+		return held == null ? 0 : AnchorItem.getMode(held).ordinal();
 	}
 
 	@Override
-	public List<ItemStack> getList(ItemStack stack) {
+	public List<ItemStack> getList() {
 		List<ItemStack> list = new ArrayList<>();
 		for (AnchorMode mode : AnchorMode.values()) {
 			list.add(mode.icon());
@@ -61,18 +62,7 @@ public class AnchorSelectionListener extends IItemSelector implements WheelAdapt
 	}
 
 	@Override
-	public int getSelHash(ItemStack stack) {
-		return AnchorMode.values().length;
-	}
-
-	@Override
-	public int move(int i, Player player, ItemStack stack) {
-		var modes = AnchorMode.values();
-		return Math.floorMod(AnchorItem.getMode(stack).ordinal() + i, modes.length);
-	}
-
-	@Override
-	public void swap(Player sender, int index, ItemStack stack) {
+	public void swap(Player sender, int index) {
 		ItemStack held = getHeldAnchor(sender);
 		if (held == null) return;
 		AnchorItem.setMode(held, AnchorMode.byId(index));

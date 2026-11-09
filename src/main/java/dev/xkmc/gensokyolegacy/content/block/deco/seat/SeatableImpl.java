@@ -24,9 +24,9 @@ public record SeatableImpl() implements UseWithoutItemBlockMethod {
 		}
 		List<ChairEntity> seats = level.getEntitiesOfClass(ChairEntity.class, new AABB(pos));
 		if (!seats.isEmpty()) {
-			ChairEntity seat = seats.getFirst();
+			ChairEntity seat = seats.get(0);
 			List<Entity> passengers = seat.getPassengers();
-			if (!passengers.isEmpty() && passengers.getFirst() instanceof Player) {
+			if (!passengers.isEmpty() && passengers.get(0) instanceof Player) {
 				return InteractionResult.PASS;
 			}
 			if (!level.isClientSide) {

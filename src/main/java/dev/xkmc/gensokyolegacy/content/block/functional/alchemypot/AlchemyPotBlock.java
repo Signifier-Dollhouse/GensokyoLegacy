@@ -11,7 +11,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -21,9 +20,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,11 +43,11 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!(level.getBlockEntity(pos) instanceof AlchemyPotBlockEntity be))
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		if (be.isReacting())
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		if (!stack.isEmpty() && FluidUtil.getFluidHandler(stack).isPresent()) {
 			var fluidContained = FluidUtil.getFluidContained(stack);
 			if (fluidContained.isPresent() && !fluidContained.get().isEmpty()) {
@@ -62,10 +61,10 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1, 1);
 						}
-						return ItemInteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS;
 					}
 				}
-				return ItemInteractionResult.FAIL;
+				return InteractionResult.FAIL;
 			} else {
 				if (!be.getFluid().isEmpty()) {
 					var result = FluidUtil.tryFillContainer(stack, be.tank, be.getFluid().getAmount(), player, false);
@@ -76,8 +75,8 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 							be.notifyTile();
 							level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1, 1);
 						}
-						return ItemInteractionResult.SUCCESS;
-					} else return ItemInteractionResult.FAIL;
+						return InteractionResult.SUCCESS;
+					} else return InteractionResult.FAIL;
 				}
 			}
 		}
@@ -87,10 +86,10 @@ public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, 
 					be.addItemWithContainer(player, stack);
 					level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5f, 1.2f);
 				}
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	@Override

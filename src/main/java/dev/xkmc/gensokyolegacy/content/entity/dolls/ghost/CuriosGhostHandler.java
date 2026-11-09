@@ -40,7 +40,7 @@ final class CuriosGhostHandler implements GhostVariantHandler {
 	private static boolean cleanseLongest(GhostEntity ghost, LivingEntity owner) {
 		MobEffectInstance target = null;
 		for (MobEffectInstance effect : owner.getActiveEffects()) {
-			if (effect.getEffect().value().getCategory() != MobEffectCategory.HARMFUL) continue;
+			if (effect.getEffect().getCategory() != MobEffectCategory.HARMFUL) continue;
 			if (target == null || remaining(effect) > remaining(target)) target = effect;
 		}
 		if (target == null) return false;

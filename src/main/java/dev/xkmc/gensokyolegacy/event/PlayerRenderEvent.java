@@ -6,23 +6,21 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.GloveDollHover;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -65,23 +63,20 @@ public class PlayerRenderEvent {
 	 * world position becomes local by subtracting it.
 	 */
 	public static void renderLinks(PoseStack pose, MultiBufferSource.BufferSource buffers, Vec3 origin,
-	                               Player player, List<DollEntity> dolls, DeltaTracker delta) {
-		TickRateManager tickRate = player.level().tickRateManager();
-		float fromPartial = partialTick(delta, tickRate, player);
-		Vec3 from = renderPos(player, fromPartial);
+	                               Player player, List<DollEntity> dolls, float partialTick) {
+		Vec3 from = renderPos(player, partialTick);
 		double x0 = from.x - origin.x;
 		double y0 = from.y + player.getBbHeight() * 0.5 - origin.y;
 		double z0 = from.z - origin.z;
 		RenderType leash = RenderType.leash();
 		for (DollEntity doll : dolls) {
-			float toPartial = partialTick(delta, tickRate, doll);
-			Vec3 to = renderPos(doll, toPartial);
+			Vec3 to = renderPos(doll, partialTick);
 			// A connected-primitive type cannot consolidate consecutive geometry, so each getBuffer opens a
 			// fresh strip and the links sharing it are never welded into one ribbon. Tint is the doll's DyeColor.
 			leash(pose, buffers.getBuffer(leash),
 					x0, y0, z0, to.x - origin.x, to.y + doll.getBbHeight() * 0.5 - origin.y, to.z - origin.z,
-					blockLight(player, fromPartial), skyLight(player, fromPartial),
-					blockLight(doll, toPartial), skyLight(doll, toPartial),
+					blockLight(player, partialTick), skyLight(player, partialTick),
+					blockLight(doll, partialTick), skyLight(doll, partialTick),
 					doll.getColor().getTextColor());
 		}
 	}
@@ -101,14 +96,6 @@ public class PlayerRenderEvent {
 
 	private static BlockPos eyePos(Entity entity, float partialTick) {
 		return BlockPos.containing(entity.getEyePosition(partialTick));
-	}
-
-	/**
-	 * The partial tick the entity renderer would use for this entity: a frozen entity is not
-	 * interpolated, exactly as {@code LevelRenderer#renderEntity} decides it.
-	 */
-	private static float partialTick(DeltaTracker delta, TickRateManager tickRate, Entity entity) {
-		return delta.getGameTimeDeltaPartialTick(!tickRate.isEntityFrozen(entity));
 	}
 
 	/**
@@ -160,10 +147,10 @@ public class PlayerRenderEvent {
 				// take opposite ends of the 0.7-1.0 range, which is what reads as a twist.
 				float shade = index % 2 == (reverse ? 1 : 0) ? 0.7F : 1.0F;
 				float up = reverse ? 0 : LEASH_WIDTH;
-				vc.addVertex(mat, (float) (x - ox), (float) (y + up), (float) (z + oz))
-						.setColor(red * shade, green * shade, blue * shade, 1F).setLight(light);
-				vc.addVertex(mat, (float) (x + ox), (float) (y + LEASH_WIDTH - up), (float) (z - oz))
-						.setColor(red * shade, green * shade, blue * shade, 1F).setLight(light);
+				vc.vertex(mat.pose(), (float) (x - ox), (float) (y + up), (float) (z + oz))
+						.color(red * shade, green * shade, blue * shade, 1F).uv2(light).endVertex();
+				vc.vertex(mat.pose(), (float) (x + ox), (float) (y + LEASH_WIDTH - up), (float) (z - oz))
+						.color(red * shade, green * shade, blue * shade, 1F).uv2(light).endVertex();
 			}
 		}
 	}

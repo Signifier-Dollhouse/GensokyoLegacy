@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.foundation;
 
 import com.google.common.collect.Sets;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
@@ -15,8 +15,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -41,7 +42,7 @@ public class DamageClampEntity extends DamageRefactorEntity {
 	}
 
 	@Override
-	public boolean canBeLeashed() {
+	public boolean canBeLeashed(Player player) {
 		return false;
 	}
 

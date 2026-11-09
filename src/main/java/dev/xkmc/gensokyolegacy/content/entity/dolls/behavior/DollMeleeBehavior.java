@@ -7,13 +7,14 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.action.DollActionType;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.behavior.DollBehaviorRegistry.HandMatch;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollLanceItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
@@ -236,12 +237,14 @@ public class DollMeleeBehavior extends DollBehavior {
 	}
 
 	private void swing(DollEntity doll, ItemStack weapon, LivingEntity target, Vec3 toTarget) {
-		// The doll is the direct source, its owner the causing one; GLAttackListener#onCreateSource
-		// turns every doll melee into a bypass-cooldown variant.
+		// The doll is the direct source, its owner the causing one. 1.20.1's L2DamageTracker has no
+		// bypass-cooldown state, so the target's i-frames are cleared the way that state did.
 		LivingEntity owner = doll.getOwner();
 		DamageSource source = owner == null
 				? doll.damageSources().mobAttack(doll)
-				: doll.damageSources().source(DamageTypes.MOB_ATTACK, doll, owner);
+				: new DamageSource(doll.level().registryAccess()
+				.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.MOB_ATTACK), doll, owner);
+		target.invulnerableTime = 0;
 		if (!target.hurt(source, meleeDamage(doll, weapon))) return;
 		Vec3 push = new Vec3(toTarget.x, 0, toTarget.z);
 		if (push.lengthSqr() < 1e-6) return;
@@ -251,14 +254,13 @@ public class DollMeleeBehavior extends DollBehavior {
 
 	/**
 	 * Base {@link Attributes#ATTACK_DAMAGE} plus the ledger weapon's main-hand modifiers — the price of the loadout not
-	 * being vanilla equipment (loadout.md §2): nothing feeds the held stack's {@link ItemAttributeModifiers} into the
-	 * attribute map, so a bare {@link DollLanceItem} swing is 5 (1 + its 4) and an empty-handed slap the bare 1.
+	 * being vanilla equipment (loadout.md §2): nothing feeds the held stack's attribute modifiers into the attribute
+	 * map, so a bare {@link DollLanceItem} swing is 5 (1 + its 4) and an empty-handed slap the bare 1.
 	 */
 	private float meleeDamage(DollEntity doll, ItemStack weapon) {
-		double weaponDamage = weapon.getAttributeModifiers().modifiers().stream()
-				.filter(entry -> Attributes.ATTACK_DAMAGE.equals(entry.attribute()))
-				.filter(entry -> entry.slot().test(EquipmentSlot.MAINHAND))
-				.mapToDouble(entry -> entry.modifier().amount())
+		double weaponDamage = weapon.getAttributeModifiers(EquipmentSlot.MAINHAND)
+				.get(Attributes.ATTACK_DAMAGE).stream()
+				.mapToDouble(AttributeModifier::getAmount)
 				.sum();
 		return (float) (doll.getAttributeValue(Attributes.ATTACK_DAMAGE) + weaponDamage);
 	}

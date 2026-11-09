@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 /**
  * 铁艺立柱。只有竖直方向的首尾会连接:上下相邻都是同类方块时把那一面的端面藏起来,
@@ -18,7 +17,6 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
  */
 public class WroughtIronPillarBlock extends Block {
 
-	private static final MapCodec<WroughtIronPillarBlock> CODEC = simpleCodec(WroughtIronPillarBlock::new);
 
 	public static final VoxelShape SHAPE = Block.box(4, 0, 4, 12, 16, 12);
 
@@ -26,23 +24,19 @@ public class WroughtIronPillarBlock extends Block {
 		super(properties);
 	}
 
-	@Override
-	public MapCodec<? extends WroughtIronPillarBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
-	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
 		return SHAPE;
 	}
 
 	@Override
-	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
 		return SHAPE;
 	}
 
 	@Override
-	protected boolean skipRendering(BlockState state, BlockState adjacent, Direction side) {
+	public boolean skipRendering(BlockState state, BlockState adjacent, Direction side) {
 		return (side.getAxis().isVertical() && adjacent.is(this)) || super.skipRendering(state, adjacent, side);
 	}
 

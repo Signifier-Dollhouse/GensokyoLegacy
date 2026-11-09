@@ -1,8 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +36,6 @@ import java.util.List;
 public class SideBushBlock extends Block {
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-	private static final MapCodec<SideBushBlock> CODEC = simpleCodec(SideBushBlock::new);
 
 	private static final VoxelShape[] SHAPES = new VoxelShape[4];
 
@@ -60,10 +58,6 @@ public class SideBushBlock extends Block {
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
 
-	@Override
-	public MapCodec<? extends Block> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -84,7 +78,7 @@ public class SideBushBlock extends Block {
 	}
 
 	@Override
-	protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
 		Direction facing = state.getValue(FACING).getOpposite();
 		BlockPos supportPos = pos.relative(facing);
 		BlockState supportState = level.getBlockState(supportPos);
@@ -113,22 +107,19 @@ public class SideBushBlock extends Block {
 	}
 
 	@Override
-	protected boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
+	public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
 		return state.getFluidState().isEmpty();
 	}
 
 	@Override
-	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
-		return pathComputationType == PathComputationType.AIR && !this.hasCollision || super.isPathfindable(state, pathComputationType);
+	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType pathComputationType) {
+		return pathComputationType == PathComputationType.AIR && !this.hasCollision || super.isPathfindable(state, level, pos, pathComputationType);
 	}
 
 	public static void loot(RegistrateBlockLootTables tb, Block block) {
 		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
 				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
-										MinMaxBounds.Ints.atLeast(1)))))));
+						.hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1)))));
 		SideBushBlock bush = (SideBushBlock) block;
 		tb.add(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)

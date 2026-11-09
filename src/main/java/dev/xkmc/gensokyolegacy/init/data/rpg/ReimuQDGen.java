@@ -20,12 +20,12 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.gensokyolegacy.util.DummyHolderGetter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
@@ -39,7 +39,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
+import net.minecraftforge.common.crafting.StrictNBTIngredient;
 
 import java.util.List;
 import java.util.Map;
@@ -220,7 +220,7 @@ public class ReimuQDGen extends QuestDialogData {
 						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.", List.of("dialog_talk_01"),
 						randomOption("draw", "Draw a fortune.",
 								weighted(2, good,
-										new GiveMobEffectAction(GLEffects.LOOTING, FORTUNE_DURATION, 0),
+										new GiveMobEffectAction(GLEffects.LOOTING.get(), FORTUNE_DURATION, 0),
 										setTimer(FORTUNE_KEY, FORTUNE_DURATION)),
 								weighted(2, mid,
 										new GiveMobEffectAction(MobEffects.DIG_SPEED, FORTUNE_DURATION, 0),
@@ -267,7 +267,7 @@ public class ReimuQDGen extends QuestDialogData {
 				questTitle("Hostile Analysis"), questDesc("Clear out zombies and skeletons for Reimu and collect their flesh and bones."),
 				Optional.empty(),
 				new TreeMap<>(Map.of(
-						"a-zombie", new KillMobRequirement(reqText("zombie", "Exterminate zombies"), EntityTypeTags.ZOMBIES, 10),
+						"a-zombie", new KillMobRequirement(reqText("zombie", "Exterminate zombies"), GLTagGen.ZOMBIES, 10),
 						"b-skeleton", new KillMobRequirement(reqText("skeleton", "Exterminate skeletons"), EntityTypeTags.SKELETONS, 10),
 						"c-loot", new SubmitItemRequirement(List.of(
 								item(Items.ROTTEN_FLESH, 8),
@@ -356,7 +356,7 @@ public class ReimuQDGen extends QuestDialogData {
 				Optional.empty(),
 				new TreeMap<>(Map.of(
 						"a-banner", new SubmitItemRequirement(List.of(new IngredientEntry(
-								DataComponentIngredient.of(false, Raid.getLeaderBannerInstance(DummyHolderGetter.create())), 1, Optional.of("Ominous Banner"))))
+								StrictNBTIngredient.of(Raid.getLeaderBannerInstance()), 1, Optional.of("Ominous Banner"))))
 				)),
 				List.of(new ExpReward(200), new ReputationReward(20, 300, 10, 300),
 						loot("reimu/ominous_banner", LootTable.lootTable()

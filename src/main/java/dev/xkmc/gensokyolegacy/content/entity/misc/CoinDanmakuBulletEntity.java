@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.entity.misc;
 
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;

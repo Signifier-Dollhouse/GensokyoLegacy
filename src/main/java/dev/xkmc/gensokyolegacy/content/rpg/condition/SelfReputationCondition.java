@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -13,7 +13,7 @@ public record SelfReputationCondition(
 		boolean invert
 ) implements QuestCondition<SelfReputationCondition> {
 
-	public static final MapCodec<SelfReputationCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<SelfReputationCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.INT.fieldOf("reputation").forGetter(SelfReputationCondition::reputation),
 			Codec.BOOL.optionalFieldOf("invert", false).forGetter(SelfReputationCondition::invert)
 	).apply(i, SelfReputationCondition::new));
@@ -23,7 +23,7 @@ public record SelfReputationCondition(
 	}
 
 	@Override
-	public MapCodec<SelfReputationCondition> codec() {
+	public Codec<SelfReputationCondition> codec() {
 		return CODEC;
 	}
 

@@ -2,9 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -13,16 +10,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.FluidStack;
+import dev.xkmc.gensokyolegacy.util.PotionData;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class HexBrewBottleItem extends Item implements ProjectileItem {
+public class HexBrewBottleItem extends Item {
 
 	private final HexBrew hexBrew;
 	private final Supplier<GLHexFluid> fluidSupplier;
@@ -35,7 +31,8 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 
 	public FluidStack getFluidStack(ItemStack stack) {
 		FluidStack base = new FluidStack(fluidSupplier.get(), 250);
-		hexBrew.copyToFluid(stack, base);
+		var data = hexBrew.handler instanceof AbstractPotionHandler pot ? pot.potion(stack) : PotionData.read(stack);
+		if (!data.isEmpty()) data.write(base);
 		return base;
 	}
 
@@ -69,11 +66,17 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
+	public int getUseDuration(ItemStack stack) {
 		if (hexBrew.handler.isDrinkable()) {
 			return hexBrew.handler.getUseDuration(stack);
 		}
-		return super.getUseDuration(stack, entity);
+		return super.getUseDuration(stack);
+	}
+
+	@Override
+	public boolean isFoil(ItemStack stack) {
+		// the enchantment glint override every hex brew bottle carried as a data component
+		return true;
 	}
 
 	@Override
@@ -110,21 +113,10 @@ public class HexBrewBottleItem extends Item implements ProjectileItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		super.appendHoverText(stack, context, list, flag);
-		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-		if (contents != null && !contents.getAllEffects().iterator().hasNext()) {
-			contents = null;
-		}
-		if (contents != null) {
-			contents.addPotionTooltip(list::add, 1.0f, context.tickRate());
-		}
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		super.appendHoverText(stack, level, list, flag);
+		var contents = hexBrew.handler instanceof AbstractPotionHandler pot ? pot.potion(stack) : PotionData.read(stack);
+		if (!contents.isEmpty()) contents.addPotionTooltip(list::add, 1.0F);
 	}
 
-	@Override
-	public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-		HexBrewBottleEntity entity = new HexBrewBottleEntity(level, pos.x(), pos.y(), pos.z());
-		entity.setItem(stack);
-		return entity;
-	}
 }

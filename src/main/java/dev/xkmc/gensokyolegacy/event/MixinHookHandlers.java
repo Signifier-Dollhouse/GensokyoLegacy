@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class MixinHookHandlers {
 
 
 	public static double getGravity(LivingEntity le, double original) {
-		var ins = le.getEffect(GLEffects.FLOATING);
+		var ins = le.getEffect(GLEffects.FLOATING.get());
 		if (ins != null && !le.onGround() && !le.isShiftKeyDown()) {
 			int h = 2 << Math.min(3, ins.getAmplifier());
 			double dist;
@@ -36,7 +37,7 @@ public class MixinHookHandlers {
 				double distF = ansF.getLocation().distanceTo(pos);
 				dist = Math.min(distV, distF);
 			}
-			double power = Math.clamp((dist - h) / h, -1, 1);
+			double power = Mth.clamp((dist - h) / h, -1, 1);
 			double damping = le.getDeltaMovement().y() * 0.1;
 			return original * power + damping;
 		}
@@ -45,7 +46,7 @@ public class MixinHookHandlers {
 
 	public static float getFlyingSpeed(LivingEntity le, float original) {
 		if (le.onGround() || le instanceof Player player && player.getAbilities().flying) return original;
-		var ins = le.getEffect(GLEffects.FLOATING);
+		var ins = le.getEffect(GLEffects.FLOATING.get());
 		if (ins != null) {
 			return Math.max(le.getSpeed() * 0.3f, original);
 		}
@@ -56,7 +57,7 @@ public class MixinHookHandlers {
 		if (source != null) {
 			var attacker = source.getEntity();
 			if (attacker instanceof LivingEntity le) {
-				var ins = le.getEffect(GLEffects.LOOTING);
+				var ins = le.getEffect(GLEffects.LOOTING.get());
 				if (ins != null) {
 					int n = 2 + ins.getAmplifier();
 					List<ItemStack> all = new ArrayList<>();

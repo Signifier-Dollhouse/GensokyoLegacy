@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.common;
 
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.server.level.ServerPlayer;
 
 public interface InvClickItem {

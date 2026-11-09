@@ -4,14 +4,14 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.Alchem
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.neoforge.NeoForgeTypes;
+import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,7 +46,7 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 		int time = recipe.getProcessTime();
 		if (time <= 0) time = 200;
 		Layout lay = compute(recipe);
-		builder.addAnimatedRecipeArrowWidget(time).setPosition(lay.arrowX, lay.arrowY);
+		builder.addAnimatedRecipeArrow(time).setPosition(lay.arrowX, lay.arrowY);
 		builder.addText(Component.translatable("gui.jei.category.smelting.time.seconds", time / 20), 80, 10)
 				.setPosition(lay.arrowX, 26)
 				.setColor(0xFF808080);
@@ -65,9 +65,9 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 			if (!inFluidItems.isEmpty()) {
 				slot.addItemStacks(inFluidItems);
 				builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+						.addIngredients(ForgeTypes.FLUID_STACK, recipe.inputFluid.getStacks());
 			} else {
-				slot.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.inputFluid.getStacks()));
+				slot.addIngredients(ForgeTypes.FLUID_STACK, recipe.inputFluid.getStacks());
 			}
 			idx++;
 		}
@@ -100,9 +100,9 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 			if (!recipe.getOutputFluidItemStacks().isEmpty()) {
 				slot.addItemStacks(recipe.getOutputFluidItemStacks());
 				builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-						.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
+						.addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
 			} else {
-				slot.addIngredients(NeoForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
+				slot.addIngredients(ForgeTypes.FLUID_STACK, List.of(recipe.resultFluid));
 			}
 		}
 		if (useItem) {
@@ -155,9 +155,8 @@ public class AlchemyRecipeCategory extends BaseRecipeCategory<AlchemyRecipe<?>, 
 					hash = 0;
 				} else {
 					hash = BuiltInRegistries.ITEM.getId(stack.getItem());
-					var tag = stack.getComponentsPatch();
-					if (!tag.isEmpty()) {
-						hash += tag.hashCode() * 15;
+					if (stack.hasTag()) {
+						hash += stack.getTag().hashCode() * 15;
 					}
 				}
 				result = 31 * result + hash;

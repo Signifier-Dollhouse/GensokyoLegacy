@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorThrow;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -25,14 +25,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
-import net.neoforged.neoforge.entity.PartEntity;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.event.level.BlockEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -43,7 +42,7 @@ import java.util.UUID;
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
-public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier, IEntityWithComplexSpawn {
+public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier, IEntityAdditionalSpawnData {
 
 	public enum Phase {
 		FLY, RETURN, GRAPPLE, DRAG, HANG
@@ -120,13 +119,13 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(DATA_TYPE, (byte) 0);
-		builder.define(DATA_PHASE, (byte) 0);
+	protected void defineSynchedData() {
+		entityData.define(DATA_TYPE, (byte) 0);
+		entityData.define(DATA_PHASE, (byte) 0);
 	}
 
 	@Override
-	protected double getDefaultGravity() {
+	protected float getGravity() {
 		return 0;
 	}
 
@@ -263,18 +262,13 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	 * The hook never follows its owner through a portal; {@link #ownerLost()} discards it instead.
 	 */
 	@Override
-	public boolean canUsePortal(boolean allowPassengers) {
-		return false;
-	}
-
-	@Override
-	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+	public boolean canChangeDimensions() {
 		return false;
 	}
 
 	@Nullable
 	@Override
-	public Entity changeDimension(DimensionTransition transition) {
+	public Entity changeDimension(ServerLevel level) {
 		return null;
 	}
 
@@ -447,7 +441,7 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 			if (state.requiresCorrectToolForDrops() && !DIAMOND_PICKAXE.isCorrectToolForDrops(state)) continue;
 			if (player != null) {
 				if (!level().mayInteract(player, pos)) continue;
-				if (NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level(), pos, state, player)).isCanceled())
+				if (MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level(), pos, state, player)))
 					continue;
 			}
 			level().destroyBlock(pos, drop, owner);
@@ -496,14 +490,14 @@ public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplie
 	 * itself in the wrong heading.
 	 */
 	@Override
-	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+	public void writeSpawnData(FriendlyByteBuf buffer) {
 		buffer.writeDouble(flyDir.x);
 		buffer.writeDouble(flyDir.y);
 		buffer.writeDouble(flyDir.z);
 	}
 
 	@Override
-	public void readSpawnData(RegistryFriendlyByteBuf buffer) {
+	public void readSpawnData(FriendlyByteBuf buffer) {
 		flyDir = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
 	}
 

@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.network;
 
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootDrop;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
  * learn a quest's reward; sent once per datapack sync.
  */
 public record QuestLootToClient(LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> drops)
-		implements SerialPacketBase<QuestLootToClient> {
+		implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

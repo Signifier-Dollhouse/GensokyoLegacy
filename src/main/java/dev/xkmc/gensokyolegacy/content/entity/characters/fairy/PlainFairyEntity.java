@@ -11,9 +11,10 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.gensokyolegacy.util.MobSpawnRules;
-import dev.xkmc.l2core.base.entity.SyncedData;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SyncedData;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -36,10 +37,10 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -176,12 +177,12 @@ public class PlainFairyEntity extends FairyEntity implements GeoYoukaiAnim {
 	 * server so the client takes the synced values.
 	 */
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pTag) {
 		if (!pLevel.isClientSide()) {
 			setVariant(getRandom().nextInt(VARIANT_COUNT));
 			setFlower(getRandom().nextInt(100) < FLOWER_CHANCE);
 		}
-		return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
+		return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pTag);
 	}
 
 	// ---------- hovering ----------

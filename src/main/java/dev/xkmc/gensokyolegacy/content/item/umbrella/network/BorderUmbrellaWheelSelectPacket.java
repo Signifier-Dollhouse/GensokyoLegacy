@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionList
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.wheel.BorderUmbrellaDistanceEntry;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
  * wheel, but arrives as 2.
  */
 public record BorderUmbrellaWheelSelectPacket(int wheel, int index)
-		implements SerialPacketBase<BorderUmbrellaWheelSelectPacket> {
+		implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {
@@ -25,12 +25,12 @@ public record BorderUmbrellaWheelSelectPacket(int wheel, int index)
 		if (wheel == 1) {
 			// slot selection
 			if (index < 0 || index >= BorderUmbrellaSlots.MAX_SLOTS) return;
-			stack.set(GLItems.UMBRELLA_SLOT_SELECTED.get(), Math.floorMod(index, BorderUmbrellaSlots.MAX_SLOTS));
+			GLItems.UMBRELLA_SLOT_SELECTED.set(stack, Math.floorMod(index, BorderUmbrellaSlots.MAX_SLOTS));
 		} else if (wheel == 2) {
 			// distance selection
 			if (index < 0 || index >= BorderUmbrellaDistanceEntry.DISTANCES.length) return;
 			int dist = BorderUmbrellaDistanceEntry.distanceOf(index);
-			stack.set(GLItems.UMBRELLA_DISTANCE.get(), dist);
+			GLItems.UMBRELLA_DISTANCE.set(stack, dist);
 		}
 	}
 }

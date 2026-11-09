@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
  */
 public class NoiseBandFilter extends PlacementFilter {
 
-	public static final MapCodec<NoiseBandFilter> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<NoiseBandFilter> CODEC = RecordCodecBuilder.create(i -> i.group(
 			ResourceKey.codec(Registries.NOISE).fieldOf("noise").forGetter(e -> e.noise),
 			Codec.DOUBLE.optionalFieldOf("min", -Double.MAX_VALUE).forGetter(e -> e.min),
 			Codec.DOUBLE.optionalFieldOf("max", Double.MAX_VALUE).forGetter(e -> e.max)

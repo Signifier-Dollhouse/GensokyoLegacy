@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.character;
 
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -41,8 +41,8 @@ public class FeedModuleData {
 			val *= RATE;
 		}
 		statistics.compute(food.getItem(), (k, v) -> (v == null ? 0 : v) + 1);
-		history.addFirst(food.getItem());
-		if (history.size() > MEMORY) history.removeLast();
+		history.add(0, food.getItem());
+		if (history.size() > MEMORY) history.remove(history.size() - 1);
 		return 1 / (1 + ans);
 	}
 

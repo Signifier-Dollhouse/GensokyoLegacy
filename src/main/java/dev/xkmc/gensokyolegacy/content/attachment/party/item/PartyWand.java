@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.item;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodHandler;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFoodValue;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyPlanner;
@@ -69,7 +70,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 				return InteractionResult.SUCCESS;
 			}
 			// a click the wand cannot read clears the held reading
-			stack.remove(GLItems.PARTY_WAND_DATA.get());
+			GLItems.PARTY_WAND_DATA.remove(stack);
 		}
 		return InteractionResult.CONSUME;
 	}
@@ -217,7 +218,7 @@ public class PartyWand extends Item implements IDebugOverlayWand {
 	// --- tooltip ---
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemDebug.PARTY_WAND_HOVER.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.PARTY_WAND_EAT.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.PARTY_WAND_SIMULATE.get().withStyle(ChatFormatting.GRAY));

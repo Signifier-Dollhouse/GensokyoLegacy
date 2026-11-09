@@ -4,19 +4,18 @@ import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.PotionStageRecipe;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionContents;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.*;
 
@@ -32,8 +31,8 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 	@SerialField
 	public final ArrayList<Ingredient> extra = new ArrayList<>();
 
-	public WitchMergeRecipe() {
-		super(GLRecipes.ALCHEMY_WITCH_MERGE.get());
+	public WitchMergeRecipe(ResourceLocation id) {
+		super(id, GLRecipes.ALCHEMY_WITCH_MERGE.get());
 		time = 200;
 	}
 
@@ -101,15 +100,15 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 	}
 
 	@Override
-	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
+	public FluidStack getResultFluid(AlchemyInv inv, RegistryAccess access) {
 		Fluid fluid = resultFluid.isEmpty() ? inv.fluid().getFluid() : resultFluid.getFluid();
 		FluidStack outFluid = new FluidStack(fluid, 250);
 		int color = PotionStageRecipe.calculateMixColor(inv);
-		Map<Pair<Holder<MobEffect>, Integer>, Integer> map = new LinkedHashMap<>();
+		Map<Pair<MobEffect, Integer>, Integer> map = new LinkedHashMap<>();
 		for (ItemStack s : inv.list()) {
 			if (!potionIngredient.test(s)) continue;
-			PotionContents pc = s.get(DataComponents.POTION_CONTENTS);
-			if (pc == null) continue;
+			var pc = PotionData.read(s);
+			if (pc.isEmpty()) continue;
 			for (MobEffectInstance e : pc.getAllEffects()) {
 				var holder = e.getEffect();
 				var key = Pair.of(holder, e.getAmplifier());
@@ -120,8 +119,7 @@ public class WitchMergeRecipe extends AlchemyRecipe<WitchMergeRecipe> {
 		for (var ent : map.entrySet()) {
 			list.add(new MobEffectInstance(ent.getKey().getFirst(), ent.getValue(), ent.getKey().getSecond()));
 		}
-		PotionContents out = new PotionContents(Optional.empty(), Optional.of(color), list);
-		outFluid.set(DataComponents.POTION_CONTENTS, out);
+		PotionData.effects(color, list).write(outFluid);
 		return outFluid;
 	}
 

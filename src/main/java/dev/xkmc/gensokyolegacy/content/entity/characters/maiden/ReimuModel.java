@@ -2,11 +2,11 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;// Made with Bl
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class ReimuModel extends DefaultedEntityGeoModel<ReimuEntity> {
+public class ReimuModel extends HeadBoneGeoModel<ReimuEntity> {
 	public ReimuModel() {
 		super(GensokyoLegacy.loc("reimu"), "Head");
 	}

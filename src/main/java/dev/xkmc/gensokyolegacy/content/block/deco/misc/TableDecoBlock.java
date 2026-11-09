@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
+import dev.xkmc.l2modularblock.BlockTemplates;
 import dev.xkmc.l2modularblock.mult.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 /**

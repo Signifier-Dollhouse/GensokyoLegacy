@@ -12,8 +12,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.handle.DirectDialogHandle;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogSession;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,7 +59,7 @@ public class GiftModule extends AbstractYoukaiModule {
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		var giftData = GLMeta.GIFT_DATA.get(player.registryAccess(), stack.getItemHolder());
+		var giftData = GLMeta.GIFT_DATA.get(player.level().registryAccess(), stack.getItemHolder());
 		if (giftData == null) return InteractionResult.PASS;
 		if (!self.mayInteract(player)) return InteractionResult.FAIL;
 		if (giftCoolDown > 0) return InteractionResult.FAIL;

@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.spell.card;
 import dev.xkmc.danmakuapi.content.spell.spellcard.ActualSpellCard;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.gensokyolegacy.content.spell.part.MystiaPart;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 
 @SerialClass
 public class MystiaSpell extends ActualSpellCard {

@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -16,7 +16,7 @@ public record PartyCondition(
 		boolean invert
 ) implements QuestCondition<PartyCondition> {
 
-	public static final MapCodec<PartyCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<PartyCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.BOOL.optionalFieldOf("invert", false).forGetter(PartyCondition::invert)
 	).apply(i, PartyCondition::new));
 
@@ -28,7 +28,7 @@ public record PartyCondition(
 	}
 
 	@Override
-	public MapCodec<PartyCondition> codec() {
+	public Codec<PartyCondition> codec() {
 		return CODEC;
 	}
 

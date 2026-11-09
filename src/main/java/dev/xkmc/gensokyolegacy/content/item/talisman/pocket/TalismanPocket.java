@@ -4,9 +4,9 @@ import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.*;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2menustacker.init.L2MenuStacker;
-import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.init.L2ScreenTracker;
+import dev.xkmc.l2screentracker.screen.packets.CacheMouseToClient;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 	private static PlayerSlot<?> handSlot(ServerPlayer sp, InteractionHand hand) {
 		ItemStack held = sp.getItemInHand(hand);
 		if (hand == InteractionHand.OFF_HAND) {
-			return sp.getInventory().offhand.getFirst() == held
+			return sp.getInventory().offhand.get(0) == held
 					? PlayerSlot.ofInventory(sp.getInventory().getContainerSize() - 1) : null;
 		}
 		for (int i = 0; i < 9; i++) {
@@ -95,12 +95,12 @@ public class TalismanPocket extends TalismanCurioItem implements InvClickItem {
 
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
-		L2MenuStacker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
+		L2ScreenTracker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
 		TalismanPocketProvider.open(sp, slot);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.Talisman.POCKET_DESC.get());
 	}
 

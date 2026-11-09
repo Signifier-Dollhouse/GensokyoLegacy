@@ -53,8 +53,8 @@ public interface DollTint extends DollEntityImpl {
 		}
 
 		@Override
-		public void defineSynchedData(SynchedEntityData.Builder builder) {
-			builder.define(DollEntity.DATA_COLOR, DyeColor.RED.getId());
+		public void defineSynchedData(SynchedEntityData data) {
+			data.define(DollEntity.DATA_COLOR, DyeColor.RED.getId());
 		}
 
 		@Override

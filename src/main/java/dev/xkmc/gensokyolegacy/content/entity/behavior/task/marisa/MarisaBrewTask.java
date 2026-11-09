@@ -25,10 +25,9 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 		ADD, DRAIN
 	}
 
-	private record BrewOption(RecipeHolder<?> holder, List<ItemStack> missing) {
+	private record BrewOption(AlchemyRecipe<?> recipe, List<ItemStack> missing) {
 	}
 
 	private BlockPos pot;
@@ -86,7 +85,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 		FluidStack fluid = be.getFluid();
 		List<ItemStack> items = potItems(be);
 		boolean full = !fluid.isEmpty() && fluid.getAmount() >= AlchemyPotBlockEntity.FLUID_CAPACITY;
-		boolean fillable = fluid.isEmpty() || fluid.is(Fluids.WATER) && !full;
+		boolean fillable = fluid.isEmpty() || fluid.getFluid() == Fluids.WATER && !full;
 		if (full || fillable) {
 			FluidStack matchFluid = full ? fluid.copy() :
 					new FluidStack(Fluids.WATER, AlchemyPotBlockEntity.FLUID_CAPACITY);
@@ -166,7 +165,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 			be.clearContents();
 		}
 		FluidStack fluid = be.getFluid();
-		if (needFill && (fluid.isEmpty() || fluid.is(Fluids.WATER))) {
+		if (needFill && (fluid.isEmpty() || fluid.getFluid() == Fluids.WATER)) {
 			be.tank.fill(new FluidStack(Fluids.WATER, AlchemyPotBlockEntity.FLUID_CAPACITY),
 					IFluidHandler.FluidAction.EXECUTE);
 			be.notifyTile();
@@ -232,8 +231,8 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 		List<ItemStack> copies = new ArrayList<>();
 		for (var s : items) copies.add(s.copy());
 		var prefix = new AlchemyInv(fluid.copy(), copies, false);
-		for (var holder : level.getRecipeManager().getRecipes()) {
-			if (!(holder.value() instanceof AlchemyRecipe<?> recipe)) continue;
+		for (var value : level.getRecipeManager().getRecipes()) {
+			if (!(value instanceof AlchemyRecipe<?> recipe)) continue;
 			if (involvesWitch(recipe)) continue;
 			if (!recipe.inputFluid.test(fluid)) continue;
 			if (!recipe.matches(prefix, level)) continue;
@@ -250,7 +249,7 @@ public class MarisaBrewTask<E extends SmartYoukaiEntity> extends AbstractHomeHol
 				}
 				missing.add(arr[entity.getRandom().nextInt(arr.length)].copyWithCount(1));
 			}
-			if (ok) ans.add(new BrewOption(holder, missing));
+			if (ok) ans.add(new BrewOption(recipe, missing));
 		}
 		return ans;
 	}

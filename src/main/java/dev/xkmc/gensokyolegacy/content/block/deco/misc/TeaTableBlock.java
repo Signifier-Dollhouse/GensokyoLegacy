@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
+import dev.xkmc.l2modularblock.BlockTemplates;
 import dev.xkmc.l2modularblock.mult.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -209,8 +209,8 @@ public class StructureOutlineRenderer {
 		rx /= len;
 		ry /= len;
 		rz /= len;
-		vc.addVertex(mat, x0 + dx, y0 + dy, z0 + dz).setColor(r, g, b, a).setNormal(mat, rx, ry, rz);
-		vc.addVertex(mat, x1 + dx, y1 + dy, z1 + dz).setColor(r, g, b, a).setNormal(mat, rx, ry, rz);
+		vc.vertex(mat.pose(), x0 + dx, y0 + dy, z0 + dz).color(r, g, b, a).normal(mat.normal(), rx, ry, rz).endVertex();
+		vc.vertex(mat.pose(), x1 + dx, y1 + dy, z1 + dz).color(r, g, b, a).normal(mat.normal(), rx, ry, rz).endVertex();
 	}
 
 

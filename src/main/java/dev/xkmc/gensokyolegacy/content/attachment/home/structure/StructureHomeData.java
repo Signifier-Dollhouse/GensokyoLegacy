@@ -7,12 +7,13 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoUpdateToClient;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -36,11 +37,11 @@ public class StructureHomeData implements IBlockSearchCache {
 
 	public boolean checkInit(StructureHomeHolder holder) {
 		if (piece == null) {
-			var structure = holder.level().registryAccess().holderOrThrow(holder.key().getStructure()).value();
+			var structure = holder.level().registryAccess().registryOrThrow(Registries.STRUCTURE).getOrThrow(holder.key().getStructure());
 			var start = holder.level().structureManager().getStructureWithPieceAt(holder.key().pos(), structure);
 			if (start.getStructure() == structure && !start.getPieces().isEmpty()) {
 				this.start = start;
-				piece = start.getPieces().getFirst();
+				piece = start.getPieces().get(0);
 			}
 		}
 		return true;

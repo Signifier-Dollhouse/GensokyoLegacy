@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import org.joml.Vector3f;
 
 /**
  * The want bubble: the pill from {@code textures/bubble/bubble.png} above her head, with the item she is
@@ -194,12 +195,14 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	}
 
 	private static void addVertex(VertexConsumer vc, PoseStack.Pose pose, float x, float y, float u, float v) {
-		vc.addVertex(pose, x, y, 0)
-				.setColor(255, 255, 255, 255)
-				.setUv(u, v)
-				.setOverlay(OverlayTexture.NO_OVERLAY)
-				.setLight(LightTexture.FULL_BRIGHT)
-				.setNormal(0, 0, 1);
+		Vector3f n = pose.normal().transform(new Vector3f(0, 0, 1));
+		vc.vertex(pose.pose(), x, y, 0)
+				.color(255, 255, 255, 255)
+				.uv(u, v)
+				.overlayCoords(OverlayTexture.NO_OVERLAY)
+				.uv2(LightTexture.FULL_BRIGHT)
+				.normal(n.x(), n.y(), n.z())
+				.endVertex();
 	}
 
 }

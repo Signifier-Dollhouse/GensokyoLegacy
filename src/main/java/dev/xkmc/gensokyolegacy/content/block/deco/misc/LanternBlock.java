@@ -43,7 +43,7 @@ public class LanternBlock extends Block {
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
 		if (direction == Direction.DOWN) {
 			return state.setValue(CONNECTED, isLantern(neighborState));
 		}

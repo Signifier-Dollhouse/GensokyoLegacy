@@ -8,9 +8,9 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.util.ExperienceHelper;
-import dev.xkmc.l2core.serial.loot.LootHelper;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import net.minecraft.core.BlockPos;
@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -36,7 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -96,24 +96,23 @@ public class JizoBlock implements ShapePathFindBlockMethod, DefaultStateBlockMet
 	 * 地藏收下一级经验连同当前进度，按配置比例换成灵力存进手持物品。
 	 */
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-										   Player player, InteractionHand hand, BlockHitResult hit) {
-		if (SpiritualPower.max(stack) <= 0) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
-		if (!(player instanceof ServerPlayer sp)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (SpiritualPower.max(stack) <= 0) return InteractionResult.PASS;
+		if (level.isClientSide()) return InteractionResult.SUCCESS;
+		if (!(player instanceof ServerPlayer sp)) return InteractionResult.PASS;
 		if (SpiritualPower.get(stack) >= SpiritualPower.max(stack)) {
 			sp.displayClientMessage(GLLang.Jizo.FULL.get(), true);
-			return ItemInteractionResult.FAIL;
+			return InteractionResult.FAIL;
 		}
 		double ratio = GLModConfig.SERVER.jizoXpRatio.get();
 		int value = ExperienceHelper.levelValue(sp);
 		if (value <= 0) {
 			sp.displayClientMessage(GLLang.Jizo.NO_XP.get(), true);
-			return ItemInteractionResult.FAIL;
+			return InteractionResult.FAIL;
 		}
-		if (Math.round(value * ratio) <= 0) return ItemInteractionResult.FAIL;
+		if (Math.round(value * ratio) <= 0) return InteractionResult.FAIL;
 		int consumed = ExperienceHelper.consumeLevel(sp);
-		if (consumed <= 0) return ItemInteractionResult.FAIL;
+		if (consumed <= 0) return InteractionResult.FAIL;
 		int offered = (int) Math.round(consumed * ratio);
 		int restored = SpiritualPower.add(sp.getItemInHand(hand), offered);
 		if (restored < offered) {
@@ -125,7 +124,7 @@ public class JizoBlock implements ShapePathFindBlockMethod, DefaultStateBlockMet
 		sp.displayClientMessage(GLLang.Jizo.RESTORED.get(restored), true);
 		if (restored > 0) GLCriteriaTriggers.JIZO_RESTORE.get().trigger(sp);
 		sp.swing(hand, true);
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name) {

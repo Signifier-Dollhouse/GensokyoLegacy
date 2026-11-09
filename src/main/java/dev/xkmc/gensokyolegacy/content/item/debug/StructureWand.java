@@ -74,7 +74,7 @@ public class StructureWand extends Item {
 			for (var be : beds) {
 				be.setLink(holder.key());
 			}
-			var attachment = holder.chunk().getData(GLMeta.STRUCTURE.get());
+			var attachment = GLMeta.STRUCTURE.type().getOrCreate(holder.chunk());
 			attachment.custom.put(pos, holder.data());
 
 			holder.chunk().setUnsaved(true);

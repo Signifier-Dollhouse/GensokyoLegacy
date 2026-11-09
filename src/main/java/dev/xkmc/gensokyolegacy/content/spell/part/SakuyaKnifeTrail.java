@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.spell.part;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.danmakuapi.content.spell.spellcard.TrailAction;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
 

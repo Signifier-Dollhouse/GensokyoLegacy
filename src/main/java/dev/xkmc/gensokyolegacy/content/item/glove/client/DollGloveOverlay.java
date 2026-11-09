@@ -2,12 +2,12 @@ package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
-import dev.xkmc.l2itemselector.overlay.OverlayUtil;
-import net.minecraft.client.DeltaTracker;
+import dev.xkmc.l2library.base.overlay.OverlayUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,10 @@ import java.util.List;
  *
  * @see "doc/design/doll/glove.md"
  */
-public class DollGloveOverlay implements LayeredDraw.Layer {
+public class DollGloveOverlay implements IGuiOverlay {
 
 	@Override
-	public void render(GuiGraphics g, DeltaTracker delta) {
+	public void render(ForgeGui gui, GuiGraphics g, float partialTick, int width, int height) {
 		var mc = Minecraft.getInstance();
 		if (mc.screen != null || mc.player == null) return;
 		DollEntity doll = GloveDollHover.hoveredDoll();

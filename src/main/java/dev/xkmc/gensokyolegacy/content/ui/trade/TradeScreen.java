@@ -10,26 +10,20 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.util.GuiSprites;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.ItemDecoratorHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -163,6 +157,11 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			if (offerId == null) continue;
 			var offer = CodecRegistry.TRADE.get(menu.player.level().registryAccess(), offerId);
 			if (offer == null) continue;
+			if (!offer.value().isSellOffer() && ts.getItem().getCount() != 1) {
+				String s = String.valueOf(ts.getItem().getCount());
+				g.drawString(font, s, ts.x + 19 - 2 - font.width(s), ts.y + 6 + 3,
+						offer.value().canTrade(menu.player) ? 0x55FF55 : 0xFF5555, true);
+			}
 			var currency = IClientOffer.resolve(offer.value()).currency();
 			if (currency.isEmpty()) continue;
 			var price = Component.literal("¥" + currency.getCount());
@@ -171,7 +170,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			int tw = sell ? 31 : 30;
 			int x = ts.x + 9 - tw / 2;
 			int y = ts.y + 17 - (12 - font.lineHeight) / 2;
-			g.blitSprite(tag, x, y, tw, 12);
+			GuiSprites.blit(g, tag, x, y, tw, 12);
 			g.drawString(font, price, ts.x + 9 - font.width(price) / 2, ts.y + 19, 0xFFFFFF, true);
 		}
 	}
@@ -183,63 +182,6 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			return;
 		}
 		super.slotClicked(slot, slotId, mouseButton, clickType);
-	}
-
-	@Override
-	protected void renderSlotContents(GuiGraphics g, ItemStack stack, Slot slot, @Nullable String countString) {
-		if (countString == null && slot instanceof TradeSlot ts && ts.hasItem()) {
-			var offer = getPlayerSellOffer(ts);
-			if (offer != null) {
-				int seed = slot.x + slot.y * this.imageWidth;
-				if (slot.isFake()) {
-					g.renderFakeItem(stack, slot.x, slot.y, seed);
-				} else {
-					g.renderItem(stack, slot.x, slot.y, seed);
-				}
-				renderSellDecorations(g, stack, slot, offer.value().canTrade(menu.player));
-				return;
-			}
-		}
-		super.renderSlotContents(g, stack, slot, countString);
-	}
-
-	@Nullable
-	private Holder<TradeOffer> getPlayerSellOffer(TradeSlot ts) {
-		var offerId = GLItems.DC_OFFER.get(ts.getItem());
-		if (offerId == null) return null;
-		var offer = CodecRegistry.TRADE.get(menu.player.level().registryAccess(), offerId);
-		if (offer == null || offer.value().isSellOffer()) return null;
-		return offer;
-	}
-
-	private void renderSellDecorations(GuiGraphics g, ItemStack stack, Slot slot, boolean enough) {
-		int x = slot.x, y = slot.y;
-		g.pose().pushPose();
-		if (stack.getCount() != 1) {
-			String s = String.valueOf(stack.getCount());
-			g.pose().translate(0.0F, 0.0F, 200.0F);
-			g.drawString(font, s, x + 19 - 2 - font.width(s), y + 6 + 3,
-					enough ? 0x55FF55 : 0xFF5555, true);
-		}
-		if (stack.isBarVisible()) {
-			int l = stack.getBarWidth();
-			int i = stack.getBarColor();
-			int j = x + 2;
-			int k = y + 13;
-			g.fill(RenderType.guiOverlay(), j, k, j + 13, k + 2, -16777216);
-			g.fill(RenderType.guiOverlay(), j, k, j + l, k + 1, i | 0xFF000000);
-		}
-		LocalPlayer localplayer = this.minecraft.player;
-		float f = localplayer == null ? 0.0F :
-				localplayer.getCooldowns().getCooldownPercent(stack.getItem(),
-						this.minecraft.getTimer().getGameTimeDeltaPartialTick(true));
-		if (f > 0.0F) {
-			int i1 = y + Mth.floor(16.0F * (1.0F - f));
-			int j1 = i1 + Mth.ceil(16.0F * f);
-			g.fill(RenderType.guiOverlay(), x, i1, x + 16, j1, Integer.MAX_VALUE);
-		}
-		g.pose().popPose();
-		ItemDecoratorHandler.of(stack).render(g, font, stack, x, y);
 	}
 
 	protected boolean click(int btn) {
@@ -254,7 +196,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 	public static Component actionText(TradeOffer offer) {
 		var character = bracket(offer.character().getDescription(), ChatFormatting.AQUA);
 		if (!offer.isSellOffer()) {
-			var entry = offer.ingredients().getFirst();
+			var entry = offer.ingredients().get(0);
 			return GLLang.Trade.SELL.get(bracket(ingredientName(entry), ChatFormatting.YELLOW), character);
 		}
 		if (IClientOffer.resolve(offer).currency().isEmpty()) {

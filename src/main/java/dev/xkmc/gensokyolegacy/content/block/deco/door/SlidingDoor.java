@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.door;
 
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import dev.xkmc.l2modularblock.mult.*;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
@@ -13,7 +13,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -119,7 +118,7 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
 		if (stack.is(state.getBlock().asItem())) {
 			if (!level.isClientSide() && state.getValue(STACK) < MAX) {
 				BlockPos bottom = bottom(level, pos);
@@ -129,9 +128,9 @@ public class SlidingDoor implements CreateBlockStateBlockMethod, DefaultStateBlo
 					stack.shrink(1);
 				}
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	@Override

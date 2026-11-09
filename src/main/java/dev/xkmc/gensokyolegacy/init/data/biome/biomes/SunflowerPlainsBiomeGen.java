@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
@@ -28,7 +28,7 @@ public class SunflowerPlainsBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.8f, 0.4f, 0x3f76e4, 0xc0d8ff, 0x78a7ff, null, null, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)

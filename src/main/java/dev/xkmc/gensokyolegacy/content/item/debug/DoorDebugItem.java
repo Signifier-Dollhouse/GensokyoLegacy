@@ -48,7 +48,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 				player.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_NO_YOUKAI.get().withStyle(ChatFormatting.RED), true);
 				return InteractionResultHolder.success(stack);
 			}
-			stack.set(GLItems.DC_DEBUG_YOUKAI, youkai.getUUID());
+			GLItems.DC_DEBUG_YOUKAI.set(stack, youkai.getUUID());
 			player.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_BOUND.get(youkai.getName().getString())
 					.withStyle(ChatFormatting.GREEN), true);
 		}
@@ -60,7 +60,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 		Level level = context.getLevel();
 		if (!level.isClientSide() && context.getPlayer() instanceof ServerPlayer sp && level instanceof ServerLevel sl) {
 			ItemStack stack = context.getItemInHand();
-			UUID id = stack.get(GLItems.DC_DEBUG_YOUKAI);
+			UUID id = GLItems.DC_DEBUG_YOUKAI.get(stack);
 			if (id == null) {
 				sp.displayClientMessage(GLLang.ItemDebug.DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.RED), true);
 				return InteractionResult.SUCCESS;
@@ -84,7 +84,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 
 	@Override
 	public void addTooltip(Player player, ItemStack stack, List<Component> lines, long gameTime) {
-		UUID id = stack.get(GLItems.DC_DEBUG_YOUKAI);
+		UUID id = GLItems.DC_DEBUG_YOUKAI.get(stack);
 		if (id == null) {
 			lines.add(GLLang.ItemDebug.DOOR_DEBUG_UNBOUND.get().withStyle(ChatFormatting.GRAY));
 		} else {
@@ -100,7 +100,7 @@ public class DoorDebugItem extends Item implements IDebugOverlayWand {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemDebug.DOOR_DEBUG_USE.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.DOOR_DEBUG_CLICK.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.DOOR_DEBUG_OVERLAY.get().withStyle(ChatFormatting.GRAY));

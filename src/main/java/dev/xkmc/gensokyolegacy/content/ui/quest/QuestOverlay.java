@@ -2,8 +2,8 @@ package dev.xkmc.gensokyolegacy.content.ui.quest;
 
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2itemselector.overlay.InfoSideBar;
-import dev.xkmc.l2itemselector.overlay.SideBar;
+import dev.xkmc.l2library.base.overlay.InfoSideBar;
+import dev.xkmc.l2library.base.overlay.SideBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;

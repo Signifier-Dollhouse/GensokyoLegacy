@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.menu;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.ui.util.EntityPreviewRenderer;
-import dev.xkmc.l2core.base.menu.base.BaseContainerScreen;
+import dev.xkmc.l2library.base.menu.base.BaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +15,7 @@ public class DollLoadoutScreen extends BaseContainerScreen<DollLoadoutMenu> {
 
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
-		var sr = getRenderer();
+		var sr = menu.sprite.get().getRenderer(this);
 		sr.start(g);
 		sr.draw(g, "main", "slot", -1, -1);
 		sr.draw(g, "off", "slot", -1, -1);

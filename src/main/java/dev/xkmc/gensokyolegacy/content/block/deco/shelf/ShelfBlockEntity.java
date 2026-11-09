@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.block.deco.shelf;
 
 import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.base.tile.BaseBlockEntity;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.base.tile.BaseBlockEntity;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -51,14 +51,14 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 				}
 				return true;
 			}
-			if (held.is(GLItems.COIN)) {
+			if (held.is(GLItems.COIN.get())) {
 				if (!level.isClientSide()) {
 					cost = held.getCount();
 					notifyTile();
 				}
 				return true;
 			}
-			if (held.is(GLItems.COIN_STACK)) {
+			if (held.is(GLItems.COIN_STACK.get())) {
 				if (!level.isClientSide()) {
 					cost = held.getCount() * GLItems.COIN_STACK_VALUE;
 					notifyTile();
@@ -74,7 +74,7 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 			return true;
 		}
 		if (!level.isClientSide()) {
-			if (!ItemStack.isSameItemSameComponents(stack, held)) {
+			if (!ItemStack.isSameItemSameTags(stack, held)) {
 				Block.popResource(level, getBlockPos(), stack.copyWithCount(stock));
 				stack = held.copyWithCount(1);
 				stock = held.getCount();
@@ -169,8 +169,8 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 		if (stack.isEmpty() || stock <= 0) return false;
 		int coins = 0, stacks = 0;
 		for (var e : player.getInventory().items) {
-			if (e.is(GLItems.COIN)) coins += e.getCount();
-			else if (e.is(GLItems.COIN_STACK)) stacks += e.getCount();
+			if (e.is(GLItems.COIN.get())) coins += e.getCount();
+			else if (e.is(GLItems.COIN_STACK.get())) stacks += e.getCount();
 		}
 		if (coins + stacks * GLItems.COIN_STACK_VALUE < cost) return false;
 		if (!level.isClientSide()) {
@@ -183,14 +183,14 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 					(cost - coinCost + GLItems.COIN_STACK_VALUE - 1) / GLItems.COIN_STACK_VALUE);
 			int change = coinCost + stackCost * GLItems.COIN_STACK_VALUE - cost;
 			for (var e : player.getInventory().items) {
-				if (e.is(GLItems.COIN_STACK) && stackCost > 0) {
+				if (e.is(GLItems.COIN_STACK.get()) && stackCost > 0) {
 					int remove = Math.min(stackCost, e.getCount());
 					e.shrink(remove);
 					stackCost -= remove;
 				}
 			}
 			for (var e : player.getInventory().items) {
-				if (e.is(GLItems.COIN) && coinCost > 0) {
+				if (e.is(GLItems.COIN.get()) && coinCost > 0) {
 					int remove = Math.min(coinCost, e.getCount());
 					e.shrink(remove);
 					coinCost -= remove;

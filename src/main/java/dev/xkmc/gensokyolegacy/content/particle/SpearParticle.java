@@ -6,6 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
@@ -59,6 +60,32 @@ public class SpearParticle extends TextureSheetParticle {
 				(float) (cameraPos.z - z));
 		Vector3f cameraUp = new Vector3f(0, 1, 0).rotate(camera.rotation());
 		renderRotatedQuad(buffer, camera, rotationFor(direction, toCamera, cameraUp), partialTick);
+	}
+
+	/**
+	 * 1.20.1 has no rotated-quad helper on {@code Particle}; this is the vanilla single-quad vertex
+	 * loop with an explicit orientation instead of the camera rotation.
+	 */
+	private void renderRotatedQuad(VertexConsumer buffer, Camera camera, Quaternionf rot, float partialTick) {
+		Vec3 cam = camera.getPosition();
+		float x = (float) (Mth.lerp(partialTick, this.xo, this.x) - cam.x());
+		float y = (float) (Mth.lerp(partialTick, this.yo, this.y) - cam.y());
+		float z = (float) (Mth.lerp(partialTick, this.zo, this.z) - cam.z());
+		Vector3f[] verts = new Vector3f[]{
+				new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F),
+				new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
+		float size = this.getQuadSize(partialTick);
+		for (Vector3f v : verts) {
+			v.rotate(rot);
+			v.mul(size);
+			v.add(x, y, z);
+		}
+		float u0 = this.getU0(), u1 = this.getU1(), v0 = this.getV0(), v1 = this.getV1();
+		int light = this.getLightColor(partialTick);
+		buffer.vertex(verts[0].x(), verts[0].y(), verts[0].z()).uv(u1, v1).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+		buffer.vertex(verts[1].x(), verts[1].y(), verts[1].z()).uv(u1, v0).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+		buffer.vertex(verts[2].x(), verts[2].y(), verts[2].z()).uv(u0, v0).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
+		buffer.vertex(verts[3].x(), verts[3].y(), verts[3].z()).uv(u0, v1).color(rCol, gCol, bCol, alpha).uv2(light).endVertex();
 	}
 
 	static Quaternionf rotationFor(Vector3f direction, Vector3f toCamera, Vector3f cameraUp) {

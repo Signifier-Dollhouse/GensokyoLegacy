@@ -7,8 +7,8 @@ import dev.xkmc.gensokyolegacy.content.particle.MiasmaParticle;
 import dev.xkmc.gensokyolegacy.content.particle.SleepParticle;
 import dev.xkmc.gensokyolegacy.content.particle.SpearParticle;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate.ParticleSupplier;
-import dev.xkmc.l2core.init.reg.simple.Val;
+import dev.xkmc.gensokyolegacy.compat.l2lib.ParticleSupplier;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Val;
 import net.minecraft.core.particles.SimpleParticleType;
 
 public class GLParticles {

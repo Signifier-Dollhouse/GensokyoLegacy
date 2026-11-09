@@ -11,8 +11,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 final class GhostVariantModule implements DollModule {
 
 	@Override
-	public void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(GhostEntity.DATA_VARIANT, GhostVariant.CURIOS.ordinal());
+	public void defineSynchedData(SynchedEntityData data) {
+		data.define(GhostEntity.DATA_VARIANT, GhostVariant.CURIOS.ordinal());
 	}
 
 	@Override

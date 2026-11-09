@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
-import dev.xkmc.l2library.content.explosion.*;
+import dev.xkmc.l2library.init.explosion.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -43,6 +43,6 @@ public class ExplosiveHandler implements HexBrewHandler {
 			if (thrower != null && (entity.isAlliedTo(thrower) || thrower.isAlliedTo(entity))) return false;
 			return entity instanceof LivingEntity;
 		};
-		ExplosionHandler.explode(new BaseExplosion(base, vanilla, mod, ParticleExplosionContext.of(r)));
+		ExplosionHandler.explode(new BaseExplosion(base, vanilla, mod));
 	}
 }

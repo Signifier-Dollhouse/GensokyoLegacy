@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -38,7 +38,7 @@ public class SanctuaryBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.35f, 0.4f, 0x57a0a6, 0xa8c4d8, 0x8fc06a, 0x82b45e, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -50,7 +50,7 @@ public class SanctuaryBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, SANCTUARY_FLOWERS, Feature.RANDOM_PATCH, onDirt(28, new Palette()
 				.add(Blocks.LILY_OF_THE_VALLEY, 3).add(Blocks.OXEYE_DAISY, 3).add(Blocks.WHITE_TULIP, 2)
 				.add(GLNaturalBlocks.STAR_FLOWER, 2).add(Blocks.ALLIUM, 1).build()));

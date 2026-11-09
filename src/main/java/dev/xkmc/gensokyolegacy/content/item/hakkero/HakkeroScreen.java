@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
-import dev.xkmc.l2core.base.menu.base.BaseContainerScreen;
+import dev.xkmc.l2library.base.menu.base.BaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -8,8 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Screen of the finished Mini Hakkero. The grid itself is the generated sprite; this adds the mode
@@ -18,10 +16,9 @@ import org.jetbrains.annotations.Nullable;
 public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 
 	/**
-	 * Vanilla's furnace flame, blitted from the GUI atlas exactly as the furnace screen does.
+	 * Vanilla's furnace texture, which holds the lit-progress flame at its top-right.
 	 */
-	private static final ResourceLocation FLAME =
-			ResourceLocation.withDefaultNamespace("container/furnace/lit_progress");
+	private static final ResourceLocation FLAME = new ResourceLocation("textures/gui/container/furnace.png");
 
 	public HakkeroScreen(HakkeroMenu menu, Inventory plInv, Component title) {
 		super(menu, plInv, title);
@@ -32,7 +29,7 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 		// ease the overlay toward whatever the last data slot update said, so the wipe moves
 		// smoothly instead of stepping once per server tick
 		menu.advanceInterpolation();
-		getRenderer().start(g);
+		menu.sprite.get().getRenderer(this).start(g);
 		renderFuel(g);
 	}
 
@@ -44,8 +41,8 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 		float progress = menu.getBurnProgress();
 		if (progress <= 0.0F) return;
 		int height = Mth.ceil(progress * 13.0F) + 1;
-		var slot = menu.getLayout().getComp("fuel");
-		g.blitSprite(FLAME, 14, 14, 0, 14 - height, leftPos + slot.x, topPos + slot.y - height, 14, height);
+		var slot = menu.sprite.get().getComp("fuel");
+		g.blit(FLAME, leftPos + slot.x, topPos + slot.y - height, 176, 14 - height, 14, height, 256, 256);
 	}
 
 	@Override
@@ -53,8 +50,14 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 		super.renderLabels(g, mx, my);
 		var mode = Component.translatable(menu.getMode().block().getDescriptionId());
 		// just under the grid, whose lowest row of slots is the outer rim's "out5"
-		int y = menu.getLayout().getComp("out5").y + 20;
+		int y = menu.sprite.get().getComp("out5").y + 20;
 		g.drawString(font, mode, (imageWidth - font.width(mode)) / 2, y, 0x404040, false);
+		// the slot pose is still translated to the GUI origin here, so slot.x/slot.y are the
+		// right coordinates for the wipe that 1.20.1 has no renderSlotContents hook for
+		for (Slot slot : menu.slots) {
+			if (slot instanceof HakkeroMenu.InputSlot input)
+				HakkeroProgressBar.draw(g, slot.x, slot.y, menu.getSmoothProgress(input.channel()));
+		}
 	}
 
 	@Override
@@ -64,13 +67,6 @@ public class HakkeroScreen extends BaseContainerScreen<HakkeroMenu> {
 			return;
 		}
 		super.slotClicked(slot, slotId, mouseButton, clickType);
-	}
-
-	@Override
-	protected void renderSlotContents(GuiGraphics g, ItemStack stack, Slot slot, @Nullable String countString) {
-		super.renderSlotContents(g, stack, slot, countString);
-		if (!(slot instanceof HakkeroMenu.InputSlot input)) return;
-		HakkeroProgressBar.draw(g, slot.x, slot.y, menu.getSmoothProgress(input.channel()));
 	}
 
 }

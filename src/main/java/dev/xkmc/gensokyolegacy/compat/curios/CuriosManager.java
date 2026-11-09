@@ -7,7 +7,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 
@@ -18,7 +18,7 @@ import java.util.Optional;
 public class CuriosManager {
 
 	public static boolean hasItem(LivingEntity le, Item item, boolean checkRender) {
-		return CuriosApi.getCuriosInventory(le)
+		return CuriosApi.getCuriosInventory(le).resolve()
 				.flatMap(e -> e.findFirstCurio(item))
 				.map(e -> !checkRender || e.slotContext().visible())
 				.orElse(false);
@@ -32,7 +32,7 @@ public class CuriosManager {
 		ItemStack chest = le.getItemBySlot(EquipmentSlot.CHEST);
 		if (chest.getItem() instanceof WingItem) return Optional.of(chest);
 		if (ModList.get().isLoaded("curios")) {
-			return CuriosApi.getCuriosInventory(le)
+			return CuriosApi.getCuriosInventory(le).resolve()
 					.flatMap(e -> e.findFirstCurio(s -> s.getItem() instanceof WingItem))
 					.filter(e -> !checkRender || e.slotContext().visible())
 					.map(SlotResult::stack);

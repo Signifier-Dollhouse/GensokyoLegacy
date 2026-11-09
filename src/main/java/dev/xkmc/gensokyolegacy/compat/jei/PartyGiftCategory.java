@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClien
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;

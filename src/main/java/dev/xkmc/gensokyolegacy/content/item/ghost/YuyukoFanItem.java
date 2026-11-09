@@ -13,7 +13,6 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -72,13 +71,13 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 	public static ItemStack displayStack(YuyukoFanMode mode) {
 		ItemStack stack = new ItemStack(GLItems.YUYUKO_FAN.get());
 		setMode(stack, mode);
-		stack.set(DataComponents.ITEM_NAME, mode.getDisplayName());
+		stack.setHoverName(mode.getDisplayName());
 		return stack;
 	}
 
 	public static ItemStack iconStack(YuyukoFanMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		GLItems.ICON.set(stack, Unit.INSTANCE);
 		return stack;
 	}
 
@@ -95,7 +94,7 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 	 * mode's ordinal + 1 on an {@code ICON} stack drawing a selector icon.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		return stack.has(GLItems.ICON.get()) ? getMode(stack).ordinal() + 1 : 0;
+		return GLItems.ICON.has(stack) ? getMode(stack).ordinal() + 1 : 0;
 	}
 
 	/**
@@ -224,13 +223,13 @@ public class YuyukoFanItem extends SpiritualItem implements GloveTargeting {
 
 	private static void play(ServerPlayer player, float pitch) {
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-				SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 0.8F, pitch);
+				SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 0.8F, pitch);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.YUYUKO_FAN_LORE.get());
-		super.appendHoverText(stack, context, list, flag);
+		super.appendHoverText(stack, level, list, flag);
 		list.add(GLLang.ItemYuyukoFan.SELECTED.get(getMode(stack).getDisplayName()));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));

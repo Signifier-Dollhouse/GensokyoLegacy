@@ -31,7 +31,7 @@ public class DrowningEffect extends MobEffect {
 	 * death message is the vanilla drowning one, and the damage type bypasses the hurt cooldown.
 	 */
 	public static void extraDamage(LivingEntity target, float damage) {
-		MobEffectInstance ins = target.getEffect(GLEffects.DROWNING);
+		MobEffectInstance ins = target.getEffect(GLEffects.DROWNING.get());
 		if (ins == null) return;
 		CompoundTag data = target.getPersistentData();
 		if (data.contains(DROWNING_TICK) && data.getInt(DROWNING_TICK) == target.tickCount) return;
@@ -48,28 +48,27 @@ public class DrowningEffect extends MobEffect {
 		if (source.getDirectEntity() instanceof AnchorBulletEntity) {
 			apply(target, 1);
 		} else if (source.getDirectEntity() instanceof ItemBulletEntity bullet &&
-				bullet.getItem().is(GLItems.DROPLET)) {
+				bullet.getItem().is(GLItems.DROPLET.get())) {
 			apply(target, 0);
 		}
 	}
 
 	public static void apply(LivingEntity target, int amplifier) {
-		target.addEffect(new MobEffectInstance(GLEffects.DROWNING, DROWNING_TICKS, amplifier));
+		target.addEffect(new MobEffectInstance(GLEffects.DROWNING.get(), DROWNING_TICKS, amplifier));
 	}
 
 	@Override
-	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-		if (entity.level().isClientSide) return true;
+	public void applyEffectTick(LivingEntity entity, int amplifier) {
+		if (entity.level().isClientSide) return;
 		if (entity.isInFluidType()) {
 			Vec3 vec = entity.getDeltaMovement();
 			entity.setDeltaMovement(vec.x, vec.y - 1, vec.z);
 			entity.hurtMarked = true;
 		}
-		return true;
 	}
 
 	@Override
-	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+	public boolean isDurationEffectTick(int duration, int amplifier) {
 		return true;
 	}
 

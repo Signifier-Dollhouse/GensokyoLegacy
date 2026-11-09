@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayer;
 
 public class ChairEntity extends SimplifiedEntity implements SeatableEntity {
 
@@ -56,7 +56,7 @@ public class ChairEntity extends SimplifiedEntity implements SeatableEntity {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+	protected void defineSynchedData() {
 	}
 
 	protected void readAdditionalSaveData(CompoundTag tag) {

@@ -25,8 +25,8 @@ public class HakkeroPrototypeDeco {
 		if (r0 < 0 || r0 >= 3 || c0 < 0 || c0 >= 9) return;
 		int s0 = r0 * 9 + c0 + 9;
 		var stack = inv.getItem(s0);
-		if (!stack.is(GLItems.MINI_HAKKERO_PROTOTYPE)) return;
-		var data = stack.getOrDefault(GLItems.DC_HAKKERO_PROTOTYPE, HakkeroPrototype.Data.DEF);
+		if (!GLItems.MINI_HAKKERO_PROTOTYPE.isIn(stack)) return;
+		var data = GLItems.DC_HAKKERO_PROTOTYPE.getOrDefault(stack, HakkeroPrototype.Data.DEF);
 		if (data.state() == HakkeroMode.OFF) return;
 
 		var entry = data.data()[i];

@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.network;
 
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
  *
  * @see "doc/design/doll/glove.md"
  */
-public record DollGloveSwingPacket() implements SerialPacketBase<DollGloveSwingPacket> {
+public record DollGloveSwingPacket() implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

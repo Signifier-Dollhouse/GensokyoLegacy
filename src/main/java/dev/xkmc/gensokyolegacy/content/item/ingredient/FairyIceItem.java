@@ -1,21 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.item.ingredient;
 
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
 
-public class FairyIceItem extends Item implements ProjectileItem {
+public class FairyIceItem extends Item {
 
 	public FairyIceItem(Properties pProperties) {
 		super(pProperties);
@@ -39,9 +35,5 @@ public class FairyIceItem extends Item implements ProjectileItem {
 		return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
 	}
 
-	@Override
-	public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-		return new FairyIce(level, pos.x(), pos.y(), pos.z());
-	}
 
 }

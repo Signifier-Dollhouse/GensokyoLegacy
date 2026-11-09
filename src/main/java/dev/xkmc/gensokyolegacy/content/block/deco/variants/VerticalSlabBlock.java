@@ -1,12 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.variants;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -25,9 +24,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelBuilder;
+import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelBuilder;
 
 import java.util.function.Supplier;
 
@@ -54,7 +53,7 @@ public class VerticalSlabBlock extends HorizontalLoggedBlock {
 	}
 
 	@Override
-	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
 		// half-height wall piece: mobs must path around, not through
 		return false;
 	}
@@ -75,11 +74,6 @@ public class VerticalSlabBlock extends HorizontalLoggedBlock {
 		}
 		state = state.setValue(FACING, dir);
 		return state.setValue(WATERLOGGED, fluid.getType() == Fluids.WATER);
-	}
-
-	@Override
-	protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-		return null;
 	}
 
 	private static void cube(ModelBuilder<?> builder) {

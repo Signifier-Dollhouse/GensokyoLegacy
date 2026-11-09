@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.danmakuapi.api.DanmakuUseEvent;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.StarDanmakuItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -38,7 +39,7 @@ public class StarWandItem extends StarDanmakuItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.STAR_WAND_LORE.get());
 	}
 

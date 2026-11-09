@@ -6,8 +6,6 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -38,8 +36,7 @@ public class PartyGift {
 	/**
 	 * Used for a guest who has no table of her own.
 	 */
-	public static final ResourceKey<LootTable> DEFAULT_TABLE =
-			ResourceKey.create(Registries.LOOT_TABLE, GensokyoLegacy.loc(TABLE_DIR + "/default"));
+	public static final ResourceLocation DEFAULT_TABLE = GensokyoLegacy.loc(TABLE_DIR + "/default");
 
 	/**
 	 * Drop a gift on the guest's table, once per visit — the once-only flag lives on her module.
@@ -76,7 +73,7 @@ public class PartyGift {
 		loot.getRandomItems(params, stacks::add);
 		// a generated table is a ladder of pools whose bands partition the appeal range, so
 		// exactly one answers; a datapack that ungates two buries both, and that is its mistake
-		return stacks.isEmpty() ? null : stacks.getFirst();
+		return stacks.isEmpty() ? null : stacks.get(0);
 	}
 
 	/**
@@ -86,21 +83,19 @@ public class PartyGift {
 	 */
 	@Nullable
 	private static LootTable tableOf(ServerLevel level, YoukaiEntity guest) {
-		var lookup = level.getServer().reloadableRegistries().get().lookup(Registries.LOOT_TABLE).orElse(null);
-		if (lookup == null) return null;
-		return lookup.get(keyOf(guest.getType())).or(() -> lookup.get(DEFAULT_TABLE))
-				.map(Holder::value).orElse(null);
+		var data = level.getServer().getLootData();
+		var table = data.getLootTable(keyOf(guest.getType()));
+		return table == LootTable.EMPTY ? data.getLootTable(DEFAULT_TABLE) : table;
 	}
 
 	/**
 	 * Her own gift table, which nothing answers to for a guest with no file of her own — that is
 	 * {@link #DEFAULT_TABLE}'s whole job, and {@link #tableOf} is where the two are joined.
 	 */
-	public static ResourceKey<LootTable> keyOf(EntityType<?> type) {
+	public static ResourceLocation keyOf(EntityType<?> type) {
 		var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 		if (id == null) return DEFAULT_TABLE;
-		return ResourceKey.create(Registries.LOOT_TABLE,
-				ResourceLocation.fromNamespaceAndPath(id.getNamespace(), TABLE_DIR + "/" + id.getPath()));
+		return new ResourceLocation(id.getNamespace(), TABLE_DIR + "/" + id.getPath());
 	}
 
 	private PartyGift() {

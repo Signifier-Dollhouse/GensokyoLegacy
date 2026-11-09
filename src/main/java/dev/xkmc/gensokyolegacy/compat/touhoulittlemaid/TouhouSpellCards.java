@@ -10,7 +10,7 @@ import dev.xkmc.gensokyolegacy.content.spell.card.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

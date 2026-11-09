@@ -35,9 +35,4 @@ public class TradeSlot extends Slot {
 		return false;
 	}
 
-	@Override
-	public boolean isFake() {
-		return true;
-	}
-
 }

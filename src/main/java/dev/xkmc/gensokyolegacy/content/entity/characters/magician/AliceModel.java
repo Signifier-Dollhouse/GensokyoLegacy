@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.magician;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class AliceModel extends DefaultedEntityGeoModel<AliceEntity> {
+public class AliceModel extends HeadBoneGeoModel<AliceEntity> {
 
 	public AliceModel() {
 		super(GensokyoLegacy.loc("alice"), "Head");

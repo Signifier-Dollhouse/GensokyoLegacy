@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.placement.CavePlacements;
@@ -55,7 +55,7 @@ public class YoukaiMountainSummitBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.4f, 0.3f, 0x3f6f7d, 0xa8b4c4, 0x8a9a72, 0x7a8a64, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -68,7 +68,7 @@ public class YoukaiMountainSummitBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, SUMMIT_MOSS, Feature.RANDOM_PATCH, onStone(20, new Palette()
 				.add(Blocks.MOSS_CARPET, 3).add(Blocks.GLOW_LICHEN, 2).build()));
 		FeatureUtils.register(ctx, SUMMIT_SCREE, Feature.RANDOM_PATCH, onStone(18, new Palette()
@@ -90,7 +90,7 @@ public class YoukaiMountainSummitBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+	protected void noise(BootstapContext<NormalNoise.NoiseParameters> ctx) {
 		ctx.register(SUMMIT_SURFACE, new NormalNoise.NoiseParameters(-5, 1.0, 1.0));
 	}
 

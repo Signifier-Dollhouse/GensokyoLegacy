@@ -49,9 +49,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.minecraft.util.Mth;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class GLCommands {
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
 		var reg = ctx.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE);
 		for (var key : reg.keySet()) {
-			var config = reg.getHolder(key).map(h -> h.getData(GLMeta.STRUCTURE_DATA.reg())).orElse(null);
+			var config = reg.getHolder(ResourceKey.create(Registries.STRUCTURE, key)).map(h -> GLMeta.STRUCTURE_DATA.get(ctx.getSource().registryAccess(), h)).orElse(null);
 			if (config == null) continue;
 			for (var guest : config.visitors().keySet())
 				ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(guest));
@@ -511,7 +512,8 @@ public class GLCommands {
 	}
 
 	private static ServerPlayer partyPlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		if (!(EntityArgument.getPlayer(ctx, "player") instanceof ServerPlayer sp)) {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		if (sp == null) {
 			throw ERROR_NO_PARTY_PLAYER.create();
 		}
 		return sp;
@@ -539,7 +541,7 @@ public class GLCommands {
 		int value = IntegerArgumentType.getInteger(ctx, "value");
 		var holder = charHolder(sp, type);
 		int old = holder.data().reputation;
-		holder.data().reputation = Math.clamp(value, ReputationConstants.MIN_REPUTATION, ReputationConstants.MAX_REPUTATION);
+		holder.data().reputation = Mth.clamp(value, ReputationConstants.MIN_REPUTATION, ReputationConstants.MAX_REPUTATION);
 		holder.sync();
 		ctx.getSource().sendSuccess(() -> Component.literal(
 				"Set reputation of " + type.toShortString() + " for " + sp.getGameProfile().getName() +
@@ -553,7 +555,7 @@ public class GLCommands {
 		int value = IntegerArgumentType.getInteger(ctx, "value");
 		var holder = charHolder(sp, type);
 		int old = holder.data().reputationCap;
-		holder.data().reputationCap = Math.clamp(value, 0, ReputationConstants.MAX_REPUTATION);
+		holder.data().reputationCap = Mth.clamp(value, 0, ReputationConstants.MAX_REPUTATION);
 		holder.sync();
 		ctx.getSource().sendSuccess(() -> Component.literal(
 				"Set reputation cap of " + type.toShortString() + " for " + sp.getGameProfile().getName() +
@@ -610,8 +612,8 @@ public class GLCommands {
 		data.progress.clear();
 		data.requirementData.clear();
 		for (var reward : quest.value().rewards()) {
-			if (reward instanceof ReputationReward(int reputation, int softCap, int capIncrease, int maxCap)) {
-				charHolder(sp, quest.value().character()).gain(reputation, softCap, capIncrease, maxCap);
+			if (reward instanceof ReputationReward rep) {
+				charHolder(sp, quest.value().character()).gain(rep.reputation(), rep.softCap(), rep.capIncrease(), rep.maxCap());
 			} else {
 				reward.execute(sp, null);
 			}
@@ -1009,7 +1011,7 @@ public class GLCommands {
 			data.started = true;
 			autoStarted = true;
 		}
-		int v = Math.clamp(value, 0, max);
+		int v = Mth.clamp(value, 0, max);
 		data.progress.put(key, v);
 		syncQuest(sp, questId(quest), data);
 		String msg = "Set progress " + questId(quest) + "[" + key + "] for " + sp.getGameProfile().getName() +

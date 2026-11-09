@@ -9,14 +9,14 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.init.reg.simple.DCReg;
-import dev.xkmc.l2core.init.reg.simple.DCVal;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCVal;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class GLTalismans {
 
@@ -69,7 +69,7 @@ public class GLTalismans {
 
 		FOLDED_PAPER_TALISMAN = reg.item("folded_paper_talisman", FoldedPaperTalisman::new)
 				.model((ctx, pvd) -> genLayeredItemModel(ctx.getName(), pvd, "folded_paper_talisman"))
-				.tag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "charm")))
+				.tag(ItemTags.create(new ResourceLocation("curios", "charm")))
 				.tag(GLTagGen.TALISMAN)
 				.properties(p -> p.stacksTo(1))
 				.removeTab(GLItems.TAB.key())
@@ -78,7 +78,7 @@ public class GLTalismans {
 
 		TALISMAN_POCKET = reg.item("talisman_pocket", TalismanPocket::new)
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/talisman/talisman_pocket")))
-				.tag(ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "charm")))
+				.tag(ItemTags.create(new ResourceLocation("curios", "charm")))
 				.properties(p -> p.stacksTo(1))
 				.lang("Talisman Pocket").register();
 	}

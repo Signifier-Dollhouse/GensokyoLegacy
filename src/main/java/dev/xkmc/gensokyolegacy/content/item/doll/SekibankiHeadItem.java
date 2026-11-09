@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -24,8 +25,8 @@ public class SekibankiHeadItem extends DollGadgetItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
-		super.appendHoverText(stack, ctx, list, flag);
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		super.appendHoverText(stack, level, list, flag);
 		list.add(GLLang.ItemSekibankiHead.SUMMON.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemSekibankiHead.COLLECT.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemSekibankiHead.POSSESS.get().withStyle(ChatFormatting.GRAY));

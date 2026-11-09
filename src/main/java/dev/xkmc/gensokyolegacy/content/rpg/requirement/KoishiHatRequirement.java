@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KoishiHatTrigger;
 import net.minecraft.network.chat.Component;
@@ -10,10 +10,10 @@ import java.util.List;
 
 public record KoishiHatRequirement() implements QuestRequirement<KoishiHatRequirement, KoishiHatTrigger> {
 
-	public static final MapCodec<KoishiHatRequirement> CODEC = MapCodec.unit(new KoishiHatRequirement());
+	public static final Codec<KoishiHatRequirement> CODEC = Codec.unit(new KoishiHatRequirement());
 
 	@Override
-	public MapCodec<KoishiHatRequirement> codec() {
+	public Codec<KoishiHatRequirement> codec() {
 		return CODEC;
 	}
 

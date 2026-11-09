@@ -1,18 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.rpg.action;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
-public record GiveMobEffectAction(Holder<MobEffect> effect, int duration,
+public record GiveMobEffectAction(MobEffect effect, int duration,
 								  int amplifier) implements DialogAction<GiveMobEffectAction> {
 
-	public static final MapCodec<GiveMobEffectAction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("effect").forGetter(GiveMobEffectAction::effect),
+	public static final Codec<GiveMobEffectAction> CODEC = RecordCodecBuilder.create(i -> i.group(
+			BuiltInRegistries.MOB_EFFECT.byNameCodec().fieldOf("effect").forGetter(GiveMobEffectAction::effect),
 			Codec.INT.fieldOf("duration").forGetter(GiveMobEffectAction::duration),
 			Codec.INT.optionalFieldOf("amplifier", 0).forGetter(GiveMobEffectAction::amplifier)
 	).apply(i, GiveMobEffectAction::new));
@@ -23,7 +22,7 @@ public record GiveMobEffectAction(Holder<MobEffect> effect, int duration,
 	}
 
 	@Override
-	public MapCodec<GiveMobEffectAction> codec() {
+	public Codec<GiveMobEffectAction> codec() {
 		return CODEC;
 	}
 

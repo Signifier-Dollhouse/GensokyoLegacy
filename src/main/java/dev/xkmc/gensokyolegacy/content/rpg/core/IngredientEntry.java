@@ -1,9 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.rpg.core;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
@@ -12,11 +16,31 @@ import java.util.Optional;
 
 public record IngredientEntry(Ingredient ingredient, int count, Optional<String> text) {
 
-	public static final Codec<IngredientEntry> CODEC = RecordCodecBuilder.create(i -> i.group(
-			Ingredient.MAP_CODEC_NONEMPTY.forGetter(IngredientEntry::ingredient),
-			Codec.INT.fieldOf("count").forGetter(IngredientEntry::count),
-			Codec.STRING.optionalFieldOf("text").forGetter(IngredientEntry::text)
-	).apply(i, IngredientEntry::new));
+	/**
+	 * 1.20.1 ingredients carry no codec, so the object is read through the vanilla JSON form:
+	 * {@code count} and {@code text} sit next to the ingredient's own keys.
+	 */
+	public static final Codec<IngredientEntry> CODEC = Codec.PASSTHROUGH.xmap(
+			dyn -> {
+				JsonObject obj = dyn.convert(JsonOps.INSTANCE).getValue().getAsJsonObject();
+				JsonElement ing = obj.has("items") ? obj.get("items") : obj;
+				int count = GsonHelper.getAsInt(obj, "count", 1);
+				Optional<String> text = obj.has("text") ? Optional.of(GsonHelper.getAsString(obj, "text")) : Optional.empty();
+				return new IngredientEntry(Ingredient.fromJson(ing), count, text);
+			},
+			entry -> {
+				JsonElement json = entry.ingredient().toJson();
+				JsonObject obj;
+				if (json.isJsonObject()) {
+					obj = json.getAsJsonObject();
+				} else {
+					obj = new JsonObject();
+					obj.add("items", json);
+				}
+				obj.addProperty("count", entry.count());
+				entry.text().ifPresent(s -> obj.addProperty("text", s));
+				return new Dynamic<>(JsonOps.INSTANCE, obj);
+			});
 
 	/**
 	 * "- {name}: have/need". A null {@code player} drops the have/need part, for surfaces

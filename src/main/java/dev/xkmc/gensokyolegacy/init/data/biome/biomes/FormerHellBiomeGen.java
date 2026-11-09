@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.NetherPlacements;
 import net.minecraft.data.worldgen.placement.TreePlacements;
@@ -49,7 +49,7 @@ public class FormerHellBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.8f, 0.4f, 0x5a4a3a, 0x6a5a4a, 0x7a6b52, 0x6b5c46, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(FORMER_HELL_LAKE_STEP)
@@ -62,7 +62,7 @@ public class FormerHellBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, OLD_RUBBLE, Feature.RANDOM_PATCH, onStone(16, new Palette()
 				.add(Blocks.CRACKED_STONE_BRICKS, 3).add(Blocks.MOSSY_COBBLESTONE, 2)
 				.add(Blocks.BRICKS, 2).add(Blocks.GRAVEL, 1).build()));

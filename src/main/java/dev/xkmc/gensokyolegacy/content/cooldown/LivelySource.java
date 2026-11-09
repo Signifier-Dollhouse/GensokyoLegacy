@@ -19,7 +19,7 @@ public class LivelySource implements CooldownSource {
 
 	@Override
 	public float rate(Player player) {
-		var effect = player.getEffect(GLEffects.LIVELY);
+		var effect = player.getEffect(GLEffects.LIVELY.get());
 		if (effect == null) return 1.0F;
 		return 1.0F + PER_LEVEL * (effect.getAmplifier() + 1);
 	}

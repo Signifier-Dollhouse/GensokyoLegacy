@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -15,13 +15,13 @@ public record OtherReputationCondition(
 		int reputation
 ) implements QuestCondition<OtherReputationCondition> {
 
-	public static final MapCodec<OtherReputationCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<OtherReputationCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("character").forGetter(OtherReputationCondition::character),
 			Codec.INT.fieldOf("reputation").forGetter(OtherReputationCondition::reputation)
 	).apply(i, OtherReputationCondition::new));
 
 	@Override
-	public MapCodec<OtherReputationCondition> codec() {
+	public Codec<OtherReputationCondition> codec() {
 		return CODEC;
 	}
 

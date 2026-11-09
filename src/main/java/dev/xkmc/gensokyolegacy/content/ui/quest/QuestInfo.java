@@ -31,7 +31,7 @@ public class QuestInfo {
 
 	public List<Component> getSideBarText(Player player) {
 		List<Component> ans = getReqText(player);
-		ans.addFirst(Component.translatable(quest.title()).withStyle(ChatFormatting.UNDERLINE));
+		ans.add(0, Component.translatable(quest.title()).withStyle(ChatFormatting.UNDERLINE));
 		return ans;
 	}
 
@@ -44,7 +44,7 @@ public class QuestInfo {
 
 	public List<Component> getInfoPageText(Player player) {
 		List<Component> ans = getReqText(player);
-		ans.addFirst(GLLang.Quest.CHARACTER.get(quest.character().getDescription()).withStyle(ChatFormatting.UNDERLINE));
+		ans.add(0, GLLang.Quest.CHARACTER.get(quest.character().getDescription()).withStyle(ChatFormatting.UNDERLINE));
 		return ans;
 	}
 

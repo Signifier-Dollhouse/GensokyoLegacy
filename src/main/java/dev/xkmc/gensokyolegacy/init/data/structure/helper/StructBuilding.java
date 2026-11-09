@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
-import dev.xkmc.l2core.init.reg.ench.DataGenHolder;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DataGenHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -15,11 +15,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 
 public interface StructBuilding {
 
-	void registerTemplatePools(BootstrapContext<StructureTemplatePool> ctx, ResourceLocation id);
+	void registerTemplatePools(BootstapContext<StructureTemplatePool> ctx, ResourceLocation id);
 
-	void registerProcessors(BootstrapContext<StructureProcessorList> ctx, ResourceLocation id);
+	void registerProcessors(BootstapContext<StructureProcessorList> ctx, ResourceLocation id);
 
-	void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set);
+	void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set);
 
 	/**
 	 * Reference to the set placing the structure. Datagen has no structure-set registry to bind against and never reads

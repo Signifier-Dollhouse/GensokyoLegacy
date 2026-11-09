@@ -1,5 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.EquipmentSlot;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap;
 import dev.xkmc.danmakuapi.api.DanmakuUseEvent;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
@@ -34,6 +40,23 @@ public class IronDaggerItem extends DanmakuItem {
 		super(p, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, DanmakuItems.Bullet.DAGGER.size);
 	}
 
+	private static final Multimap<Attribute, AttributeModifier> DEFAULT_MODIFIERS;
+
+	static {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+		builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
+				DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADDITION));
+		builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_UUID, "Weapon modifier",
+				-2.0, AttributeModifier.Operation.ADDITION));
+		DEFAULT_MODIFIERS = builder.build();
+	}
+
+	@Override
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.MAINHAND ? DEFAULT_MODIFIERS : super.getDefaultAttributeModifiers(slot);
+	}
+
+
 	@Override
 	public double modifyFading(double selfFading) {
 		return selfFading / 2 + 0.5;
@@ -63,12 +86,12 @@ public class IronDaggerItem extends DanmakuItem {
 
 	@Override
 	protected void playThrowSound(Level level, Player player) {
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(),
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW,
 				SoundSource.PLAYERS, 1F, 1F);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.IRON_DAGGER_LORE.get());
 	}
 

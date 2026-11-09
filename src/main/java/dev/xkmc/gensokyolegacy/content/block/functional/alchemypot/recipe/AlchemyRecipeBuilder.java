@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
-import dev.xkmc.l2core.serial.recipe.BaseRecipe;
+import dev.xkmc.l2library.serial.recipe.BaseRecipe;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class AlchemyRecipeBuilder<T extends AlchemyRecipe<T>, B extends AlchemyRecipeBuilder<T, B>>

@@ -6,11 +6,11 @@ import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.util.Proxy;
-import dev.xkmc.l2menustacker.init.L2MenuStacker;
-import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2library.util.Proxy;
+import dev.xkmc.l2screentracker.init.L2ScreenTracker;
+import dev.xkmc.l2screentracker.screen.packets.CacheMouseToClient;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,8 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -73,12 +74,12 @@ public class Hakkero extends Item implements InvClickItem {
 
 	public static ItemStack setMode(ItemStack stack, HakkeroMode mode) {
 		mode = mode == HakkeroMode.OFF ? HakkeroMode.FURNACE : mode;
-		stack.set(GLItems.DC_HAKKERO_MODE, mode);
+		GLItems.DC_HAKKERO_MODE.set(stack, mode);
 		return stack;
 	}
 
 	public static float clamp01(float f) {
-		return Math.clamp(f, 0.0F, 1.0F);
+		return Mth.clamp(f, 0.0F, 1.0F);
 	}
 
 	public static int burnTime(ItemStack fuel) {
@@ -125,7 +126,7 @@ public class Hakkero extends Item implements InvClickItem {
 		// the stamp is always written, even on a tick where nothing cooked: it is what stops
 		// an idle hakkero from re-simulating a fresh batch on every client tooltip
 		data = data.withStamp(level.getGameTime());
-		if (changed || ticks > 0) stack.set(GLItems.DC_HAKKERO_INV, data);
+		if (changed || ticks > 0) GLItems.DC_HAKKERO_INV.set(stack, data);
 	}
 
 	/**
@@ -167,9 +168,9 @@ public class Hakkero extends Item implements InvClickItem {
 			AbstractCookingRecipe rec = null;
 			if (data.recipe(i) != null) {
 				var found = rm.byKey(data.recipe(i));
-				if (found.isPresent() && found.get().value() instanceof AbstractCookingRecipe held) rec = held;
+				if (found.isPresent() && found.get() instanceof AbstractCookingRecipe held) rec = held;
 			}
-			if (rec == null || rec.getType() != mode.getType() || !rec.matches(new SingleRecipeInput(in), level)) {
+			if (rec == null || rec.getType() != mode.getType() || !rec.matches(new SimpleContainer(in), level)) {
 				var lookup = mode.findRecipeHolder(level, in);
 				if (lookup == null) {
 					data.setCook(i, 0, null);
@@ -177,10 +178,10 @@ public class Hakkero extends Item implements InvClickItem {
 				}
 				// a fresh recipe restarts the channel, the way a furnace drops its progress
 				// when the input under it changes
-				if (!lookup.id().equals(data.recipe(i))) data.setCook(i, 0, lookup.id());
-				rec = lookup.value();
+				if (!lookup.getKey().equals(data.recipe(i))) data.setCook(i, 0, lookup.getKey());
+				rec = lookup.getValue();
 			}
-			ItemStack result = rec.assemble(new SingleRecipeInput(in), level.registryAccess());
+			ItemStack result = rec.assemble(new SimpleContainer(in), level.registryAccess());
 			if (!accepts(data.raw(HakkeroData.CHANNELS + i), result)) continue;
 			// Progress counts in recipe-time units and speed is the rate (blast furnace arrangement).
 			// Scaling the target by speed too made it non-monotonic: 100/200 plus fuel finished at once.
@@ -205,7 +206,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 */
 	public static boolean accepts(ItemStack out, ItemStack result) {
 		if (out.isEmpty()) return true;
-		if (!ItemStack.isSameItemSameComponents(out, result)) return false;
+		if (!ItemStack.isSameItemSameTags(out, result)) return false;
 		return out.getCount() + result.getCount() <= Math.min(out.getMaxStackSize(), result.getMaxStackSize());
 	}
 
@@ -247,7 +248,7 @@ public class Hakkero extends Item implements InvClickItem {
 			ItemStack fuel = data.raw(HakkeroData.FUEL);
 			fuel.shrink(1);
 			if (fuel.isEmpty()) data.setRaw(HakkeroData.FUEL, ItemStack.EMPTY);
-			stack.set(GLItems.DC_HAKKERO_INV, data);
+			GLItems.DC_HAKKERO_INV.set(stack, data);
 			int ticks = Math.max(1, time / FUEL_DIVISOR);
 			broom.boost(THRUST_FUELLED, ticks);
 			GensokyoLegacy.HANDLER.toClientPlayer(new BroomBoostToClient(broom.getId(), THRUST_FUELLED, ticks), sp);
@@ -262,7 +263,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 */
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
-		L2MenuStacker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
+		L2ScreenTracker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
 		HakkeroProvider.open(sp, slot);
 	}
 
@@ -272,7 +273,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 */
 	@Nullable
 	private static PlayerSlot<?> heldSlot(ServerPlayer sp, ItemStack held) {
-		if (sp.getInventory().offhand.getFirst() == held)
+		if (sp.getInventory().offhand.get(0) == held)
 			return PlayerSlot.ofInventory(sp.getInventory().getContainerSize() - 1);
 		for (int i = 0; i < 9; i++) {
 			if (sp.getInventory().items.get(i) == held) return PlayerSlot.ofInventory(i);
@@ -283,7 +284,7 @@ public class Hakkero extends Item implements InvClickItem {
 	// ------------------------------------------------------------------ tooltip
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.FURNACE_2_LORE.get());
 		list.add(GLLang.ItemFurnace.FURNACE_2_USE.get());
 		list.add(GLLang.ItemFurnace.FURNACE_1_DESC.get(
@@ -303,7 +304,9 @@ public class Hakkero extends Item implements InvClickItem {
 		if (ClientTooltip.isShiftDown()) return Optional.empty();
 		// Proxy rather than Minecraft directly: this method is reached from common code, and
 		// naming the client class here would make the server fail to load this item
-		Level level = Proxy.getLevel();
+		var player = Proxy.getClientPlayer();
+		if (player == null) return Optional.empty();
+		Level level = player.level();
 		if (level == null) return Optional.empty();
 		HakkeroData data = HakkeroData.of(stack);
 		if (data.isEmpty()) return Optional.empty();
@@ -319,7 +322,7 @@ public class Hakkero extends Item implements InvClickItem {
 			var recipe = in.isEmpty() ? null : mode.findRecipe(level, in);
 			// permille of the recipe's own cooking time, the units the item counts in
 			float f = recipe == null ? 0.0F : data.progress(i, recipe.getCookingTime());
-			progress[i] = Math.clamp((int) (f * HakkeroTooltip.SCALE), 0, HakkeroTooltip.SCALE);
+			progress[i] = Mth.clamp((int) (f * HakkeroTooltip.SCALE), 0, HakkeroTooltip.SCALE);
 		}
 		return Optional.of(new HakkeroTooltip(list, progress));
 	}
@@ -366,7 +369,7 @@ public class Hakkero extends Item implements InvClickItem {
 	 * Client-side mirror of a {@link #boost} kick, sent because the broom flies client side.
 	 */
 	public record BroomBoostToClient(int broomId, float power,
-									 int ticks) implements SerialPacketBase<BroomBoostToClient> {
+									 int ticks) implements RecordPacketBase {
 
 		@Override
 		public void handle(Player player) {

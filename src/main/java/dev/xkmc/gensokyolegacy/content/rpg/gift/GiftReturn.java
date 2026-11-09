@@ -2,8 +2,6 @@ package dev.xkmc.gensokyolegacy.content.rpg.gift;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -36,14 +34,11 @@ public class GiftReturn {
 	 */
 	public static ItemStack roll(ServerPlayer sp, YoukaiEntity ch, GiftDialogData config) {
 		if (config.returnTable() == null) return ItemStack.EMPTY;
-		var lookup = sp.serverLevel().getServer().reloadableRegistries().get().lookup(Registries.LOOT_TABLE).orElse(null);
-		if (lookup == null) return ItemStack.EMPTY;
-		var key = ResourceKey.create(Registries.LOOT_TABLE, config.returnTable());
-		var loot = lookup.get(key).map(holder -> holder.value()).orElse(null);
-		if (loot == null || loot == LootTable.EMPTY) return ItemStack.EMPTY;
+		LootTable loot = sp.serverLevel().getServer().getLootData().getLootTable(config.returnTable());
+		if (loot == LootTable.EMPTY) return ItemStack.EMPTY;
 		var stacks = new ArrayList<ItemStack>();
 		loot.getRandomItems(params(sp, ch), stacks::add);
-		return stacks.isEmpty() ? ItemStack.EMPTY : stacks.getFirst();
+		return stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(0);
 	}
 
 	private static LootParams params(ServerPlayer sp, YoukaiEntity ch) {

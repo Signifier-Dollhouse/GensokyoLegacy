@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**

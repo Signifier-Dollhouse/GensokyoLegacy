@@ -1,10 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.character;
 
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +21,8 @@ import java.util.Set;
 
 @SerialClass
 public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttachment> {
+
+	public static final Capability<CharacterAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	/**
 	 * Shifts the day rollover from dawn to midnight (tick 18000), so a skipped night is caught on the next
@@ -40,7 +46,7 @@ public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttac
 	private final Map<EntityType<?>, CharacterData> characterData = new LinkedHashMap<>();
 
 	@Override
-	public void tick(Player player) {
+	public void tick() {
 		if (player instanceof ServerPlayer sp) {
 			updateDay(sp);
 		}

@@ -1,8 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.talisman.core;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2damagetracker.contents.attack.DamageData;
-import net.minecraft.core.Holder;
+import dev.xkmc.l2damagetracker.contents.attack.AttackCache;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -54,11 +53,11 @@ public abstract class TalismanPaperItem extends Item {
 
 	}
 
-	public boolean onAttacked(TalismanContext ctx, DamageData.Attack event) {
+	public boolean onAttacked(TalismanContext ctx, AttackCache event) {
 		return false;
 	}
 
-	public void onDamaged(TalismanContext ctx, DamageData.Defence event) {
+	public void onDamaged(TalismanContext ctx, AttackCache event) {
 
 	}
 
@@ -71,7 +70,7 @@ public abstract class TalismanPaperItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		appendTalismanDesc(stack, list);
 		list.add(GLLang.Talisman.FOLD.get());
 	}
@@ -80,11 +79,11 @@ public abstract class TalismanPaperItem extends Item {
 
 	}
 
-	protected void applyEffect(TalismanContext ctx, Holder<MobEffect> eff, int amp) {
+	protected void applyEffect(TalismanContext ctx, MobEffect effect, int amp) {
 		LivingEntity le = ctx.target();
-		var old = le.getEffect(eff);
+		var old = le.getEffect(effect);
 		if (old == null || old.getAmplifier() != amp || old.getDuration() <= 20) {
-			le.addEffect(new MobEffectInstance(eff, 39, amp, true, false, true));
+			le.addEffect(new MobEffectInstance(effect, 39, amp, true, false, true));
 			ctx.hurtItem();
 		}
 	}

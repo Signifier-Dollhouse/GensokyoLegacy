@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -31,7 +31,7 @@ public class YoukaiMountainFoothillsBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.6f, 0.5f, 0x46707d, 0x8496a8, 0x6f8a58, 0x617c4e, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)

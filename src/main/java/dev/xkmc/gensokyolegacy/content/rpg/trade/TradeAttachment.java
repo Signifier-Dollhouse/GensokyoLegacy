@@ -1,10 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.rpg.trade;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +18,8 @@ import java.util.LinkedHashMap;
 
 @SerialClass
 public class TradeAttachment extends PlayerCapabilityTemplate<TradeAttachment> {
+
+	public static final Capability<TradeAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	@SerialField
 	public final LinkedHashMap<ResourceLocation, TradeData> data = new LinkedHashMap<>();

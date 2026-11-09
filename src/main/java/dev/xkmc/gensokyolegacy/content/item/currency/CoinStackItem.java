@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.currency;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -18,7 +19,7 @@ public class CoinStackItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemCommon.CURRENCY.get());
 	}
 

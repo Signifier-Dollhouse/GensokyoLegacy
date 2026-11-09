@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;

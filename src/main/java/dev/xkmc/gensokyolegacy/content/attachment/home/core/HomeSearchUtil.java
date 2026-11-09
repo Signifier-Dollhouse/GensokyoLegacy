@@ -22,9 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -64,9 +64,10 @@ public class HomeSearchUtil {
 
 	public static void put(ServerLevel level, BlockPos chest, Function<Boolean, ItemStack> doCraft) {
 		if (!isValidChest(level, chest)) return;
-		var cap = level.getCapability(Capabilities.ItemHandler.BLOCK, chest, Direction.UP);
+		var be = level.getBlockEntity(chest);
+		var cap = be == null ? null : be.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP).orElse(null);
 		if (cap == null) {
-			if (level.getBlockEntity(chest) instanceof BaseContainerBlockEntity cont) {
+			if (be instanceof BaseContainerBlockEntity cont) {
 				cap = new InvWrapper(cont);
 			} else return;
 		}
@@ -83,11 +84,11 @@ public class HomeSearchUtil {
 			if (seats.isEmpty()) {
 				block.sitDown(level, pos, entity);
 			} else {
-				var seat = seats.getFirst();
+				var seat = seats.get(0);
 				var e = seat.getPassengers();
 				if (!e.isEmpty()) {
-					if (e.getFirst() instanceof Player) return;
-					if (e.getFirst() instanceof YoukaiEntity) return;
+					if (e.get(0) instanceof Player) return;
+					if (e.get(0) instanceof YoukaiEntity) return;
 				}
 				seat.ejectPassengers();
 				entity.startRiding(seat);

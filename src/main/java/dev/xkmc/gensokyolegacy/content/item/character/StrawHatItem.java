@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
+import net.minecraft.world.level.Level;
+import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
+import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
@@ -18,9 +21,11 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class StrawHatItem extends TouhouHatItem {
 
@@ -29,8 +34,13 @@ public class StrawHatItem extends TouhouHatItem {
 	}
 
 	@Override
-	public @Nullable ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-		return GensokyoLegacy.loc("textures/model/straw_hat.png");
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+		consumer.accept(new HatModel(SuwakoHatModel.STRAW));
+	}
+
+	@Override
+	public @Nullable String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+		return GensokyoLegacy.loc("textures/model/straw_hat.png").toString();
 	}
 
 	@Override
@@ -53,7 +63,7 @@ public class StrawHatItem extends TouhouHatItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext level, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.STRAW_HAT_LORE.get());
 	}
 

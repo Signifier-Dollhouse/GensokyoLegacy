@@ -1,18 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
+import net.minecraft.world.level.Level;
+import com.google.common.collect.ImmutableMultimap;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
-import dev.xkmc.l2core.base.effects.EffectUtil;
+import dev.xkmc.l2library.base.effects.EffectUtil;
+import dev.xkmc.l2library.util.math.MathHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.List;
 
@@ -33,18 +35,20 @@ public class FairyWingsItem extends WingItem {
 	}
 
 	@Override
-	protected void addModifiers(ItemAttributeModifiers.Builder builder) {
-		builder.add(Attributes.MAX_HEALTH, new AttributeModifier(GensokyoLegacy.loc("fairy_wings"), HEALTH,
-				AttributeModifier.Operation.ADD_MULTIPLIED_BASE), EquipmentSlotGroup.CHEST);
+	protected void addModifiers(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder) {
+		builder.put(Attributes.MAX_HEALTH, new AttributeModifier(
+				MathHelper.getUUIDFromString("gensokyolegacy:fairy_wings"), "fairy_wings", HEALTH,
+				AttributeModifier.Operation.MULTIPLY_BASE));
 	}
 
 	@Override
 	protected void tick(Player player) {
-		EffectUtil.refreshEffect(player, new MobEffectInstance(GLEffects.FLOATING, DURATION, 0, true, true), player);
+		EffectUtil.refreshEffect(player, new MobEffectInstance(GLEffects.FLOATING.get(), DURATION, 0, true, true),
+				EffectUtil.AddReason.SELF, player);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.FAIRY_WINGS_LORE.get());
 	}
 

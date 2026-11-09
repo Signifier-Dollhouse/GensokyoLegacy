@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
@@ -35,16 +34,14 @@ public class PartyGiftReader {
 	 * Only those — this is all a client is told, and a page is the only thing needing them.
 	 */
 	public static LinkedHashMap<ResourceLocation, ArrayList<GiftTier>> all(MinecraftServer server) {
-		var lookup = server.reloadableRegistries().get().lookup(Registries.LOOT_TABLE).orElse(null);
 		LinkedHashMap<ResourceLocation, ArrayList<GiftTier>> ans = new LinkedHashMap<>();
-		if (lookup == null) return ans;
 		for (var pair : GLMeta.PARTY_TASTE.getAll(server.registryAccess()).toList()) {
 			var type = pair.getFirst().value();
 			var id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 			if (id == null) continue;
-			LootTable table = lookup.get(PartyGift.keyOf(type)).or(() -> lookup.get(PartyGift.DEFAULT_TABLE))
-					.map(Holder::value).orElse(LootTable.EMPTY);
-			ans.put(id, of(table));
+			var data = server.getLootData();
+			var table = data.getLootTable(PartyGift.keyOf(type));
+			ans.put(id, of(table == LootTable.EMPTY ? data.getLootTable(PartyGift.DEFAULT_TABLE) : table));
 		}
 		return ans;
 	}
@@ -74,9 +71,9 @@ public class PartyGiftReader {
 		int min = 0;
 		int max = 0;
 		for (var condition : pool.conditions)
-			if (condition instanceof AppealConsumedCondition(int min1, int max1, boolean invert) && !invert) {
-				min = min1;
-				max = max1;
+			if (condition instanceof AppealConsumedCondition cond && !cond.invert()) {
+				min = cond.min();
+				max = cond.max();
 			}
 		return new GiftTier(min, max, gifts);
 	}
@@ -86,7 +83,7 @@ public class PartyGiftReader {
 	 * from the rung, so a group inside one is the rung told twice rather than an alternative.
 	 * False if some entry names no item outright, whose share of the draw no page can divide up.
 	 */
-	private static boolean flatten(List<LootPoolEntryContainer> entries, List<Weighted> ans) {
+	private static boolean flatten(LootPoolEntryContainer[] entries, List<Weighted> ans) {
 		boolean said = true;
 		for (LootPoolEntryContainer entry : entries) {
 			if (entry instanceof LootItem item)

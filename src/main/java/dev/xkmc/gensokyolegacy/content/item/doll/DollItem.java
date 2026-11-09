@@ -10,12 +10,11 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2menustacker.init.L2MenuStacker;
-import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.init.L2ScreenTracker;
+import dev.xkmc.l2screentracker.screen.packets.CacheMouseToClient;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -100,11 +99,11 @@ public class DollItem extends Item implements InvClickItem {
 	protected ItemStack makeStack(@Nullable DollData data) {
 		if (data == null) return new ItemStack(this);
 		ItemStack stack = new ItemStack(this);
-		stack.set(GLItems.DOLL_DATA.get(), new DollItemData(data.combat));
-		if (data.customName != null) stack.set(DataComponents.CUSTOM_NAME, data.customName);
-		stack.set(GLItems.DOLL_COLOR.get(), data.getColor());
+		GLItems.DOLL_DATA.set(stack, new DollItemData(data.combat));
+		if (data.customName != null) stack.setHoverName(data.customName);
+		GLItems.DOLL_COLOR.set(stack, data.getColor());
 		if (data.inventory != null && !data.inventory.isEmpty())
-			stack.set(GLItems.DOLL_LOADOUT.get(), data.inventory.toInventory());
+			GLItems.DOLL_LOADOUT.set(stack, data.inventory.toInventory());
 		return stack;
 	}
 
@@ -120,7 +119,7 @@ public class DollItem extends Item implements InvClickItem {
 	 * hand-made) falls back to red.
 	 */
 	public static DyeColor colorOf(ItemStack stack) {
-		DyeColor color = stack.get(GLItems.DOLL_COLOR.get());
+		DyeColor color = GLItems.DOLL_COLOR.get(stack);
 		if (color != null) return color;
 		return DyeColor.RED;
 	}
@@ -135,20 +134,20 @@ public class DollItem extends Item implements InvClickItem {
 
 	@Override
 	public boolean isBarVisible(ItemStack stack) {
-		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
+		DollItemData data = GLItems.DOLL_DATA.get(stack);
 		return data != null && data.combat().amount() < BaseDollEntity.DEFAULT_MAX_HEALTH;
 	}
 
 	@Override
 	public int getBarWidth(ItemStack stack) {
-		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
+		DollItemData data = GLItems.DOLL_DATA.get(stack);
 		if (data == null) return 0;
 		return Mth.clamp(Math.round(13.0F * data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH), 0, 13);
 	}
 
 	@Override
 	public int getBarColor(ItemStack stack) {
-		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
+		DollItemData data = GLItems.DOLL_DATA.get(stack);
 		float frac = data == null ? 0.5F : Mth.clamp(data.combat().amount() / BaseDollEntity.DEFAULT_MAX_HEALTH, 0, 1);
 		return Mth.hsvToRgb(frac / 3.0F, 1.0F, 1.0F);
 	}
@@ -159,7 +158,7 @@ public class DollItem extends Item implements InvClickItem {
 	@Nullable
 	private static Component summonBlocker(ServerPlayer sp, ItemStack stack) {
 		DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
-		DollItemData data = stack.get(GLItems.DOLL_DATA.get());
+		DollItemData data = GLItems.DOLL_DATA.get(stack);
 		if (data != null && data.combat().amount() <= 0)
 			return GLLang.Doll.BROKEN.get();
 		if (att.summonCapped())
@@ -218,14 +217,14 @@ public class DollItem extends Item implements InvClickItem {
 
 	@Override
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
-		L2MenuStacker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
+		L2ScreenTracker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), sp);
 		DollItemLoadoutProvider.open(sp, slot);
 	}
 
 	@Override
 	public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
 		if (Screen.hasShiftDown()) return Optional.empty();
-		var data = stack.get(GLItems.DOLL_LOADOUT.get());
+		var data = GLItems.DOLL_LOADOUT.get(stack);
 		if (data == null || data.isEmpty()) return Optional.empty();
 		List<ItemStack> list = List.of(
 				data.get(DollSlot.MAIN_HAND), data.get(DollSlot.OFF_HAND),

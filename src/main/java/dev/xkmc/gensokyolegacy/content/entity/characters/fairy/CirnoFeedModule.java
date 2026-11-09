@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteraction;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
@@ -48,12 +48,12 @@ public class CirnoFeedModule extends FairyFeedModule {
 
 	@Override
 	protected ItemStack cakeGift() {
-		return CAKE_GIFT.getFirst();
+		return CAKE_GIFT.get(0);
 	}
 
 	@Override
 	protected ItemStack cookieGift() {
-		return COOKIE_GIFT.getFirst();
+		return COOKIE_GIFT.get(0);
 	}
 
 }

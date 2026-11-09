@@ -33,7 +33,7 @@ public class BroomRenderer extends GeoEntityRenderer<BroomEntity> {
 	 */
 	@Override
 	protected void applyRotations(BroomEntity animatable, PoseStack poseStack, float ageInTicks,
-								  float rotationYaw, float partialTick, float nativeScale) {
+								  float rotationYaw, float partialTick) {
 		Player rider = animatable.getRider();
 		float yaw = rotationYaw;
 		float pitch = 0;

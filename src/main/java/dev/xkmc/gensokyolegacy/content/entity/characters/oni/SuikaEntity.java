@@ -8,18 +8,19 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
-import dev.xkmc.l2core.base.entity.SyncedData;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SyncedData;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import net.minecraft.util.Mth;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	// ---------- nap variant ----------
 
 	public int getNapVariant() {
-		return Math.clamp(entityData.get(DATA_NAP_VARIANT), 0, NAP_ANIMS.length - 1);
+		return Mth.clamp(entityData.get(DATA_NAP_VARIANT), 0, NAP_ANIMS.length - 1);
 	}
 
 	public void setNapVariant(int variant) {

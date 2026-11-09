@@ -8,6 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.util.Mth;
 
 /**
  * When a character visits a given home, a pure function of the host position, the guest type and the
@@ -41,7 +42,7 @@ public class VisitTable {
 		var rand = RandomSource.create(seed(host, guest, day));
 		// draw order is part of the schedule: changing it moves every window
 		if (multiplier <= 0 || !visit.roll(rand)) return 0;
-		int stay = Math.clamp(visit.rollStay(rand, multiplier), 1, WINDOW);
+		int stay = Mth.clamp(visit.rollStay(rand, multiplier), 1, WINDOW);
 		int start = rand.nextInt(WINDOW - stay + 1);
 		return t < start ? 0 : start + stay - t;
 	}

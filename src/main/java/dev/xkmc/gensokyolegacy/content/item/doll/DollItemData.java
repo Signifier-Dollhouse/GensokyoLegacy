@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.CombatData;
-import dev.xkmc.l2serial.serialization.marker.OnInject;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass.OnInject;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 
 /**
  * The doll item's combat component: the doll type comes from the item ({@link DollItem#dollType()})

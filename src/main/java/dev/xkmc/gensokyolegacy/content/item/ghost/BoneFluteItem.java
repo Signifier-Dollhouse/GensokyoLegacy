@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.ghost;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
@@ -83,7 +84,7 @@ public class BoneFluteItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemBoneFlute.BIND.get());
 		list.add(GLLang.ItemBoneFlute.RELEASE.get());
 	}

@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
@@ -18,12 +18,12 @@ import javax.annotation.Nullable;
  */
 public record GridLayer(int cell, int margin, int salt, float chance) {
 
-	public static final MapCodec<GridLayer> CODEC = RecordCodecBuilder.<GridLayer>mapCodec(i -> i.group(
+	public static final Codec<GridLayer> CODEC = ExtraCodecs.validate(RecordCodecBuilder.<GridLayer>create(i -> i.group(
 			Codec.intRange(4, 512).fieldOf("cell").forGetter(GridLayer::cell),
 			Codec.intRange(0, 255).fieldOf("margin").forGetter(GridLayer::margin),
 			Codec.INT.fieldOf("salt").forGetter(GridLayer::salt),
 			Codec.floatRange(0, 1).fieldOf("chance").forGetter(GridLayer::chance)
-	).apply(i, GridLayer::new)).validate(e -> e.margin * 2 < e.cell ? DataResult.success(e) :
+	).apply(i, GridLayer::new)), e -> e.margin * 2 < e.cell ? DataResult.success(e) :
 			DataResult.error(() -> "margin must be less than half of cell"));
 
 	/**

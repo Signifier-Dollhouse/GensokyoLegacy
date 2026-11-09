@@ -1,13 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.common.ItemAbility;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -18,9 +16,6 @@ import java.util.function.Supplier;
  */
 public class StrippableWoodBlock extends RotatedPillarBlock {
 
-	private static final MapCodec<StrippableWoodBlock> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-			BlockState.CODEC.fieldOf("stripped").forGetter(b -> b.stripped.get().defaultBlockState()),
-			propertiesCodec()).apply(i, (state, properties) -> new StrippableWoodBlock(() -> state.getBlock(), properties)));
 
 	private final Supplier<Block> stripped;
 
@@ -29,17 +24,13 @@ public class StrippableWoodBlock extends RotatedPillarBlock {
 		this.stripped = stripped;
 	}
 
-	@Override
-	public MapCodec<? extends RotatedPillarBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
-	public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ItemAbility ability, boolean simulate) {
-		if (ability == ItemAbilities.AXE_STRIP) {
+	public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
+		if (toolAction == ToolActions.AXE_STRIP) {
 			return stripped.get().defaultBlockState().setValue(AXIS, state.getValue(AXIS));
 		}
-		return super.getToolModifiedState(state, context, ability, simulate);
+		return super.getToolModifiedState(state, context, toolAction, simulate);
 	}
 
 }

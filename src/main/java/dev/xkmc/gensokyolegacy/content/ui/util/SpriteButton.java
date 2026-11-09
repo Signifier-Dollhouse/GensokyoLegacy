@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.util;
 
+import dev.xkmc.gensokyolegacy.util.GuiSprites;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,7 @@ public class SpriteButton extends Button {
 	protected void renderWidget(GuiGraphics g, int mx, int my, float pt) {
 		if (!isHoveredOrFocused()) isDown = false;
 		ResourceLocation tex = isHoveredOrFocused() ? (isDown ? pressed : hover) : normal;
-		g.blitSprite(tex, getX(), getY(), getWidth(), getHeight());
+		GuiSprites.blit(g, tex, getX(), getY(), getWidth(), getHeight());
 	}
 
 	@Override

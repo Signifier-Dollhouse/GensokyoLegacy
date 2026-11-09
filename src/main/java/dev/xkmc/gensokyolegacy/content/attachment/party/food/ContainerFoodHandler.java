@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +27,7 @@ public interface ContainerFoodHandler {
 	 * out one item at a time, a cutting board hands over the whole plate.
 	 * <p>Freshly built every call, never retained.
 	 */
-	List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state);
+	List<FoodResult> contents(BlockGetter level, BlockPos pos, BlockState state);
 
 	/**
 	 * Not the shared furniture test: the rule genuinely differs by container.

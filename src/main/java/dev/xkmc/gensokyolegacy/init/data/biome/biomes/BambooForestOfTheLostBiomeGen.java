@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
@@ -42,7 +42,7 @@ public class BambooForestOfTheLostBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.3f, 0.9f, 0x3f6f6a, 0x7d94a0, 0x6f8f52, 0x5f7f4a, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -54,7 +54,7 @@ public class BambooForestOfTheLostBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, MUD_DISK, Feature.DISK, new DiskConfiguration(
 				RuleBasedBlockStateProvider.simple(Blocks.MUD),
 				BlockPredicate.matchesBlocks(Blocks.GRASS_BLOCK, Blocks.DIRT), UniformInt.of(2, 5), 1));

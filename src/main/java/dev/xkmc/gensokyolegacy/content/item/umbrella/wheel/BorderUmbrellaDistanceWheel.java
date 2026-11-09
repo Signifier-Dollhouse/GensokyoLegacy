@@ -42,7 +42,7 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 	public int getIndex(Player player) {
 		ItemStack held = BorderUmbrellaSelectionListener.getHeldUmbrella(player);
 		if (held == null) return -1;
-		int dist = held.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+		int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(held, 1000);
 		return BorderUmbrellaDistanceEntry.indexOf(dist);
 	}
 
@@ -50,13 +50,13 @@ public class BorderUmbrellaDistanceWheel implements WheelAdaptor<BorderUmbrellaD
 	public void select(int index) {
 		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaWheelSelectPacket(2, index));
 		int dist = BorderUmbrellaDistanceEntry.distanceOf(index);
-		stack.set(GLItems.UMBRELLA_DISTANCE.get(), dist);
+		GLItems.UMBRELLA_DISTANCE.set(stack, dist);
 	}
 
 	@Override
 	public void renderIcon(GuiGraphics g, int x0, int y0, boolean left, float sideWidth, boolean hover) {
 		// side icon shows current distance
-		int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+		int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(stack, 1000);
 		var entry = new BorderUmbrellaDistanceEntry(dist);
 		float cx = left ? sideWidth / 2f : g.guiWidth() - sideWidth / 2f;
 		float r = Math.min((float) x0 / 1.5f, (float) y0) / 1.5f;

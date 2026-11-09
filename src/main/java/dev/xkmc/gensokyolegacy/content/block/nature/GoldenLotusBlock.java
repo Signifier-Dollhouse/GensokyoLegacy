@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
-import dev.xkmc.l2core.serial.loot.LootHelper;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -28,14 +27,13 @@ import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 /**
  * Golden lotus growing through three sizes as one block; only the largest size is a double plant.
  */
 public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 
-	public static final MapCodec<GoldenLotusBlock> CODEC = simpleCodec(GoldenLotusBlock::new);
 
 	public static final IntegerProperty SIZE = IntegerProperty.create("size", 0, 2);
 	public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
@@ -51,10 +49,6 @@ public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 		registerDefaultState(stateDefinition.any().setValue(SIZE, 0).setValue(PART, Part.SINGLE));
 	}
 
-	@Override
-	public MapCodec<GoldenLotusBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -74,7 +68,7 @@ public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		if (state.getValue(PART) == Part.UPPER) return;
 		if (!(level.getBlockState(pos.below()).getBlock() instanceof FarmBlock)) return;
 		int size = state.getValue(SIZE);
@@ -85,7 +79,7 @@ public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState,
+	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState,
 									 LevelAccessor level, BlockPos pos, BlockPos facingPos) {
 		Part part = state.getValue(PART);
 		if (part != Part.SINGLE && facing.getAxis() == Direction.Axis.Y) {
@@ -97,7 +91,7 @@ public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 	}
 
 	@Override
-	protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
 		if (state.getValue(PART) == Part.UPPER) {
 			BlockState below = level.getBlockState(pos.below());
 			return below.is(this) && below.getValue(PART) == Part.LOWER && below.getValue(SIZE) == LARGE;
@@ -106,7 +100,7 @@ public class GoldenLotusBlock extends BushBlock implements BonemealableBlock {
 	}
 
 	@Override
-	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+	public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, boolean client) {
 		if (state.getValue(PART) == Part.UPPER) return false;
 		int size = state.getValue(SIZE);
 		return size < LARGE && (size + 1 < LARGE || canGrowLarge(level, pos));

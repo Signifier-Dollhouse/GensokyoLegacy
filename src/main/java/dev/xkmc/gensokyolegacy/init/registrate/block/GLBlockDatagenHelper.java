@@ -8,11 +8,9 @@ import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesItem;
 import dev.xkmc.gensokyolegacy.content.block.nature.SimpleBushBlock;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import dev.xkmc.l2library.base.L2Registrate;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicates;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
@@ -31,10 +29,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
-import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 
 import java.util.List;
 
@@ -66,10 +62,7 @@ public class GLBlockDatagenHelper {
 	private static void towerGrassLoot(RegistrateBlockLootTables tb, Block block) {
 		var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
 				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
-										MinMaxBounds.Ints.atLeast(1)))))));
+						.hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1)))));
 		tb.add(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
 						.add(LootItem.lootTableItem(block)))
@@ -107,7 +100,7 @@ public class GLBlockDatagenHelper {
 				.item(FallenLeavesItem::new).model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/nature/fallen_leaves")))
 						.texture("all", pvd.modLoc("block/nature/" + id + "_layer1")))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+
 				.build()
 				.register();
 	}

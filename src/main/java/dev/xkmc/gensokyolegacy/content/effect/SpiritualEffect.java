@@ -26,25 +26,24 @@ public class SpiritualEffect extends EmptyEffect {
 	public static void addSpiritual(Player player, int amount) {
 		if (amount <= 0) return;
 		int duration = amount * 2;
-		MobEffectInstance old = player.getEffect(GLEffects.SPIRITUAL);
+		MobEffectInstance old = player.getEffect(GLEffects.SPIRITUAL.get());
 		if (old == null) {
-			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL, duration, 0));
+			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL.get(), duration, 0));
 		} else if (!old.isInfiniteDuration()) {
 			int extended = old.getDuration() + (duration >> old.getAmplifier());
-			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL, extended, old.getAmplifier(),
+			player.addEffect(new MobEffectInstance(GLEffects.SPIRITUAL.get(), extended, old.getAmplifier(),
 					old.isAmbient(), old.isVisible(), old.showIcon()));
 		}
 	}
 
 	@Override
-	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+	public void applyEffectTick(LivingEntity entity, int amplifier) {
 		if (entity instanceof Player player && !player.level().isClientSide())
 			SpiritualPower.restore(player, 10 << amplifier);
-		return true;
 	}
 
 	@Override
-	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+	public boolean isDurationEffectTick(int duration, int amplifier) {
 		return duration % 20 == 0;
 	}
 

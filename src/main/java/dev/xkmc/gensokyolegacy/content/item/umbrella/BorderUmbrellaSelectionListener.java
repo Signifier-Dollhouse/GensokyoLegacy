@@ -7,10 +7,12 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -53,33 +55,42 @@ public class BorderUmbrellaSelectionListener extends IItemSelector implements Wh
 	}
 
 	@Override
-	public int getIndex(Player player, ItemStack stack) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
-		var avail = getAvailableModes(stack);
+	public int getIndex(Player player) {
+		ItemStack held = getHeldUmbrella(player);
+		if (held == null) return 0;
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(held, BorderUmbrellaMode.RECORD);
+		var avail = getAvailableModes(held);
 		int idx = avail.indexOf(mode);
 		return idx < 0 ? 0 : idx;
 	}
 
 	@Override
-	public List<ItemStack> getList(ItemStack stack) {
-		var avail = getAvailableModes(stack);
+	public List<ItemStack> getList() {
 		List<ItemStack> list = new ArrayList<>();
-		for (var m : avail) {
+		ItemStack held = FMLEnvironment.dist == Dist.CLIENT ? clientHeld() : null;
+		if (held == null) return list;
+		for (var m : getAvailableModes(held)) {
 			ItemStack icon = m.icon();
-			icon.set(DataComponents.ITEM_NAME, m.displayName());
+			icon.setHoverName(m.displayName());
 			list.add(icon);
 		}
 		return list;
 	}
 
+	@Nullable
+	private static ItemStack clientHeld() {
+		Player player = Minecraft.getInstance().player;
+		return player == null ? null : getHeldUmbrella(player);
+	}
+
 	@Override
-	public void swap(Player sender, int index, ItemStack stack) {
+	public void swap(Player sender, int index) {
 		ItemStack held = getHeldUmbrella(sender);
 		if (held == null) return;
 		var avail = getAvailableModes(held);
 		if (index < 0 || index >= avail.size()) return;
 		var mode = avail.get(index);
-		held.set(GLItems.UMBRELLA_TYPE.get(), mode);
+		GLItems.UMBRELLA_TYPE.set(held, mode);
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class MinamitsuModel extends DefaultedEntityGeoModel<MinamitsuEntity> {
+public class MinamitsuModel extends HeadBoneGeoModel<MinamitsuEntity> {
 
 	public MinamitsuModel() {
 		super(GensokyoLegacy.loc("minamitsu"), "Head");

@@ -14,7 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -77,7 +77,7 @@ public interface YoukaiCombat extends YoukaiBaseImpl, IYoukaiEntity, SpellCircle
 		if (!self.targets.isValidTarget(e))
 			return true;
 		var event = new YoukaiFightEvent(self, e);
-		return NeoForge.EVENT_BUS.post(event).isCanceled();
+		return MinecraftForge.EVENT_BUS.post(event);
 	}
 
 	default boolean wouldInitiateAttack(LivingEntity entity) {

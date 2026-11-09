@@ -15,7 +15,7 @@ public class NavigationDebugger {
 	private static final int DIST_SQR = 48 * 48;
 
 	public static boolean hasDebugGlass(ServerPlayer sp) {
-		return sp.getItemBySlot(EquipmentSlot.HEAD).is(GLItems.DEBUG_GLASSES);
+		return sp.getItemBySlot(EquipmentSlot.HEAD).is(GLItems.DEBUG_GLASSES.get());
 	}
 
 	private final YoukaiEntity self;

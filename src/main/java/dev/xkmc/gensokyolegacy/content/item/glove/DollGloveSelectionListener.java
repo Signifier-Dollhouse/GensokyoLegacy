@@ -8,12 +8,12 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -53,9 +53,11 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	@Override
-	public int getIndex(Player player, ItemStack stack) {
-		var mode = DollGloveItem.getMode(stack);
-		var avail = player.level().isClientSide() ?
+	public int getIndex(Player player) {
+		ItemStack held = getHeldGlove(player);
+		if (held == null) return 0;
+		var mode = DollGloveItem.getMode(held);
+		var avail = player.level().isClientSide ?
 				DollGloveClientModes.available(player, mode) :
 				DollGloveModes.potentiallyVisible();
 		int idx = avail.indexOf(mode);
@@ -63,27 +65,25 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	@Override
-	public List<ItemStack> getList(ItemStack stack) {
+	public List<ItemStack> getList() {
 		// the scroll sidebar has no player param, so resolve the client player internally;
 		// the server keeps the static set (sizing only, never shown).
-		var modes = FMLEnvironment.dist == Dist.CLIENT ?
-				DollGloveClientModes.availableForDisplay(stack) :
-				DollGloveModes.potentiallyVisible();
+		var modes = FMLEnvironment.dist == Dist.CLIENT ? clientModes() : DollGloveModes.potentiallyVisible();
 		List<ItemStack> list = new ArrayList<>();
 		for (var m : modes) {
 			ItemStack icon = DollGloveItem.iconStack(m);
-			icon.set(DataComponents.ITEM_NAME, m.displayName());
+			icon.setHoverName(m.displayName());
 			list.add(icon);
 		}
 		return list;
 	}
 
-	@Override
-	public int getSelHash(ItemStack stack) {
-		if (FMLEnvironment.dist == Dist.CLIENT) {
-			return DollGloveClientModes.availableForDisplay(stack).hashCode();
-		}
-		return 0;
+	private static List<DollGloveMode> clientModes() {
+		Player player = Minecraft.getInstance().player;
+		if (player == null) return DollGloveModes.potentiallyVisible();
+		ItemStack held = getHeldGlove(player);
+		if (held == null) return DollGloveModes.potentiallyVisible();
+		return DollGloveClientModes.availableForDisplay(held);
 	}
 
 	/**
@@ -91,8 +91,10 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	 * slot back as an ordinal, so the pair stays consistent as the visible set changes size.
 	 */
 	@Override
-	public int move(int i, Player player, ItemStack stack) {
-		var mode = DollGloveItem.getMode(stack);
+	public int move(int i, Player player) {
+		ItemStack held = getHeldGlove(player);
+		if (held == null) return 0;
+		var mode = DollGloveItem.getMode(held);
 		var avail = DollGloveClientModes.available(player, mode);
 		if (avail.isEmpty()) return mode.ordinal();
 		int idx = avail.indexOf(mode);
@@ -101,12 +103,12 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	@Override
-	public void swap(Player sender, int index, ItemStack stack) {
+	public void swap(Player sender, int index) {
 		ItemStack held = getHeldGlove(sender);
 		if (held == null) return;
 		var modes = DollGloveMode.values();
 		if (index < 0 || index >= modes.length) return;
-		held.set(GLItems.DOLL_GLOVE_MODE.get(), index);
+		GLItems.DOLL_GLOVE_MODE.set(held, index);
 	}
 
 	@Override

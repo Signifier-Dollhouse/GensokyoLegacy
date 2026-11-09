@@ -1,21 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
-import dev.xkmc.l2core.serial.recipe.BaseRecipe;
-import dev.xkmc.l2core.serial.recipe.BaseRecipeBuilder;
+import dev.xkmc.l2library.serial.recipe.BaseRecipe;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.minecraftforge.fluids.FluidStack;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
 
 public abstract class AbstractAlchemyRecipeBuilder<T extends AlchemyRecipe<T>, B extends AbstractAlchemyRecipeBuilder<T, B>>
 		extends BaseRecipeBuilder<B, T, AlchemyRecipe<?>, AlchemyInv> {
 
 	protected AbstractAlchemyRecipeBuilder(BaseRecipe.RecType<T, AlchemyRecipe<?>, AlchemyInv> type) {
-		super(type, Items.AIR);
+		super(type);
 	}
 
 	public B fluid(FluidIngredient ing) {

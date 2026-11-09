@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay;
 
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 

@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 /**
  * One rule about what a block means to path over. The mob is here because a rule may legitimately
@@ -17,7 +17,7 @@ public interface YoukaiPathTypeHandler {
 	 * @param ans what the vanilla rule already decided for this block
 	 * @param mob the entity being routed, or null when the evaluator has none
 	 */
-	PathType getPathType(PathType ans, PathfindingContext context, BlockPos pos,
-						 BlockState state, Mob mob);
+	BlockPathTypes getPathType(BlockPathTypes ans, BlockGetter level, BlockPos pos,
+							   BlockState state, Mob mob);
 
 }

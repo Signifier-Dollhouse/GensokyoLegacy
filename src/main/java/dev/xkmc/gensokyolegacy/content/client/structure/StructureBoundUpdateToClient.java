@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public record StructureBoundUpdateToClient(
 		StructureKey key, Box structure, ArrayList<Box> house, ArrayList<Box> rooms, StructureInterior interior
-) implements SerialPacketBase<StructureBoundUpdateToClient>, IStructureBound {
+) implements RecordPacketBase, IStructureBound {
 
 	public static void clickBlockInServer(Player player, BlockPos pos) {
 		if (!(player instanceof ServerPlayer sp)) return;

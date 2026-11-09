@@ -28,7 +28,7 @@ public record DialogConfig(String greeting, String visitGreeting, String partyGr
 
 	@Nullable
 	public static DialogConfig of(EntityType<?> key) {
-		return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key).getData(GLMeta.DIALOG_DATA.reg());
+		return GLMeta.DIALOG_DATA.get(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key));
 	}
 
 }

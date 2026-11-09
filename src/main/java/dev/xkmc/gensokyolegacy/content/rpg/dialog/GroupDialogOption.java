@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
@@ -21,7 +21,7 @@ public record GroupDialogOption(
 		Optional<Holder<Dialog>> next
 ) implements DialogOption<GroupDialogOption>, OptionResult {
 
-	public static final MapCodec<GroupDialogOption> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<GroupDialogOption> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("group").forGetter(GroupDialogOption::group),
 			Codec.STRING.fieldOf("text").forGetter(GroupDialogOption::text),
 			CodecRegistry.ACTION.codec().listOf().fieldOf("actions").forGetter(GroupDialogOption::actions),
@@ -29,7 +29,7 @@ public record GroupDialogOption(
 	).apply(i, GroupDialogOption::new));
 
 	@Override
-	public MapCodec<GroupDialogOption> codec() {
+	public Codec<GroupDialogOption> codec() {
 		return CODEC;
 	}
 

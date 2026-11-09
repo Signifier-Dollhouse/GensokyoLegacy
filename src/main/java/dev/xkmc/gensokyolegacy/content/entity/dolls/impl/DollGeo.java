@@ -2,10 +2,11 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.impl;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
-import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
 
 /**
  * The plain doll's own clip set: GeckoLib animation split over three controllers that run in the
@@ -19,6 +20,7 @@ public interface DollGeo extends DollRig, DollEntityImpl {
 
 	RawAnimation IDLE = RawAnimation.begin().thenLoop("toy_idle");
 	RawAnimation FLY = RawAnimation.begin().thenLoop("toy_fly");
+	String ATTACK_TRIGGER = "attack";
 	RawAnimation ATTACK = RawAnimation.begin().thenPlay("toy_attack");
 	/**
 	 * The same charge, swung with an empty hand: {@code toy_slapattack}.
@@ -54,7 +56,7 @@ public interface DollGeo extends DollRig, DollEntityImpl {
 		controllers.add(new AnimationController<>(asDoll(), ANIM_CONTROLLER, ANIM_TRANSITION, this::dollAnimController));
 		controllers.add(new DollOneShotController(asDoll())
 				.receiveTriggeredAnimations()
-				.triggerableAnim("attack", ATTACK)
+				.triggerableAnim(ATTACK_TRIGGER, ATTACK)
 				.triggerableAnim("slap", SLAP)
 				.triggerableAnim("bomb", BOMB)
 				.triggerableAnim("bow", BOW)
@@ -65,7 +67,7 @@ public interface DollGeo extends DollRig, DollEntityImpl {
 	 * Client-side: play the one-shot for an entity event id.
 	 */
 	default void handleDollEvent(byte id) {
-		if (id == EVENT_ATTACK) triggerAnim(ONE_SHOT_CONTROLLER, "attack");
+		if (id == EVENT_ATTACK) triggerAnim(ONE_SHOT_CONTROLLER, ATTACK_TRIGGER);
 		else if (id == EVENT_SLAP) triggerAnim(ONE_SHOT_CONTROLLER, "slap");
 		else if (id == EVENT_BOMB) triggerAnim(ONE_SHOT_CONTROLLER, "bomb");
 		else if (id == EVENT_BOW) triggerAnim(ONE_SHOT_CONTROLLER, "bow");

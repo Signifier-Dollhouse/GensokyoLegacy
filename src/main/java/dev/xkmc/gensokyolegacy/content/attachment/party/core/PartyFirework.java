@@ -1,24 +1,21 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.FireworkRocketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.FireworkExplosion;
-import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.phys.AABB;
-
-import java.util.List;
 
 /**
  * One of the rockets the table puts up while it fills. A real {@link FireworkRocketEntity}, built
- * the way the game builds one: a rocket item carrying a {@link Fireworks} component.
+ * the way the game builds one: a rocket item carrying the {@code Fireworks} NBT tag.
  * <p>
  * <b>Where it goes up is the whole of the difficulty.</b> A burst hurts every living thing within
  * five blocks of it, and a guest knocked off her chair drops her seat claim — which holds the table
@@ -99,17 +96,24 @@ public class PartyFirework {
 
 	/**
 	 * A rocket: two random colours, a random shape, and a trail or a flicker on some of them. The
-	 * colours are the raw RGB a {@link FireworkExplosion} stores — {@link DyeColor#getFireworkColor},
-	 * not the dye's own index.
+	 * colours are the raw RGB in the explosion tag — {@link DyeColor#getFireworkColor}, not the
+	 * dye's own index.
 	 */
 	private static ItemStack rocket(RandomSource random) {
-		var colors = IntList.of(color(random), color(random));
-		var explosion = new FireworkExplosion(
-				random.nextBoolean() ? FireworkExplosion.Shape.LARGE_BALL : FireworkExplosion.Shape.STAR,
-				colors, IntList.of(), random.nextInt(4) == 0, random.nextBoolean());
-		var stack = new ItemStack(Items.FIREWORK_ROCKET);
+		var explosion = new CompoundTag();
+		explosion.putByte(FireworkRocketItem.TAG_EXPLOSION_TYPE,
+				(byte) (random.nextBoolean() ? FireworkRocketItem.Shape.LARGE_BALL : FireworkRocketItem.Shape.STAR).getId());
+		explosion.putIntArray(FireworkRocketItem.TAG_EXPLOSION_COLORS, new int[]{color(random), color(random)});
+		explosion.putBoolean(FireworkRocketItem.TAG_EXPLOSION_TRAIL, random.nextInt(4) == 0);
+		explosion.putBoolean(FireworkRocketItem.TAG_EXPLOSION_FLICKER, random.nextBoolean());
+		var explosions = new ListTag();
+		explosions.add(explosion);
+		var fireworks = new CompoundTag();
 		// no flight duration: it goes up and bursts, rather than climbing for two seconds first
-		stack.set(DataComponents.FIREWORKS, new Fireworks(0, List.of(explosion)));
+		fireworks.putByte("Flight", (byte) 0);
+		fireworks.put(FireworkRocketItem.TAG_EXPLOSIONS, explosions);
+		var stack = new ItemStack(Items.FIREWORK_ROCKET);
+		stack.getOrCreateTag().put("Fireworks", fireworks);
 		return stack;
 	}
 

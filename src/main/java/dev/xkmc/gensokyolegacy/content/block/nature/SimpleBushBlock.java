@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -13,11 +12,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.util.TriState;
 
 public class SimpleBushBlock extends BushBlock {
 
-	private static final MapCodec<SimpleBushBlock> CODEC = simpleCodec(SimpleBushBlock::new);
 
 	public static final VoxelShape FULL = Shapes.block();
 	public static final VoxelShape THIN = Block.box(0, 0, 7, 16, 16, 9);
@@ -34,10 +31,6 @@ public class SimpleBushBlock extends BushBlock {
 		this(properties, FULL);
 	}
 
-	@Override
-	public MapCodec<? extends BushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
@@ -46,11 +39,10 @@ public class SimpleBushBlock extends BushBlock {
 	}
 
 	@Override
-	protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
 		BlockPos below = pos.below();
 		BlockState belowState = level.getBlockState(below);
-		TriState soilDecision = belowState.canSustainPlant(level, below, Direction.UP, state);
-		if (!soilDecision.isDefault()) return soilDecision.isTrue();
+		if (belowState.canSustainPlant(level, below, Direction.UP, this)) return true;
 		return this.mayPlaceOn(belowState, level, below);
 	}
 

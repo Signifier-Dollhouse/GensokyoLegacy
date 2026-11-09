@@ -1,19 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,22 +19,22 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
  * A pair of wings: plain equipables (not armor) worn in the vanilla chest slot, and in the curios back slot when
  * curios is present. The two are alternatives, and a wearer may well carry a pair in each.
  *
- * <p>The attribute plumbing is why this base exists. Vanilla never looks at curios: it reads
- * {@link ItemAttributeModifiers} off the stack by {@link EquipmentSlotGroup}, while curios ignores that component and
- * asks {@link ICurioItem#getAttributeModifiers}. A subclass declares its modifiers once through
- * {@link #addModifiers} and both systems serve them - under separate ids, because {@link AttributeInstance} keys
+ * <p>The attribute plumbing is why this base exists. Vanilla never looks at curios: it reads the item's default
+ * attribute map by {@link EquipmentSlot}, while curios ignores that map and asks
+ * {@link ICurioItem#getAttributeModifiers}. A subclass declares its modifiers once through
+ * {@link #addModifiers} and both systems serve them - under separate ids, because {@code AttributeInstance} keys
  * modifiers by id, so a pair in each slot costs twice over rather than one replacing the other.
  */
 public abstract class WingItem extends Item implements Equipable, ICurioItem {
@@ -52,8 +50,8 @@ public abstract class WingItem extends Item implements Equipable, ICurioItem {
 	 */
 	private static final int CHEST_SLOT = Inventory.INVENTORY_SIZE + EquipmentSlot.CHEST.getIndex();
 
-	private final Supplier<ItemAttributeModifiers> defaultModifiers = Suppliers.memoize(() -> {
-		ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+	private final Supplier<Multimap<Attribute, AttributeModifier>> defaultModifiers = Suppliers.memoize(() -> {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
 		addModifiers(builder);
 		return builder.build();
 	});
@@ -63,23 +61,19 @@ public abstract class WingItem extends Item implements Equipable, ICurioItem {
 		DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
 	}
 
-	protected void addModifiers(ItemAttributeModifiers.Builder builder) {
+	protected void addModifiers(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder) {
 	}
 
 	@Override
-	public ItemAttributeModifiers getDefaultAttributeModifiers() {
-		return defaultModifiers.get();
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.CHEST ? defaultModifiers.get() : super.getDefaultAttributeModifiers(slot);
 	}
 
 	@Override
-	public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(
-			SlotContext slotContext, ResourceLocation id, ItemStack stack) {
-		Multimap<Holder<Attribute>, AttributeModifier> map = LinkedHashMultimap.create();
-		for (var e : getDefaultAttributeModifiers().modifiers()) {
-			if (e.slot() != EquipmentSlotGroup.CHEST) continue;
-			var mod = e.modifier();
-			map.put(e.attribute(), new AttributeModifier(id, mod.amount(), mod.operation()));
-		}
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(SlotContext slotContext, UUID id, ItemStack stack) {
+		Multimap<Attribute, AttributeModifier> map = LinkedHashMultimap.create();
+		defaultModifiers.get().forEach((attr, mod) ->
+				map.put(attr, new AttributeModifier(id, mod.getName(), mod.getAmount(), mod.getOperation())));
 		return map;
 	}
 
@@ -89,12 +83,7 @@ public abstract class WingItem extends Item implements Equipable, ICurioItem {
 	}
 
 	@Override
-	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
-		return EquipmentSlot.CHEST;
-	}
-
-	@Override
-	public Holder<SoundEvent> getEquipSound() {
+	public SoundEvent getEquipSound() {
 		return SoundEvents.ARMOR_EQUIP_LEATHER;
 	}
 

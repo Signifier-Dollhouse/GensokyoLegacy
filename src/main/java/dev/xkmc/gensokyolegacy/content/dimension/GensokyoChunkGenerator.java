@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.dimension;
 
 import com.google.common.base.Suppliers;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  */
 public class GensokyoChunkGenerator extends NoiseBasedChunkGenerator {
 
-	public static final MapCodec<GensokyoChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
+	public static final Codec<GensokyoChunkGenerator> CODEC = RecordCodecBuilder.create(
 			i -> i.group(
 					BiomeSource.CODEC.fieldOf("biome_source").forGetter(NoiseBasedChunkGenerator::getBiomeSource),
 					NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(NoiseBasedChunkGenerator::generatorSettings)
@@ -74,7 +74,7 @@ public class GensokyoChunkGenerator extends NoiseBasedChunkGenerator {
 	}
 
 	@Override
-	protected MapCodec<? extends ChunkGenerator> codec() {
+	protected Codec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 

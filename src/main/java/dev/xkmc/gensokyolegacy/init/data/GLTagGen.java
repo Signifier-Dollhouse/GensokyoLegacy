@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateItemTagsProvider;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -17,12 +18,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 
 public class GLTagGen {
 
 	public static final TagKey<Item> CURRENCY = item("currency");
+	/**
+	 * What a fairy takes as food. 1.20.1 has no common cookie or cooked-meat tag, so both are ours.
+	 */
+	public static final TagKey<Item> COOKIE_FOOD = item("cookie_food");
+	public static final TagKey<Item> COOKED_MEAT = item("cooked_meat");
 	public static final TagKey<Item> CUSHIONS = item("cushions");
 	public static final TagKey<Item> NOREN = item("noren");
 	public static final TagKey<Item> STRIPED_NOREN = item("striped_noren");
@@ -41,7 +47,6 @@ public class GLTagGen {
 	public static final TagKey<Item> TALISMAN_PAPERS = item("talisman_papers");
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
-
 	/**
 	 * Items carrying a {@code spiritual_power_max} component, so an advancement can ask for any of them.
 	 */
@@ -115,8 +120,17 @@ public class GLTagGen {
 
 	public static final TagKey<EntityType<?>> UMBRELLA_CAPTURE_BLACKLIST = entity("umbrella_capture_blacklist");
 
+	/**
+	 * Entities a fairy-feeding advancement accepts: every kind that carries a feeding module.
+	 */
+	public static final TagKey<EntityType<?>> FEEDABLE_FAIRIES = entity("feedable_fairies");
+	/**
+	 * Zombie-like mobs for the "exterminate zombies" quest requirement; vanilla has no such tag on 1.20.1.
+	 */
+	public static final TagKey<EntityType<?>> ZOMBIES = entity("zombies");
+
 	public static final TagKey<EntityType<?>> CARRYON_BLACKLIST = TagKey.create(Registries.ENTITY_TYPE,
-			ResourceLocation.fromNamespaceAndPath("carryon", "entity_blacklist"));
+			new ResourceLocation("carryon", "entity_blacklist"));
 
 	private static void addTiles(RegistrateTagsProvider.IntrinsicImpl<Block> pvd, TagKey<Block> tag) {
 		for (var set : GLDecoBlocks.TILE_SETS) {
@@ -154,8 +168,8 @@ public class GLTagGen {
 		for (var wood : YSF_WOODS) {
 			// ResourceLocation.parse, not GensokyoLegacy.loc: loc() namespaces a
 			// bare path with our own modid, so "youkaisfeasts:x" would gain one.
-			pvd.addTag(PARTY_TABLE).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_table"));
-			pvd.addTag(PARTY_SEAT).addOptional(ResourceLocation.parse("youkaisfeasts:" + wood + "_dining_chair"));
+			pvd.addTag(PARTY_TABLE).addOptional(new ResourceLocation("youkaisfeasts:" + wood + "_dining_table"));
+			pvd.addTag(PARTY_SEAT).addOptional(new ResourceLocation("youkaisfeasts:" + wood + "_dining_chair"));
 		}
 	}
 
@@ -174,6 +188,9 @@ public class GLTagGen {
 		pvd.addTag(CURRENCY).add(GLItems.COIN.get(), Items.GOLD_INGOT);
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
+		pvd.addTag(COOKIE_FOOD).add(Items.COOKIE);
+		pvd.addTag(COOKED_MEAT).add(Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_CHICKEN,
+				Items.COOKED_MUTTON, Items.COOKED_RABBIT, Items.COOKED_COD, Items.COOKED_SALMON);
 		addTiles(pvd, TILE_VARIANTS_ITEM);
 		// the two halves are tagged on the items themselves; everything else arrives by whole tags
 		pvd.addTag(WEBSITE_HIDDEN).addTag(DEBUG_ITEMS).addTag(SPELL_CARD);
@@ -186,12 +203,14 @@ public class GLTagGen {
 		pvd.addTag(SKULL_SOURCE).add(EntityType.SKELETON, EntityType.STRAY);
 		pvd.addTag(WITHER_SOURCE).add(EntityType.WITHER_SKELETON, EntityType.WITHER);
 		pvd.addTag(ZOMBIE_SOURCE).add(EntityType.ZOMBIE, EntityType.ZOMBIE_VILLAGER, EntityType.HUSK, EntityType.DROWNED);
+		pvd.addTag(ZOMBIES).add(EntityType.ZOMBIE, EntityType.ZOMBIE_VILLAGER, EntityType.HUSK, EntityType.DROWNED);
 		pvd.addTag(CREEPER_SOURCE).add(EntityType.CREEPER);
 		pvd.addTag(PIGLIN_SOURCE).add(EntityType.PIGLIN, EntityType.PIGLIN_BRUTE);
 
 		pvd.addTag(YOUKAI_IGNORE).add(EntityType.ENDER_DRAGON);
 
 		pvd.addTag(UMBRELLA_CAPTURE_BLACKLIST).addTag(Tags.EntityTypes.BOSSES).add(EntityType.WARDEN);
+		pvd.addTag(FEEDABLE_FAIRIES).add(GLEntities.PLAIN_FAIRY.get(), GLEntities.CIRNO.get());
 	}
 
 	public static TagKey<Item> item(String id) {

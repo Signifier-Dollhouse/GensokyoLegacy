@@ -1,14 +1,16 @@
 package dev.xkmc.gensokyolegacy.content.item.hakkero;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 /**
  * What a hakkero is set to cook as, shared by both models: the prototype ({@link HakkeroPrototype})
@@ -87,22 +89,26 @@ public enum HakkeroMode {
 	 * input slots apply: a channel only ever accepts something it can actually smelt.
 	 */
 	@Nullable
-	public RecipeHolder<AbstractCookingRecipe> findRecipeHolder(Level level, ItemStack stack) {
+	public Map.Entry<ResourceLocation, AbstractCookingRecipe> findRecipeHolder(Level level, ItemStack stack) {
 		if (type == null || stack.isEmpty()) return null;
-		return findRecipeHolder(level, new SingleRecipeInput(stack));
+		return findRecipeHolder(level, new SimpleContainer(stack));
 	}
 
 	/**
 	 * As {@link #findRecipeHolder}, for a caller that has already built the input.
 	 */
 	@Nullable
-	public RecipeHolder<AbstractCookingRecipe> findRecipeHolder(Level level, SingleRecipeInput input) {
+	public Map.Entry<ResourceLocation, AbstractCookingRecipe> findRecipeHolder(Level level, SimpleContainer input) {
 		if (type == null) return null;
-		// every RecipeType here is a RecipeType<AbstractCookingRecipe>; the wildcard only comes
-		// from holding them in one enum, so the cast is what restores the element type
-		@SuppressWarnings("unchecked")
-		RecipeType<AbstractCookingRecipe> cast = (RecipeType<AbstractCookingRecipe>) type;
-		return level.getRecipeManager().getRecipeFor(cast, input, level).orElse(null);
+		// 1.20.1 has no RecipeHolder, so the id is looked up alongside the recipe; cooking
+		// recipes are a small registry, and this only runs when a channel has no cached id
+		var rm = level.getRecipeManager();
+		for (ResourceLocation id : rm.getRecipeIds().toList()) {
+			var rec = rm.byKey(id).orElse(null);
+			if (rec instanceof AbstractCookingRecipe r && r.getType() == type && r.matches(input, level))
+				return Map.entry(id, r);
+		}
+		return null;
 	}
 
 	/**
@@ -111,7 +117,7 @@ public enum HakkeroMode {
 	@Nullable
 	public AbstractCookingRecipe findRecipe(Level level, ItemStack stack) {
 		var holder = findRecipeHolder(level, stack);
-		return holder == null ? null : holder.value();
+		return holder == null ? null : holder.getValue();
 	}
 
 }

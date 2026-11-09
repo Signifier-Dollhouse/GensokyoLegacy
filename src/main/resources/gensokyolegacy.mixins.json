@@ -9,7 +9,6 @@
 		"ChunkGeneratorMultiSpreadMixin",
 		"FrogAttackablesSensorMixin",
 		"EntityMixin",
-		"ILivingEntityExtensionMixin",
 		"ItemAccessor",
 		"ItemCooldownsAccessor",
 		"LivingEntityJumpingAccessor",

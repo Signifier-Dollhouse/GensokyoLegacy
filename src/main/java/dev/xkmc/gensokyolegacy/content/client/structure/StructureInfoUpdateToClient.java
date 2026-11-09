@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.client.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 public record StructureInfoUpdateToClient(
@@ -9,7 +9,7 @@ public record StructureInfoUpdateToClient(
 		int remove,
 		int primary,
 		int secondary
-) implements SerialPacketBase<StructureInfoUpdateToClient> {
+) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

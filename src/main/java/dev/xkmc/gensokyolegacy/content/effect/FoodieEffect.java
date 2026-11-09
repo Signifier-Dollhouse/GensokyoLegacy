@@ -18,23 +18,22 @@ public class FoodieEffect extends EmptyEffect {
 	}
 
 	@Override
-	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-		if (!(entity instanceof Player player) || player.level().isClientSide()) return true;
-		if (player.tickCount % 20 != 0) return true;
+	public void applyEffectTick(LivingEntity entity, int amplifier) {
+		if (!(entity instanceof Player player) || player.level().isClientSide()) return;
+		if (player.tickCount % 20 != 0) return;
 		FoodData food = player.getFoodData();
 		int level = food.getFoodLevel();
 		float saturation = food.getSaturationLevel();
-		if (level <= 16 || saturation >= level) return true;
+		if (level <= 16 || saturation >= level) return;
 		int nextLevel = level - 1;
 		float nextSaturation = Math.min(saturation + 1, nextLevel);
-		if (nextSaturation <= saturation) return true;
+		if (nextSaturation <= saturation) return;
 		food.setFoodLevel(nextLevel);
 		food.setSaturation(nextSaturation);
-		return true;
 	}
 
 	@Override
-	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+	public boolean isDurationEffectTick(int duration, int amplifier) {
 		return true;
 	}
 

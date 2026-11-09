@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.spell.mover;
 import dev.xkmc.danmakuapi.content.spell.mover.MoverInfo;
 import dev.xkmc.danmakuapi.content.spell.mover.TargetPosMover;
 import dev.xkmc.fastprojectileapi.entity.ProjectileMovement;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;

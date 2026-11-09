@@ -59,7 +59,7 @@ public interface YoukaiHurt extends YoukaiBaseImpl {
 	default void onDeath(boolean freshDeath, DamageSource source) {
 		var e = source.getEntity();
 		if (!freshDeath || !(e instanceof LivingEntity le)) return;
-		if (!e.isAlive() || !e.isAddedToLevel() || e.isRemoved()) return;
+		if (!e.isAlive() || !e.isAddedToWorld() || e.isRemoved()) return;
 		onKilledBy(le, source);
 	}
 

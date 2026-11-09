@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.dimension;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -25,11 +25,12 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.CompletableFuture;
 
 public class EmptyChunkGenerator extends ChunkGenerator {
 
-	public static final MapCodec<EmptyChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<EmptyChunkGenerator> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Biome.CODEC.fieldOf("biome").forGetter(x -> x.biome)
 	).apply(i, EmptyChunkGenerator::new));
 
@@ -41,7 +42,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	protected MapCodec<? extends ChunkGenerator> codec() {
+	protected Codec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 
@@ -76,7 +77,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
+	public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
 		return CompletableFuture.completedFuture(chunkAccess);
 	}
 

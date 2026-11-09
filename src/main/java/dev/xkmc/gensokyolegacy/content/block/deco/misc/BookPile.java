@@ -6,9 +6,9 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.content.block.base.SurviveImpl;
 import dev.xkmc.gensokyolegacy.content.block.base.VariantImpl;
-import dev.xkmc.l2core.serial.loot.LootHelper;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 public class BookPile implements ShapePathFindBlockMethod {

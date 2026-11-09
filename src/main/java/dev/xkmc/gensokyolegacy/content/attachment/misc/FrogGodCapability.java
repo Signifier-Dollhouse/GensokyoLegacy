@@ -1,12 +1,16 @@
 package dev.xkmc.gensokyolegacy.content.attachment.misc;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +23,8 @@ import java.util.LinkedHashSet;
 
 @SerialClass
 public class FrogGodCapability extends GeneralCapabilityTemplate<Frog, FrogGodCapability> {
+
+	public static final Capability<FrogGodCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	@SerialField
 	public boolean hasHat;

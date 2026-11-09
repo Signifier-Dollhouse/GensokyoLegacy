@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.doll.DollHost;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public final class DollFriendlyFire {
 		Vec3 ab = b.subtract(a);
 		double lenSq = ab.lengthSqr();
 		if (lenSq < 1e-9) return p.distanceTo(a);
-		double t = Math.clamp(p.subtract(a).dot(ab) / lenSq, 0, 1);
+		double t = Mth.clamp(p.subtract(a).dot(ab) / lenSq, 0, 1);
 		return p.distanceTo(a.add(ab.scale(t)));
 	}
 

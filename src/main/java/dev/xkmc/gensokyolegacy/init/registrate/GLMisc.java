@@ -8,18 +8,12 @@ import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroScreen;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketMenu;
 import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen;
-import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2core.init.reg.simple.SR;
-import dev.xkmc.l2core.init.reg.simple.Val;
-import dev.xkmc.l2tabs.init.L2Tabs;
-import dev.xkmc.l2tabs.tabs.core.TabToken;
-import dev.xkmc.l2tabs.tabs.inventory.InvTabData;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SR;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Val;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 public class GLMisc {
@@ -29,7 +23,7 @@ public class GLMisc {
 	 * {@code gensokyolegacy:appeal_consumed}, the gate every gift table tiers on.
 	 */
 	public static final Val<LootItemConditionType> APPEAL_CONSUMED =
-			LIC.reg("appeal_consumed", () -> new LootItemConditionType(AppealConsumedCondition.CODEC));
+			LIC.reg("appeal_consumed", () -> new LootItemConditionType(AppealConsumedCondition.SERIALIZER));
 
 	public static final MenuEntry<TradeMenu> TRADE = GensokyoLegacy.REGISTRATE.menu("trade",
 			TradeMenu::fromNetwork, () -> TradeScreen::new).register();
@@ -42,14 +36,6 @@ public class GLMisc {
 
 	public static final MenuEntry<HakkeroMenu> MINI_HAKKERO = GensokyoLegacy.REGISTRATE.menu("mini_hakkero",
 			HakkeroMenu::fromNetwork, () -> HakkeroScreen::new).register();
-
-
-	public static final ResourceLocation DUMMY = L2Tabs.loc(GensokyoLegacy.MODID);
-	public static final SR<TabToken<?, ?>> TAB_REG = SR.of(GensokyoLegacy.REG, L2Tabs.TABS.reg());
-
-	public static final Val<TabToken<InvTabData, QuestTab>> QUEST_TAB =
-			TAB_REG.reg("golem", () -> L2Tabs.GROUP.registerTab(
-					() -> QuestTab::new, GLLang.Quest.TAB.get()));
 
 	public static void register() {
 

@@ -43,7 +43,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 	public int getIndex(Player player) {
 		ItemStack held = BorderUmbrellaSelectionListener.getHeldUmbrella(player);
 		if (held == null) return -1;
-		var mode = held.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(held, BorderUmbrellaMode.RECORD);
 		var avail = BorderUmbrellaSelectionListener.getAvailableModes(held);
 		return avail.indexOf(mode);
 	}
@@ -54,7 +54,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 		// optimistic update
 		var avail = BorderUmbrellaSelectionListener.getAvailableModes(stack);
 		if (index >= 0 && index < avail.size()) {
-			stack.set(GLItems.UMBRELLA_TYPE.get(), avail.get(index));
+			GLItems.UMBRELLA_TYPE.set(stack, avail.get(index));
 		}
 	}
 
@@ -127,7 +127,7 @@ public class BorderUmbrellaModeWheel implements PersistentWheel<BorderUmbrellaMo
 			int cx2 = left ? (int) (sideWidth / 2) : g.guiWidth() - (int) (sideWidth / 2);
 			int ty = y0 + (int) r0 * 2;
 			var font = Minecraft.getInstance().font;
-			var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+			var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 			var text = mode.displayName();
 			for (var line : font.split(text, (int) (sideWidth - 4))) {
 				g.drawString(font, line, cx2 - font.width(line) / 2, ty, 0xffffff, true);

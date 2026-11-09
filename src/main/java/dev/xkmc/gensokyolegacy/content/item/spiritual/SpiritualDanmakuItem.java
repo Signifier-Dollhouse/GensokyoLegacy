@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.spiritual;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.danmakuapi.api.DanmakuBullet;
 import dev.xkmc.danmakuapi.content.item.DanmakuItem;
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -16,10 +16,18 @@ import java.util.List;
  *
  * @see "doc/design/doll/ghost_power.md"
  */
-public class SpiritualDanmakuItem extends DanmakuItem {
+public class SpiritualDanmakuItem extends DanmakuItem implements SpiritualCarrier {
+
+	private final int maxPower;
 
 	public SpiritualDanmakuItem(Properties properties, DanmakuBullet type, DyeColor color, float size, int max) {
-		super(properties.component(GLItems.SPIRITUAL_POWER_MAX.get(), max), type, color, size);
+		super(properties, type, color, size);
+		this.maxPower = max;
+	}
+
+	@Override
+	public int maxPower() {
+		return maxPower;
 	}
 
 	@Override
@@ -38,7 +46,7 @@ public class SpiritualDanmakuItem extends DanmakuItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		SpiritualPower.appendHoverText(stack, list);
 	}
 

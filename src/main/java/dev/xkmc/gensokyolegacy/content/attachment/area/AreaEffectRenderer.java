@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class AreaEffectRenderer {
 		}
 		if (passes.isEmpty()) return;
 		Vec3 cam = event.getCamera().getPosition();
-		float time = (level.getGameTime() + event.getPartialTick().getGameTimeDeltaPartialTick(true)) / 20F;
+		float time = (level.getGameTime() + event.getPartialTick()) / 20F;
 		int minY = level.getMinBuildHeight();
 		int maxY = level.getMaxBuildHeight();
 		for (Map.Entry<ResourceLocation, List<RegionBorderVisual>> pass : passes.entrySet()) {
@@ -57,14 +57,13 @@ public class AreaEffectRenderer {
 			if (frustum.isVisible(box)) visible.add(rv);
 		}
 		if (visible.isEmpty()) return;
-		BufferBuilder builder = Tesselator.getInstance().begin(
-				VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		BufferBuilder builder = Tesselator.getInstance().getBuilder();
+		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		for (RegionBorderVisual rv : visible) {
 			ChunkPosRange r = rv.range();
 			addRegion(builder, r.minCX() * 16, r.maxCX() * 16 + 16, r.minCZ() * 16, r.maxCZ() * 16 + 16,
 					minY, maxY, cam, rv.visual(), time);
 		}
-		MeshData mesh = builder.buildOrThrow();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.enableDepthTest();
@@ -74,7 +73,7 @@ public class AreaEffectRenderer {
 		RenderSystem.setShaderTexture(0, texture);
 		RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 		RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-		BufferUploader.drawWithShader(mesh);
+		BufferUploader.drawWithShader(builder.end());
 		RenderSystem.enableCull();
 	}
 
@@ -142,6 +141,6 @@ public class AreaEffectRenderer {
 
 	private static void vertex(VertexConsumer consumer, float x, float y, float z, float u, float v,
 							   AreaEffectVisual vis) {
-		consumer.addVertex(x, y, z).setColor(vis.r(), vis.g(), vis.b(), vis.a()).setUv(u, v);
+		consumer.vertex(x, y, z).color(vis.r(), vis.g(), vis.b(), vis.a()).uv(u, v).endVertex();
 	}
 }

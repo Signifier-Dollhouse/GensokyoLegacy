@@ -8,7 +8,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.core.Holder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,7 +29,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 	public final Player player;
 	public final @Nullable YoukaiEntity character;
 
-	public static TradeMenu fromNetwork(MenuType<?> menu, int wid, Inventory inv, @Nullable RegistryFriendlyByteBuf buf) {
+	public static TradeMenu fromNetwork(MenuType<?> menu, int wid, Inventory inv, @Nullable FriendlyByteBuf buf) {
 		YoukaiEntity ch = null;
 		var player = inv.player;
 		if (buf != null) {

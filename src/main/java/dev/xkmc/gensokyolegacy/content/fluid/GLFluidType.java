@@ -1,7 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.fluid;
 
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidType;
+
+import java.util.function.Consumer;
 
 public class GLFluidType extends FluidType {
 
@@ -14,6 +17,11 @@ public class GLFluidType extends FluidType {
 		this.stillTexture = stillTexture;
 		this.flowingTexture = flowingTexture;
 		this.color = color;
+	}
+
+	@Override
+	public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
+		consumer.accept(new ClientGLFluid(this));
 	}
 
 	public int getColor() {

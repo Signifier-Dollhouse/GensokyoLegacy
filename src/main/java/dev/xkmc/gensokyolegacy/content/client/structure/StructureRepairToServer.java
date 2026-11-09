@@ -5,15 +5,15 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.PerformanceConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.structure.FixStage;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
-import dev.xkmc.l2core.events.SchedulerHandler;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SchedulerHandler;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public record StructureRepairToServer(
 		StructureKey key,
 		FixStage stage
-) implements SerialPacketBase<StructureRepairToServer> {
+) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

@@ -4,7 +4,7 @@ import dev.xkmc.danmakuapi.content.spell.item.ItemSpell;
 import dev.xkmc.danmakuapi.content.spell.item.PlayerHolder;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.spell.part.YukariPartButterfly;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;

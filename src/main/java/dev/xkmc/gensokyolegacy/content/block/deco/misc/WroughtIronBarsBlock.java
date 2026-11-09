@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.misc;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
@@ -14,8 +13,8 @@ import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 import java.util.Map;
 
@@ -25,7 +24,6 @@ import java.util.Map;
  */
 public class WroughtIronBarsBlock extends IronBarsBlock {
 
-	private static final MapCodec<WroughtIronBarsBlock> CODEC = simpleCodec(WroughtIronBarsBlock::new);
 
 	/**
 	 * 竖列顶端(正上方没有同类方块),此时使用带顶横档的贴图
@@ -44,10 +42,6 @@ public class WroughtIronBarsBlock extends IronBarsBlock {
 		registerDefaultState(stateDefinition.any().setValue(TOP, true));
 	}
 
-	@Override
-	public MapCodec<? extends WroughtIronBarsBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -63,7 +57,7 @@ public class WroughtIronBarsBlock extends IronBarsBlock {
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction dir, BlockState facing, LevelAccessor level,
+	public BlockState updateShape(BlockState state, Direction dir, BlockState facing, LevelAccessor level,
 									 BlockPos pos, BlockPos facingPos) {
 		BlockState ans = super.updateShape(state, dir, facing, level, pos, facingPos);
 		if (dir == Direction.UP) ans = ans.setValue(TOP, isTop(facing));

@@ -43,7 +43,7 @@ public class FrogHatLayer<T extends Frog> extends RenderLayer<T, FrogModel<T>> {
 			if (ref.hasChild(str))
 				ref = ref.getChild(str);
 		}
-		part.render(pose, vertexconsumer, light, LivingEntityRenderer.getOverlayCoords(e, 0.0F), -1);
+		part.render(pose, vertexconsumer, light, LivingEntityRenderer.getOverlayCoords(e, 0.0F), 1f, 1f, 1f, 1f);
 		pose.popPose();
 	}
 

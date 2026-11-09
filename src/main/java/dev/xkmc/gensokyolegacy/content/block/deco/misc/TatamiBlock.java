@@ -105,7 +105,7 @@ public class TatamiBlock implements CreateBlockStateBlockMethod, DefaultStateBlo
 		return other.is(state.getBlock()) && other.getValue(KIND) == state.getValue(KIND).opposite();
 	}
 
-	public @Nullable BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		if (!level.isClientSide) {
 			if (player.isCreative()) {
 				preventDropFromBottomPart(level, pos, state, player);
@@ -113,7 +113,6 @@ public class TatamiBlock implements CreateBlockStateBlockMethod, DefaultStateBlo
 				Block.dropResources(state, level, pos, null, player, player.getMainHandItem());
 			}
 		}
-		return null;
 	}
 
 	@Override

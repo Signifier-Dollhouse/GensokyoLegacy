@@ -2,9 +2,10 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.HolderLookup;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -26,12 +27,12 @@ public class SimpleAlchemyStageRecipe extends AlchemyStageRecipe<SimpleAlchemySt
 	@SerialField
 	public final List<Ingredient> input = new ArrayList<>();
 
-	public SimpleAlchemyStageRecipe() {
-		super(GLRecipes.ALCHEMY_STAGE_SIMPLE.get());
+	public SimpleAlchemyStageRecipe(ResourceLocation id) {
+		super(id, GLRecipes.ALCHEMY_STAGE_SIMPLE.get());
 	}
 
 	@Override
-	public int getColor(AlchemyInv inv, HolderLookup.Provider access) {
+	public int getColor(AlchemyInv inv, RegistryAccess access) {
 		return color;
 	}
 

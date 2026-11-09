@@ -4,14 +4,14 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
-import dev.xkmc.l2core.serial.loot.LootHelper;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,9 +28,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
-import net.neoforged.neoforge.common.ItemAbilities;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -84,10 +84,10 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
 		// the pad sits on the lower half only, so the upper half stays plain wood
 		if (!ISeatableBlock.isSeatPos(state)) {
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		}
 		if (state.getValue(COLOR) == Color.NONE) {
 			for (var e : Color.values()) {
@@ -99,21 +99,21 @@ public class CoverableImpl implements CreateBlockStateBlockMethod, DefaultStateB
 							stack.shrink(1);
 						}
 					}
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 				}
 			}
-		} else if (stack.canPerformAction(ItemAbilities.SHEARS_CARVE)) {
+		} else if (stack.canPerformAction(ToolActions.SHEARS_CARVE)) {
 			if (!level.isClientSide()) {
 				var col = state.getValue(COLOR);
 				level.setBlockAndUpdate(pos, state.setValue(COLOR, Color.NONE));
 				if (!pl.getAbilities().instabuild) {
 					Block.popResource(level, pos, new ItemStack(col.item, 1));
-					stack.hurtAndBreak(1, pl, LivingEntity.getSlotForHand(hand));
+					stack.hurtAndBreak(1, pl, e -> e.broadcastBreakEvent(hand));
 				}
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	public static LootTable.Builder loot(RegistrateBlockLootTables pvd, Block block) {

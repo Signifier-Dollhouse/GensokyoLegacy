@@ -1,5 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.dagger;
 
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.EquipmentSlot;
+import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap;
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
@@ -58,6 +65,23 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 		super(props.stacksTo(1));
 	}
 
+	private static final Multimap<Attribute, AttributeModifier> DEFAULT_MODIFIERS;
+
+	static {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+		builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
+				DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADDITION));
+		builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_UUID, "Weapon modifier",
+				-2.0, AttributeModifier.Operation.ADDITION));
+		DEFAULT_MODIFIERS = builder.build();
+	}
+
+	@Override
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.MAINHAND ? DEFAULT_MODIFIERS : super.getDefaultAttributeModifiers(slot);
+	}
+
+
 	public static DaggerGloveMode getMode(ItemStack stack) {
 		return GLItems.DAGGER_GLOVE_MODE.getOrDefault(stack, DaggerGloveMode.SINGLE);
 	}
@@ -73,7 +97,7 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.ICON.get()) ?
+		return GLItems.ICON.has(stack) ?
 				DaggerGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
@@ -196,12 +220,12 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	}
 
 	private static void playThrowSound(Level level, Player player) {
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(),
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW,
 				SoundSource.PLAYERS, 1F, 1F);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		DaggerGloveMode mode = getMode(stack);
 		list.add(GLLang.ItemDaggerGlove.MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
@@ -228,7 +252,7 @@ public class DaggerGloveItem extends Item implements GloveTargeting {
 	 */
 	public static ItemStack iconStack(DaggerGloveMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		GLItems.ICON.set(stack, Unit.INSTANCE);
 		return stack;
 	}
 

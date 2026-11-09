@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
@@ -39,7 +39,7 @@ public class SecretHeavenCliffBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.35f, 0.2f, 0x3f7482, 0x9aa8b8, 0x8c8b5a, 0x7d7d50, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -56,12 +56,12 @@ public class SecretHeavenCliffBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		// tuff and gravel against a little dry scrub: the cliff is barer than the town beside it, not bare like the
 		// summit above it, so the palette keeps a grass and a bush weight and leans on tuff for the rest
 		FeatureUtils.register(ctx, CLIFF_SCREE, Feature.RANDOM_PATCH, onDirt(18, new Palette()
 				.add(Blocks.GRAVEL, 3).add(Blocks.TUFF, 3).add(Blocks.COARSE_DIRT, 2)
-				.add(Blocks.DEAD_BUSH, 1).add(Blocks.SHORT_GRASS, 1).build()));
+				.add(Blocks.DEAD_BUSH, 1).add(Blocks.GRASS, 1).build()));
 	}
 
 	@Override

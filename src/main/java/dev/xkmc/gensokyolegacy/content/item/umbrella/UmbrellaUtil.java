@@ -85,12 +85,12 @@ public class UmbrellaUtil {
 		var old = slots.get(idx);
 		if (old.isEmptySlot()) return;
 		BorderSlot ns = new BorderSlot(old.pos(), old.dim(), name, old.icon());
-		stack.set(GLItems.UMBRELLA_SLOTS.get(), slots.with(idx, ns));
+		GLItems.UMBRELLA_SLOTS.set(stack, slots.with(idx, ns));
 	}
 
 	public static void deleteSlot(ItemStack stack, int idx) {
 		var slots = GLItems.UMBRELLA_SLOTS.getOrDefault(stack, BorderUmbrellaSlots.defaultSlots());
-		stack.set(GLItems.UMBRELLA_SLOTS.get(), slots.with(idx, BorderSlot.empty()));
+		GLItems.UMBRELLA_SLOTS.set(stack, slots.with(idx, BorderSlot.empty()));
 	}
 
 	public static void swapSlots(ItemStack stack, int a, int b) {
@@ -98,6 +98,6 @@ public class UmbrellaUtil {
 		var sa = slots.get(a);
 		var sb = slots.get(b);
 		var ns = slots.with(a, sb).with(b, sa);
-		stack.set(GLItems.UMBRELLA_SLOTS.get(), ns);
+		GLItems.UMBRELLA_SLOTS.set(stack, ns);
 	}
 }

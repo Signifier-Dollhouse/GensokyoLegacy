@@ -56,7 +56,8 @@ public final class AreaEffectManager {
 			int count = 0;
 			for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
 				for (int z = entry.range.minCZ(); z <= entry.range.maxCZ(); z++) {
-					if (player.getChunkTrackingView().contains(x, z)) count++;
+					ChunkPos cpos = new ChunkPos(x, z);
+					if (level.getChunkSource().chunkMap.getPlayers(cpos, false).contains(player)) count++;
 				}
 			}
 			if (count > 0) {

@@ -17,8 +17,8 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -255,7 +255,8 @@ public class AliceDollHost extends AbstractYoukaiModule implements DollLedger {
 	 * Writes the doll's values back, drops the entity, and parks the entry.
 	 */
 	private void park(DollData data) {
-		if (resolve(data) instanceof BaseDollEntity doll) {
+		BaseDollEntity doll = resolve(data);
+		if (doll != null) {
 			doll.writeValuesTo(data);
 			doll.discard();
 		}

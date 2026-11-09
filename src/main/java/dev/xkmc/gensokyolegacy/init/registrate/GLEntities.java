@@ -58,9 +58,8 @@ import dev.xkmc.gensokyolegacy.util.MobSpawnRules;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 
 import java.util.Map;
 
@@ -212,6 +211,7 @@ public class GLEntities {
 					.entity("doll", DollEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.4F, 0.9F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
+					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.renderer(() -> DollRenderer::new)
 					.register();
@@ -220,6 +220,7 @@ public class GLEntities {
 					.entity("sekibanki_head", SekibankiHeadEntity::new, MobCategory.MISC)
 					.properties(e -> e.sized(0.4F, 0.4F).clientTrackingRange(10))
 					.attributes(DollEntity::createAttributes)
+					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.renderer(() -> SekibankiHeadRenderer::new)
 					.register();
@@ -241,9 +242,8 @@ public class GLEntities {
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.loot(EntityLootGen::noLoot)
 					.spawnEgg(0xBFD8E6, 0x5A7D8C).build()
-					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
-							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::onLitAnimalGround,
-							RegisterSpawnPlacementsEvent.Operation.REPLACE)
+					.spawnPlacement(SpawnPlacements.Type.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::onLitAnimalGround)
 					.renderer(() -> StrayGhostRenderer::new)
 					.register();
 
@@ -327,10 +327,9 @@ public class GLEntities {
 					.attributes(FairyEntity::createAttributes)
 					.renderer(() -> PlainFairyRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
-							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules,
-							RegisterSpawnPlacementsEvent.Operation.REPLACE)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_FAIRY)
+					.spawnPlacement(SpawnPlacements.Type.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, PlainFairyEntity::checkFairySpawnRules)
+
 					.register();
 			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
 
@@ -340,8 +339,8 @@ public class GLEntities {
 					.attributes(CirnoEntity::createAttributes)
 					.renderer(() -> CirnoRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_CIRNO)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_CIRNO)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -353,8 +352,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> ReimuRenderer::new)
 					.loot(EntityLootGen::reimu)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_REIMU)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_REIMU)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -364,8 +363,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> MarisaRenderer::new)
 					.loot(EntityLootGen::marisa)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MARISA)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MARISA)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -375,8 +374,8 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> MorichikaRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MORICHIKA)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MORICHIKA)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -386,8 +385,8 @@ public class GLEntities {
 					.attributes(GeneralYoukaiEntity::createAttributes)
 					.renderer(() -> AliceRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_ALICE)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_ALICE)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -397,8 +396,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SakuyaRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SAKUYA)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SAKUYA)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -408,8 +407,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> SuikaRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_SUIKA)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_SUIKA)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -419,8 +418,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> YuyukoRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_YUYUKO)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_YUYUKO)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 
@@ -430,8 +429,8 @@ public class GLEntities {
 					.attributes(BossYoukaiEntity::createAttributes)
 					.renderer(() -> MinamitsuRenderer::new)
 					.loot(EntityLootGen::noLoot)
-					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MINAMITSU)
-					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MINAMITSU)
+
+					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}

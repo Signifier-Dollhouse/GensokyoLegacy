@@ -13,10 +13,10 @@ import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2library.base.L2Registrate;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.impl.DoubleBlockImpl;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -33,9 +33,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class GLFurniture {
 
@@ -82,7 +80,7 @@ public class GLFurniture {
 									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
 									.renderType("cutout")))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.item().build()
 					.register();
 
 			DONATION_BOX_BE = reg.blockEntity("donation_box", DonationBoxBlockEntity::new)
@@ -94,7 +92,7 @@ public class GLFurniture {
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
 					.blockstate(ShelfBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build().register();
+					.item().build().register();
 
 			SHELF_BE = reg.blockEntity("shelf", ShelfBlockEntity::new)
 					.validBlock(SHELF)
@@ -108,7 +106,7 @@ public class GLFurniture {
 					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_top"))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().tab(GLDecoBlocks.TAB.key())
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.build()
 					.register();
 
 			DOOR_CABINET = reg.block("door_cabinet",
@@ -118,7 +116,7 @@ public class GLFurniture {
 					.blockstate((ctx, pvd) -> CabinetBlock.buildStates(ctx, pvd, "cabinet_side"))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().tab(GLDecoBlocks.TAB.key())
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.build()
 					.register();
 
 			CABINET_BE = reg.blockEntity("cabinet", CabinetBlockEntity::new)
@@ -161,7 +159,7 @@ public class GLFurniture {
 							.texture("all", pvd.modLoc("block/deco/tea_table"))
 							.renderType("cutout"))
 					.tag(GLTagGen.TABLE_ITEM)
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+
 					.build()
 					.register();
 
@@ -171,7 +169,7 @@ public class GLFurniture {
 					.initialProperties(() -> Blocks.BIRCH_TRAPDOOR)
 					.blockstate(BookShelfBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+					.item().build()
 					.register();
 
 		}
@@ -229,7 +227,7 @@ public class GLFurniture {
 					.blockstate((ctx, pvd) ->
 							pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(), pvd.modLoc("block/utensil/" + ctx.getName()))))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build().register();
+					.item().build().register();
 
 			BOOK_PILE = reg.block("book_pile", BookPile::create)
 					.properties(p -> p.noOcclusion().strength(0F).offsetType(BlockBehaviour.OffsetType.XZ)
@@ -290,7 +288,7 @@ public class GLFurniture {
 					.item().model((ctx, pvd) -> MagicTableBlock.genItemModel(pvd, ctx.getName()))
 					.tag(GLTagGen.TABLE_ITEM)
 					.tab(GLDecoBlocks.TAB.key())
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+
 					.build()
 					.register();
 
@@ -306,7 +304,7 @@ public class GLFurniture {
 					.blockstate((ctx, pvd) -> TableDecoBlock.buildStates(ctx.get(), pvd, ctx.getName(),
 							"custom/deco/sewing_machine"))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+					.item()
 					.tab(GLDecoBlocks.TAB.key())
 					.build()
 					.register();
@@ -409,7 +407,7 @@ public class GLFurniture {
 						.transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 225, 0).scale(0.4f).end()
 						.end())
 				.tab(GLDecoBlocks.TAB.key())
-				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+
 				.build()
 				.register();
 	}

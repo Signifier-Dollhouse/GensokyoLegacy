@@ -12,9 +12,9 @@ import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2itemselector.overlay.OverlayUtil;
-import dev.xkmc.l2itemselector.overlay.SelectionSideBar;
-import dev.xkmc.l2itemselector.overlay.SideBar;
+import dev.xkmc.l2library.base.overlay.OverlayUtil;
+import dev.xkmc.l2library.base.overlay.SelectionSideBar;
+import dev.xkmc.l2library.base.overlay.SideBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -194,8 +194,8 @@ public class DollAttackStatusOverlay extends SelectionSideBar<DollAttackStatusOv
 		ItemStack stack = new ItemStack(GLItems.DOLL.get());
 		CombatData combat = doll.getCombatData();
 		if (combat == null) combat = new CombatData(doll.getCombatProgress(), 0);
-		stack.set(GLItems.DOLL_DATA.get(), new DollItemData(combat));
-		stack.set(GLItems.DOLL_COLOR.get(), doll.getColor());
+		GLItems.DOLL_DATA.set(stack, new DollItemData(combat));
+		GLItems.DOLL_COLOR.set(stack, doll.getColor());
 		return stack;
 	}
 

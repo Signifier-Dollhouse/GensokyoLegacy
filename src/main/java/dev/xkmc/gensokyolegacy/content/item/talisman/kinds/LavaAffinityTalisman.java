@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanContext;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanPaperItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
-import dev.xkmc.l2damagetracker.contents.attack.DamageData;
+import dev.xkmc.l2damagetracker.contents.attack.AttackCache;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,12 +25,13 @@ public class LavaAffinityTalisman extends TalismanPaperItem {
 
 	@Override
 	public void trigger(TalismanContext ctx) {
-		applyEffect(ctx, GLEffects.LAVA_AFFINITY, 0);
+		applyEffect(ctx, GLEffects.LAVA_AFFINITY.get(), 0);
 	}
 
 	@Override
-	public boolean onAttacked(TalismanContext ctx, DamageData.Attack event) {
-		if (event.getSource().is(DamageTypeTags.IS_FIRE)) {
+	public boolean onAttacked(TalismanContext ctx, AttackCache event) {
+		var attack = event.getLivingAttackEvent();
+		if (attack != null && attack.getSource().is(DamageTypeTags.IS_FIRE)) {
 			trigger(ctx);
 			return true;
 		}

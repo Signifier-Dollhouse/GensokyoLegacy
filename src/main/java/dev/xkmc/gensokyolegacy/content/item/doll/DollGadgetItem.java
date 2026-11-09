@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.doll;
 
 import dev.xkmc.gensokyolegacy.content.attachment.doll.DollData;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;

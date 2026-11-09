@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.block.deco.bed;
 
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.l2core.serial.loot.LootHelper;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateEntityBlockImpl;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateEntityBlockImpl;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
@@ -91,7 +91,7 @@ public class YoukaiBedBlock extends DelegateEntityBlockImpl {
 	}
 
 	@Override
-	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		if (!level.isClientSide && player.isCreative()) {
 			BedPart bedpart = state.getValue(PART);
 			if (bedpart == BedPart.FOOT) {
@@ -103,28 +103,14 @@ public class YoukaiBedBlock extends DelegateEntityBlockImpl {
 				}
 			}
 		}
-		return super.playerWillDestroy(level, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 	}
 
 	@Override
-	protected long getSeed(BlockState state, BlockPos pos) {
+	public long getSeed(BlockState state, BlockPos pos) {
 		BlockPos blockpos = pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING), state.getValue(PART) == BedPart.HEAD ? 0 : 1);
 		return Mth.getSeed(blockpos.getX(), pos.getY(), blockpos.getZ());
 	}
 
-	@Override
-	public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, LivingEntity sleeper) {
-		return true;
-	}
-
-	@Override
-	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
-		return false;
-	}
-
-	@Override
-	public void setBedOccupied(BlockState state, Level level, BlockPos pos, LivingEntity sleeper, boolean occupied) {
-
-	}
 }
 

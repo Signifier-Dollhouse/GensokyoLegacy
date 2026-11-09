@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
  * Cirno's Blockbench rig. Carries her hair, the green bow and the wings as bones
@@ -10,7 +10,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  * the latter two flapped by her idle clip), which is why the separate hairband and
  * wings models the vanilla mob used are gone.
  */
-public class CirnoModel extends DefaultedEntityGeoModel<CirnoEntity> {
+public class CirnoModel extends HeadBoneGeoModel<CirnoEntity> {
 
 	private final ResourceLocation model = GensokyoLegacy.loc("geo/cirno.geo.json");
 	private final ResourceLocation texture = GensokyoLegacy.loc("textures/geo/cirno.png");

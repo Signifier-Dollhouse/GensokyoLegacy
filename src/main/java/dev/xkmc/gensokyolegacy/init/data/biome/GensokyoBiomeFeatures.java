@@ -8,7 +8,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
@@ -74,12 +74,12 @@ public class GensokyoBiomeFeatures {
 	private static final ResourceKey<ConfiguredFeature<?, ?>> FOOTHILL_MOSS = AbstractBiomeGen.cf("foothill_moss");
 
 	/** Called from {@code build}, which owns the single {@link Registries#CONFIGURED_FEATURE} bootstrap. */
-	public static void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	public static void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, STONES, Feature.RANDOM_PATCH, AbstractBiomeGen.onDirt(18, new AbstractBiomeGen.Palette()
 				.add(Blocks.MOSSY_COBBLESTONE, 3).add(Blocks.COBBLESTONE, 2).add(Blocks.STONE_BRICKS, 1).build()));
 		FeatureUtils.register(ctx, FOOTHILL_MOSS, Feature.RANDOM_PATCH, AbstractBiomeGen.onDirt(28, new AbstractBiomeGen.Palette()
 				.add(Blocks.MOSS_CARPET, 2).add(Blocks.FERN, 2)
-				.add(GLNaturalBlocks.BRACKEN, 2).add(Blocks.SHORT_GRASS, 2).build()));
+				.add(GLNaturalBlocks.BRACKEN, 2).add(Blocks.GRASS, 2).build()));
 		BlockState cattail = GLNaturalBlocks.FLAME_CATTAIL.get().defaultBlockState();
 		// the lakebed is sand and gravel under the surface rule, so these sit on those and not on BlockTags.DIRT
 		FeatureUtils.register(ctx, LAKE_CATTAILS, Feature.RANDOM_PATCH, AbstractBiomeGen.onGround(10, new AbstractBiomeGen.Palette()

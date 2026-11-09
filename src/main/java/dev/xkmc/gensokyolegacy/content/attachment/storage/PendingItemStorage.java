@@ -3,12 +3,11 @@ package dev.xkmc.gensokyolegacy.content.attachment.storage;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.capability.level.BaseSavedData;
+import dev.xkmc.gensokyolegacy.compat.l2lib.BaseSavedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.Util;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -31,10 +30,12 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 	public static final Component RETURN_MSG = GLLang.Misc.MSG_SHELF_RETURNED.get();
 
 	private static final String ID = GensokyoLegacy.MODID + "_pending_items";
-	private static final Factory<PendingItemStorage> FACTORY = new Factory<>(PendingItemStorage::new, PendingItemStorage::new);
+	private static PendingItemStorage load(CompoundTag tag) {
+		return TagCodec.fromTag(tag, PendingItemStorage.class, new PendingItemStorage(), f -> true);
+	}
 
 	public static PendingItemStorage get(ServerLevel level) {
-		return level.getServer().overworld().getDataStorage().computeIfAbsent(FACTORY, ID);
+		return level.getServer().overworld().getDataStorage().computeIfAbsent(PendingItemStorage::load, PendingItemStorage::new, ID);
 	}
 
 	@SerialField
@@ -42,11 +43,6 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 
 	public PendingItemStorage() {
 		super(PendingItemStorage.class);
-	}
-
-	private PendingItemStorage(CompoundTag tag, HolderLookup.Provider pvd) {
-		super(PendingItemStorage.class);
-		new TagCodec(pvd).fromTag(tag, PendingItemStorage.class, this);
 	}
 
 	/**
@@ -60,7 +56,7 @@ public class PendingItemStorage extends BaseSavedData<PendingItemStorage> {
 		if (!hasStock && earning <= 0) return;
 		var list = pending.computeIfAbsent(owner, k -> new ArrayList<>());
 		for (var e : list) {
-			if (hasStock ? ItemStack.isSameItemSameComponents(e.stack, stack) :
+			if (hasStock ? ItemStack.isSameItemSameTags(e.stack, stack) :
 					e.stock <= 0 && e.earning > 0) {
 				if (hasStock) e.stock += stock;
 				e.earning += earning;

@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.plate;
 
-import dev.xkmc.l2core.base.tile.BaseBlockEntity;
+import dev.xkmc.l2library.base.tile.BaseBlockEntity;
 import dev.xkmc.l2modularblock.tile_api.BlockContainer;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;

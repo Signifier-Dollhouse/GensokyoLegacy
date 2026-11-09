@@ -7,7 +7,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SimplePacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -42,7 +42,7 @@ public interface IHomeHolder {
 		for (int ix = -r; ix <= r; ix++) {
 			for (int iz = -r; iz <= r; iz++) {
 				var chunk = sl.getChunkAt(pos.offset(ix * 16, 0, iz * 16));
-				var att = chunk.getData(GLMeta.STRUCTURE.get());
+				var att = GLMeta.STRUCTURE.type().getOrCreate(chunk);
 				for (var pair : att.custom.entrySet()) {
 					if (pair.getValue().getTotalBound().isInside(pos)) {
 						return new CustomHomeHolder(sl, chunk, StructureKey.custom(sl.dimension(), pair.getKey()), att, pair.getValue());
@@ -61,7 +61,7 @@ public interface IHomeHolder {
 			var id = reg.getHolder(reg.getId(start.getStructure()));
 			if (id.isEmpty()) continue;
 			if (start.getPieces().isEmpty()) continue;
-			var root = start.getPieces().getFirst().getLocatorPosition();
+			var root = start.getPieces().get(0).getLocatorPosition();
 			return StructureHomeHolder.of(sl, new StructureKey(id.get().key(), sl.dimension(), root));
 		}
 		return null;
@@ -123,11 +123,11 @@ public interface IHomeHolder {
 	/**
 	 * Get the bound debug packet
 	 */
-	SimplePacketBase toBoundPacket();
+	RecordPacketBase toBoundPacket();
 
 	/**
 	 * Get structure fix debug packet
 	 */
-	SimplePacketBase getUpdatePacket();
+	RecordPacketBase getUpdatePacket();
 
 }

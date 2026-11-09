@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -13,7 +13,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.placement.PlacementContext;
 import net.minecraft.world.level.levelgen.placement.PlacementFilter;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
  */
 public class AvoidStructuresFilter extends PlacementFilter {
 
-	public static final MapCodec<AvoidStructuresFilter> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<AvoidStructuresFilter> CODEC = RecordCodecBuilder.create(i -> i.group(
 			RegistryCodecs.homogeneousList(Registries.STRUCTURE).fieldOf("structures").forGetter(e -> e.structures),
 			Codec.intRange(0, 16).fieldOf("margin").forGetter(e -> e.margin)
 	).apply(i, AvoidStructuresFilter::new));

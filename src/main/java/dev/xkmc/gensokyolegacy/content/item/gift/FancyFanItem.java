@@ -65,8 +65,8 @@ public class FancyFanItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		super.appendHoverText(stack, context, list, flag);
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		super.appendHoverText(stack, level, list, flag);
 		list.add(GLLang.ItemLores.FANCY_FAN_LORE.get());
 		list.add(GLLang.ItemCommon.BLOW.get());
 	}
@@ -98,7 +98,7 @@ public class FancyFanItem extends Item {
 		}
 		puffs(level, origin, look);
 		level.playSound(null, wielder.getX(), wielder.getY(), wielder.getZ(),
-				SoundEvents.BREEZE_WIND_CHARGE_BURST.value(), SoundSource.PLAYERS, 0.8F, 1.2F);
+				SoundEvents.PHANTOM_FLAP, SoundSource.PLAYERS, 0.8F, 1.2F);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class FancyFanItem extends Item {
 						45d * (r.nextDouble() * 2 - 1)
 				);
 				var at = origin.add(dir.scale(i + r.nextDouble()));
-				level.sendParticles(ParticleTypes.GUST, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+				level.sendParticles(ParticleTypes.CLOUD, at.x, at.y, at.z, 1, 0, 0, 0, 0);
 			}
 		}
 	}

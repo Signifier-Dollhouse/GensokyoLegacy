@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class DollModel extends DefaultedEntityGeoModel<DollEntity> {
+public class DollModel extends HeadBoneGeoModel<DollEntity> {
 	public DollModel() {
 		super(GensokyoLegacy.loc("doll"), "Head");
 	}

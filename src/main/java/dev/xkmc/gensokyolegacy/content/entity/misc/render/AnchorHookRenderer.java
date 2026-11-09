@@ -16,6 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 /**
  * Draws the bounded anchor with its fixed throw orientation, and the chain that ties it back to the
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 
-	private static final ResourceLocation CHAIN = ResourceLocation.withDefaultNamespace("textures/block/chain.png");
+	private static final ResourceLocation CHAIN = new ResourceLocation("minecraft", "textures/block/chain.png");
 	private static final RenderType CHAIN_TYPE = RenderType.entityCutoutNoCull(CHAIN);
 	private static final float CHAIN_HALF = 3F / 32F;
 	private static final float CHAIN_TEX = 3F / 16F;
@@ -58,7 +59,8 @@ public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 	 */
 	private void renderChain(AnchorHookEntity entity, float partialTick, PoseStack pose,
 							 MultiBufferSource buffer, int packedLight) {
-		if (!(entity.getOwner() instanceof Entity owner)) return;
+		Entity owner = entity.getOwner();
+		if (owner == null) return;
 		Vec3 anchor = entity.getPosition(partialTick);
 		Vec3 hand = owner.getPosition(partialTick).add(0, owner.getBbHeight() * 0.6, 0);
 		Vec3 diff = anchor.subtract(hand);
@@ -98,12 +100,14 @@ public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 	}
 
 	private static void vertex(VertexConsumer vc, PoseStack.Pose pose, Vec3 pos, float u, float v, int light) {
-		vc.addVertex(pose, (float) pos.x, (float) pos.y, (float) pos.z)
-				.setColor(255, 255, 255, 255)
-				.setUv(u, v)
-				.setOverlay(OverlayTexture.NO_OVERLAY)
-				.setLight(light)
-				.setNormal(pose, 0, 1, 0);
+		Vector3f n = pose.normal().transform(new Vector3f(0, 1, 0));
+		vc.vertex(pose.pose(), (float) pos.x, (float) pos.y, (float) pos.z)
+				.color(255, 255, 255, 255)
+				.uv(u, v)
+				.overlayCoords(OverlayTexture.NO_OVERLAY)
+				.uv2(light)
+				.normal(n.x(), n.y(), n.z())
+				.endVertex();
 	}
 
 	/**

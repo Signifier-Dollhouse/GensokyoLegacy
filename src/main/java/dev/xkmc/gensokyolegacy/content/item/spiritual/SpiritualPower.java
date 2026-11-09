@@ -32,7 +32,7 @@ public final class SpiritualPower {
 	}
 
 	public static int max(ItemStack stack) {
-		return Math.max(0, GLItems.SPIRITUAL_POWER_MAX.getOrDefault(stack, 0));
+		return stack.getItem() instanceof SpiritualCarrier carrier ? carrier.maxPower() : 0;
 	}
 
 	public static void set(ItemStack stack, int power) {
@@ -54,7 +54,7 @@ public final class SpiritualPower {
 	}
 
 	public static boolean barVisible(ItemStack stack) {
-		if (stack.has(GLItems.ICON.get()))
+		if (GLItems.ICON.has(stack))
 			return false;
 		return max(stack) > 0;
 	}
@@ -78,7 +78,7 @@ public final class SpiritualPower {
 		int n = targets.size();
 		int share = power / n;
 		if (share == 0) {
-			int given = add(targets.getFirst(), 1);
+			int given = add(targets.get(0), 1);
 			List<ItemStack> rest = new ArrayList<>(targets.subList(1, n));
 			var random = player.getRandom();
 			for (int i = 0; i < power - 1 && !rest.isEmpty(); i++) {
@@ -91,7 +91,7 @@ public final class SpiritualPower {
 			given += add(stack, share);
 		}
 		if (given < power) {
-			given += add(targets.getFirst(), power - given);
+			given += add(targets.get(0), power - given);
 			for (int i = 1; i < n && given < power; i++) {
 				given += add(targets.get(i), power - given);
 			}

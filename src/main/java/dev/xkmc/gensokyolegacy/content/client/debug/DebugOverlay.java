@@ -1,20 +1,20 @@
 package dev.xkmc.gensokyolegacy.content.client.debug;
 
-import dev.xkmc.l2itemselector.overlay.OverlayUtil;
-import net.minecraft.client.DeltaTracker;
+import dev.xkmc.l2library.base.overlay.OverlayUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DebugOverlay implements LayeredDraw.Layer {
+public class DebugOverlay implements IGuiOverlay {
 
 	@Override
-	public void render(GuiGraphics g, DeltaTracker delta) {
+	public void render(ForgeGui gui, GuiGraphics g, float partialTick, int width, int height) {
 		if (Minecraft.getInstance().screen != null) return;
 		var player = Minecraft.getInstance().player;
 		if (player == null) return;

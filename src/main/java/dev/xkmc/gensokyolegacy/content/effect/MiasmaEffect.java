@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.effect;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.l2library.util.math.MathHelper;
 import dev.xkmc.l2damagetracker.init.L2DamageTracker;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -15,16 +16,14 @@ public class MiasmaEffect extends MobEffect {
 
 	public MiasmaEffect() {
 		super(MobEffectCategory.HARMFUL, 0xFF7A4BA1);
-		addAttributeModifier(Attributes.ARMOR, GensokyoLegacy.loc("miasma_armor"),
-				-0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-		addAttributeModifier(L2DamageTracker.REDUCTION.holder(), GensokyoLegacy.loc("miasma_damage"),
-				0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-		addAttributeModifier(L2DamageTracker.REGEN, GensokyoLegacy.loc("miasma_regen"),
-				-0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+		addAttributeModifier(Attributes.ARMOR, MathHelper.getUUIDFromString("gensokyolegacy:miasma_armor").toString(),
+				-0.5, AttributeModifier.Operation.MULTIPLY_TOTAL);
+		addAttributeModifier(L2DamageTracker.REDUCTION.get(), MathHelper.getUUIDFromString("gensokyolegacy:miasma_damage").toString(),
+				0.5, AttributeModifier.Operation.MULTIPLY_TOTAL);
 	}
 
 	public static void onHurt(LivingEntity target) {
-		var ins = target.getEffect(GLEffects.MIASMA);
+		var ins = target.getEffect(GLEffects.MIASMA.get());
 		if (ins == null) return;
 		if (target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) || target.hasEffect(MobEffects.POISON) || target.hasEffect(MobEffects.WEAKNESS))
 			return;

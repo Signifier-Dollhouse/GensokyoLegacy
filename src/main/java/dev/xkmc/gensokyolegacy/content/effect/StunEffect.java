@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.l2library.util.math.MathHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
@@ -26,8 +27,8 @@ public class StunEffect extends MobEffect {
 
 	public StunEffect() {
 		super(MobEffectCategory.HARMFUL, 0xFF8C00);
-		addAttributeModifier(Attributes.MOVEMENT_SPEED, GensokyoLegacy.loc("stun_speed"),
-				-0.5, AttributeModifier.Operation.ADD_VALUE);
+		addAttributeModifier(Attributes.MOVEMENT_SPEED, MathHelper.getUUIDFromString("gensokyolegacy:stun_speed").toString(),
+				-0.5, AttributeModifier.Operation.ADDITION);
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class StunEffect extends MobEffect {
 	}
 
 	public static void apply(LivingEntity target, int ticks) {
-		target.addEffect(new MobEffectInstance(GLEffects.STUN, ticks));
+		target.addEffect(new MobEffectInstance(GLEffects.STUN.get(), ticks));
 	}
 
 }

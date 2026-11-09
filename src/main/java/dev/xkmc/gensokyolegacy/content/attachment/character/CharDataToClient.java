@@ -1,14 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.character;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
 public record CharDataToClient(EntityType<?> target, UUID player,
-							   CharacterData data) implements SerialPacketBase<CharDataToClient> {
+							   CharacterData data) implements RecordPacketBase {
 
 	public void handle(Player player) {
 		GLMeta.CHAR.type().getOrCreate(player).replace(target, data);

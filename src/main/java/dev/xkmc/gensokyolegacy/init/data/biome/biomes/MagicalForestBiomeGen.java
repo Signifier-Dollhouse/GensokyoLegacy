@@ -15,7 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
@@ -187,7 +187,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		var builder = addDefaultOres(raw(ctx))
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, DISK_COARSE_DIRT_PLACED)
 				.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, DISK_PODZOL_PLACED)
@@ -202,7 +202,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		HolderGetter<ConfiguredFeature<?, ?>> cf = ctx.lookup(Registries.CONFIGURED_FEATURE);
 		var template = GLWorldGen.TEMPLATE.get();
 
@@ -417,7 +417,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+	protected void noise(BootstapContext<NormalNoise.NoiseParameters> ctx) {
 		ctx.register(FOREST_TYPE, new NormalNoise.NoiseParameters(-7, 1.0, 0.5));
 		ctx.register(CLEARING, new NormalNoise.NoiseParameters(-5, 1.0));
 	}

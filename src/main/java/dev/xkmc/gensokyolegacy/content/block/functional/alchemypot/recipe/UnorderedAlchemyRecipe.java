@@ -1,20 +1,19 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe;
 
-import com.google.common.collect.Sets;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.HolderLookup;
+import dev.xkmc.gensokyolegacy.util.PotionData;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -28,8 +27,8 @@ public class UnorderedAlchemyRecipe extends AlchemyRecipe<UnorderedAlchemyRecipe
 	@SerialField
 	public final ArrayList<Ingredient> input = new ArrayList<>();
 
-	public UnorderedAlchemyRecipe() {
-		super(GLRecipes.ALCHEMY_UNORDERED.get());
+	public UnorderedAlchemyRecipe(ResourceLocation id) {
+		super(id, GLRecipes.ALCHEMY_UNORDERED.get());
 	}
 
 	@Override
@@ -44,15 +43,12 @@ public class UnorderedAlchemyRecipe extends AlchemyRecipe<UnorderedAlchemyRecipe
 	}
 
 	@Override
-	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
+	public FluidStack getResultFluid(AlchemyInv inv, RegistryAccess access) {
 		var ans = super.getResultFluid(inv, access);
 		if (ans.isEmpty()) return ans;
 		if (inv.fluid().getFluid() instanceof GLHexFluid in && ans.getFluid() instanceof GLHexFluid out) {
-			var inList = in.brew.handler.getComponentsToCopy();
-			var outList = out.brew.handler.getComponentsToCopy();
-			for (var e : Sets.intersection(new LinkedHashSet<>(inList), new LinkedHashSet<>(outList))) {
-				HexBrew.copyComponent(e, inv.fluid(), ans);
-			}
+			if (in.brew.handler.copiesPotion() && out.brew.handler.copiesPotion())
+				PotionData.read(inv.fluid()).write(ans);
 		}
 		return ans;
 	}

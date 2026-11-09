@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.common.network;
 
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
  *
  * @see "doc/design/dagger_glove.md"
  */
-public record SelectorSelectPacket(int index) implements SerialPacketBase<SelectorSelectPacket> {
+public record SelectorSelectPacket(int index) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

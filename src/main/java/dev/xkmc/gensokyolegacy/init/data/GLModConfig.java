@@ -1,14 +1,14 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.util.ConfigInit;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import dev.xkmc.gensokyolegacy.compat.l2lib.ConfigInit;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class GLModConfig {
 
 	public static class Common extends ConfigInit {
 
-		public final ModConfigSpec.IntValue regionWeight;
+		public final ForgeConfigSpec.IntValue regionWeight;
 
 		Common(Builder builder) {
 			markL2();
@@ -24,37 +24,37 @@ public class GLModConfig {
 
 	public static class Server extends ConfigInit {
 
-		public final ModConfigSpec.DoubleValue reputationDecayFloor;
+		public final ForgeConfigSpec.DoubleValue reputationDecayFloor;
 
-		public final ModConfigSpec.DoubleValue visitStayMultiplier;
+		public final ForgeConfigSpec.DoubleValue visitStayMultiplier;
 
-		public final ModConfigSpec.IntValue frogEatCountForHat;
-		public final ModConfigSpec.IntValue koishiAttackCoolDown;
-		public final ModConfigSpec.DoubleValue koishiAttackChance;
-		public final ModConfigSpec.IntValue koishiAttackDamage;
-		public final ModConfigSpec.IntValue koishiAttackBlockCount;
+		public final ForgeConfigSpec.IntValue frogEatCountForHat;
+		public final ForgeConfigSpec.IntValue koishiAttackCoolDown;
+		public final ForgeConfigSpec.DoubleValue koishiAttackChance;
+		public final ForgeConfigSpec.IntValue koishiAttackDamage;
+		public final ForgeConfigSpec.IntValue koishiAttackBlockCount;
 
-		public final ModConfigSpec.DoubleValue danmakuMinPHPDamage;
-		public final ModConfigSpec.DoubleValue danmakuPlayerPHPDamage;
-		public final ModConfigSpec.DoubleValue danmakuHealOnHitTarget;
+		public final ForgeConfigSpec.DoubleValue danmakuMinPHPDamage;
+		public final ForgeConfigSpec.DoubleValue danmakuPlayerPHPDamage;
+		public final ForgeConfigSpec.DoubleValue danmakuHealOnHitTarget;
 
-		public final ModConfigSpec.BooleanValue anchorStormDanmaku;
+		public final ForgeConfigSpec.BooleanValue anchorStormDanmaku;
 
-		public final ModConfigSpec.DoubleValue morichikaReplaceChance;
+		public final ForgeConfigSpec.DoubleValue morichikaReplaceChance;
 
-		public final ModConfigSpec.IntValue curiosDecayInterval;
-		public final ModConfigSpec.IntValue foodieDecayInterval;
-		public final ModConfigSpec.IntValue livelyDecayInterval;
-		public final ModConfigSpec.IntValue curiosSkillCost;
-		public final ModConfigSpec.IntValue hauntingSkillCost;
+		public final ForgeConfigSpec.IntValue curiosDecayInterval;
+		public final ForgeConfigSpec.IntValue foodieDecayInterval;
+		public final ForgeConfigSpec.IntValue livelyDecayInterval;
+		public final ForgeConfigSpec.IntValue curiosSkillCost;
+		public final ForgeConfigSpec.IntValue hauntingSkillCost;
 
-		public final ModConfigSpec.IntValue sealingPotRadius;
-		public final ModConfigSpec.DoubleValue jizoXpRatio;
+		public final ForgeConfigSpec.IntValue sealingPotRadius;
+		public final ForgeConfigSpec.DoubleValue jizoXpRatio;
 
-		public final ModConfigSpec.IntValue partyScanDistance;
-		public final ModConfigSpec.IntValue partyGuestRadius;
+		public final ForgeConfigSpec.IntValue partyScanDistance;
+		public final ForgeConfigSpec.IntValue partyGuestRadius;
 
-		public final ModConfigSpec.DoubleValue cooldownMaxRate;
+		public final ForgeConfigSpec.DoubleValue cooldownMaxRate;
 
 		Server(Builder builder) {
 			markL2();

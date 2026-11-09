@@ -1,5 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostPower;
@@ -10,9 +14,9 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -37,6 +41,8 @@ import java.util.*;
  */
 @SerialClass
 public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> implements DollLedger {
+
+	public static final Capability<DollAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	/**
 	 * A recorded restore position is trusted only inside this radius of the owner; beyond it the
@@ -378,7 +384,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 	// ---------- tick ----------
 
 	@Override
-	public void tick(Player player) {
+	public void tick() {
 		if (player.level().isClientSide()) return;
 		if (!(player instanceof ServerPlayer sp)) return;
 		for (var data : new ArrayList<>(dolls.values())) {

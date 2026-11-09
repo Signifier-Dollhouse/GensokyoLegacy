@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.common.network;
 
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -16,7 +16,7 @@ import java.util.UUID;
  *
  * @see "doc/design/dagger_glove.md"
  */
-public record GloveTargetPacket(Item glove, UUID target) implements SerialPacketBase<GloveTargetPacket> {
+public record GloveTargetPacket(Item glove, UUID target) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

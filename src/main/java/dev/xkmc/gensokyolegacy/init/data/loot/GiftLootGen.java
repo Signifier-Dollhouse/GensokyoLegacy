@@ -10,8 +10,6 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -99,9 +97,8 @@ public class GiftLootGen {
 		}
 	}
 
-	private static ResourceKey<LootTable> returnKey(String character) {
-		return ResourceKey.create(Registries.LOOT_TABLE,
-				ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, GiftReturn.TABLE_DIR + "/" + character));
+	private static ResourceLocation returnKey(String character) {
+		return new ResourceLocation(GensokyoLegacy.MODID, GiftReturn.TABLE_DIR + "/" + character);
 	}
 
 	/**
@@ -253,9 +250,8 @@ public class GiftLootGen {
 		pvd.addLootAction(SET, c -> c.accept(key(character), table(tiers)));
 	}
 
-	private static ResourceKey<LootTable> key(String character) {
-		return ResourceKey.create(Registries.LOOT_TABLE,
-				ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, PartyGift.TABLE_DIR + "/" + character));
+	private static ResourceLocation key(String character) {
+		return new ResourceLocation(GensokyoLegacy.MODID, PartyGift.TABLE_DIR + "/" + character);
 	}
 
 	/**

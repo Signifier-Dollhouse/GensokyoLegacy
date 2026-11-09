@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
@@ -21,7 +21,7 @@ public record SimpleDialogOption(
 		Optional<Holder<Dialog>> next
 ) implements DialogOption<SimpleDialogOption>, OptionResult {
 
-	public static final MapCodec<SimpleDialogOption> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<SimpleDialogOption> CODEC = RecordCodecBuilder.create(i -> i.group(
 			CodecRegistry.CONDITION.codec().listOf().fieldOf("conditions").forGetter(SimpleDialogOption::conditions),
 			Codec.STRING.fieldOf("text").forGetter(SimpleDialogOption::text),
 			CodecRegistry.ACTION.codec().listOf().fieldOf("actions").forGetter(SimpleDialogOption::actions),
@@ -29,7 +29,7 @@ public record SimpleDialogOption(
 	).apply(i, SimpleDialogOption::new));
 
 	@Override
-	public MapCodec<SimpleDialogOption> codec() {
+	public Codec<SimpleDialogOption> codec() {
 		return CODEC;
 	}
 

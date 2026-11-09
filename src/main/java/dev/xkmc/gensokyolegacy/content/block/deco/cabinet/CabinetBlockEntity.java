@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.block.deco.cabinet;
 
 import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -15,12 +14,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CabinetBlockEntity extends BaseContainerBlockEntity implements TickableBlockEntity {
+public class CabinetBlockEntity extends RandomizableContainerBlockEntity implements TickableBlockEntity {
 
 	private static final int SIZE = 27;
 
@@ -114,16 +113,18 @@ public class CabinetBlockEntity extends BaseContainerBlockEntity implements Tick
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
-		ContainerHelper.saveAllItems(tag, items, registries);
+	protected void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
+		if (!trySaveLootTable(tag))
+			ContainerHelper.saveAllItems(tag, items);
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 		items = NonNullList.withSize(SIZE, ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(tag, items, registries);
+		if (!tryLoadLootTable(tag))
+			ContainerHelper.loadAllItems(tag, items);
 	}
 
 }

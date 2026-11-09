@@ -16,8 +16,8 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
+import dev.xkmc.l2library.base.L2Registrate;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Direction;
@@ -32,7 +32,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.grower.TreeGrower;
+import dev.xkmc.gensokyolegacy.content.block.nature.GLTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.MapColor;
@@ -45,12 +45,10 @@ import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableConditio
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
-import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.MultiPartBlockStateBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -103,8 +101,8 @@ public class GLNaturalBlocks {
 	static {
 		var reg = GensokyoLegacy.REGISTRATE;
 
-		TAB = reg.buildModCreativeTab("natural_blocks", "Gensokyo Legacy - Building Blocks",
-				e -> e.icon(() -> GLNaturalBlocks.STAR_FLOWER.asItem().getDefaultInstance()));
+		TAB = SimpleEntry.of(reg.buildModCreativeTab("natural_blocks", "Gensokyo Legacy - Building Blocks",
+				e -> e.icon(() -> GLNaturalBlocks.STAR_FLOWER.asItem().getDefaultInstance())));
 
 		// 星星花
 		STAR_FLOWER = reg.block("star_flower", p -> new SimpleBushBlock(p, SimpleBushBlock.FULL))
@@ -121,8 +119,8 @@ public class GLNaturalBlocks {
 				})
 				.item()
 				.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-				.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(1, 1000, GiftType.MAGIC))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
+				
 				.tag(ItemTags.SMALL_FLOWERS)
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
@@ -137,7 +135,7 @@ public class GLNaturalBlocks {
 				.tag(BlockTags.SMALL_FLOWERS, BlockTags.TALL_FLOWERS)
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
 				.tag(ItemTags.SMALL_FLOWERS, ItemTags.TALL_FLOWERS)
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
 				.build()
 				.register();
 		TOWER_GRASS_SMALL = GLBlockDatagenHelper.regTowerGrass(reg, "small");
@@ -153,7 +151,7 @@ public class GLNaturalBlocks {
 						.texture("particle", pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
 				.loot(RegistrateBlockLootTables::dropSelf)
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+
 				.build()
 				.register();
 
@@ -190,7 +188,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("item/ingredient/flame_cattail")))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
 				.build()
 				.register();
 
@@ -231,17 +229,16 @@ public class GLNaturalBlocks {
 				.register();
 
 		BROOM_GRASS = reg.block("broom_grass", TallGrassBlock::new)
-				.initialProperties(() -> Blocks.SHORT_GRASS)
+				.initialProperties(() -> Blocks.GRASS)
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/plant/" + ctx.getName()))
 								.renderType("cutout")))
 				.loot((pvd, block) -> {
 					var shearsOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS))
 							.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-									.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-											ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-													pvd.getRegistries().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),
-													MinMaxBounds.Ints.atLeast(1)))))));
+									.hasEnchantment(new EnchantmentPredicate(
+													Enchantments.SILK_TOUCH,
+													MinMaxBounds.Ints.atLeast(1)))));
 					pvd.add(block, LootTable.lootTable()
 							.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shearsOrSilk)
 									.add(LootItem.lootTableItem(block)))
@@ -251,7 +248,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/plant/" + ctx.getName())))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+
 				.build()
 				.register();
 
@@ -264,7 +261,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName())))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
 				.build()
 				.register();
 
@@ -279,7 +276,7 @@ public class GLNaturalBlocks {
 				.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
 						.parent(new ModelFile.UncheckedModelFile("item/generated"))
 						.texture("layer0", pvd.modLoc("block/nature/" + ctx.getName())))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+
 				.build()
 				.register();
 
@@ -307,38 +304,38 @@ public class GLNaturalBlocks {
 		BLUE_FUR_SET = new TreeSet(
 				reg, new WoodSet(reg, "blue_fir", Items.SPRUCE_PLANKS,
 				Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN), null),
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_CYAN), null),
 				"blue_fir",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES),
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES),
 				TreeFeatures.TreeType.BLUE_FIR
 		);
 
 		// 枫: one wood, three autumn leaf colours
 		MAPLE_WOOD = new WoodSet(reg, "maple", Items.OAK_PLANKS,
 				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_DARK_OAK_WOOD,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_ORANGE), null);
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_ORANGE), null);
 		ORANGE_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "orange_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE,
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.ORANGE_MAPLE,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.ORANGE_MAPLE_LEAF.get()));
 		RED_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "red_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE,
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.RED_MAPLE,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.RED_MAPLE_LEAF.get()));
 		YELLOW_MAPLE_SET = new TreeSet(reg, MAPLE_WOOD, "yellow_maple",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE,
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.YELLOW_MAPLE,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.YELLOW_MAPLE_LEAF.get()));
 
 		// 樱: two blossom colours, both growing on the vanilla cherry trunk
 		PINK_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "pink_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY,
+				BlockBehaviour.Properties.copy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PINK_CHERRY,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.PINK_CHERRY_BLOSSOM.get()));
 		PURPLE_CHERRY_SET = new TreeSet(reg, () -> Blocks.CHERRY_LOG, "purple_cherry",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY,
+				BlockBehaviour.Properties.copy(Blocks.CHERRY_LEAVES), TreeFeatures.TreeType.PURPLE_CHERRY,
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.PURPLE_CHERRY_BLOSSOM.get()));
 
 		// 槐: the only tree with a hollow trunk, and the only one with planks and a stripped trunk of its own
-		var locustProp = BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE);
+		var locustProp = BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE);
 		LOCUST_PLANKS = reg.block("locust_planks", Block::new)
-				.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_PURPLE))
+				.properties(p -> BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_PURPLE))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
 						pvd.modLoc("block/wood/" + ctx.getName()))))
 				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
@@ -370,7 +367,7 @@ public class GLNaturalBlocks {
 		LOCUST_WOOD = new WoodSet(reg, "locust", LOCUST_PLANKS, STRIPPED_LOCUST_LOG, STRIPPED_LOCUST_WOOD,
 				locustProp, "locust_hollow_log");
 		LOCUST_SET = new TreeSet(reg, LOCUST_WOOD, "locust",
-				BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST,
+				BlockBehaviour.Properties.copy(Blocks.ACACIA_LEAVES), TreeFeatures.TreeType.LOCUST,
 				// half the particles and half the litter of the other trees
 				p -> new SheddingLeavesBlock(p, () -> GLParticles.LOCUST_LEAF.get(),
 						SheddingLeavesBlock.SHED_CHANCE / 4, SheddingLeavesBlock.PARTICLE_RATE * 4));
@@ -381,22 +378,22 @@ public class GLNaturalBlocks {
 
 		GHOST_FIRE_MUSHROOM_SET = new MushroomSet(
 				reg, "ghost_fire_mushroom", CYAN_MUSHROOM_STEM, 3, true,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_CYAN).lightLevel(b -> 8),
 				MushroomFeatures.MushroomTreeType.GHOST_FIRE
 		);
 
 		DREAM_MUSHROOM_SET = new MushroomSet(
 				reg, "dream_mushroom", PURPLE_MUSHROOM_STEM, 3, false,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.COLOR_PURPLE),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.COLOR_PURPLE),
 				MushroomFeatures.MushroomTreeType.DREAM
 		);
 
 		DEMONIC_MIASMA_MUSHROOM_SET = new MushroomSet(
 				reg, "demonic_miasma_mushroom", RED_MUSHROOM_STEM, 2, false,
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
-				BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE),
+				BlockBehaviour.Properties.copy(Blocks.BROWN_MUSHROOM).mapColor(MapColor.CRIMSON_HYPHAE),
 				MushroomFeatures.MushroomTreeType.DEMONIC_MIASMA,
 				(t, p) -> new MiasmaMushroomCapBlock(t.growthSmall, t.growthMedium, t.growthLarge, p),
 				MiasmaMushroomHugeBlock::new
@@ -411,7 +408,7 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_red"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
+				.item().build()
 				.register();
 
 		// 棕耳菇
@@ -423,7 +420,7 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_brown"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
+				.item().build()
 				.register();
 
 		// 鬼火耳菇
@@ -435,17 +432,17 @@ public class GLNaturalBlocks {
 								.texture("all", pvd.modLoc("block/nature/eugune_ghost_fire"))
 								.renderType("cutout")))
 				.loot(SideBushBlock::loot)
-				.item().dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f)).build()
+				.item().build()
 				.register();
 
 		HYPHAE = reg.block("hyphae", HyphaeBlock::new)
 				.properties(p -> p.mapColor(MapColor.CRIMSON_HYPHAE).noCollission().noOcclusion().strength(0)
-						.sound(SoundType.COBWEB).pushReaction(PushReaction.DESTROY))
+						.sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
 						pvd.models().cross(ctx.getName(), pvd.modLoc("block/misc/hyphae")).renderType("cutout")))
 				.loot(HyphaeBlock::loot)
 				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/misc/hyphae")))
-				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.5f))
+
 				.build()
 				.register();
 
@@ -553,13 +550,13 @@ public class GLNaturalBlocks {
 					   BlockBehaviour.Properties leafProp, TreeFeatures.TreeType type,
 					   Function<BlockBehaviour.Properties, LeavesBlock> leafFactory) {
 			this.trunk = trunk;
-			var grower = new TreeGrower(id + "_tree", type.saplingMega, type.saplingTree, Optional.empty());
+			var grower = new GLTreeGrower(type);
 			// only the blue fir needs the 3x3 stage vanilla has no grower slot for
 			Function<BlockBehaviour.Properties, ? extends SaplingBlock> saplingFactory = type.saplingGiant.isPresent()
 					? p -> new BlueFirSaplingBlock(grower, type.saplingGiant.orElseThrow(), p)
 					: p -> new SaplingBlock(grower, p);
 			sapling = reg.block(id + "_sapling", saplingFactory::apply)
-					.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING))
+					.properties(p -> BlockBehaviour.Properties.copy(Blocks.OAK_SAPLING))
 					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
 							pvd.modLoc("block/wood/" + ctx.getName())).renderType("cutout")))
 					.loot(RegistrateBlockLootTables::dropSelf)
@@ -568,7 +565,7 @@ public class GLNaturalBlocks {
 							.parent(new ModelFile.UncheckedModelFile("item/generated"))
 							.texture("layer0", pvd.modLoc("block/wood/" + ctx.getName())))
 					.tag(ItemTags.SAPLINGS)
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+
 					.build()
 					.register();
 			leaves = reg.block(id + "_leaves", p -> leafFactory.apply(p))
@@ -578,17 +575,15 @@ public class GLNaturalBlocks {
 					.loot((tb, block) -> genLeavesLoot(tb, block, sapling.get()))
 					.tag(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
 					.item().tag(ItemTags.LEAVES)
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.3f))
+
 					.build()
 					.register();
 		}
 
 		private static void genLeavesLoot(RegistrateBlockLootTables tb, Block block, Block sapling) {
-			var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
 			var silkTouch = MatchTool.toolMatches(ItemPredicate.Builder.item()
-							.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-									ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-											enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1))))))
+							.hasEnchantment(new EnchantmentPredicate(
+											Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))))
 					.or(MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)));
 			tb.add(block, LootTable.lootTable()
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
@@ -596,13 +591,13 @@ public class GLNaturalBlocks {
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
 							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(sapling)
 									.when(BonusLevelTableCondition.bonusLevelFlatChance(
-											enchantments.getOrThrow(Enchantments.FORTUNE),
+											Enchantments.BLOCK_FORTUNE,
 											2 / 512F, 3 / 512F, 4 / 512F, 5 / 512F)))))
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(silkTouch.invert())
 							.add(tb.applyExplosionDecay(block, LootItem.lootTableItem(Items.STICK)
 									.apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
 									.when(BonusLevelTableCondition.bonusLevelFlatChance(
-											enchantments.getOrThrow(Enchantments.FORTUNE),
+											Enchantments.BLOCK_FORTUNE,
 											0.02F, 0.022222223F, 0.025F, 0.033333335F, 0.1F))))));
 		}
 	}
@@ -614,7 +609,7 @@ public class GLNaturalBlocks {
 		public final BlockEntry<? extends Block> cap;
 
 		public static BlockEntry<HugeMushroomBlock> regStem(L2Registrate reg, String stemTex) {
-			var stemProp = BlockBehaviour.Properties.ofFullCopy(Blocks.MUSHROOM_STEM);
+			var stemProp = BlockBehaviour.Properties.copy(Blocks.MUSHROOM_STEM);
 			return reg.block(stemTex + "_stem", HugeMushroomBlock::new)
 					.properties(p -> stemProp)
 					.blockstate((ctx, pvd) -> {
@@ -626,7 +621,7 @@ public class GLNaturalBlocks {
 					.loot(RegistrateBlockLootTables::dropWhenSilkTouch)
 					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd))
 					.tag(GLTagGen.HUGE_MUSHROOM)
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
 					.build()
 					.register();
 		}
@@ -653,7 +648,7 @@ public class GLNaturalBlocks {
 					.blockstate((ctx, pvd) -> genCapState(ctx, pvd, capVariants, emissive))
 					.item().model((ctx, pvd) -> pvd.generated(ctx,
 							pvd.modLoc("block/mushroom/" + capModelName(ctx.getName(), capVariants, 1))))
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+
 					.build()
 					.register();
 
@@ -668,7 +663,7 @@ public class GLNaturalBlocks {
 					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.item().model((ctx, pvd) -> genInventoryItemModel(ctx.getName(), pvd))
 					.tag(GLTagGen.HUGE_MUSHROOM)
-					.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.85f))
+
 					.build()
 					.register();
 		}
@@ -681,7 +676,7 @@ public class GLNaturalBlocks {
 		private static ModelFile genHugeMushroomModels(RegistrateBlockstateProvider pvd, String id, ResourceLocation tex, boolean emissive) {
 			ModelFile outer;
 			if (emissive) {
-				outer = pvd.models().withExistingParent(id, ResourceLocation.withDefaultNamespace("block/block"))
+				outer = pvd.models().withExistingParent(id, new ResourceLocation("minecraft", "block/block"))
 						.texture("texture", tex)
 						.texture("particle", tex)
 						.element().from(0, 0, 0).to(16, 16, 0)
@@ -690,17 +685,17 @@ public class GLNaturalBlocks {
 						.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#texture").cullface(Direction.NORTH).end()
 						.end();
 			} else {
-				outer = pvd.models().withExistingParent(id, ResourceLocation.withDefaultNamespace("block/template_single_face"))
+				outer = pvd.models().withExistingParent(id, new ResourceLocation("minecraft", "block/template_single_face"))
 						.texture("texture", tex);
 			}
-			pvd.models().withExistingParent(id + "_inventory", ResourceLocation.withDefaultNamespace("block/cube_all"))
+			pvd.models().withExistingParent(id + "_inventory", new ResourceLocation("minecraft", "block/cube_all"))
 					.texture("all", tex);
 			return outer;
 		}
 
 		private static void genHugeMushroomState(DataGenContext<Block, ? extends Block> ctx, RegistrateBlockstateProvider pvd, ModelFile outer) {
 			var builder = pvd.getMultipartBuilder(ctx.get());
-			var inside = new ModelFile.UncheckedModelFile(ResourceLocation.withDefaultNamespace("block/mushroom_block_inside"));
+			var inside = new ModelFile.UncheckedModelFile(new ResourceLocation("minecraft", "block/mushroom_block_inside"));
 			addFace(builder, outer, inside, HugeMushroomBlock.NORTH, 0, 0);
 			addFace(builder, outer, inside, HugeMushroomBlock.EAST, 0, 90);
 			addFace(builder, outer, inside, HugeMushroomBlock.SOUTH, 0, 180);
@@ -716,7 +711,7 @@ public class GLNaturalBlocks {
 		}
 
 		private static BlockModelBuilder emissiveCross(RegistrateBlockstateProvider pvd, String name, ResourceLocation tex) {
-			return pvd.models().withExistingParent(name, ResourceLocation.withDefaultNamespace("block/block"))
+			return pvd.models().withExistingParent(name, new ResourceLocation("minecraft", "block/block"))
 					.ao(false)
 					.renderType("cutout")
 					.texture("cross", tex)

@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
@@ -17,11 +17,8 @@ import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.*;
-import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
-import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import java.util.Set;
  */
 public class FlatCheckStructure extends Structure {
 
-	public static final MapCodec<FlatCheckStructure> CODEC = RecordCodecBuilder.<FlatCheckStructure>mapCodec((i) -> i.group(
+	public static final Codec<FlatCheckStructure> CODEC = ExtraCodecs.validate(RecordCodecBuilder.<FlatCheckStructure>create((i) -> i.group(
 			settingsCodec(i),
 			StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter((e) -> e.startPool),
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
@@ -50,7 +47,7 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
 			Codec.intRange(1, 128).optionalFieldOf("set_count", 1).forGetter((e) -> e.setCount)
-	).apply(i, FlatCheckStructure::new)).validate(FlatCheckStructure::verifyRange);
+	).apply(i, FlatCheckStructure::new)), FlatCheckStructure::verifyRange);
 
 	public final Holder<StructureTemplatePool> startPool;
 	/**
@@ -76,7 +73,6 @@ public class FlatCheckStructure extends Structure {
 			case BURY:
 			case BEARD_THIN:
 			case BEARD_BOX:
-			case ENCAPSULATE:
 				b0 = 12;
 				break;
 			default:
@@ -208,8 +204,7 @@ public class FlatCheckStructure extends Structure {
 		int sea = ctx.chunkGenerator().getSeaLevel();
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
-				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
-				PoolAliasLookup.EMPTY, DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING);
+				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter);
 		if (layout.isEmpty()) {
 			return Validated.fail("no-layout");
 		}

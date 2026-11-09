@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.spell.item;
 
 import dev.xkmc.danmakuapi.content.spell.item.ItemSpell;
 import dev.xkmc.gensokyolegacy.content.spell.part.YoukariPartLaser;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 

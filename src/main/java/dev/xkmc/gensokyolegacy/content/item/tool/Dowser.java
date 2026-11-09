@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.tool;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -38,7 +38,7 @@ public class Dowser extends Item {
 	public static boolean isValid(@Nullable BlockEntity be) {
 		if (!(be instanceof RandomizableContainerBlockEntity e)) return false;
 		var lv = be.getLevel();
-		return !(lv instanceof ServerLevel) || e.getLootTable() != null;
+		return !(lv instanceof ServerLevel) || e.lootTable != null;
 	}
 
 	public static boolean isValid(Entity entity) {
@@ -91,7 +91,7 @@ public class Dowser extends Item {
 			ans.addAll(searchEntity(sp.serverLevel(), pos, RANGE));
 			GensokyoLegacy.HANDLER.toClientPlayer(new DowserToClient(ans), sp);
 			if (!player.isCreative()) {
-				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				stack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(hand));
 			}
 			player.getCooldowns().addCooldown(this, 20);
 		}
@@ -99,13 +99,13 @@ public class Dowser extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.DOWSER_LORE.get());
 	}
 
 	public record DowserToClient(
 			LinkedHashSet<BlockPos> pos
-	) implements SerialPacketBase<DowserToClient> {
+	) implements RecordPacketBase {
 
 		@Override
 		public void handle(Player player) {

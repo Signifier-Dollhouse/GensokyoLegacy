@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
@@ -29,7 +30,7 @@ public class GLStructureTagGen {
 	 * shrine" style lookups are written against them.
 	 */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
-			ProviderType.registerDynamicTag("structure", "structure", Registries.STRUCTURE);
+			DataProviderInitializer.dynamicTag("structure");
 
 	public static final TagKey<Structure> CIRNO_NEST_STRUCTURE = structureTag("cirno_nest");
 	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");

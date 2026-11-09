@@ -24,13 +24,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FogType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.TickEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
 public class GLClientEventHandlers {
@@ -87,14 +87,16 @@ public class GLClientEventHandlers {
 	}
 
 	@SubscribeEvent
-	public static void onClientTickPre(ClientTickEvent.Pre event) {
+	public static void onClientTickPre(TickEvent.ClientTickEvent event) {
+		if (event.phase != TickEvent.Phase.START) return;
 		DowserRenderer.tickClient();
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTickPost(PlayerTickEvent.Post event) {
-		var pl = event.getEntity();
-		if (pl.hasEffect(GLEffects.FLOATING)) {
+	public static void onPlayerTickPost(TickEvent.PlayerTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) return;
+		var pl = event.player;
+		if (pl.hasEffect(GLEffects.FLOATING.get())) {
 			if (pl instanceof LocalPlayer lp) {
 				var vec = pl.getDeltaMovement();
 				if (lp.input.jumping && vec.y < 0)
@@ -113,7 +115,7 @@ public class GLClientEventHandlers {
 	public static int onStackDeco(int original) {
 		if (original > 9) {
 			var player = Minecraft.getInstance().player;
-			if (player != null && player.hasEffect(GLEffects.BAKA)) {
+			if (player != null && player.hasEffect(GLEffects.BAKA.get())) {
 				return 9;
 			}
 		}
@@ -123,7 +125,7 @@ public class GLClientEventHandlers {
 	public static int onDecoColor(String text, int original) {
 		if (text.equals("9")) {
 			var player = Minecraft.getInstance().player;
-			if (player != null && player.hasEffect(GLEffects.BAKA)) {
+			if (player != null && player.hasEffect(GLEffects.BAKA.get())) {
 				return 0x9AC0ED;
 			}
 		}

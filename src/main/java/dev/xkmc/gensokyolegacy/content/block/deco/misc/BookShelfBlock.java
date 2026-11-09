@@ -4,8 +4,8 @@ import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
@@ -13,7 +13,7 @@ import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 import javax.annotation.Nullable;
 
@@ -64,25 +64,25 @@ public class BookShelfBlock implements CreateBlockStateBlockMethod, DefaultState
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
 		int count = state.getValue(BOOK_COUNT);
 		if (player.isShiftKeyDown()) {
 			if (count == 0)
-				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				return InteractionResult.PASS;
 			if (!level.isClientSide()) {
 				player.getInventory().placeItemBackInInventory(new ItemStack(Items.BOOK));
 				level.setBlock(pos, state.setValue(BOOK_COUNT, count - 1), Block.UPDATE_ALL);
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 		if (!stack.is(Items.BOOK) || count >= MAX_BOOKS)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		if (!level.isClientSide()) {
 			level.setBlock(pos, state.setValue(BOOK_COUNT, count + 1), Block.UPDATE_ALL);
 			if (!player.isCreative())
 				stack.shrink(1);
 		}
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override

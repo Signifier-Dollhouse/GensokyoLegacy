@@ -24,12 +24,12 @@ public class RumiaRenderer extends MobRenderer<RumiaEntity, RumiaModel<RumiaEnti
 	}
 
 	@Override
-	protected void setupRotations(RumiaEntity rumia, PoseStack pose, float bob, float yBodyRot, float partialTick, float scale) {
+	protected void setupRotations(RumiaEntity rumia, PoseStack pose, float bob, float yBodyRot, float partialTick) {
 		if (rumia.isBlocked()) {
 			pose.translate(0, 0.2, 0);
 			pose.mulPose(Axis.XP.rotationDegrees(90));
 			pose.translate(0, -0.85, 0);
-		} else super.setupRotations(rumia, pose, bob, yBodyRot, partialTick, scale);
+		} else super.setupRotations(rumia, pose, bob, yBodyRot, partialTick);
 	}
 
 	@Override

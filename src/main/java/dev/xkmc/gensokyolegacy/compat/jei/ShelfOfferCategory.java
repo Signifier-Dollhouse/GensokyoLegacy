@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -68,7 +68,7 @@ public class ShelfOfferCategory extends BaseRecipeCategory<Holder<Item>, ShelfOf
 		var price = range(data.minPrice(), data.maxPrice());
 		var stock = range(data.minStock(), data.maxStock());
 		int width = WIDTH - 2 * GLJeiUtil.PAD;
-		builder.addRecipeArrowWidget().setPosition(ARROW_X, SLOT_Y);
+		builder.addRecipeArrow().setPosition(ARROW_X, SLOT_Y);
 		GLJeiUtil.text(builder, GLLang.JeiExtra.SHELF_PRICE.get(price),
 				GLJeiUtil.PAD, TEXT_Y, width, GLJeiUtil.LINE);
 		GLJeiUtil.text(builder, GLLang.JeiExtra.SHELF_STOCK.get(stock),

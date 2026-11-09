@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.ui.dialog;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -13,8 +14,9 @@ import dev.xkmc.gensokyolegacy.content.ui.quest.QuestInfo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
-import dev.xkmc.l2itemselector.overlay.TextBox;
-import dev.xkmc.l2serial.network.SimplePacketBase;
+import dev.xkmc.gensokyolegacy.util.GuiSprites;
+import dev.xkmc.l2library.base.overlay.TextBox;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -70,6 +72,8 @@ public abstract class DialogScreen extends Screen {
 
 	private static final int FRAME_BORDER_TOP = 47;
 	private static final int FRAME_BORDER_BOTTOM = 25;
+	private static final int FRAME_BORDER_SIDE = 42;
+	private static final int OPTION_SIZE = 64;
 
 	private static final int[] BG_CLIP = new int[BOX_H];
 
@@ -277,7 +281,7 @@ public abstract class DialogScreen extends Screen {
 	 * Screens also go away on disconnect, where there is no connection left
 	 * to answer on.
 	 */
-	private static void sendToServer(SimplePacketBase packet) {
+	private static void sendToServer(RecordPacketBase packet) {
 		if (Minecraft.getInstance().getConnection() != null) {
 			GensokyoLegacy.HANDLER.toServer(packet);
 		}
@@ -288,7 +292,7 @@ public abstract class DialogScreen extends Screen {
 	 * had with the world still visible behind it.
 	 */
 	@Override
-	public void renderBackground(GuiGraphics g, int mx, int my, float pt) {
+	public void renderBackground(GuiGraphics g) {
 
 	}
 
@@ -390,7 +394,8 @@ public abstract class DialogScreen extends Screen {
 		// also decides whether the hover state below is meaningful at all
 		boolean typing = false;
 		if (framed) {
-			blitBlend(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H);
+			GuiSprites.blitNineSliced(g, FRAME, Math.round(boxX), Math.round(boxY), 0, Math.round(boxW), BOX_H,
+					FRAME_BORDER_SIDE, FRAME_BORDER_TOP, FRAME_BORDER_SIDE, FRAME_BORDER_BOTTOM, BG_SIZE, BG_SIZE);
 			var lines = font.split(body.get(), Math.max(1, Math.round((boxW - 2 * TEXT_PAD_X) / TEXT_SCALE)));
 			// laid out once: the code point total does not depend on the wrap
 			// width, so it stays valid when the window is resized mid-sentence
@@ -416,7 +421,8 @@ public abstract class DialogScreen extends Screen {
 				g.pose().pushPose();
 				g.pose().translate(x, y, 0);
 				g.pose().scale(artScale, artScale, 1.0F);
-				blitBlend(g, OPTION, 0, 0, 0, Math.round(ows[i] / artScale), Math.round(ohs[i] / artScale));
+				GuiSprites.blitNineSliced(g, OPTION, 0, 0, 0, Math.round(ows[i] / artScale), Math.round(ohs[i] / artScale),
+						OPT_BORDER, OPT_BORDER, OPT_BORDER, OPT_BORDER, OPTION_SIZE, OPTION_SIZE);
 				g.pose().popPose();
 				boolean hover = dmx >= x && dmx < x + ows[i] && dmy >= y && dmy < y + ohs[i];
 				if (hover) {
@@ -438,6 +444,7 @@ public abstract class DialogScreen extends Screen {
 		int patternTop = y + h - (BG_SIZE - BG_SPLIT);
 		drawZone(g, scale, x, y, w, y, patternTop, 0, BG_SPLIT);
 		drawZone(g, scale, x, y, w, patternTop, y + h, BG_SPLIT, BG_SIZE - BG_SPLIT);
+		RenderSystem.enableBlend();
 	}
 
 	private static void drawZone(GuiGraphics g, float scale, int x, int y, int w, int dFrom, int dTo, int vBase, int vPeriod) {
@@ -483,24 +490,17 @@ public abstract class DialogScreen extends Screen {
 		int x1 = Mth.ceil((px + uw) * scale);
 		int y1 = Mth.ceil((py + vh) * scale);
 		if (x1 <= x0 || y1 <= y0) return;
-		var sprite = Minecraft.getInstance().getGuiSprites().getSprite(BG);
-		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+		RenderSystem.setShaderTexture(0, GuiSprites.texture(BG));
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.disableBlend();
 		var matrix = g.pose().last().pose();
-		var buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		buffer.addVertex(matrix, x0, y0, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
-		buffer.addVertex(matrix, x0, y1, 0).setUv(sprite.getU(u / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
-		buffer.addVertex(matrix, x1, y1, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV((v + vh) / (float) BG_SIZE));
-		buffer.addVertex(matrix, x1, y0, 0).setUv(sprite.getU((u + uw) / (float) BG_SIZE), sprite.getV(v / (float) BG_SIZE));
-		BufferUploader.drawWithShader(buffer.buildOrThrow());
-	}
-
-	private static void blitBlend(GuiGraphics g, ResourceLocation sprite, int x, int y, int z, int w, int h) {
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		g.blitSprite(sprite, x, y, z, w, h);
-		RenderSystem.disableBlend();
+		BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		buffer.vertex(matrix, x0, y0, 0).uv(u / (float) BG_SIZE, v / (float) BG_SIZE).endVertex();
+		buffer.vertex(matrix, x0, y1, 0).uv(u / (float) BG_SIZE, (v + vh) / (float) BG_SIZE).endVertex();
+		buffer.vertex(matrix, x1, y1, 0).uv((u + uw) / (float) BG_SIZE, (v + vh) / (float) BG_SIZE).endVertex();
+		buffer.vertex(matrix, x1, y0, 0).uv((u + uw) / (float) BG_SIZE, v / (float) BG_SIZE).endVertex();
+		BufferUploader.drawWithShader(buffer.end());
 	}
 
 	private void renderAvatar(GuiGraphics g, float s, float boxX, float avatarY, int mx, int my) {
@@ -514,14 +514,20 @@ public abstract class DialogScreen extends Screen {
 		int wy = fy + Math.round(AVATAR_WIN_Y * as);
 		int ww = Math.round(AVATAR_WIN_W * as);
 		int wh = Math.round(AVATAR_WIN_H * as);
-		blitBlend(g, AVATAR_BG, wx, wy, 0, ww, wh);
+		GuiSprites.blitScaled(g, AVATAR_BG, wx, wy, 0, ww, wh, AVATAR_WIN_W, AVATAR_WIN_H);
 		float bh = character.getBbHeight();
 		int scale = Mth.clamp(Math.round(AVATAR_WIN_H / (bh * 0.6f) * as), 16, 256);
+		int cx = wx + ww / 2;
+		int cy = wy + wh / 2;
+		int feet = cy + Math.round(scale * (bh / 2 + 0.35f * bh));
+		int size = Math.max(1, Math.round(scale / character.getScale()));
 		g.pose().pushPose();
 		g.pose().translate(0, 0, 50);
-		InventoryScreen.renderEntityInInventoryFollowsMouse(g, wx, wy, wx + ww, wy + wh, scale, 0.35f * bh, mx, my, character);
+		g.enableScissor(wx, wy, wx + ww, wy + wh);
+		InventoryScreen.renderEntityInInventoryFollowsMouse(g, cx, feet, size, cx - mx, cy - my, character);
+		g.disableScissor();
 		g.pose().popPose();
-		blitBlend(g, AVATAR, fx, fy, 100, fw, fh);
+		GuiSprites.blitScaled(g, AVATAR, fx, fy, 100, fw, fh, AVATAR_W, AVATAR_H);
 	}
 
 	private void drawLines(GuiGraphics g, List<FormattedCharSequence> lines, float x, float y, int color, int limit) {
@@ -615,7 +621,7 @@ public abstract class DialogScreen extends Screen {
 		if (questId == null) return;
 		var level = minecraft.level;
 		if (level == null) return;
-		var holder = level.registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, questId));
+		var holder = level.registryAccess().registryOrThrow(CodecRegistry.Keys.QUEST).getHolder(ResourceKey.create(CodecRegistry.Keys.QUEST, questId));
 		if (holder.isEmpty()) return;
 		var data = GLMeta.QUEST.type().getOrCreate(minecraft.player);
 		QuestInfo info;

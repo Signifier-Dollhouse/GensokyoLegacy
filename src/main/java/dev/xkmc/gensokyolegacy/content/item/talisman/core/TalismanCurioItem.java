@@ -66,11 +66,10 @@ public abstract class TalismanCurioItem extends Item implements ICurioItem {
 
 	@Override
 	public void curioTick(SlotContext slotContext, ItemStack curio) {
-		if (slotContext.entity() instanceof LivingEntity le) {
-			for (TalismanContext ctx : getActiveTalismans(le, curio)) {
-				if (!ctx.isOnCooldown()) {
-					ctx.paper().tickTalisman(ctx);
-				}
+		LivingEntity le = slotContext.entity();
+		for (TalismanContext ctx : getActiveTalismans(le, curio)) {
+			if (!ctx.isOnCooldown()) {
+				ctx.paper().tickTalisman(ctx);
 			}
 		}
 	}

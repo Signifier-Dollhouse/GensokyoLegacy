@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlo
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +18,7 @@ import java.util.List;
  */
 public class AlchemyStageHolder {
 
-	private List<RecipeHolder<AlchemyStageRecipe<?>>> recipes = new ArrayList<>();
+	private List<AlchemyStageRecipe<?>> recipes = new ArrayList<>();
 
 	public StageData current = StageData.DEF;
 	public List<ItemEntry> floating = new ArrayList<>();
@@ -43,14 +42,14 @@ public class AlchemyStageHolder {
 		if (r0 == null) {
 			current = StageData.DEF;
 		} else {
-			int col = access == null ? -1 : r0.value().getColor(inv, access);
+			int col = access == null ? -1 : r0.getColor(inv, access);
 			// a recipe that leaves the colour unset (-1) falls back to its static field
-			if (col == -1 && r0.value() instanceof SimpleAlchemyStageRecipe s) col = s.color;
+			if (col == -1 && r0 instanceof SimpleAlchemyStageRecipe s) col = s.color;
 			current = new StageData(col);
 		}
 		var curItems = new ArrayList<>(be.createContainer(false).list());
 		if (r0 != null) {
-			r0.value().removeConsumed(curItems);
+			r0.removeConsumed(curItems);
 		}
 		floating = new ArrayList<>();
 		var original = be.createContainer(false).list();
@@ -64,23 +63,23 @@ public class AlchemyStageHolder {
 	}
 
 	@Nullable
-	private RecipeHolder<AlchemyStageRecipe<?>> findStage() {
+	private AlchemyStageRecipe<?> findStage() {
 		int max = -1;
 		ResourceLocation bestId = null;
-		RecipeHolder<AlchemyStageRecipe<?>> best = null;
+		AlchemyStageRecipe<?> best = null;
 		for (var e : recipes) {
-			int cnt = e.value().getPriority();
+			int cnt = e.getPriority();
 			if (cnt > max) {
 				max = cnt;
-				bestId = e.id();
+				bestId = e.getId();
 				best = e;
 			} else if (cnt == max && bestId != null) {
-				if (e.id().compareTo(bestId) < 0) {
-					bestId = e.id();
+				if (e.getId().compareTo(bestId) < 0) {
+					bestId = e.getId();
 					best = e;
 				}
 			} else if (cnt == max) {
-				bestId = e.id();
+				bestId = e.getId();
 				best = e;
 			}
 		}

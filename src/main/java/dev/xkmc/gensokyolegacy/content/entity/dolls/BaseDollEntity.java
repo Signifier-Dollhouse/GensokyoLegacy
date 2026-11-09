@@ -132,8 +132,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 		return PathfinderMob.createMobAttributes()
 				.add(Attributes.MAX_HEALTH, DEFAULT_MAX_HEALTH)
 				.add(Attributes.ATTACK_DAMAGE, 1)
-				.add(Attributes.FOLLOW_RANGE, 48)
-				.add(Attributes.FALL_DAMAGE_MULTIPLIER, 0);
+				.add(Attributes.FOLLOW_RANGE, 48);
 	}
 
 	@Override
@@ -248,7 +247,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 				return null;
 			}
 			Entity owner = sl.getEntity(ownerUUID);
-			if (owner == null || owner.isRemoved() || !owner.isAddedToLevel()) return null;
+			if (owner == null || owner.isRemoved() || !owner.isAddedToWorld()) return null;
 			if (owner instanceof ServerPlayer sp) {
 				return GLMeta.DOLL.type().getOrCreate(sp);
 			}
@@ -293,13 +292,13 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		super.defineSynchedData(builder);
+	protected void defineSynchedData() {
+		super.defineSynchedData();
 		// local list, not the field: the field does not exist yet during Entity construction
 		List<DollModule> modules = new ArrayList<>();
 		createDollModules(modules);
 		for (DollModule module : modules)
-			module.defineSynchedData(builder);
+			module.defineSynchedData(entityData);
 	}
 
 	public void writeValuesTo(DollData d) {
@@ -373,7 +372,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 		data.combat = ans;
 		boolean update = getCombatData() == null || ans.amount() != getCombatData().amount();
 		applyData(ans);
-		if (update && isAddedToLevel() && !level().isClientSide())
+		if (update && isAddedToWorld() && !level().isClientSide())
 			CombatToClient.send(this);
 	}
 
@@ -413,22 +412,17 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 
 	// ---- dimension-bound ----
 	// A doll projects a ledger entry naming exactly one level, so a portal could strand
-	// it where no ledger describes it; canUsePortal is the gate every entry point consults.
+	// it where no ledger describes it; canChangeDimensions is the gate every entry point consults.
 
 	@Override
-	public boolean canUsePortal(boolean allowPassengers) {
-		return false;
-	}
-
-	@Override
-	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+	public boolean canChangeDimensions() {
 		return false;
 	}
 
 	// ---- never leashed, never a passenger ----
 
 	@Override
-	public boolean canBeLeashed() {
+	public boolean canBeLeashed(Player player) {
 		return false;
 	}
 

@@ -8,7 +8,8 @@ import net.minecraft.world.item.ItemStack;
 
 public record ClientInvTooltip(InvTooltip inv) implements ClientTooltipComponent {
 
-	private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/bundle/slot");
+	// 1.20.1 has no sprite atlas; this is the slot cell of the vanilla bundle texture.
+	private static final ResourceLocation TEXTURE = new ResourceLocation("textures/gui/container/bundle.png");
 
 	@Override
 	public int getHeight() {
@@ -28,7 +29,7 @@ public record ClientInvTooltip(InvTooltip inv) implements ClientTooltipComponent
 	}
 
 	private static void renderSlot(Font font, int x, int y, GuiGraphics g, ItemStack stack) {
-		g.blitSprite(SLOT, x, y, 18, 20);
+		g.blit(TEXTURE, x, y, 0, 0, 18, 20, 128, 128);
 		if (stack.isEmpty()) return;
 		g.renderItem(stack, x + 1, y + 1, 0);
 		g.renderItemDecorations(font, stack, x + 1, y + 1);

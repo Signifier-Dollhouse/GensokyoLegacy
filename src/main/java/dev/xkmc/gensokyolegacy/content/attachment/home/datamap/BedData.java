@@ -10,7 +10,7 @@ public record BedData(EntityType<?> type) {
 
 	@Nullable
 	public static BedData of(Block key) {
-		return BuiltInRegistries.BLOCK.wrapAsHolder(key).getData(GLMeta.BED_DATA.reg());
+		return GLMeta.BED_DATA.get(BuiltInRegistries.BLOCK.wrapAsHolder(key));
 	}
 
 }

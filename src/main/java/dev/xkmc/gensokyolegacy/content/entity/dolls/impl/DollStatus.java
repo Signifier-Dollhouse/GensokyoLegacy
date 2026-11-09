@@ -85,10 +85,10 @@ public interface DollStatus extends DollEntityImpl {
 	final class DollStatusModule implements DollModule {
 
 		@Override
-		public void defineSynchedData(SynchedEntityData.Builder builder) {
-			builder.define(DollEntity.DATA_ACTION_STATE, DollActionStatus.IDLE.ordinal());
-			builder.define(DollEntity.DATA_ACTION_TYPE, -1);
-			builder.define(DollEntity.DATA_VALID_MASK, 0);
+		public void defineSynchedData(SynchedEntityData data) {
+			data.define(DollEntity.DATA_ACTION_STATE, DollActionStatus.IDLE.ordinal());
+			data.define(DollEntity.DATA_ACTION_TYPE, -1);
+			data.define(DollEntity.DATA_VALID_MASK, 0);
 		}
 
 	}

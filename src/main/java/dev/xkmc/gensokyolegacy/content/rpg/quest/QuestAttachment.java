@@ -1,13 +1,17 @@
 package dev.xkmc.gensokyolegacy.content.rpg.quest;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.QuestTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -18,6 +22,8 @@ import java.util.LinkedHashMap;
 
 @SerialClass
 public class QuestAttachment extends PlayerCapabilityTemplate<QuestAttachment> {
+
+	public static final Capability<QuestAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	@SerialField
 	public final LinkedHashMap<ResourceLocation, QuestData> data = new LinkedHashMap<>();
@@ -57,7 +63,7 @@ public class QuestAttachment extends PlayerCapabilityTemplate<QuestAttachment> {
 	public <T extends Record & QuestTrigger<T>> void dispatch(ServerPlayer sp, T trigger) {
 		for (var e : data.entrySet()) {
 			if (!e.getValue().started) continue;
-			var opt = sp.level().registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, e.getKey()));
+			var opt = sp.level().registryAccess().registryOrThrow(CodecRegistry.Keys.QUEST).getHolder(ResourceKey.create(CodecRegistry.Keys.QUEST, e.getKey()));
 			if (opt.isEmpty()) continue;
 			var quest = opt.get().value();
 			boolean updated = false;

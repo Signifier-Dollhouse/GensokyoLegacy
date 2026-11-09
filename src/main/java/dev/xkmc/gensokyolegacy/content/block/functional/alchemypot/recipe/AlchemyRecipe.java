@@ -2,26 +2,25 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
-import dev.xkmc.l2core.serial.recipe.BaseRecipe;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.l2library.serial.recipe.BaseRecipe;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.minecraftforge.fluids.FluidStack;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Timed alchemy reaction: fluid plus items in, fluid and/or items out, both staying in the pot.
@@ -44,8 +43,8 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	@SerialField
 	public ItemStack outputFluidItem = ItemStack.EMPTY;
 
-	public AlchemyRecipe(RecType<T, AlchemyRecipe<?>, AlchemyInv> fac) {
-		super(fac);
+	public AlchemyRecipe(ResourceLocation id, RecType<T, AlchemyRecipe<?>, AlchemyInv> fac) {
+		super(id, fac);
 	}
 
 	public abstract List<Ingredient> getInputItems();
@@ -82,12 +81,12 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 	}
 
 	@Override
-	public ItemStack assemble(AlchemyInv inv, HolderLookup.Provider access) {
+	public ItemStack assemble(AlchemyInv inv, RegistryAccess access) {
 		return resultItem.copy();
 	}
 
 	@Override
-	public ItemStack getResultItem(HolderLookup.Provider access) {
+	public ItemStack getResultItem(RegistryAccess access) {
 		return resultItem.copy();
 	}
 
@@ -98,7 +97,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 		return time;
 	}
 
-	public FluidStack getResultFluid(AlchemyInv inv, HolderLookup.Provider access) {
+	public FluidStack getResultFluid(AlchemyInv inv, RegistryAccess access) {
 		return resultFluid.copy();
 	}
 
@@ -137,7 +136,7 @@ public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseReci
 			}
 			if (amount % 250 == 0) {
 				ItemStack bottle = new ItemStack(Items.POTION, amount / 250);
-				bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.of(Potions.WATER), Optional.empty(), List.of()));
+				PotionData.of(Potions.WATER).write(bottle);
 				out.add(bottle);
 			}
 			return out;

@@ -1,7 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -18,14 +17,15 @@ import java.util.function.Consumer;
 public class CentiPickaxe extends PickaxeItem {
 
 	public CentiPickaxe(Properties p) {
-		super(Tiers.GOLD, p);
+		super(Tiers.GOLD, 1, -2.8F, p);
 	}
 
-	public ItemStack getDefaultInstance(HolderLookup.Provider access) {
+	@Override
+	public ItemStack getDefaultInstance() {
 		ItemStack ans = super.getDefaultInstance();
-		ans.enchant(access.holderOrThrow(Enchantments.EFFICIENCY), 5);
-		ans.enchant(access.holderOrThrow(Enchantments.FORTUNE), 3);
-		ans.enchant(access.holderOrThrow(Enchantments.MENDING), 1);
+		ans.enchant(Enchantments.BLOCK_EFFICIENCY, 5);
+		ans.enchant(Enchantments.BLOCK_FORTUNE, 3);
+		ans.enchant(Enchantments.MENDING, 1);
 		return ans;
 	}
 
@@ -41,25 +41,25 @@ public class CentiPickaxe extends PickaxeItem {
 	}
 
 	@Override
-	public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
+	public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<T> onBroken) {
 		int dmg = stack.getDamageValue();
 		int max = stack.getMaxDamage();
 		int rem = max - dmg;
-		if (rem <= amount && entity instanceof LivingEntity le) {
-			var hp = le.getHealth();
+		if (rem <= amount && entity != null) {
+			var hp = entity.getHealth();
 			if (hp > amount) {
-				le.setHealth(hp - amount);
-				if (le.getHealth() == hp - amount) {
+				entity.setHealth(hp - amount);
+				if (entity.getHealth() == hp - amount) {
 					return 0;
 				}
-				return amount - (int) (hp - le.getHealth());
+				return amount - (int) (hp - entity.getHealth());
 			}
 		}
 		return super.damageItem(stack, amount, entity, onBroken);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.CENTIPICKAXE_LORE.get());
 	}
 

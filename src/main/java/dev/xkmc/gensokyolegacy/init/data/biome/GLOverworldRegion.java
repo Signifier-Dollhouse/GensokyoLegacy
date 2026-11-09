@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public class GLOverworldRegion extends Region {
 
 	public GLOverworldRegion(int weight) {
-		super(ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
+		super(new ResourceLocation(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
 	}
 
 	@Override

@@ -1,5 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.anchor;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.EquipmentSlot;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap;
 import dev.xkmc.danmakuapi.api.GrazeHelper;
 import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
@@ -12,15 +18,15 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
-import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
+import dev.xkmc.l2library.util.raytrace.RayTraceUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -31,10 +37,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.TierSortingRegistry;
+import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -66,6 +77,38 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		super(properties, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, 1.0F, MAX_POWER);
 	}
 
+	private static final Multimap<Attribute, AttributeModifier> DEFAULT_MODIFIERS;
+
+	static {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+		builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
+				14.0, AttributeModifier.Operation.ADDITION));
+		builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_UUID, "Weapon modifier",
+				-3.2, AttributeModifier.Operation.ADDITION));
+		DEFAULT_MODIFIERS = builder.build();
+	}
+
+	@Override
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.MAINHAND ? DEFAULT_MODIFIERS : super.getDefaultAttributeModifiers(slot);
+	}
+
+	@Override
+	public boolean isCorrectToolForDrops(BlockState state) {
+		return state.is(BlockTags.MINEABLE_WITH_PICKAXE) && TierSortingRegistry.isCorrectTierForDrops(Tiers.DIAMOND, state);
+	}
+
+	@Override
+	public float getDestroySpeed(ItemStack stack, BlockState state) {
+		return isCorrectToolForDrops(stack, state) ? Tiers.DIAMOND.getSpeed() : super.getDestroySpeed(stack, state);
+	}
+
+	@Override
+	public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
+		return ToolActions.DEFAULT_PICKAXE_ACTIONS.contains(toolAction);
+	}
+
+
 	public static AnchorMode getMode(ItemStack stack) {
 		return GLItems.ANCHOR_MODE.getOrDefault(stack, AnchorMode.VOYAGE);
 	}
@@ -84,7 +127,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	public static boolean isLinked(ItemStack stack) {
-		return stack.has(GLItems.ANCHOR_LINK);
+		return GLItems.ANCHOR_LINK.has(stack);
 	}
 
 	public static void setLink(ItemStack stack, UUID id) {
@@ -92,7 +135,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	public static void clearLink(ItemStack stack) {
-		stack.remove(GLItems.ANCHOR_LINK.get());
+		GLItems.ANCHOR_LINK.remove(stack);
 	}
 
 	/**
@@ -109,7 +152,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	public static ItemStack displayStack(AnchorMode mode) {
 		ItemStack stack = GLItems.MINAMITSU_ANCHOR.asStack();
 		setMode(stack, mode);
-		stack.set(DataComponents.ITEM_NAME, mode.getDisplayName());
+		stack.setHoverName(mode.getDisplayName());
 		return stack;
 	}
 
@@ -119,7 +162,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 */
 	public static ItemStack iconStack(AnchorMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		GLItems.ICON.set(stack, Unit.INSTANCE);
 		return stack;
 	}
 
@@ -129,7 +172,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.ICON.get())
+		return GLItems.ICON.has(stack)
 				? AnchorMode.values().length + 1 + ordinal
 				: ordinal + 1;
 	}
@@ -175,7 +218,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
+	public int getUseDuration(ItemStack stack) {
 		return 72000;
 	}
 
@@ -193,7 +236,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		if (getMode(stack) != AnchorMode.STORM) return;
 		if (level.isClientSide() && user instanceof Player player)
 			AnchorRain.chargeParticles(player);
-		if (getUseDuration(stack, user) - remaining < CHARGE_TIME) return;
+		if (getUseDuration(stack) - remaining < CHARGE_TIME) return;
 		if (user instanceof Player player) player.releaseUsingItem();
 	}
 
@@ -202,7 +245,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		if (!(entity instanceof Player player)) return;
 		if (level.isClientSide()) return;
 		if (!(player instanceof ServerPlayer sp)) return;
-		int used = getUseDuration(stack, entity) - timeLeft;
+		int used = getUseDuration(stack) - timeLeft;
 		switch (getMode(stack)) {
 			case STORM -> {
 				if (used < CHARGE_TIME) return;
@@ -266,7 +309,7 @@ public class AnchorItem extends SpiritualDanmakuItem {
 		sp.swing(hand, true);
 		sp.awardStat(Stats.ITEM_USED.get(item));
 		var sound = type.isStorm() ? SoundEvents.TRIDENT_RIPTIDE_1 : SoundEvents.TRIDENT_THROW;
-		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), sound.value(), SoundSource.PLAYERS, 1F, 1F);
+		level.playSound(null, sp.getX(), sp.getY(), sp.getZ(), sound, SoundSource.PLAYERS, 1F, 1F);
 		return true;
 	}
 
@@ -298,9 +341,9 @@ public class AnchorItem extends SpiritualDanmakuItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.MINAMITSU_ANCHOR_LORE.get());
-		super.appendHoverText(stack, context, list, flag);
+		super.appendHoverText(stack, level, list, flag);
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName())
 				.withStyle(ChatFormatting.GRAY));
 	}

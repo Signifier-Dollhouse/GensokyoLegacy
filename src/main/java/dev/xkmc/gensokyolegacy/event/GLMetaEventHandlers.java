@@ -17,14 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.level.ChunkWatchEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.level.ChunkWatchEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.TickEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLMetaEventHandlers {
@@ -45,16 +44,18 @@ public class GLMetaEventHandlers {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTickPre(PlayerTickEvent.Pre event) {
-		Player player = event.getEntity();
+	public static void onPlayerTickPre(TickEvent.PlayerTickEvent event) {
+		if (event.phase != TickEvent.Phase.START) return;
+		Player player = event.player;
 		// the client ticks other players too, and only the local one has cooldowns that matter
 		if (player.level().isClientSide() && !player.isLocalPlayer()) return;
 		CooldownClock.advance(player);
 	}
 
 	@SubscribeEvent
-	public static void onLevelTick(LevelTickEvent.Post event) {
-		if (!(event.getLevel() instanceof ServerLevel sl)) return;
+	public static void onLevelTick(TickEvent.LevelTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) return;
+		if (!(event.level instanceof ServerLevel sl)) return;
 		AreaEffectManager.tickValidation(sl);
 		AreaEffectManager.tickPendingFlush(sl);
 		PartyTicker.tick(sl);

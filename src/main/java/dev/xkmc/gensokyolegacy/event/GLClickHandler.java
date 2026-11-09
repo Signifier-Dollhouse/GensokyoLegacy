@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.event;
 
 import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
-import dev.xkmc.l2menustacker.click.writable.ClickedPlayerSlotResult;
-import dev.xkmc.l2menustacker.click.writable.WritableStackClickHandler;
+import dev.xkmc.l2screentracker.click.writable.ClickedPlayerSlotResult;
+import dev.xkmc.l2screentracker.click.writable.WritableStackClickHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;

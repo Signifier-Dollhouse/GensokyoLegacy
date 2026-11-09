@@ -9,8 +9,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * Draws the tank contents: the fluid box (stage colour over fluid tint) and the items still floating on it.
@@ -37,7 +37,7 @@ public class AlchemyPotRenderer implements BlockEntityRenderer<AlchemyPotBlockEn
 		// client-only: the tank keeps its old amount until finishRecipe snaps it
 		float amount = fluid.getAmount();
 		if (be.isReacting() && be.getRecipeHolder() != null) {
-			int target = be.getRecipeHolder().value().resultFluid.isEmpty() ? 0 : be.getRecipeHolder().value().resultFluid.getAmount();
+			int target = be.getRecipeHolder().resultFluid.isEmpty() ? 0 : be.getRecipeHolder().resultFluid.getAmount();
 			float prog = be.inProgress();
 			float visualProg = Mth.clamp((be.recipeProgress + pTick) / (float) Math.max(1, be.totalTime), 0, 1);
 			amount = Mth.lerp(visualProg, amount, (float) target);

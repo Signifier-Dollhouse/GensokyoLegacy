@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.oni;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
  * Suika's Blockbench rig.
@@ -14,7 +14,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  * plays still drives real bones, so it is wired as shipped. Re-export from Blockbench against
  * this mesh to get the cloth motion back.
  */
-public class SuikaModel extends DefaultedEntityGeoModel<SuikaEntity> {
+public class SuikaModel extends HeadBoneGeoModel<SuikaEntity> {
 
 	public SuikaModel() {
 		super(GensokyoLegacy.loc("suika"), "Head");

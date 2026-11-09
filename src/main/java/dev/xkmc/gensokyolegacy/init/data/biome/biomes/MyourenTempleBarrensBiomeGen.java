@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
@@ -67,7 +67,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.2f, 0.2f, 0x617fc1, 0x414d88, 0x5c78ac, 0x5a7182, 0x6f875a, 0x587c4d,
 				new MobSpawnSettings.Builder(),
 				layers(ctx)
@@ -84,7 +84,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, BARRENS_SCRUB, Feature.RANDOM_PATCH, onDirt(80, new Palette()
 				.add(Blocks.CORNFLOWER, 1)
 				.add(Blocks.DANDELION, 1)
@@ -93,7 +93,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 				.add(GLNaturalBlocks.TOWER_GRASS_SMALL, 2)
 				.add(GLNaturalBlocks.TOWER_GRASS_LARGE, 2)
 				.add(GLNaturalBlocks.SPOOKY_BUSH, 8)
-				.add(Blocks.SHORT_GRASS, 64).build()));
+				.add(Blocks.GRASS, 64).build()));
 		// the temple's own flower: mostly the two low sizes, and a large one in five
 		BlockState lotus = GLNaturalBlocks.GOLDEN_LOTUS.get().defaultBlockState();
 		FeatureUtils.register(ctx, GOLDEN_LOTUS, Feature.RANDOM_PATCH, patch(6, 7, 3, new Palette()

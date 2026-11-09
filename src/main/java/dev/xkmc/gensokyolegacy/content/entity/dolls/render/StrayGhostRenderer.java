@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.util.Color;
+import software.bernie.geckolib.core.object.Color;
 
 /**
  * The wild ghost fades with its power too; its starting 500-1000 is visible before it is ever bound.
@@ -24,8 +24,8 @@ public class StrayGhostRenderer extends GeoEntityRenderer<StrayGhostEntity> {
 	@Override
 	public Color getRenderColor(StrayGhostEntity animatable, float partialTick, int packedLight) {
 		Color base = super.getRenderColor(animatable, partialTick, packedLight);
-		return Color.ofARGB((int) (base.getAlpha() * animatable.powerAlpha()),
-				base.getRed(), base.getGreen(), base.getBlue());
+		return Color.ofRGBA(base.getRed(), base.getGreen(), base.getBlue(),
+				(int) (base.getAlpha() * animatable.powerAlpha()));
 	}
 
 	@Override

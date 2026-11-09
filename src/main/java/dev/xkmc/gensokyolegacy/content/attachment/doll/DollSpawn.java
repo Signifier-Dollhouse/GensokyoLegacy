@@ -64,14 +64,14 @@ public final class DollSpawn {
 	public static void setPos(Level level, BaseDollEntity doll, Vec3 pos) {
 		doll.setPos(pos);
 		var dim = doll.getDimensions(Pose.STANDING);
-		if (dim.width() * dim.width() * dim.height() > 64) return;
-		Vec3 center = doll.position().add(0, dim.height() / 2.0, 0);
-		double xz = Math.max(0, dim.width() - 1) + 1e-6;
-		double y = Math.max(0, dim.height() - 1) + 1e-6;
+		if (dim.width * dim.width * dim.height > 64) return;
+		Vec3 center = doll.position().add(0, dim.height / 2.0, 0);
+		double xz = Math.max(0, dim.width - 1) + 1e-6;
+		double y = Math.max(0, dim.height - 1) + 1e-6;
 		VoxelShape shape = Shapes.create(AABB.ofSize(center, xz, y, xz));
-		var found = level.findFreePosition(doll, shape, center, dim.width(), dim.height(), dim.width());
+		var found = level.findFreePosition(doll, shape, center, dim.width, dim.height, dim.width);
 		if (found.isPresent()) {
-			doll.setPos(found.get().add(0, -dim.height() / 2.0, 0));
+			doll.setPos(found.get().add(0, -dim.height / 2.0, 0));
 		}
 	}
 

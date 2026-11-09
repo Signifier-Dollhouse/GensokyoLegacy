@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.network;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
  * the body behind the camera neither swings nor loses anything.
  */
 public record HeadUseToServer(int headId, BlockPos pos, Direction face, Vec3 location)
-		implements SerialPacketBase<HeadUseToServer> {
+		implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

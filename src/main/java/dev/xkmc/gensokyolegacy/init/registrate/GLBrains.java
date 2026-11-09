@@ -4,8 +4,9 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.FairyFeedModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.CompoundPath;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.sensor.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.init.reg.simple.SR;
-import dev.xkmc.l2core.init.reg.simple.Val;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SR;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Val;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Unit;
@@ -34,7 +35,7 @@ public class GLBrains {
 
 	public static final Val<MemoryModuleType<CompoundPath>> MEM_PATH = MEMORIES.reg("path", () -> new MemoryModuleType<>(Optional.empty()));
 	public static final Val<MemoryModuleType<LivingEntity>> MEM_PREY = MEMORIES.reg("prey", () -> new MemoryModuleType<>(Optional.empty()));
-	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Unit.CODEC)));
+	public static final Val<MemoryModuleType<Unit>> MEM_DOWN = MEMORIES.reg("down", () -> new MemoryModuleType<>(Optional.of(Codec.unit(Unit.INSTANCE))));
 	public static final Val<MemoryModuleType<Player>> MEM_TALK = MEMORIES.reg("talk", () -> new MemoryModuleType<>(Optional.empty()));
 	/**
 	 * Who just fed her and what she owes them for it, held for the length of the animation she plays about

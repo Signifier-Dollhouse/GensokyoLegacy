@@ -106,9 +106,9 @@ public interface DollLoadout extends DollEntityImpl {
 		}
 
 		@Override
-		public void defineSynchedData(SynchedEntityData.Builder builder) {
+		public void defineSynchedData(SynchedEntityData data) {
 			for (DollSlot slot : DollSlot.values())
-				builder.define(accessorFor(slot), ItemStack.EMPTY);
+				data.define(accessorFor(slot), ItemStack.EMPTY);
 		}
 
 		@Override

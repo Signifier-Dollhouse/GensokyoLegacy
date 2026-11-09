@@ -18,12 +18,12 @@ public class MiasmaMushroomHugeBlock extends HugeMushroomBlock {
 	}
 
 	@Override
-	protected boolean isRandomlyTicking(BlockState state) {
+	public boolean isRandomlyTicking(BlockState state) {
 		return true;
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		MiasmaAirBlock.emitAround(level, pos, MAX_INTENSITY, random);
 	}
 

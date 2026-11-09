@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
@@ -62,10 +62,10 @@ public class TouhouHatRenderer implements ICurioRenderer {
 		if (followHead) {
 			ICurioRenderer.followHeadRotations(entity, model.head);
 		}
-		ResourceLocation texture = item.getArmorTexture(stack, entity, EquipmentSlot.HEAD, null, false);
-		if (texture == null) return;
-		VertexConsumer vc = buffer.getBuffer(RenderType.armorCutoutNoCull(texture));
-		model.renderToBuffer(pose, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0), -1);
+		String path = item.getArmorTexture(stack, entity, EquipmentSlot.HEAD, null);
+		if (path == null) return;
+		VertexConsumer vc = buffer.getBuffer(RenderType.armorCutoutNoCull(new ResourceLocation(path)));
+		model.renderToBuffer(pose, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0), 1f, 1f, 1f, 1f);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})

@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientList;
@@ -19,12 +19,12 @@ public record SubmitItemRequirement(
 		List<IngredientEntry> ingredients
 ) implements QuestRequirement<SubmitItemRequirement, EmptyTrigger>, IngredientList {
 
-	public static final MapCodec<SubmitItemRequirement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<SubmitItemRequirement> CODEC = RecordCodecBuilder.create(i -> i.group(
 			IngredientEntry.CODEC.listOf().fieldOf("ingredients").forGetter(SubmitItemRequirement::ingredients)
 	).apply(i, SubmitItemRequirement::new));
 
 	@Override
-	public MapCodec<SubmitItemRequirement> codec() {
+	public Codec<SubmitItemRequirement> codec() {
 		return CODEC;
 	}
 
@@ -53,7 +53,7 @@ public record SubmitItemRequirement(
 		}
 		if (ingredients.size() > 1) {
 			boolean pass = InventoryMapper.testCached(player, this);
-			ans.addFirst(pass ? GLLang.Quest.ITEM_SUBMIT_PASS.get() : GLLang.Quest.ITEM_SUBMIT_FAIL.get());
+			ans.add(0, pass ? GLLang.Quest.ITEM_SUBMIT_PASS.get() : GLLang.Quest.ITEM_SUBMIT_FAIL.get());
 		}
 		return ans;
 	}

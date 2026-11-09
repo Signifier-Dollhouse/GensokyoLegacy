@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.NetherPlacements;
@@ -44,7 +44,7 @@ public class HellOfBloodPoolsBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 1.2f, 0.0f, 0x6d1420, 0x5c1414, 0x7a2a2a, 0x6a2424, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.localMods(NETHER_BLOOD_PILLARS)
@@ -55,7 +55,7 @@ public class HellOfBloodPoolsBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, BLOOD_DEPOSIT, Feature.RANDOM_PATCH, onStone(20, new Palette()
 				.add(Blocks.NETHERRACK, 3).add(Blocks.CRIMSON_NYLIUM, 2).add(Blocks.REDSTONE_ORE, 2).build()));
 		FeatureUtils.register(ctx, BONE_PILE, Feature.RANDOM_PATCH, onStone(12, new Palette()

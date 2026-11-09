@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteraction;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -108,7 +108,7 @@ public class EntityInteractionCategory extends BaseRecipeCategory<EntityType<?>,
 				GLJeiUtil.text(builder, part.line().worth(), GLJeiUtil.PAD,
 								part.y() + (GLJeiUtil.SLOT - GLJeiUtil.LINE) / 2, LABEL, GLJeiUtil.LINE)
 						.setTextAlignment(HorizontalAlignment.RIGHT);
-				builder.addRecipeArrowWidget().setPosition(ARROW_X, part.y());
+				builder.addRecipeArrow().setPosition(ARROW_X, part.y());
 			}
 		}
 		GLJeiUtil.text(builder, recipe.getDescription(), GLJeiUtil.PAD, TEXT_Y,

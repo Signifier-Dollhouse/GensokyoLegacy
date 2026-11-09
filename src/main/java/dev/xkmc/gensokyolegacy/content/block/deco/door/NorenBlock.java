@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.door;
 
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
 import dev.xkmc.l2modularblock.one.ShapeBlockMethod;
 import net.minecraft.core.BlockPos;

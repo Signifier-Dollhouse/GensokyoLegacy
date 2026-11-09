@@ -13,8 +13,8 @@ import net.minecraft.util.Mth;
 final class GhostPowerModule implements DollModule {
 
 	@Override
-	public void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(GhostEntity.DATA_POWER, GhostPower.MAX);
+	public void defineSynchedData(SynchedEntityData data) {
+		data.define(GhostEntity.DATA_POWER, GhostPower.MAX);
 	}
 
 	@Override

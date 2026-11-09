@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -19,7 +18,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class WaterloggedBushBlock extends SimpleBushBlock implements SimpleWaterloggedBlock {
 
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-	private static final MapCodec<WaterloggedBushBlock> CODEC = simpleCodec(WaterloggedBushBlock::new);
 
 	public WaterloggedBushBlock(Properties properties, VoxelShape shape) {
 		super(properties, shape);
@@ -30,10 +28,6 @@ public class WaterloggedBushBlock extends SimpleBushBlock implements SimpleWater
 		this(properties, FULL);
 	}
 
-	@Override
-	public MapCodec<? extends BushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

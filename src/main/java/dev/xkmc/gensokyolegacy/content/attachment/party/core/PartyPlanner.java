@@ -94,7 +94,7 @@ public class PartyPlanner {
 				.sorted(Comparator.comparingInt(Candidate::weight).reversed())
 				.toList();
 		if (viable.isEmpty()) return null;
-		var best = viable.getFirst();
+		var best = viable.get(0);
 		return best.fulfillment() > capacity ? Map.entry(best, Miss.TOO_PLAIN) : Map.entry(best, Miss.NO_SEAT);
 	}
 

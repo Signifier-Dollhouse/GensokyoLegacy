@@ -12,85 +12,85 @@ logoFile = "logo.png" #optional
 config = "${mod_id}.mixins.json"
 [[dependencies.${mod_id}]] #optional
 modId = "forge" #mandatory
-type = "required" #mandatory
+mandatory = true #mandatory
 versionRange = "${loader_version_range}" #mandatory
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "minecraft"
-type = "required"
+mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "l2library"
-type = "required"
+mandatory = true
 versionRange = "[2.5.6,)"
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "geckolib"
-type = "required"
+mandatory = true
 versionRange = "[4.4,)"
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "terrablender"
-type = "required"
+mandatory = true
 versionRange = "${terrablender_version_range}"
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "patchouli"
-type = "required"
+mandatory = true
 versionRange = "[1.20,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "curios"
-type = "required"
+mandatory = true
 versionRange = "[5.10,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "farmersdelight"
-type = "optional"
+mandatory = false
 versionRange = "[1.20.1-1.2,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "youkaisfeasts"
-type = "optional"
+mandatory = false
 versionRange = "[0.5,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "displaydelight"
-type = "optional"
+mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "kaleidoscope_cookery"
-type = "optional"
+mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "someassemblyrequired"
-type = "optional"
+mandatory = false
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "touhou_little_maid"
-type = "optional"
+mandatory = false
 versionRange = "[1.1,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "jei"
-type = "optional"
+mandatory = false
 versionRange = "[15,)"
 ordering = "AFTER"
 side = "BOTH"

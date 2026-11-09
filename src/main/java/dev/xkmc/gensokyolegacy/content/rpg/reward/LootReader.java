@@ -2,13 +2,11 @@ package dev.xkmc.gensokyolegacy.content.rpg.reward;
 
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestReward;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootDataResolver;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.CompositeEntryBase;
@@ -37,11 +35,11 @@ public class LootReader {
 	 * a page for a quest is the only thing that needs them.
 	 */
 	public static LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> questRewards(MinecraftServer server) {
-		var registries = server.reloadableRegistries();
+		var registries = server.getLootData();
 		Set<ResourceLocation> tables = new LinkedHashSet<>();
 		for (var quest : CodecRegistry.QUEST.getAll(server.registryAccess()).toList())
 			for (QuestReward<?> reward : quest.value().rewards())
-				if (reward instanceof LootTableReward(ResourceLocation table)) tables.add(table);
+				if (reward instanceof LootTableReward loot) tables.add(loot.table());
 		LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> ans = new LinkedHashMap<>();
 		for (var table : tables) ans.put(table, of(table, registries));
 		return ans;
@@ -51,8 +49,8 @@ public class LootReader {
 	 * Everything the table {@code id} names can drop, one entry per item, its count folded in
 	 * from however many pools, rolls and functions ask for it.
 	 */
-	public static ArrayList<LootDrop> of(ResourceLocation id, ReloadableServerRegistries.Holder registries) {
-		var table = registries.getLootTable(ResourceKey.create(Registries.LOOT_TABLE, id));
+	public static ArrayList<LootDrop> of(ResourceLocation id, LootDataResolver registries) {
+		var table = registries.getLootTable(id);
 		if (table == LootTable.EMPTY) return new ArrayList<>();
 		ArrayList<LootDrop> drops = new ArrayList<>();
 		for (LootPool pool : table.pools) readPool(pool, drops);
@@ -86,7 +84,7 @@ public class LootReader {
 	 * The count an entry's {@code set_count} functions ask for, or null if they do not say one. Anything else
 	 * they do either leaves the count alone or changes the item in ways a page cannot show.
 	 */
-	private static @Nullable Range readCount(List<LootItemFunction> functions) {
+	private static @Nullable Range readCount(LootItemFunction[] functions) {
 		Range ans = new Range(1, 1);
 		for (LootItemFunction function : functions) {
 			if (!(function instanceof SetItemCountFunction set)) continue;
@@ -126,7 +124,7 @@ public class LootReader {
 
 	private static int indexOf(List<LootDrop> list, ItemStack stack) {
 		for (int i = 0; i < list.size(); i++)
-			if (ItemStack.isSameItemSameComponents(list.get(i).stack(), stack)) return i;
+			if (ItemStack.isSameItemSameTags(list.get(i).stack(), stack)) return i;
 		return -1;
 	}
 
@@ -136,12 +134,12 @@ public class LootReader {
 	 */
 	private static @Nullable Range range(NumberProvider provider) {
 		if (provider instanceof ConstantValue constant) {
-			int value = Mth.floor(constant.value());
+			int value = Mth.floor(constant.value);
 			return new Range(value, value);
 		}
 		if (provider instanceof UniformGenerator uniform) {
-			Range min = range(uniform.min());
-			Range max = range(uniform.max());
+			Range min = range(uniform.min);
+			Range max = range(uniform.max);
 			if (min == null || max == null) return null;
 			return new Range(min.min(), max.max());
 		}

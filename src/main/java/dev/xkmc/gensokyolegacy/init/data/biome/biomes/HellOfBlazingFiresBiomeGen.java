@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.NetherFeatures;
 import net.minecraft.data.worldgen.placement.NetherPlacements;
@@ -60,7 +60,7 @@ public class HellOfBlazingFiresBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 1.5f, 0.0f, 0xc2410a, 0x8c2f0e, 0x6b4030, 0x5a3528, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.surfaceStructures(BASALT_COLUMNS)
@@ -72,7 +72,7 @@ public class HellOfBlazingFiresBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, FIRE_VENT, Feature.RANDOM_PATCH, onStone(16, new Palette()
 				.add(Blocks.MAGMA_BLOCK, 3).add(Blocks.BLACKSTONE, 2).add(Blocks.BASALT, 2).add(Blocks.GRAVEL, 1).build()));
 		FeatureUtils.register(ctx, ASH_PATCH, Feature.RANDOM_PATCH, onStone(24, new Palette()

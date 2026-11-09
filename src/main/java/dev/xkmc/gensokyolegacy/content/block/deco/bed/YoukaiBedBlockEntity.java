@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.content.block.base.IDebugInfoBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.base.LocatedBlockEntity;
 import dev.xkmc.gensokyolegacy.content.client.debug.BlockInfoToClient;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;

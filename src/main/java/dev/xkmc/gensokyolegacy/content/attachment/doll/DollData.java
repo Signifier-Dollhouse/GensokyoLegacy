@@ -5,9 +5,8 @@ import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageRefactorEntity.Co
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItemData;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.component.DataComponents;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
@@ -32,16 +31,16 @@ public class DollData {
 	 * (item.md §2).
 	 */
 	public static DollData fromItemData(ItemStack stack, Vec3 pos, ResourceLocation dim, float yRot) {
-		DollItemData item = stack.get(GLItems.DOLL_DATA.get());
+		DollItemData item = GLItems.DOLL_DATA.get(stack);
 		if (item == null) item = DollItemData.fresh();
-		DollInventory loadout = stack.get(GLItems.DOLL_LOADOUT.get());
+		DollInventory loadout = GLItems.DOLL_LOADOUT.get(stack);
 		DollData data = new DollData();
 		data.type = stack.getItem() instanceof DollItem doll ? doll.dollType() : DollItem.TYPE;
 		data.dimension = dim;
 		data.position = pos;
 		data.yRot = yRot;
 		data.combat = item.combat();
-		data.customName = stack.get(DataComponents.CUSTOM_NAME);
+		data.customName = stack.hasCustomHoverName() ? stack.getHoverName() : null;
 		data.color = DollItem.colorOf(stack);
 		data.inventory = loadout == null ? new MutableDollInventory() : MutableDollInventory.fromInventory(loadout);
 		return data;

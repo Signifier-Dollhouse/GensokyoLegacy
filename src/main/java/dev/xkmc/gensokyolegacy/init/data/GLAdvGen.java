@@ -10,28 +10,24 @@ import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeG
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.SakuraForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
-import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
-import dev.xkmc.l2core.serial.advancements.AdvancementGenerator;
-import dev.xkmc.l2core.serial.advancements.CriterionBuilder;
+import dev.xkmc.l2library.serial.advancements.AdvancementGenerator;
+import dev.xkmc.l2library.serial.advancements.IAdvBuilder;
+import dev.xkmc.l2library.serial.advancements.CriterionBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.critereon.*;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
-
-import java.util.Optional;
 
 public class GLAdvGen {
 	public static final ResourceLocation KOISHI_FIRST = GensokyoLegacy.loc("koishi_first");
@@ -78,12 +74,9 @@ public class GLAdvGen {
 	 * fed on the same two tiers, so both count here. A direct holder set rather than a tag, because the list is closed
 	 * - one more entity for whoever next teaches a fairy to eat.
 	 */
-	private static Criterion<FeedCharacterTrigger.TriggerInstance> fedAFairy() {
-		var fairies = HolderSet.direct(
-				GLEntities.PLAIN_FAIRY.get().builtInRegistryHolder(),
-				GLEntities.CIRNO.get().builtInRegistryHolder());
+	private static CriterionTriggerInstance fedAFairy() {
 		return FeedCharacterTrigger.TriggerInstance.usedItem(GLCriteriaTriggers.FEED_FAIRY, null,
-				EntityPredicate.Builder.entity().entityType(new EntityTypePredicate(fairies)).build(), null);
+				EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(GLTagGen.FEEDABLE_FAIRIES)).build(), null);
 	}
 
 	/**
@@ -100,10 +93,10 @@ public class GLAdvGen {
 
 	public static void genAdv(RegistrateAdvancementProvider pvd) {
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_first",
-				GLCriteriaTriggers.KOISHI_FIRST.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
+				new Criterion(new PlayerTrigger.TriggerInstance(GLCriteriaTriggers.KOISHI_FIRST.id(), ContextAwarePredicate.ANY))
 		).build(KOISHI_FIRST));
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_hat",
-				GLCriteriaTriggers.KOISHI_HAT.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
+				new Criterion(new PlayerTrigger.TriggerInstance(GLCriteriaTriggers.KOISHI_HAT.id(), ContextAwarePredicate.ANY))
 		).build(KOISHI_HAT));
 
 		var gen = new AdvancementGenerator(pvd, GensokyoLegacy.MODID);
@@ -113,171 +106,172 @@ public class GLAdvGen {
 		var root = tab.root("welcome", GLItems.BORDER_UMBRELLA.get(),
 				CriterionBuilder.or()
 						.add(PlayerTrigger.TriggerInstance.located(
-								LocationPredicate.Builder.location().setBiomes(HolderSet.direct(
-										resolveBiome(pvd, MagicalForestBiomeGen.KEY),
-										resolveBiome(pvd, SakuraForestBiomeGen.KEY),
-										resolveBiome(pvd, MyourenTempleBarrensBiomeGen.KEY),
-										resolveBiome(pvd, GapBiomeGen.KEY)))))
+								LocationPredicate.inBiome(MagicalForestBiomeGen.KEY)))
+						.add(PlayerTrigger.TriggerInstance.located(
+								LocationPredicate.inBiome(SakuraForestBiomeGen.KEY)))
+						.add(PlayerTrigger.TriggerInstance.located(
+								LocationPredicate.inBiome(MyourenTempleBarrensBiomeGen.KEY)))
+						.add(PlayerTrigger.TriggerInstance.located(
+								LocationPredicate.inBiome(GapBiomeGen.KEY)))
 						.add(fedAFairy()),
 				"Welcome to Gensokyo", "Find your way in this new world");
-		root.add((id, builder, conditions) -> builder.rewards(
-				AdvancementRewards.Builder.loot(ResourceKey.create(Registries.LOOT_TABLE,
-						GensokyoLegacy.loc("tools_guide"))).build()));
+		root.add(new IAdvBuilder() {
+			@Override
+			public void modify(String id, Advancement.Builder builder) {
+				builder.rewards(AdvancementRewards.Builder.loot(GensokyoLegacy.loc("tools_guide")).build());
+			}
+		});
 		var hakurei = root.create("enter_hakurei_shrine", Items.CHERRY_SAPLING,
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
-						LocationPredicate.Builder.inStructure(resolve(pvd, "hakurei_shrine")))),
+						LocationPredicate.inStructure(structure("hakurei_shrine")))),
 				"Hakurei Shrine", "Enter the Hakurei Shrine");
 		var marisaHouse = root.create("enter_marisa_house", Items.RED_MUSHROOM_BLOCK,
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
-						LocationPredicate.Builder.inStructure(resolve(pvd, "marisa_house")))),
+						LocationPredicate.inStructure(structure("marisa_house")))),
 				"Kirisame House", "Enter Marisa's house in the Magical Forest");
 		var morichika = root.create("enter_morichika_shop", GLItems.COIN.get(),
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
-						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
+						LocationPredicate.inStructure(structure("morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
 		// Purple is the last of Alice's seven dyes, and the glove she weaves
 		// them into hangs off this branch rather than off Marisa's alchemy pot.
 		var aliceHouse = root.create("enter_alice_house", Items.PURPLE_DYE,
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
-						LocationPredicate.Builder.inStructure(resolve(pvd, "alice_house")))),
+						LocationPredicate.inStructure(structure("alice_house")))),
 				"Margatroid Cottage", "Enter Alice's house in the Magical Forest");
 		// Entry.create() parents to the builder it is called on, so both hang off alchemy
 		// itself - chaining them off one another would bury the broom under the sealing pot.
 		var alchemy = marisaHouse.create("alchemy", GLBlocks.ALCHEMY_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.ALCHEMY_POT.asItem()),
 						"Alchemy Pot", "Obtain an Alchemy Pot")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		alchemy.create("obtain_sealing_pot", GLBlocks.SEALING_POT.asItem(),
 						CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
 						"Sealing Pot", "Obtain a Sealing Pot")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		alchemy.create("obtain_broom", GLItems.BROOM.get(),
 						CriterionBuilder.item(GLItems.BROOM.get()),
 						"Flying Broom", "Obtain a Flying Broom")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		aliceHouse.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
 						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
 						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// The head is Alice's first gadget, so it hangs beside the glove rather than opening a
 		// branch of its own; the book entry it unlocks is filed under the special items instead.
 		aliceHouse.create("obtain_sekibanki_head", GLItems.SEKIBANKI_HEAD.get(),
 						CriterionBuilder.item(GLItems.SEKIBANKI_HEAD.get()),
 						"Sekibanki's Head", "Obtain Sekibanki's Head")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// Hangs off the root rather than off one of the four houses: a fairy is found
 		// in the woods, not behind a door, so there is no structure to hang it under.
 		var feedFairy = root.create("feed_fairy", GLItems.FAIRY_CAKE.get(),
 						CriterionBuilder.one(fedAFairy()),
 						"Fairy Feeding", "Feed a fairy")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		// Feeding a Cirno a cake buys the crystal, and the crystal is what freezes a frog - so the frog hangs
 		// under the crystal rather than beside it, and both of them under feeding, the step that needs a fairy.
 		feedFairy.create("obtain_fairy_ice_crystal", GLItems.FAIRY_ICE_CRYSTAL.get(),
 						CriterionBuilder.item(GLItems.FAIRY_ICE_CRYSTAL.get()),
 						"Fairy Ice Crystal", "Obtain a Fairy Ice Crystal")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_frozen_frog", GLItems.FROZEN_FROG_TEMPERATE.get(),
 						anyItem(GLItems.FROZEN_FROG_COLD.asItem(), GLItems.FROZEN_FROG_WARM.asItem(),
 								GLItems.FROZEN_FROG_TEMPERATE.asItem()),
 						"Frozen Frog", "Obtain a Frozen Frog")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// Ice wings are cut from crystals and fairy wings from dust, so either one answers the same question
 		// and there is nothing to hang the other under. The icon is the ice pair: it is the better one.
 		feedFairy.create("obtain_wings", GLItems.ICE_WINGS.get(),
 						anyItem(GLItems.ICE_WINGS.asItem(), GLItems.FAIRY_WINGS.asItem()),
 						"Wings", "Obtain a pair of wings")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// The ghost chain starts at the grave: the offering is what brings a stray into the world,
 		// and the flute is the next step that keeps it.
 		var gravestone = root.create("gravestone_summon", GLFurniture.GRAVESTONE.asItem(),
-						CriterionBuilder.player(GLCriteriaTriggers.GRAVESTONE_SUMMON.get()),
+						CriterionBuilder.one(new PlayerTrigger.TriggerInstance(GLCriteriaTriggers.GRAVESTONE_SUMMON.id(), ContextAwarePredicate.ANY)),
 						"Grave Offering", "Summon a ghost with an offering at a gravestone")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		var bindGhost = gravestone.create("bind_ghost", GLItems.BONE_FLUTE.get(),
-						CriterionBuilder.player(GLCriteriaTriggers.BIND_GHOST.get()),
+						CriterionBuilder.one(new PlayerTrigger.TriggerInstance(GLCriteriaTriggers.BIND_GHOST.id(), ContextAwarePredicate.ANY)),
 						"Bone Flute", "Bind a wild ghost with a bone flute")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		bindGhost.create("obtain_yuyuko_fan", GLItems.YUYUKO_FAN.get(),
 						CriterionBuilder.item(GLItems.YUYUKO_FAN.get()),
 						"Yuyuko's Fan", "Obtain Yuyuko's Fan")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		// Spiritual power is its own branch: the fan and the anchor both carry a pool, so the icon
 		// is the anchor and the tag keeps future carriers from needing a second advancement.
 		var spiritualTool = root.create("obtain_spiritual_tool", GLItems.MINAMITSU_ANCHOR.get(),
 						CriterionBuilder.item(GLTagGen.SPIRITUAL_TOOLS),
 						"Spiritual Tool", "Obtain a tool that holds spiritual power")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		spiritualTool.create("jizo_restore", GLFurniture.JIZO.asItem(),
-						CriterionBuilder.player(GLCriteriaTriggers.JIZO_RESTORE.get()),
+						CriterionBuilder.one(new PlayerTrigger.TriggerInstance(GLCriteriaTriggers.JIZO_RESTORE.id(), ContextAwarePredicate.ANY)),
 						"Jizo's Blessing", "Restore spiritual power at a Jizo statue")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		spiritualTool.create("gain_spiritual", GLItems.GOLDEN_LOTUS_TEA.get(),
 						CriterionBuilder.one(EffectsChangedTrigger.TriggerInstance.hasEffects(
-								MobEffectsPredicate.Builder.effects().and(GLEffects.SPIRITUAL))),
+								MobEffectsPredicate.ANY.and(GLEffects.SPIRITUAL.get()))),
 						"Spiritual Surge", "Gain the Spiritual effect")
-				.type(AdvancementType.TASK, true, true, false);
+				.type(FrameType.TASK, true, true, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),
 						CriterionBuilder.item(GLTagGen.TALISMAN),
 						"Paper Talismans", "Obtain a paper talisman")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_gap_portal", GLBlocks.GAP_PORTAL.asItem(),
 						CriterionBuilder.item(GLBlocks.GAP_PORTAL.asItem()),
 						"Gap Portal", "Obtain a Gap Portal")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_border_umbrella", GLItems.BORDER_UMBRELLA.get(),
 						CriterionBuilder.item(GLItems.BORDER_UMBRELLA.get()),
 						"Border Umbrella", "Obtain a Border Umbrella")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// The repaired copy hangs off the prototype rather than continuing the
 		// Morichika chain: it comes from Marisa's bench, not from his shelf.
 		var miniHakkero = morichika.create("obtain_mini_hakkero", GLItems.MINI_HAKKERO_PROTOTYPE.get(),
 						CriterionBuilder.item(GLItems.MINI_HAKKERO_PROTOTYPE.get()),
 						"Mini Hakkero", "Obtain a Mini Hakkero Prototype")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		miniHakkero.create("obtain_mini_hakkero_repaired", GLItems.MINI_HAKKERO.get(),
 						CriterionBuilder.item(GLItems.MINI_HAKKERO.get()),
 						"Mini Hakkero [Repaired]", "Have Marisa repair your Mini Hakkero")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		// The bell hangs off the glasses rather than off the hakkero: it is
 		// Morichika's stock too, and the glasses are what you wear to find it.
 		morichika.create("obtain_strange_glasses", GLItems.STRANGE_GLASSES.get(),
 						CriterionBuilder.item(GLItems.STRANGE_GLASSES.get()),
 						"Strange Glasses", "Obtain the Strange Glasses")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_cat_bell", GLItems.CAT_BELL.get(),
 						CriterionBuilder.item(GLItems.CAT_BELL.get()),
 						"Cat Bell", "Obtain a Cat Bell")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_centipickaxe", GLItems.CENTIPICKAXE.get(),
 						CriterionBuilder.item(GLItems.CENTIPICKAXE.get()),
 						"Centipeck", "Obtain a Centipeck")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_dowser", GLItems.DOWSER.get(),
 						CriterionBuilder.item(GLItems.DOWSER.get()),
 						"Dowser", "Obtain Nazrin's Dowser")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_mermaid_pearl", GLItems.MERMAID_PEARL.get(),
 						CriterionBuilder.item(GLItems.MERMAID_PEARL.get()),
 						"Mermaid's Pearl", "Obtain a Mermaid's Pearl")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		morichika.create("obtain_iron_dagger", GLItems.IRON_DAGGER.get(),
 						CriterionBuilder.item(GLItems.IRON_DAGGER.get()),
 						"Iron Dagger", "Obtain an Iron Dagger")
-				.type(AdvancementType.TASK, false, false, false)
+				.type(FrameType.TASK, false, false, false)
 				.create("obtain_dagger_glove", GLItems.DAGGER_GLOVE.get(),
 						CriterionBuilder.item(GLItems.DAGGER_GLOVE.get()),
 						"Dagger Glove", "Obtain a Dagger Glove")
-				.type(AdvancementType.TASK, false, false, false);
+				.type(FrameType.TASK, false, false, false);
 		root.finish();
 	}
 
-	private static Holder<Biome> resolveBiome(RegistrateAdvancementProvider pvd, ResourceKey<Biome> key) {
-		return pvd.resolve(key);
-	}
-
-	private static Holder<Structure> resolve(RegistrateAdvancementProvider pvd, String id) {
-		return pvd.resolve(ResourceKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(id)));
+	private static ResourceKey<Structure> structure(String id) {
+		return ResourceKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(id));
 	}
 
 }

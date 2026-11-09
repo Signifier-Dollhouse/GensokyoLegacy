@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.anchor.network;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorThrow;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
  *
  * @see "doc/design/minamitsu_anchor.md"
  */
-public record AnchorSwingPacket() implements SerialPacketBase<AnchorSwingPacket> {
+public record AnchorSwingPacket() implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

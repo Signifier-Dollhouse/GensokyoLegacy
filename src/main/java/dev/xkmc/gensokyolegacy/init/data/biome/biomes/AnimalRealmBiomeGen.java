@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.NetherPlacements;
 import net.minecraft.data.worldgen.placement.TreePlacements;
@@ -51,7 +51,7 @@ public class AnimalRealmBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.7f, 0.8f, 0x2f4a3a, 0x2c3a30, 0x5a6b45, 0x4e5c3c, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(ANIMAL_REALM_LAKE_STEP)
@@ -64,7 +64,7 @@ public class AnimalRealmBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, DEN_RUBBLE, Feature.RANDOM_PATCH, onStone(16, new Palette()
 				.add(Blocks.BONE_BLOCK, 3).add(Blocks.COBWEB, 2)
 				.add(Blocks.COBBLESTONE, 2).add(Blocks.SPRUCE_FENCE, 1).build()));

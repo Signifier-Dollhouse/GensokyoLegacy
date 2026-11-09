@@ -6,8 +6,8 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRune;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveRunes;
 import dev.xkmc.gensokyolegacy.content.item.tool.IronDaggerItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.entity.PartEntity;
+import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**

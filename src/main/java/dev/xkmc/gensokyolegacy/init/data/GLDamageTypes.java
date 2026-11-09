@@ -1,11 +1,12 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
-import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import dev.xkmc.l2damagetracker.contents.damage.DamageWrapperTagProvider;
 import dev.xkmc.l2damagetracker.init.data.DamageTypeAndTagsGen;
 import dev.xkmc.l2damagetracker.init.data.L2DamageTypes;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
@@ -15,6 +16,9 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.data.ExistingFileHelper;
+
+import java.util.concurrent.CompletableFuture;
 
 public class GLDamageTypes extends DamageTypeAndTagsGen {
 
@@ -26,23 +30,23 @@ public class GLDamageTypes extends DamageTypeAndTagsGen {
 
 	public static final TagKey<DamageType> IS_NATURE = TagKey.create(Registries.DAMAGE_TYPE, GensokyoLegacy.loc("is_nature"));
 
-	public GLDamageTypes(L2Registrate reg) {
-		super(reg);
+	public GLDamageTypes(PackOutput output, CompletableFuture<HolderLookup.Provider> pvd,
+						 ExistingFileHelper helper, String modid) {
+		super(output, pvd, helper, modid);
 		new DamageTypeHolder(KOISHI, new DamageType("koishi_attack", 0.1f))
 				.add(L2DamageTypes.BYPASS_MAGIC);
 		new DamageTypeHolder(RUMIA, new DamageType("rumia_attack", 0.1f))
 				.add(L2DamageTypes.BYPASS_MAGIC);
 		new DamageTypeHolder(DROWNING, new DamageType("drown", 0.0F, DamageEffects.DROWNING))
-				.add(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.BYPASSES_WOLF_ARMOR,
-						DamageTypeTags.IS_DROWNING, DamageTypeTags.NO_IMPACT,
-						DamageTypeTags.NO_KNOCKBACK, DamageTypeTags.WITHER_IMMUNE_TO,
+				.add(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.IS_DROWNING,
+						DamageTypeTags.NO_IMPACT, DamageTypeTags.WITHER_IMMUNE_TO,
 						DamageTypeTags.BYPASSES_COOLDOWN);
 	}
 
 	@Override
-	protected void addDamageTypeTags(RegistrateTagsProvider.Impl<DamageType> pvd) {
-		super.addDamageTypeTags(pvd);
-		pvd.addTag(IS_NATURE).add(DamageTypes.CACTUS, DamageTypes.SWEET_BERRY_BUSH);
+	protected void addDamageTypeTags(DamageWrapperTagProvider pvd, HolderLookup.Provider lookup) {
+		super.addDamageTypeTags(pvd, lookup);
+		pvd.tag(IS_NATURE).add(DamageTypes.CACTUS, DamageTypes.SWEET_BERRY_BUSH);
 	}
 
 	public static DamageSource koishi(LivingEntity target, Vec3 source) {

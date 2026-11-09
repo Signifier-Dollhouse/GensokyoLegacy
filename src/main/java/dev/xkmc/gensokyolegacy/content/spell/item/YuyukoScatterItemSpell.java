@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.ButterflyDanmakuBulletEntity;
 import dev.xkmc.gensokyolegacy.content.item.ghost.ButterflyDanmakuItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;

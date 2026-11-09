@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init;
 
 import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
@@ -14,6 +15,9 @@ import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
+import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
+import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
@@ -35,32 +39,51 @@ import dev.xkmc.gensokyolegacy.init.data.structure.ReportBlocksInStructure;
 import dev.xkmc.gensokyolegacy.init.registrate.*;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.mixin.ItemAccessor;
-import dev.xkmc.l2core.compat.patchouli.PatchouliHelper;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
-import dev.xkmc.l2core.init.reg.simple.Reg;
+import dev.xkmc.gensokyolegacy.util.ProjectileDispenser;
+import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
+import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkAreaAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.misc.ChunkMiscDataAttachment;
+import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
+import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
+import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
+import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
+import dev.xkmc.gensokyolegacy.compat.l2lib.GLRegistrate;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Reg;
 import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
-import dev.xkmc.l2serial.network.PacketHandler;
+import dev.xkmc.l2library.serial.config.PacketHandler;
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityHolder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
+import net.minecraftforge.data.event.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
 import vazkii.patchouli.api.PatchouliAPI;
 
 import java.util.Arrays;
+import java.util.Set;
 
 @Mod(GensokyoLegacy.MODID)
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
@@ -70,7 +93,7 @@ public class GensokyoLegacy {
 
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
-	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
+	public static final GLRegistrate REGISTRATE = new GLRegistrate(MODID);
 	public static final PacketHandler HANDLER = GLPackets.create(4);
 
 	public GensokyoLegacy() {
@@ -102,29 +125,55 @@ public class GensokyoLegacy {
 		new GLClickHandler(loc("main"));
 		AttackEventHandler.register(1765, new GLAttackListener());
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			NeoForge.EVENT_BUS.register(TLMCompat.class);
+			MinecraftForge.EVENT_BUS.register(TLMCompat.class);
 		}
 	}
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				GLBlocks.ALCHEMY_POT_BE.get(),
-				(be, dir) -> be.getItemCap(dir));
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				GLBlocks.ALCHEMY_POT_BE.get(),
-				(be, dir) -> be.getTankCap(dir));
-		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexBrewWrapper(stack),
-				Items.GLASS_BOTTLE);
-		var hexBottles = Arrays.stream(HexBrew.values()).map(e -> e.bottle.asItem()).toArray(Item[]::new);
-		event.registerItem(Capabilities.FluidHandler.ITEM, (stack, ctx) -> new HexBrewWrapper(stack),
-				hexBottles);
+		// Block-entity and item providers are attached on their owners in 1.20.1; this only
+		// declares the attachment-style capability types, which are keyed by the class token.
+		event.register(CharacterAttachment.class);
+		event.register(QuestAttachment.class);
+		event.register(TradeAttachment.class);
+		event.register(StructureAttachment.class);
+		event.register(KoishiAttackCapability.class);
+		event.register(DollAttachment.class);
+		event.register(GloveTargetAttachment.class);
+		event.register(FrogGodCapability.class);
+		event.register(LevelAreaAttachment.class);
+		event.register(ChunkAreaAttachment.class);
+		event.register(ChunkMiscDataAttachment.class);
+		event.register(PartyAttachment.class);
+	}
+
+	@SubscribeEvent
+	public static void attachChunkCapabilities(AttachCapabilitiesEvent<LevelChunk> event) {
+		attach(event);
+	}
+
+	@SubscribeEvent
+	public static void attachLevelCapabilities(AttachCapabilitiesEvent<Level> event) {
+		attach(event);
+	}
+
+	/**
+	 * L2Library only attaches entity capabilities on its own; chunks and levels need the same
+	 * pass so {@code AttVal.type().getOrCreate(...)} finds a provider.
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static void attach(AttachCapabilitiesEvent<?> event) {
+		if (!(event.getObject() instanceof ICapabilityProvider obj)) return;
+		for (GeneralCapabilityHolder holder : GeneralCapabilityHolder.INTERNAL_MAP.values()) {
+			if (holder.entity_class.isInstance(obj)) {
+				((AttachCapabilitiesEvent) event).addCapability(holder.id, holder.generateSerializer(obj));
+			}
+		}
 	}
 
 	@SubscribeEvent
 	public static void commonSetup(FMLCommonSetupEvent event) {
+		PacketHandler.setup(event);
 		event.enqueueWork(() -> {
 			BlockFoods.register();
 			BorderUmbrellaSelectionListener.register();
@@ -134,14 +183,18 @@ public class GensokyoLegacy {
 			AnchorSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 
-			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());
-			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
-			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
-			DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.EXPLOSIVE_HEXBREW.bottle.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.MIASMA_HEXBREW.bottle.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_EXPLOSIVE_HEXBREW.bottle.get());
-			DispenserBlock.registerProjectileBehavior(HexBrew.REFINED_MIASMA_HEXBREW.bottle.get());
+			ProjectileDispenser.register(GLItems.FROZEN_FROG_COLD.get(), ProjectileDispenser.thrown(FrozenFrog::new));
+			ProjectileDispenser.register(GLItems.FROZEN_FROG_WARM.get(), ProjectileDispenser.thrown(FrozenFrog::new));
+			ProjectileDispenser.register(GLItems.FROZEN_FROG_TEMPERATE.get(), ProjectileDispenser.thrown(FrozenFrog::new));
+			ProjectileDispenser.register(GLItems.FAIRY_ICE_CRYSTAL.get(), ProjectileDispenser.thrown(FairyIce::new));
+			ProjectileDispenser.register(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(),
+					ProjectileDispenser.thrown(HexBrewBottleEntity::new));
+			ProjectileDispenser.register(HexBrew.MIASMA_HEXBREW.bottle.get(),
+					ProjectileDispenser.thrown(HexBrewBottleEntity::new));
+			ProjectileDispenser.register(HexBrew.REFINED_EXPLOSIVE_HEXBREW.bottle.get(),
+					ProjectileDispenser.thrown(HexBrewBottleEntity::new));
+			ProjectileDispenser.register(HexBrew.REFINED_MIASMA_HEXBREW.bottle.get(),
+					ProjectileDispenser.thrown(HexBrewBottleEntity::new));
 
 			((ItemAccessor) Items.POTION).setCraftingRemainingItem(Items.GLASS_BOTTLE);
 			((ItemAccessor) Items.DRAGON_BREATH).setCraftingRemainingItem(Items.GLASS_BOTTLE);
@@ -155,30 +208,39 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, GLTagGen::onBlockTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, GLTagGen::onItemTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ENTITY_TAGS, GLTagGen::onEntityTagGen);
-		REGISTRATE.addDataGenerator(GLBiomeGen.BIOME_TAG, GLBiomeGen::genBiomeTag);
-		REGISTRATE.addDataGenerator(GLStructureTagGen.STRUCTURE_TAG, GLStructureTagGen::genStructureTag);
-		REGISTRATE.addDataGenerator(ProviderType.DATA_MAP, GLDataMapGen::dataMapGen);
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
-		var init = REGISTRATE.getDataGenInitializer();
-		init.addDependency(GLBiomeGen.BIOME_TAG, ProviderType.DYNAMIC);
-		init.addDependency(GLStructureTagGen.STRUCTURE_TAG, ProviderType.DYNAMIC);
-		init.addDependency(ProviderType.ADVANCEMENT, ProviderType.DYNAMIC);
+		var gen = event.getGenerator();
+		var out = gen.getPackOutput();
+		var helper = event.getExistingFileHelper();
+		var init = new DataProviderInitializer();
 		GLDimensionGen.init(init);
 		GLBiomeGen.init(init);
 		GLBiomeModifierGen.init(init);
 		GLStructureGen.init(init);
-		new GLDamageTypes(REGISTRATE).generate();
+		new GLDamageTypes(out, event.getLookupProvider(), helper, MODID)
+				.generate(event.includeServer(), gen);
 
-		var gen = event.getGenerator();
-		var out = gen.getPackOutput();
-		var helper = event.getExistingFileHelper();
-		var pvd = event.getLookupProvider();
-		gen.addProvider(event.includeServer(), new GLGLMProvider(out, pvd));
-		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, pvd));
+		var dynamic = new DatapackBuiltinEntriesProvider(out, event.getLookupProvider(), init.builder(),
+				Set.of(MODID));
+		gen.addProvider(event.includeServer(), dynamic);
+		var registries = dynamic.getRegistryProvider();
+
+		var biomeTags = DataProviderInitializer.tagProvider(REGISTRATE, GLBiomeGen.BIOME_TAG, "biome",
+				Registries.BIOME, out, registries, helper);
+		GLBiomeGen.genBiomeTag(biomeTags);
+		gen.addProvider(event.includeServer(), biomeTags);
+
+		var structureTags = DataProviderInitializer.tagProvider(REGISTRATE, GLStructureTagGen.STRUCTURE_TAG,
+				"structure", Registries.STRUCTURE, out, registries, helper);
+		GLStructureTagGen.genStructureTag(structureTags);
+		gen.addProvider(event.includeServer(), structureTags);
+
+		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
+		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, registries));
 
 		var reimu = new ReimuQDGen();
 		var marisa = new MarisaQDGen();
@@ -189,13 +251,13 @@ public class GensokyoLegacy {
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
 		var minamitsu = new MinamitsuQDGen();
-		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko,
+		QuestDialogData.build(init, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko,
 				minamitsu, new GiftQDGen());
 
 		ReportBlocksInStructure.report();
 	}
 
 	public static ResourceLocation loc(String id) {
-		return ResourceLocation.fromNamespaceAndPath(MODID, id);
+		return new ResourceLocation(MODID, id);
 	}
 }

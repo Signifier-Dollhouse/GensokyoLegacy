@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
@@ -54,7 +54,7 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 				limbSwingAmount, partialTick, airborne);
 		// keyed by wearer rather than by this layer, so that one player in mid-air does not drag
 		// everybody else the same renderer is drawing into the hover clip with them
-		model.handleAnimations(animatable, entity.getUUID().hashCode(), state, partialTick);
+		model.handleAnimations(animatable, entity.getUUID().hashCode(), state);
 		pose.pushPose();
 		pose.translate(0, 12 / 16D, -1 / 16D);
 		pose.mulPose(Axis.ZN.rotationDegrees(180));
@@ -63,7 +63,7 @@ public class IceWingsLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 		ResourceLocation texture = texture(wings);
 		RenderType renderType = getRenderType(animatable, texture, buffer, partialTick);
 		this.actuallyRender(pose, animatable, baked, renderType, buffer, buffer.getBuffer(renderType),
-				false, partialTick, light, LivingEntityRenderer.getOverlayCoords(entity, 0), 0xFFFFFFFF);
+				false, partialTick, light, LivingEntityRenderer.getOverlayCoords(entity, 0), 1f, 1f, 1f, 1f);
 		pose.popPose();
 	}
 

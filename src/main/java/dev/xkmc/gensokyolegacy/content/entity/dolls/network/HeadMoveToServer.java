@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.network;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
  * owning client, so this is a position report and the server only re-applies the leash to it.
  */
 public record HeadMoveToServer(int headId, double x, double y, double z, float yaw, float pitch)
-		implements SerialPacketBase<HeadMoveToServer> {
+		implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

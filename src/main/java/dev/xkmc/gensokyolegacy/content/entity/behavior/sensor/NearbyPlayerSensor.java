@@ -38,10 +38,10 @@ public class NearbyPlayerSensor<E extends SmartYoukaiEntity> extends AbstractNea
 						.orElse(ReputationConstants.INITIAL_REPUTATION) < ReputationConstants.DISCARD_REP_THRESHOLD);
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !entity.targets.contains(p) && p.distanceTo(entity) > p.getVisibilityPercent(entity) * 16);
-		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_PLAYER, list.isEmpty() ? null : list.getFirst());
+		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_PLAYER, list.isEmpty() ? null : list.get(0));
 		list = new ArrayList<>(list);
 		list.removeIf(p -> !p.canBeSeenAsEnemy());
-		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list.isEmpty() ? null : list.getFirst());
+		BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, list.isEmpty() ? null : list.get(0));
 		// a party guest is not walked out over a disagreement, and a visitor writes
 		// off her window first so the scheduler does not put her straight back
 		if (allHostile && entity.vanishOnDislike() && !entity.isPartying()) {

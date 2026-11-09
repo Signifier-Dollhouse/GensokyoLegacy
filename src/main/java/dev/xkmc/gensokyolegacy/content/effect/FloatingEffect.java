@@ -10,13 +10,12 @@ public class FloatingEffect extends EmptyEffect {
 	}
 
 	@Override
-	public boolean applyEffectTick(LivingEntity e, int amplifier) {
+	public void applyEffectTick(LivingEntity e, int amplifier) {
 		e.fallDistance = 0;
-		return true;
 	}
 
 	@Override
-	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+	public boolean isDurationEffectTick(int duration, int amplifier) {
 		return true;
 	}
 

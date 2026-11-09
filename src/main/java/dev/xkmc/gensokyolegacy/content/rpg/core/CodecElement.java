@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.rpg.core;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 
 public interface CodecElement<T> {
 
-	MapCodec<T> codec();
+	Codec<T> codec();
 
 }

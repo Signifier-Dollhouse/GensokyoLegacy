@@ -1,10 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -25,6 +29,8 @@ import java.util.UUID;
  */
 @SerialClass
 public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, PartyAttachment> {
+
+	public static final Capability<PartyAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	public enum Phase {
 		IDLE, GATHERING, FEASTING, CLOSING

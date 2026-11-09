@@ -6,17 +6,17 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.content.block.base.SurviveImpl;
 import dev.xkmc.gensokyolegacy.content.block.base.VariantImpl;
-import dev.xkmc.l2core.serial.loot.LootHelper;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LootHelper;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,8 +33,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.ItemAbilities;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.ATTACHED;
@@ -76,7 +76,7 @@ public class BookStack implements CreateBlockStateBlockMethod, DefaultStateBlock
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
 		if (stack.is(Items.STRING) && !state.getValue(ATTACHED)) {
 			if (!level.isClientSide()) {
 				level.setBlockAndUpdate(pos, state.setValue(ATTACHED, true));
@@ -84,19 +84,19 @@ public class BookStack implements CreateBlockStateBlockMethod, DefaultStateBlock
 					stack.shrink(1);
 				}
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		if (state.getValue(ATTACHED) && stack.canPerformAction(ItemAbilities.SHEARS_CARVE)) {
+		if (state.getValue(ATTACHED) && stack.canPerformAction(ToolActions.SHEARS_CARVE)) {
 			if (!level.isClientSide()) {
 				level.setBlockAndUpdate(pos, state.setValue(ATTACHED, false));
 				if (!pl.getAbilities().instabuild) {
 					Block.popResource(level, pos, new ItemStack(Items.STRING));
-					stack.hurtAndBreak(1, pl, LivingEntity.getSlotForHand(hand));
+					stack.hurtAndBreak(1, pl, e -> e.broadcastBreakEvent(hand));
 				}
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	public static void buildStates(DataGenContext<Block, DelegateBlock> ctx, RegistrateBlockstateProvider pvd) {

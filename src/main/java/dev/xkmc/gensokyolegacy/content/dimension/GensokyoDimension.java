@@ -1,14 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.dimension;
 
 import com.mojang.datafixers.util.Pair;
-import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -352,14 +352,14 @@ public class GensokyoDimension {
 	/**
 	 * Called from {@code GLFeatureGen}, which owns the single {@link Registries#NOISE} bootstrap.
 	 */
-	public static void noises(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+	public static void noises(BootstapContext<NormalNoise.NoiseParameters> ctx) {
 		ctx.register(N_CONTINENTS_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0));
 		ctx.register(N_TEMPERATURE_SMALL, new NormalNoise.NoiseParameters(-8, 1.5, 0.0, 1.0, 0.0, 0.0, 0.0));
 		ctx.register(N_VEGETATION_SMALL, new NormalNoise.NoiseParameters(-7, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
 		ctx.register(N_EROSION_SMALL, new NormalNoise.NoiseParameters(-8, 1.0, 1.0, 0.0, 1.0, 1.0));
 	}
 
-	private static void noiseSettings(BootstrapContext<NoiseGeneratorSettings> ctx) {
+	private static void noiseSettings(BootstapContext<NoiseGeneratorSettings> ctx) {
 		ctx.register(NS_GENSOKYO, new NoiseGeneratorSettings(
 				NoiseSettings.create(WORLD_BOTTOM, WORLD_HEIGHT, 1, 2),
 				Blocks.STONE.defaultBlockState(),
@@ -512,7 +512,7 @@ public class GensokyoDimension {
 	 * The overworld height chain with erosion and weirdness taken out: the offset spline is a function of
 	 * continentalness alone and the jaggedness term is gone, so nothing carves a river or lifts a peak.
 	 */
-	private static void densityFunctions(BootstrapContext<DensityFunction> ctx) {
+	private static void densityFunctions(BootstapContext<DensityFunction> ctx) {
 		var densities = ctx.lookup(Registries.DENSITY_FUNCTION);
 		var noises = ctx.lookup(Registries.NOISE);
 		// one continentalness for the whole dimension, a field finer than vanilla's. The height chain splines it and
@@ -696,7 +696,7 @@ public class GensokyoDimension {
 	 * Overworld terrain driven by the restricted biome list, with the aquifer's lava sea at
 	 * {@link GensokyoChunkGenerator}'s level rather than the engine's.
 	 */
-	public static GensokyoChunkGenerator chunkGenerator(BootstrapContext<LevelStem> ctx) {
+	public static GensokyoChunkGenerator chunkGenerator(BootstapContext<LevelStem> ctx) {
 		return new GensokyoChunkGenerator(biomeSource(ctx.lookup(Registries.BIOME)),
 				ctx.lookup(Registries.NOISE_SETTINGS).getOrThrow(NS_GENSOKYO));
 	}
@@ -823,7 +823,7 @@ public class GensokyoDimension {
 	}
 
 	private static ResourceKey<DensityFunction> vanilla(String path) {
-		return ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.withDefaultNamespace(path));
+		return ResourceKey.create(Registries.DENSITY_FUNCTION, new ResourceLocation("minecraft", path));
 	}
 
 }

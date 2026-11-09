@@ -1,15 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
  * The owned ghost's variant texture is the only difference between its looks; the geo and
  * animation files are shared with the wild ghost.
  */
-public class GhostModel extends DefaultedEntityGeoModel<GhostEntity> {
+public class GhostModel extends HeadBoneGeoModel<GhostEntity> {
 
 	public GhostModel() {
 		super(GhostEntity.TYPE, "Body");

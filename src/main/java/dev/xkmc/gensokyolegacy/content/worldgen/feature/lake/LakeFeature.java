@@ -128,7 +128,7 @@ public class LakeFeature extends Feature<LakeConfig> {
 			if (floor <= bottom) continue;
 			pos.set(x, floor, z);
 			if (!level.getBlockState(pos).isSolid() || !level.getBlockState(pos.below()).isSolid()) continue;
-			if (!level.getBiome(pos).is(biome)) continue;
+			if (level.getBiome(pos).value() != biome.value()) continue;
 			floors.add(floor);
 		}
 		if (floors.isEmpty()) return List.of();

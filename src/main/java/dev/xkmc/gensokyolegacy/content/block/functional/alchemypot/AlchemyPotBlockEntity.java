@@ -5,17 +5,16 @@ import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.Alchem
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage.AlchemyStageHolder;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2core.base.tile.BaseBlockEntity;
-import dev.xkmc.l2core.base.tile.BaseContainerListener;
-import dev.xkmc.l2core.base.tile.BaseTank;
+import dev.xkmc.l2library.base.tile.BaseBlockEntity;
+import dev.xkmc.l2library.base.tile.BaseContainerListener;
+import dev.xkmc.l2library.base.tile.BaseTank;
 import dev.xkmc.l2modularblock.tile_api.BlockContainer;
 import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import dev.xkmc.l2serial.util.Wrappers;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -26,17 +25,16 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -67,10 +65,10 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 
 	private boolean doRecipeSearch = true;
 
-	private RecipeHolder<AlchemyRecipe<?>> recipe = null;
+	private AlchemyRecipe<?> recipe = null;
 
 	@Nullable
-	public RecipeHolder<AlchemyRecipe<?>> getRecipeHolder() {
+	public AlchemyRecipe<?> getRecipeHolder() {
 		return recipe;
 	}
 
@@ -81,7 +79,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 	public AlchemyPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		tank.add(this);
-		tank.setPredicate(stack -> !isReacting() && (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluidInTank(0), stack)));
+		tank.setPredicate(stack -> !isReacting() && (tank.isEmpty() || stack.isFluidEqual(tank.getFluidInTank(0))));
 		tank.setExtract(() -> items.isEmpty() && !isReacting());
 	}
 
@@ -234,10 +232,10 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 				var opt = level.getRecipeManager().getRecipeFor(getRecipeType(), createContainer(), level);
 				if (opt.isPresent()) {
 					recipe = opt.get();
-					totalTime = recipe.value().getProcessTime();
-					if (!recipe.id().equals(recipeId)) {
+					totalTime = recipe.getProcessTime();
+					if (!recipe.getId().equals(recipeId)) {
 						recipeProgress = 0;
-						recipeId = recipe.id();
+						recipeId = recipe.getId();
 					} else if (recipeProgress > totalTime) {
 						recipeProgress = totalTime - 1;
 					}
@@ -269,12 +267,12 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 			if (recipeProgress >= totalTime) {
 				if (recipe == null) {
 					var opt = level.getRecipeManager().byKey(recipeId);
-					if (opt.isPresent() && opt.get().value() instanceof AlchemyRecipe<?>) {
-						recipe = Wrappers.cast(opt.get());
+					if (opt.isPresent() && opt.get() instanceof AlchemyRecipe<?> rec) {
+						recipe = rec;
 					}
 				}
 				if (recipe != null) {
-					finishRecipe(level, recipe.value());
+					finishRecipe(level, recipe);
 				}
 				recipeProgress = 0;
 				totalTime = 0;
@@ -318,8 +316,8 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider pvd) {
-		super.loadAdditional(tag, pvd);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 		recheckStage = true;
 		doRecipeSearch = true;
 	}
@@ -346,7 +344,7 @@ public class AlchemyPotBlockEntity extends BaseBlockEntity implements TickableBl
 		var cont = createContainer(false);
 		var recs = lvl.getRecipeManager().getRecipesFor(getRecipeType(), cont, lvl);
 		List<Ingredient> ans = new ArrayList<>();
-		for (var e : recs) ans.addAll(e.value().getHints(lvl, cont));
+		for (var e : recs) ans.addAll(e.getHints(lvl, cont));
 		return ans;
 	}
 

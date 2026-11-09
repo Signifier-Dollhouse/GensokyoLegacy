@@ -1,7 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
@@ -18,9 +19,13 @@ public record KillMobRequirement(
 		String text, EntityPredicate target, int count
 ) implements QuestRequirement<KillMobRequirement, KillTrigger> {
 
-	public static final MapCodec<KillMobRequirement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<EntityPredicate> ENTITY_PREDICATE = Codec.PASSTHROUGH.xmap(
+			d -> EntityPredicate.fromJson(d.convert(JsonOps.INSTANCE).getValue()),
+			e -> new Dynamic<>(JsonOps.INSTANCE, e.serializeToJson()));
+
+	public static final Codec<KillMobRequirement> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("text").forGetter(KillMobRequirement::text),
-			EntityPredicate.CODEC.fieldOf("target").forGetter(KillMobRequirement::target),
+			ENTITY_PREDICATE.fieldOf("target").forGetter(KillMobRequirement::target),
 			Codec.INT.fieldOf("count").forGetter(KillMobRequirement::count)
 	).apply(i, KillMobRequirement::new));
 
@@ -33,7 +38,7 @@ public record KillMobRequirement(
 	}
 
 	@Override
-	public MapCodec<KillMobRequirement> codec() {
+	public Codec<KillMobRequirement> codec() {
 		return CODEC;
 	}
 

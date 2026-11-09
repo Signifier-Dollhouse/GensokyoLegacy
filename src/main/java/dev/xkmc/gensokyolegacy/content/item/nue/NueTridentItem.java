@@ -1,5 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.item.nue;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.EquipmentSlot;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap;
 import dev.xkmc.danmakuapi.api.DanmakuUseEvent;
 import dev.xkmc.danmakuapi.api.GrazeHelper;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
@@ -9,7 +15,7 @@ import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.gensokyolegacy.content.entity.misc.NueTridentProjectile;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
-import dev.xkmc.l2library.content.raytrace.RayTraceUtil;
+import dev.xkmc.l2library.util.raytrace.RayTraceUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -26,7 +32,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.List;
 
@@ -44,6 +50,23 @@ public class NueTridentItem extends DanmakuItem {
 		super(properties, DanmakuItems.Bullet.DAGGER, DyeColor.WHITE, DanmakuItems.Bullet.DAGGER.size);
 	}
 
+	private static final Multimap<Attribute, AttributeModifier> DEFAULT_MODIFIERS;
+
+	static {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+		builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
+				10.0, AttributeModifier.Operation.ADDITION));
+		builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_UUID, "Weapon modifier",
+				-2.8, AttributeModifier.Operation.ADDITION));
+		DEFAULT_MODIFIERS = builder.build();
+	}
+
+	@Override
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.MAINHAND ? DEFAULT_MODIFIERS : super.getDefaultAttributeModifiers(slot);
+	}
+
+
 	@Override
 	protected boolean consume() {
 		return false;
@@ -60,7 +83,7 @@ public class NueTridentItem extends DanmakuItem {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
+	public int getUseDuration(ItemStack stack) {
 		return 72000;
 	}
 
@@ -79,12 +102,12 @@ public class NueTridentItem extends DanmakuItem {
 	@Override
 	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
 		if (!(entity instanceof Player player)) return;
-		if (getUseDuration(stack, entity) - timeLeft < THROW_THRESHOLD) return;
+		if (getUseDuration(stack) - timeLeft < THROW_THRESHOLD) return;
 		if (player.getCooldowns().isOnCooldown(this)) return;
 		// a use cut short by our own UFO swap hands over a stack that is no longer held
 		if (player.getMainHandItem() != stack && player.getOffhandItem() != stack) return;
 		DanmakuUseEvent event = new DanmakuUseEvent(player, stack, cooldown());
-		NeoForge.EVENT_BUS.post(event);
+		MinecraftForge.EVENT_BUS.post(event);
 		if (event.isCanceled()) return;
 		playThrowSound(level, player);
 		if (!level.isClientSide) {
@@ -117,14 +140,14 @@ public class NueTridentItem extends DanmakuItem {
 
 	@Override
 	protected void playThrowSound(Level level, Player player) {
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(),
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW,
 				SoundSource.PLAYERS, 1F, 1F);
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.NUE_TRIDENT_LORE.get());
-		super.appendHoverText(stack, context, list, flag);
+		super.appendHoverText(stack, level, list, flag);
 	}
 
 }

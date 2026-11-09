@@ -63,7 +63,7 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
 		int ordinal = getMode(stack).ordinal();
-		return stack.has(GLItems.ICON.get()) ?
+		return GLItems.ICON.has(stack) ?
 				DollGloveMode.values().length + 1 + ordinal : ordinal + 1;
 	}
 
@@ -72,18 +72,18 @@ public class DollGloveItem extends Item implements GloveTargeting {
 	 */
 	public static ItemStack displayStack(DollGloveMode mode) {
 		ItemStack stack = new ItemStack(GLItems.DOLL_GLOVE.get());
-		stack.set(GLItems.DOLL_GLOVE_MODE.get(), mode.ordinal());
+		GLItems.DOLL_GLOVE_MODE.set(stack, mode.ordinal());
 		return stack;
 	}
 
 	public static ItemStack iconStack(DollGloveMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		GLItems.ICON.set(stack, Unit.INSTANCE);
 		return stack;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		var mode = getMode(stack);
 		list.add(GLLang.ItemGlove.MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemGlove.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));

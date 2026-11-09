@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.spiritual;
 
-import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import net.minecraft.world.level.Level;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,10 +13,18 @@ import java.util.List;
  *
  * @see "doc/design/doll/ghost_power.md"
  */
-public class SpiritualItem extends Item {
+public class SpiritualItem extends Item implements SpiritualCarrier {
+
+	private final int maxPower;
 
 	public SpiritualItem(Properties properties, int max) {
-		super(properties.component(GLItems.SPIRITUAL_POWER_MAX.get(), max));
+		super(properties);
+		this.maxPower = max;
+	}
+
+	@Override
+	public int maxPower() {
+		return maxPower;
 	}
 
 	@Override
@@ -35,7 +43,7 @@ public class SpiritualItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		SpiritualPower.appendHoverText(stack, list);
 	}
 

@@ -28,7 +28,7 @@ public record FoodResult(ItemStack serving, ResourceLocation blockId, int serves
 	 * Deliberately not a real id, so a bug printing it is visibly a bug.
 	 */
 	public static final ResourceLocation INVALID_ID =
-			ResourceLocation.fromNamespaceAndPath("gensokyolegacy", "invalid_food");
+			new ResourceLocation("gensokyolegacy", "invalid_food");
 
 	/**
 	 * Everything unservable collapses to this, so callers only ask {@link #valid()}.
@@ -52,7 +52,7 @@ public record FoodResult(ItemStack serving, ResourceLocation blockId, int serves
 	 * No hunger value, or poison or wither: not worth serving.
 	 */
 	private static boolean servable(@Nullable FoodProperties food) {
-		return food != null && food.nutrition() > 0 && !Servings.refuses(food);
+		return food != null && food.getNutrition() > 0 && !Servings.refuses(food);
 	}
 
 	public static FoodResult of(ItemStack serving, Block block, int serves,
@@ -68,7 +68,7 @@ public record FoodResult(ItemStack serving, ResourceLocation blockId, int serves
 								@Nullable FoodProperties food, int appeal, FoodConsume consume) {
 		if (serves <= 0 || !servable(food)) return INVALID;
 		return new FoodResult(serving, BuiltInRegistries.BLOCK.getKey(block), serves,
-				food.nutrition(), food.saturation(), appeal, consume);
+				food.getNutrition(), food.getNutrition() * food.getSaturationModifier() * 2.0f, appeal, consume);
 	}
 
 	public boolean valid() {

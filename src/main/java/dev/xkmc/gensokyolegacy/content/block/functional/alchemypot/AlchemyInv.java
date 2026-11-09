@@ -1,8 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot;
 
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -12,10 +13,14 @@ import java.util.List;
  *
  * @see "doc/design/alchemy_pot.md"
  */
-public record AlchemyInv(FluidStack fluid, List<ItemStack> list, boolean isComplete) implements RecipeInput {
+public record AlchemyInv(FluidStack fluid, List<ItemStack> list, boolean isComplete) implements Container {
+
+	public int size() {
+		return list.size();
+	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return list.size();
 	}
 
@@ -29,6 +34,33 @@ public record AlchemyInv(FluidStack fluid, List<ItemStack> list, boolean isCompl
 	@Override
 	public ItemStack getItem(int i) {
 		return list.get(i);
+	}
+
+	@Override
+	public ItemStack removeItem(int i, int count) {
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack removeItemNoUpdate(int i) {
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public void setItem(int i, ItemStack stack) {
+	}
+
+	@Override
+	public void setChanged() {
+	}
+
+	@Override
+	public boolean stillValid(Player player) {
+		return true;
+	}
+
+	@Override
+	public void clearContent() {
 	}
 
 }

@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.handle.*;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.init.reg.datapack.DatapackReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DatapackReg;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
@@ -128,7 +128,7 @@ public class ServerCharacterDialogManager {
 		map.entrySet().removeIf(e -> e.getValue().size() == 1);
 		ans.removeIf(e -> map.containsKey(e.groupKey()));
 		for (var e : map.entrySet()) {
-			ans.add(new GroupHandle(e.getValue().getFirst().display(), e.getValue(), Component.translatable(e.getKey())));
+			ans.add(new GroupHandle(e.getValue().get(0).display(), e.getValue(), Component.translatable(e.getKey())));
 		}
 	}
 

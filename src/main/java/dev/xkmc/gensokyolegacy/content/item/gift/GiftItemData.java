@@ -21,7 +21,7 @@ public record GiftItemData(int favor, int cooldown, GiftType type) {
 	 * favor is {@code factor * favor}, and the reaction compares the factor against {@link GiftType#neutral()}.
 	 */
 	public double getFactor(ItemStack stack, YoukaiEntity self) {
-		var pref = GLMeta.GIFT_PREFERENCE.get(self.registryAccess(), self.getType().builtInRegistryHolder());
+		var pref = GLMeta.GIFT_PREFERENCE.get(self.level().registryAccess(), self.getType().builtInRegistryHolder());
 		if (pref == null) return type.neutral();
 		var single = pref.override().get(stack.getItem());
 		if (single != null) return single;

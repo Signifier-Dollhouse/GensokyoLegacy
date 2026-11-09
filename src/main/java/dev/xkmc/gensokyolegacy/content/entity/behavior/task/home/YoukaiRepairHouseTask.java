@@ -35,7 +35,7 @@ public class YoukaiRepairHouseTask<E extends SmartYoukaiEntity> extends Abstract
 		if (!(home instanceof IFixableHomeHolder fixable)) return false;
 		var ans = fixable.popFix(1, FixStage.ALL);
 		if (ans.isEmpty()) return false;
-		toFix = ans.getFirst();
+		toFix = ans.get(0);
 		return true;
 	}
 

@@ -10,7 +10,6 @@ import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -19,14 +18,14 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AnvilUpdateEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class DollEventHandlers {
@@ -92,13 +91,13 @@ public class DollEventHandlers {
 		ItemStack right = event.getRight();
 		if (!(left.getItem() instanceof DollItem)) return;
 		if (right.isEmpty() || !right.is(ItemTags.WOOL)) return;
-		DollItemData data = left.get(GLItems.DOLL_DATA.get());
+		DollItemData data = GLItems.DOLL_DATA.get(left);
 		float cur = data == null ? BaseDollEntity.DEFAULT_MAX_HEALTH : data.combat().amount();
 		if (cur >= BaseDollEntity.DEFAULT_MAX_HEALTH) return;
 		ItemStack out = left.copy();
-		out.set(GLItems.DOLL_DATA.get(), new DollItemData(
+		GLItems.DOLL_DATA.set(out, new DollItemData(
 				new CombatData(BaseDollEntity.DEFAULT_MAX_HEALTH, 0)));
-		out.set(DataComponents.REPAIR_COST, left.getOrDefault(DataComponents.REPAIR_COST, 0) + 1);
+		out.setRepairCost(left.getBaseRepairCost() + 1);
 		event.setOutput(out);
 		event.setCost(1);
 		event.setMaterialCost(1);

@@ -28,7 +28,7 @@ public class AbstractYoukaiModule {
 	 *
 	 * @see "doc/design/youkai/entity.md"
 	 */
-	public void defineSynchedData(SynchedEntityData.Builder builder) {
+	public void defineSynchedData(SynchedEntityData data) {
 	}
 
 	public InteractionResult interact(Player player, InteractionHand hand) {

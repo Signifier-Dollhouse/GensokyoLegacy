@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WaterLilyBlock extends BushBlock {
 
-	private static final MapCodec<WaterLilyBlock> CODEC = simpleCodec(WaterLilyBlock::new);
 
 	/**
 	 * The lily is not symmetric, so it keeps the direction it was planted in.
@@ -51,10 +49,6 @@ public class WaterLilyBlock extends BushBlock {
 		this.shape = shape;
 	}
 
-	@Override
-	public MapCodec<? extends BushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -90,21 +84,21 @@ public class WaterLilyBlock extends BushBlock {
 	}
 
 	@Override
-	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
 		// the lily drifts sideways, so its hitbox has to drift with it
 		var offset = state.getOffset(level, pos);
 		return shape.move(offset.x, offset.y, offset.z);
 	}
 
 	@Override
-	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		super.entityInside(state, level, pos, entity);
 		if (level instanceof ServerLevel && entity instanceof Boat) {
 			level.destroyBlock(pos, true, entity);
 		}
 	}
 
-	protected float getMaxVerticalOffset() {
+	public float getMaxVerticalOffset() {
 		return 1 / 16f;
 	}
 

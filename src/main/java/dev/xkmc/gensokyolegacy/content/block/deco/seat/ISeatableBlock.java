@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.seat;
 
-import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2modularblock.DelegateBlock;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;

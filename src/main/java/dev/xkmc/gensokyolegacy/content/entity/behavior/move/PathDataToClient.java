@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public record PathDataToClient(
 		int id, ArrayList<Vec3> pos
-) implements SerialPacketBase<PathDataToClient> {
+) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

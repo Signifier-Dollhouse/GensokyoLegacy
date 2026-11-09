@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -60,7 +59,6 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	 * Only horizontal, so a patch of leaves can be spun per block instead of tiling one orientation.
 	 */
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-	private static final MapCodec<FallenLeavesBlock> CODEC = simpleCodec(FallenLeavesBlock::new);
 	/**
 	 * How far below the tree the search for the ground reaches.
 	 */
@@ -79,10 +77,6 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 		this.registerDefaultState(this.stateDefinition.any().setValue(LAYERS, 1).setValue(FACING, Direction.NORTH));
 	}
 
-	@Override
-	public MapCodec<? extends BushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -102,18 +96,19 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult result) {
-		if (level.isClientSide) return ItemInteractionResult.CONSUME;
+	public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult result) {
+		ItemStack itemStack = player.getItemInHand(interactionHand);
+		if (level.isClientSide) return InteractionResult.CONSUME;
 		if (itemStack.getItem().equals(blockState.getBlock().asItem()) && blockState.getValue(LAYERS) == 2) {
 			level.setBlockAndUpdate(pos, blockState.setValue(LAYERS, 1));
 			if (!player.isCreative()) itemStack.shrink(1);
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		var kind = FallenLeafKind.of(this);
 		if (kind == null) return;
 		var mixed = kind.mixed();
@@ -222,12 +217,9 @@ public class FallenLeavesBlock extends SimpleBushBlock {
 	}
 
 	public static void loot(RegistrateBlockLootTables tb, Block block) {
-		var enchantments = tb.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
 		var shovelOrSilk = MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.SHOVELS))
 				.or(MatchTool.toolMatches(ItemPredicate.Builder.item()
-						.withSubPredicate(ItemSubPredicates.ENCHANTMENTS,
-								ItemEnchantmentsPredicate.enchantments(List.of(new EnchantmentPredicate(
-										enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))))));
+						.hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1)))));
 		tb.add(block, LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).when(shovelOrSilk)
 						.add(LootItem.lootTableItem(block))));

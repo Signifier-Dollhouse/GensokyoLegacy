@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class JitteredGridPlacement extends PlacementModifier {
 
-	public static final MapCodec<JitteredGridPlacement> CODEC = GridLayer.CODEC.xmap(JitteredGridPlacement::new, e -> e.layer);
+	public static final Codec<JitteredGridPlacement> CODEC = GridLayer.CODEC.xmap(JitteredGridPlacement::new, e -> e.layer);
 
 	private final GridLayer layer;
 

@@ -23,7 +23,7 @@ public record GiftDialogData(Holder<Dialog> like, Holder<Dialog> neutral, Holder
 
 	@Nullable
 	public static GiftDialogData of(EntityType<?> key) {
-		return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key).getData(GLMeta.GIFT_DIALOG_DATA.reg());
+		return GLMeta.GIFT_DIALOG_DATA.get(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key));
 	}
 
 	/**

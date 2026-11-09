@@ -1,12 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.character;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.gensokyolegacy.compat.curios.CuriosManager;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -14,20 +14,20 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
+import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -36,8 +36,8 @@ import java.util.function.Supplier;
  */
 public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 
-	private final Supplier<ItemAttributeModifiers> defaultModifiers = Suppliers.memoize(() -> {
-		ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+	private final Supplier<Multimap<Attribute, AttributeModifier>> defaultModifiers = Suppliers.memoize(() -> {
+		ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
 		addModifiers(builder);
 		return builder.build();
 	});
@@ -47,22 +47,19 @@ public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 		DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
 	}
 
-	protected void addModifiers(ItemAttributeModifiers.Builder builder) {
+	protected void addModifiers(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder) {
 	}
 
 	@Override
-	public ItemAttributeModifiers getDefaultAttributeModifiers() {
-		return defaultModifiers.get();
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+		return slot == EquipmentSlot.HEAD ? defaultModifiers.get() : super.getDefaultAttributeModifiers(slot);
 	}
 
 	@Override
-	public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(SlotContext slotContext, ResourceLocation id, ItemStack stack) {
-		Multimap<Holder<Attribute>, AttributeModifier> map = LinkedHashMultimap.create();
-		for (var e : getDefaultAttributeModifiers().modifiers()) {
-			if (e.slot() == EquipmentSlotGroup.HEAD) {
-				map.put(e.attribute(), e.modifier());
-			}
-		}
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(SlotContext slotContext, UUID id, ItemStack stack) {
+		Multimap<Attribute, AttributeModifier> map = LinkedHashMultimap.create();
+		defaultModifiers.get().forEach((attr, mod) ->
+				map.put(attr, new AttributeModifier(id, mod.getName(), mod.getAmount(), mod.getOperation())));
 		return map;
 	}
 
@@ -72,12 +69,7 @@ public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 	}
 
 	@Override
-	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
-		return EquipmentSlot.HEAD;
-	}
-
-	@Override
-	public Holder<SoundEvent> getEquipSound() {
+	public SoundEvent getEquipSound() {
 		return SoundEvents.ARMOR_EQUIP_LEATHER;
 	}
 
@@ -106,13 +98,18 @@ public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 	/**
 	 * True when this hat is drawn from its own item model's head perspective instead of from a
 	 * {@code ModelPart} layer. Such a hat's {@code models/item/<name>.json} is a
-	 * {@code neoforge:separate_transforms} model whose head perspective names the geometry file,
+	 * {@code forge:separate_transforms} model whose head perspective names the geometry file,
 	 * and it is drawn the way vanilla draws any non-armor helmet-slot item.
 	 *
 	 * @see "doc/design/hats.md"
 	 */
 	public boolean isModeledHat() {
 		return false;
+	}
+
+	@Nullable
+	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+		return null;
 	}
 
 	public DamageSource modifyDamageType(ItemStack stack, LivingEntity le, IDanmakuEntity danmaku, DamageSource type) {

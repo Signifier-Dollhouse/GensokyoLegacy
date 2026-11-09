@@ -5,8 +5,8 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import dev.xkmc.gensokyolegacy.content.block.base.ShapePathFindBlockMethod;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
-import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.DelegateBlock;
+import dev.xkmc.l2modularblock.VoxelBuilder;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlayerDestoryBlockMethod;
@@ -18,7 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +32,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 import org.jetbrains.annotations.Nullable;
 
 public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod, ShapePathFindBlockMethod, PlayerDestoryBlockMethod, OnReplacedBlockMethod {
@@ -63,25 +63,24 @@ public class ShelfBlock implements UseItemOnBlockMethod, SetPlacedByBlockMethod,
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
 		if (level.getBlockEntity(pos) instanceof ShelfBlockEntity be) {
 			if (be.owner.equals(player.getUUID()) && !player.isShiftKeyDown()) {
 				if (be.set(level, player, stack, player.isCreative()))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 			} else {
 				if (be.buy(level, stack, player))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 			}
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public @Nullable BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		if (level.getBlockEntity(pos) instanceof ShelfBlockEntity shelf) {
 			shelf.lastBreaker = player.getUUID();
 		}
-		return null;
 	}
 
 	/**

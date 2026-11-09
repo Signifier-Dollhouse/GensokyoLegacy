@@ -8,13 +8,14 @@ import dev.xkmc.gensokyolegacy.content.client.structure.StructureBoundUpdateToCl
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SimplePacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -30,9 +31,9 @@ public record StructureHomeHolder(
 	@Nullable
 	public static StructureHomeHolder of(ServerLevel level, StructureKey key) {
 		if (!level.isLoaded(key.pos())) return null;
-		var structure = level.registryAccess().holder(key.getStructure());
+		var structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE).getHolder(key.getStructure());
 		if (structure.isEmpty()) return null;
-		var config = structure.get().getData(GLMeta.STRUCTURE_DATA.reg());
+		var config = GLMeta.STRUCTURE_DATA.get(level.registryAccess(), structure.get());
 		if (config == null) {
 			LinkedHashSet<EntityType<?>> entities = new LinkedHashSet<>();
 			entities.add(GLEntities.CIRNO.get());
@@ -42,7 +43,7 @@ public record StructureHomeHolder(
 					null, null, null);
 		}
 		var chunk = level.getChunkAt(key.pos());
-		var att = chunk.getData(GLMeta.STRUCTURE.get());
+		var att = GLMeta.STRUCTURE.type().getOrCreate(chunk);
 		var home = att.data.computeIfAbsent(key, k -> new StructureHomeData());
 		return new StructureHomeHolder(level, chunk, key, config, att, home);
 	}
@@ -128,7 +129,7 @@ public record StructureHomeHolder(
 	}
 
 	@Override
-	public SimplePacketBase toBoundPacket() {
+	public RecordPacketBase toBoundPacket() {
 		return new StructureBoundUpdateToClient(
 				key(), data().getTotalBound(),
 				data().getHouseBounds(config()).boxes(),
@@ -138,7 +139,7 @@ public record StructureHomeHolder(
 	}
 
 	@Override
-	public SimplePacketBase getUpdatePacket() {
+	public RecordPacketBase getUpdatePacket() {
 		return data().getAbnormality(key);
 	}
 

@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderSlot;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -17,7 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 
 public record BorderUmbrellaConfirmRecordPacket(int slot, BlockPos pos, ResourceLocation dim,
-												String name) implements SerialPacketBase<BorderUmbrellaConfirmRecordPacket> {
+												String name) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {
@@ -44,7 +44,7 @@ public record BorderUmbrellaConfirmRecordPacket(int slot, BlockPos pos, Resource
 		String finalName = nm.isBlank() ? pos.getX() + ", " + pos.getY() + ", " + pos.getZ() : nm;
 		BorderSlot slotData = new BorderSlot(pos, dim, finalName, icon);
 		var slots = GLItems.UMBRELLA_SLOTS.getOrDefault(stack, BorderUmbrellaSlots.defaultSlots());
-		stack.set(GLItems.UMBRELLA_SLOTS.get(), slots.with(idx, slotData));
+		GLItems.UMBRELLA_SLOTS.set(stack, slots.with(idx, slotData));
 		sp.displayClientMessage(GLLang.ItemUmbrella.RECORDED.get(idx, finalName), true);
 	}
 

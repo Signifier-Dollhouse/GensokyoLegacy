@@ -3,10 +3,10 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls.menu;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.DollEntity;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.base.menu.base.BaseContainerMenu;
-import dev.xkmc.l2core.base.menu.base.SpriteManager;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import dev.xkmc.l2library.base.menu.base.BaseContainerMenu;
+import dev.xkmc.l2library.base.menu.base.SpriteManager;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemHandlerCopySlot;
+import dev.xkmc.gensokyolegacy.compat.neoforge.ItemHandlerCopySlot;
 import org.jetbrains.annotations.Nullable;
 
 public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
@@ -30,7 +30,7 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 	private final DollLoadoutItemHandler handler;
 
 	public static DollLoadoutMenu fromNetwork(MenuType<DollLoadoutMenu> type, int wid, Inventory inv,
-											  @Nullable RegistryFriendlyByteBuf buf) {
+											  @Nullable FriendlyByteBuf buf) {
 		if (buf != null && buf.isReadable(1) && !buf.readBoolean())
 			return new DollLoadoutMenu(type, wid, inv, (PlayerSlot<?>) null);
 		Entity entity = buf != null && buf.isReadable(4) ? inv.player.level().getEntity(buf.readInt()) : null;
@@ -56,10 +56,10 @@ public class DollLoadoutMenu extends BaseContainerMenu<DollLoadoutMenu> {
 	}
 
 	private void addLoadoutSlots() {
-		getLayout().getSlot("main", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("off", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("core", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
-		getLayout().getSlot("cloth", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		sprite.get().getSlot("main", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		sprite.get().getSlot("off", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		sprite.get().getSlot("core", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
+		sprite.get().getSlot("cloth", (x, y) -> new LoadoutSlot(handler, added++, x, y), this::addSlot);
 	}
 
 	/**

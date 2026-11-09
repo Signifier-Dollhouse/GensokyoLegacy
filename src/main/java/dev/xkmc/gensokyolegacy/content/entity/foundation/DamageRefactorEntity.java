@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.foundation;
 
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -9,9 +9,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.common.damagesource.DamageContainer;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +27,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 	}
 
 	public boolean invalidTarget(LivingEntity e) {
-		return e.isRemoved() || !e.isAlive() || !e.isAddedToLevel() || e.level() != level();
+		return e.isRemoved() || !e.isAlive() || !e.isAddedToWorld() || e.level() != level();
 	}
 
 	@Nullable
@@ -57,21 +56,20 @@ public class DamageRefactorEntity extends PathfinderMob {
 	@Override
 	protected void actuallyHurt(DamageSource source, float amount) {
 		if (isInvulnerableTo(source)) return;
-		damageContainers.peek().setReduction(DamageContainer.Reduction.ARMOR, damageContainers.peek().getNewDamage() - getDamageAfterArmorAbsorb(source, damageContainers.peek().getNewDamage()));
-		getDamageAfterMagicAbsorb(source, damageContainers.peek().getNewDamage());
-		float damage = CommonHooks.onLivingDamagePre(this, damageContainers.peek());
-		damageContainers.peek().setReduction(DamageContainer.Reduction.ABSORPTION, Math.min(getAbsorptionAmount(), damage));
-		float absorbed = Math.min(damage, damageContainers.peek().getReduction(DamageContainer.Reduction.ABSORPTION));
+		amount = ForgeHooks.onLivingHurt(this, source, amount);
+		if (amount <= 0) return;
+		amount = getDamageAfterArmorAbsorb(source, amount);
+		amount = getDamageAfterMagicAbsorb(source, amount);
+		float absorbed = Math.min(getAbsorptionAmount(), amount);
 		setAbsorptionAmount(Math.max(0, getAbsorptionAmount() - absorbed));
-		float f1 = damageContainers.peek().getNewDamage();
-		float f = absorbed;
-		if (f > 0.0F && f < 3.4028235E37F && source.getEntity() instanceof ServerPlayer serverplayer) {
-			serverplayer.awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(f * 10.0F));
+		float f1 = amount - absorbed;
+		if (absorbed > 0.0F && absorbed < 3.4028235E37F && source.getEntity() instanceof ServerPlayer serverplayer) {
+			serverplayer.awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(absorbed * 10.0F));
 		}
+		f1 = ForgeHooks.onLivingDamage(this, source, f1);
 		if (f1 != 0.0F) {
 			hurtFinal(source, f1);
 		}
-		CommonHooks.onLivingDamagePost(this, damageContainers.peek());
 	}
 
 	protected void hurtFinal(DamageSource source, float amount) {
@@ -84,7 +82,6 @@ public class DamageRefactorEntity extends PathfinderMob {
 		getCombatTracker().recordDamage(source, amount);
 		takeDamage(source, amount);
 		gameEvent(GameEvent.ENTITY_DAMAGE);
-		onDamageTaken(damageContainers.peek());
 		postHurt(source);
 	}
 
@@ -132,7 +129,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 			loopingSetHealth = true;
 			super.setHealth(amount);
 			loopingSetHealth = false;
-			if (update && isAddedToLevel() && !level().isClientSide())
+			if (update && isAddedToWorld() && !level().isClientSide())
 				CombatToClient.send(this);
 		}
 	}
@@ -155,7 +152,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 	@Override
 	public void heal(float original) {
 		if (level().isClientSide()) return;
-		var heal = EventHooks.onLivingHeal(this, original);
+		var heal = ForgeEventFactory.onLivingHeal(this, original);
 		if (isEffectImmune() && level().getGameTime() > antiHealDisableTimestamp) {
 			heal = Math.max(original, heal);
 			if (heal <= 0) return;
@@ -199,7 +196,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 	@Override
 	public void die(DamageSource source) {
 		if (getCombatProgress() > 0) return;
-		if (CommonHooks.onLivingDeath(this, source)) return;
+		if (ForgeHooks.onLivingDeath(this, source)) return;
 		if (specialDeath(source)) return;
 		if (isRemoved() || dead) return;
 		Entity entity = source.getEntity();
@@ -216,7 +213,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 		if (level instanceof ServerLevel serverlevel) {
 			if (entity == null || entity.killedEntity(serverlevel, this)) {
 				this.gameEvent(GameEvent.ENTITY_DIE);
-				this.dropAllDeathLoot(serverlevel, source);
+				this.dropAllDeathLoot(source);
 				this.createWitherRose(livingentity);
 			}
 			this.level().broadcastEntityEvent(this, (byte) 3);
@@ -229,9 +226,9 @@ public class DamageRefactorEntity extends PathfinderMob {
 	}
 
 	@Override
-	protected void dropAllDeathLoot(ServerLevel level, DamageSource source) {
+	protected void dropAllDeathLoot(DamageSource source) {
 		if (getCombatProgress() > 0) return;
-		super.dropAllDeathLoot(level, source);
+		super.dropAllDeathLoot(source);
 	}
 
 	@Override
@@ -255,7 +252,7 @@ public class DamageRefactorEntity extends PathfinderMob {
 		super.tick();
 		if (combatData != null)
 			combatData = combatData.update(this);
-		if (tickCount % 20 == 13 && isAddedToLevel() && !level().isClientSide()) {
+		if (tickCount % 20 == 13 && isAddedToWorld() && !level().isClientSide()) {
 			validateCombatData();
 			CombatToClient.send(this);
 		}

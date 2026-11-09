@@ -38,8 +38,8 @@ public record StructureConfig(
 	 */
 	@Nullable
 	public static StructureConfig of(RegistryAccess access, StructureKey key) {
-		return access.holder(key.getStructure())
-				.map(h -> h.getData(GLMeta.STRUCTURE_DATA.reg())).orElse(null);
+		return access.registryOrThrow(Registries.STRUCTURE).getHolder(key.getStructure())
+				.map(h -> GLMeta.STRUCTURE_DATA.get(access, h)).orElse(null);
 	}
 
 	/**

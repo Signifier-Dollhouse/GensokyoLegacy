@@ -39,7 +39,7 @@ public class HyphaeHandler implements HexBrewHandler {
 			if (e == thrower || e == credit) continue;
 			if (HexBrewHandler.isAllied(e, thrower) || HexBrewHandler.isAllied(e, credit)) continue;
 			if (e.distanceToSqr(pos) > RADIUS * RADIUS) continue;
-			e.addEffect(new MobEffectInstance(GLEffects.HYPHAE_INFECTION.holder(), DURATION, 0));
+			e.addEffect(new MobEffectInstance(GLEffects.HYPHAE_INFECTION.get(), DURATION, 0));
 		}
 		spawnHyphae(level, pos);
 	}

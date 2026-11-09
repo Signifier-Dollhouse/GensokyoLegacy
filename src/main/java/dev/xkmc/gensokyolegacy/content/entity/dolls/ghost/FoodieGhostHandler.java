@@ -29,7 +29,7 @@ final class FoodieGhostHandler implements GhostVariantHandler {
 	public void aura(GhostEntity ghost, LivingEntity owner) {
 		if (ghost.getPower() <= 0) return;
 		if (ghost.tickCount % AURA_INTERVAL != 0) return;
-		owner.addEffect(new MobEffectInstance(GLEffects.FOODIE, AURA_DURATION, 0, true, true, true));
+		owner.addEffect(new MobEffectInstance(GLEffects.FOODIE.get(), AURA_DURATION, 0, true, true, true));
 	}
 
 }

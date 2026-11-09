@@ -15,7 +15,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
+import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
@@ -72,7 +72,7 @@ public class EntityLootGen {
 						LootContext.EntityTarget.THIS,
 						EntityPredicate.Builder.entity()
 								.flags(EntityFlagsPredicate.Builder.flags()
-										.setOnFire(true))));
+										.setOnFire(true).build())));
 	}
 
 
@@ -90,11 +90,11 @@ public class EntityLootGen {
 	}
 
 	private static LootItemFunction.Builder lootCount(RegistrateEntityLootTables pvd, float factor) {
-		return EnchantedCountIncreaseFunction.lootingMultiplier(pvd.getRegistries(), UniformGenerator.between(factor * 0.5f, factor));
+		return LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(factor * 0.5f, factor));
 	}
 
 	private static LootItemCondition.Builder lootChance(RegistrateEntityLootTables pvd, float base) {
-		return LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(pvd.getRegistries(), base, base * 0.2f);
+		return LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(base, base * 0.2f);
 	}
 
 }

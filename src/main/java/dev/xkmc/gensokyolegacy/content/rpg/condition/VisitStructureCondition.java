@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
@@ -18,12 +18,12 @@ public record VisitStructureCondition(
 		ResourceLocation structure
 ) implements QuestCondition<VisitStructureCondition> {
 
-	public static final MapCodec<VisitStructureCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<VisitStructureCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			ResourceLocation.CODEC.fieldOf("structure").forGetter(VisitStructureCondition::structure)
 	).apply(i, VisitStructureCondition::new));
 
 	@Override
-	public MapCodec<VisitStructureCondition> codec() {
+	public Codec<VisitStructureCondition> codec() {
 		return CODEC;
 	}
 

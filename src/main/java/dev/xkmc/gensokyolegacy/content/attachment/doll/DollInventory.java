@@ -1,9 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
-import dev.xkmc.l2serial.serialization.marker.OnInject;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass.OnInject;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.portal;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
@@ -26,8 +27,8 @@ public class GapPortalItem extends BlockItem {
 	public InteractionResult place(BlockPlaceContext ctx) {
 		var level = ctx.getLevel();
 		var stack = ctx.getItemInHand();
-		boolean hadUuid = stack.has(GLItems.DC_UUID);
-		PortalSide hadSide = stack.has(GLItems.DC_PORTAL_SIDE) ? stack.get(GLItems.DC_PORTAL_SIDE) : null;
+		boolean hadUuid = GLItems.DC_UUID.has(stack);
+		PortalSide hadSide = GLItems.DC_PORTAL_SIDE.has(stack) ? GLItems.DC_PORTAL_SIDE.get(stack) : null;
 		boolean inGap = level.dimension().location().equals(GLDimensionGen.GAP.location());
 		var player = ctx.getPlayer();
 		InteractionHand hand = ctx.getHand();
@@ -53,18 +54,18 @@ public class GapPortalItem extends BlockItem {
 			}
 			if (beFound != null) placedSide = beFound.getSide();
 			else if (hadSide != null) placedSide = hadSide;
-			if (id == null && stack.has(GLItems.DC_UUID)) id = stack.get(GLItems.DC_UUID);
+			if (id == null && GLItems.DC_UUID.has(stack)) id = GLItems.DC_UUID.get(stack);
 			if (id != null) {
 				PortalSide copySide = placedSide == PortalSide.ENTRY ? PortalSide.EXIT : PortalSide.ENTRY;
 				ItemStack copy = GLBlocks.GAP_PORTAL.asStack();
-				copy.set(GLItems.DC_UUID, id);
-				copy.set(GLItems.DC_PORTAL_SIDE, copySide);
+				GLItems.DC_UUID.set(copy, id);
+				GLItems.DC_PORTAL_SIDE.set(copy, copySide);
 				player.setItemInHand(hand, copy);
 			} else {
 				ItemStack copy = GLBlocks.GAP_PORTAL.asStack();
-				if (stack.has(GLItems.DC_UUID)) {
-					copy.set(GLItems.DC_UUID, stack.get(GLItems.DC_UUID));
-					copy.set(GLItems.DC_PORTAL_SIDE, PortalSide.EXIT);
+				if (GLItems.DC_UUID.has(stack)) {
+					GLItems.DC_UUID.set(copy, GLItems.DC_UUID.get(stack));
+					GLItems.DC_PORTAL_SIDE.set(copy, PortalSide.EXIT);
 					player.setItemInHand(hand, copy);
 				}
 			}
@@ -79,9 +80,9 @@ public class GapPortalItem extends BlockItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		if (stack.has(GLItems.DC_UUID)) {
-			UUID id = stack.get(GLItems.DC_UUID);
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		if (GLItems.DC_UUID.has(stack)) {
+			UUID id = GLItems.DC_UUID.get(stack);
 			if (id != null) {
 				String hex = id.toString().substring(0, 8);
 				list.add(Component.literal(hex).withStyle(ChatFormatting.DARK_GRAY));
@@ -91,6 +92,6 @@ public class GapPortalItem extends BlockItem {
 
 	@Override
 	public boolean isFoil(ItemStack stack) {
-		return super.isFoil(stack) || stack.has(GLItems.DC_UUID);
+		return super.isFoil(stack) || GLItems.DC_UUID.has(stack);
 	}
 }

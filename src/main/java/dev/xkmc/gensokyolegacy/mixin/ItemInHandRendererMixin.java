@@ -76,7 +76,7 @@ public abstract class ItemInHandRendererMixin {
 												 boolean leftHand, PoseStack poseStack, MultiBufferSource buffer,
 												 int combinedLight, CallbackInfo ci) {
 		if (!(stack.getItem() instanceof AnchorItem)) return;
-		if (!stack.has(GLItems.ANCHOR_LINK)) return;
+		if (!GLItems.ANCHOR_LINK.has(stack)) return;
 		ci.cancel();
 	}
 

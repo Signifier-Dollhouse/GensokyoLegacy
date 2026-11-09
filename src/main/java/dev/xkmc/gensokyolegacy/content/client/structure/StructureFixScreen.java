@@ -14,7 +14,7 @@ public class StructureFixScreen extends Screen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void renderBackground(GuiGraphics guiGraphics) {
 	}
 
 	@Override

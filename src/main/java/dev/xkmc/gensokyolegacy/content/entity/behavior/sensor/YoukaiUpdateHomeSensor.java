@@ -37,7 +37,7 @@ public class YoukaiUpdateHomeSensor<E extends YoukaiEntity> extends Sensor<E> {
 		if (bed == null) return Optional.empty();
 		var pos = bed.getBedPos();
 		if (pos == null) return Optional.empty();
-		return Optional.of(new GlobalPos(home.getDim(), pos));
+		return Optional.of(GlobalPos.of(home.getDim(), pos));
 	}
 
 }

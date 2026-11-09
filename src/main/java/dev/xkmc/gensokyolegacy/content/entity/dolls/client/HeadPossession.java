@@ -8,8 +8,8 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
 
 /**
  * The possessing client's half (gadget.md §5). The camera entity itself is the whole state: the
@@ -33,7 +33,7 @@ public final class HeadPossession {
 		if (!(mc.getCameraEntity() instanceof SekibankiHeadEntity head) || mc.player == null || mc.level == null) {
 			return;
 		}
-		if (!head.isAddedToLevel() || head.isRemoved() || mc.level.getEntity(head.getId()) != head) {
+		if (!head.isAddedToWorld() || head.isRemoved() || mc.level.getEntity(head.getId()) != head) {
 			stop(mc, head);
 			return;
 		}

@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.dimension;
 
-import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.GapBiomeGen;
 import net.minecraft.core.registries.Registries;

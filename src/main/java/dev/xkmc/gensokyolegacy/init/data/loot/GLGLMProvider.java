@@ -1,14 +1,17 @@
 package dev.xkmc.gensokyolegacy.init.data.loot;
 
+import dev.xkmc.gensokyolegacy.compat.l2lib.AddItemModifier;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.serial.loot.AddItemModifier;
-import net.minecraft.advancements.critereon.*;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
+import net.minecraft.advancements.critereon.DamageSourcePredicate;
+import net.minecraft.advancements.critereon.EntityFlagsPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
+import net.minecraft.advancements.critereon.NbtPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.FrogVariant;
@@ -17,9 +20,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
-import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
-
-import java.util.concurrent.CompletableFuture;
+import net.minecraftforge.common.data.GlobalLootModifierProvider;
 
 public class GLGLMProvider extends GlobalLootModifierProvider {
 
@@ -27,8 +28,8 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 
 	}
 
-	public GLGLMProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, GensokyoLegacy.MODID);
+	public GLGLMProvider(PackOutput output) {
+		super(output, GensokyoLegacy.MODID);
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 
 	private static LootItemCondition killer(EntityType<?> type) {
 		return LootItemEntityPropertyCondition.hasProperties(
-				LootContext.EntityTarget.ATTACKER,
+				LootContext.EntityTarget.KILLER,
 				EntityPredicate.Builder.entity().entityType(
 						EntityTypePredicate.of(type))).build();
 	}
@@ -58,12 +59,15 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 						EntityTypePredicate.of(type))).build();
 	}
 
-	private LootItemCondition frog(ResourceKey<FrogVariant> type) {
+	/**
+	 * 1.20.1 has no frog-variant sub-predicate, so the variant is read straight out of the frog's saved data.
+	 */
+	private static LootItemCondition frog(FrogVariant type) {
+		CompoundTag tag = new CompoundTag();
+		tag.putString("variant", BuiltInRegistries.FROG_VARIANT.getKey(type).toString());
 		return LootItemEntityPropertyCondition.hasProperties(
 				LootContext.EntityTarget.THIS,
-				EntityPredicate.Builder.entity().of(EntityType.FROG)
-						.subPredicate(EntitySubPredicates.FROG.createPredicate(
-								HolderSet.direct(registries.holderOrThrow(type))))
+				EntityPredicate.Builder.entity().of(EntityType.FROG).nbt(new NbtPredicate(tag))
 		).build();
 	}
 
@@ -76,7 +80,7 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 
 	private static LootItemCondition killedByIce() {
 		var cirno = LootItemEntityPropertyCondition.hasProperties(
-				LootContext.EntityTarget.ATTACKER,
+				LootContext.EntityTarget.KILLER,
 				EntityPredicate.Builder.entity().entityType(
 						EntityTypePredicate.of(GLEntities.CIRNO.get())));
 		var ice = DamageSourceCondition.hasDamageSource(
@@ -89,7 +93,7 @@ public class GLGLMProvider extends GlobalLootModifierProvider {
 	private static LootItemCondition fire(boolean fire) {
 		return LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS,
 				EntityPredicate.Builder.entity().flags(
-						EntityFlagsPredicate.Builder.flags().setOnFire(fire)).build()).build();
+						EntityFlagsPredicate.Builder.flags().setOnFire(fire).build())).build();
 	}
 
 	private static AddItemModifier create(Item item, LootItemCondition... conditions) {

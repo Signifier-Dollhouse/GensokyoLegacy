@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyArea;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +29,7 @@ public class GensokyoPlateFood implements ContainerFoodHandler {
 	}
 
 	@Override
-	public List<FoodResult> contents(CollisionGetter level, BlockPos pos, BlockState state) {
+	public List<FoodResult> contents(BlockGetter level, BlockPos pos, BlockState state) {
 		if (!(level.getBlockEntity(pos) instanceof PlateBlockEntity be)) return List.of();
 		// an empty plate, and anything a guest would refuse, is not part of the spread. The plate only
 		// ever accepts food with no container, so this is nearly always the empty case.

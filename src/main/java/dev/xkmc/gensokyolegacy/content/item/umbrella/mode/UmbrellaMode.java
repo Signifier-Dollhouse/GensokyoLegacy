@@ -66,11 +66,11 @@ public abstract class UmbrellaMode {
 	}
 
 	public void onReleaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, BorderUmbrellaItem item) {
-		stack.remove(GLItems.UMBRELLA_TRAVEL.get());
+		GLItems.UMBRELLA_TRAVEL.remove(stack);
 		if (entity instanceof Player player) {
 			for (var handStack : List.of(player.getMainHandItem(), player.getOffhandItem())) {
 				if (handStack.getItem() instanceof BorderUmbrellaItem) {
-					handStack.remove(GLItems.UMBRELLA_TRAVEL.get());
+					GLItems.UMBRELLA_TRAVEL.remove(handStack);
 				}
 			}
 		}

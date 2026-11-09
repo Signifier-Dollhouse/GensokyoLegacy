@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.combat;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,7 +44,11 @@ public class YoukaiTargetContainer {
 		}
 		list.removeIf(e -> !isValid(e));
 		if (list.size() > maxSize) {
-			list.removeFirst();
+			var it = list.iterator();
+			if (it.hasNext()) {
+				it.next();
+				it.remove();
+			}
 		}
 	}
 
@@ -77,7 +81,8 @@ public class YoukaiTargetContainer {
 	public LivingEntity checkTarget(@Nullable LivingEntity last) {
 		if (!(youkai.level() instanceof ServerLevel sl)) return null;
 		if ((last == null || !isValidTarget(last)) && !list.isEmpty()) {
-			var id = list.getLast();
+			UUID id = null;
+			for (UUID u : list) id = u;
 			Entity e = sl.getEntity(id);
 			if (e instanceof LivingEntity le && isValidTarget(le))
 				return le;

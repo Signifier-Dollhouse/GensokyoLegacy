@@ -39,15 +39,6 @@ public class BorderUmbrellaNameScreen extends Screen {
 	}
 
 	@Override
-	protected void setInitialFocus() {
-		if (editBox != null) {
-			setInitialFocus(editBox);
-			return;
-		}
-		super.setInitialFocus();
-	}
-
-	@Override
 	protected void init() {
 		int w = 200;
 		int h = 20;

@@ -1,13 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
-import dev.xkmc.l2core.serial.recipe.BaseRecipe;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.HolderLookup;
+import dev.xkmc.l2library.serial.recipe.BaseRecipe;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
 
 import java.util.List;
 
@@ -23,15 +24,15 @@ public abstract class AlchemyStageRecipe<T extends AlchemyStageRecipe<T>> extend
 	@SerialField
 	public FluidIngredient inputFluid = FluidIngredient.empty();
 
-	public AlchemyStageRecipe(RecType<T, AlchemyStageRecipe<?>, AlchemyInv> fac) {
-		super(fac);
+	public AlchemyStageRecipe(ResourceLocation id, RecType<T, AlchemyStageRecipe<?>, AlchemyInv> fac) {
+		super(id, fac);
 	}
 
 	public abstract int getPriority();
 
 	public abstract void removeConsumed(List<ItemStack> list);
 
-	public abstract int getColor(AlchemyInv inv, HolderLookup.Provider access);
+	public abstract int getColor(AlchemyInv inv, RegistryAccess access);
 
 	@Override
 	public boolean canCraftInDimensions(int i, int j) {
@@ -45,12 +46,12 @@ public abstract class AlchemyStageRecipe<T extends AlchemyStageRecipe<T>> extend
 	}
 
 	@Override
-	public ItemStack assemble(AlchemyInv inv, HolderLookup.Provider access) {
+	public ItemStack assemble(AlchemyInv inv, RegistryAccess access) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack getResultItem(HolderLookup.Provider access) {
+	public ItemStack getResultItem(RegistryAccess access) {
 		return ItemStack.EMPTY;
 	}
 }

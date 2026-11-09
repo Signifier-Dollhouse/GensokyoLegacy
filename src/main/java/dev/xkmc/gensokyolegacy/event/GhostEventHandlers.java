@@ -8,13 +8,13 @@ import dev.xkmc.gensokyolegacy.content.item.spiritual.SpiritualPower;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 
 /**
  * A dual ghost spends itself in place of its owner, and undead or stray-doll kills feed the
@@ -46,7 +46,7 @@ public class GhostEventHandlers {
 	 */
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onUndeadExperienceDrop(LivingExperienceDropEvent event) {
-		if (event.isCanceled() || !event.getEntity().getType().is(EntityTypeTags.UNDEAD)) return;
+		if (event.isCanceled() || event.getEntity().getMobType() != MobType.UNDEAD) return;
 		Player player = event.getAttackingPlayer();
 		if (player == null) return;
 		SpiritualPower.restore(player, event.getDroppedExperience());

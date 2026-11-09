@@ -109,7 +109,13 @@ public class SmartBrain<E extends Mob> extends Brain<E> {
 			return this.codec
 					.parse(ops)
 					.resultOrPartial(LOGGER::error)
-					.map(e -> new SmartBrain<>(this.memoryTypes, this.sensorTypes, ImmutableList.copyOf(access(e).brainMemoryValues().toList()), () -> this.codec))
+					.map(e -> {
+						SmartBrain<E> brain = new SmartBrain<>(this.memoryTypes, this.sensorTypes, ImmutableList.of(), () -> this.codec);
+						access(e).brainMemories().forEach((k, v) -> {
+							if (v.isPresent()) access(brain).brainMemories().put(k, v);
+						});
+						return brain;
+					})
 					.orElseGet(() -> new SmartBrain<>(this.memoryTypes, this.sensorTypes, ImmutableList.of(), () -> this.codec));
 		}
 

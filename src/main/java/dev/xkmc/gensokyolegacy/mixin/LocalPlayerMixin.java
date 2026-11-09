@@ -5,17 +5,17 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
 import dev.xkmc.gensokyolegacy.util.LavaEffectsHelper;
 import net.minecraft.client.player.LocalPlayer;
-import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.fluids.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocalPlayer.class)
 public class LocalPlayerMixin {
 
-	@WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;canSwimInFluidType(Lnet/neoforged/neoforge/fluids/FluidType;)Z"))
+	@WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;canSwimInFluidType(Lnet/minecraftforge/fluids/FluidType;)Z"))
 	public boolean gensokyolegacy$canSwim$lavaSwim(LocalPlayer instance, FluidType fluidType, Operation<Boolean> original) {
-		return original.call(instance, fluidType) || fluidType == NeoForgeMod.LAVA_TYPE.value() && LavaEffectsHelper.canLavaSwim(instance);
+		return original.call(instance, fluidType) || fluidType == ForgeMod.LAVA_TYPE.get() && LavaEffectsHelper.canLavaSwim(instance);
 	}
 
 	/**

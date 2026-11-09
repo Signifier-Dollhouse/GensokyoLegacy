@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.debug;
 
+import net.minecraft.world.level.Level;
 import dev.xkmc.gensokyolegacy.content.client.debug.DebugCharacterTooltip;
 import dev.xkmc.gensokyolegacy.content.client.debug.IDebugOverlayWand;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureInfoClientManager;
@@ -33,7 +34,7 @@ public class DebugGlasses extends Item implements IDebugOverlayWand {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemDebug.GLASS_PATH.get().withStyle(ChatFormatting.GRAY));
 
 		list.add(GLLang.ItemDebug.GLASS_CHARACTER.get().withStyle(ChatFormatting.GRAY));

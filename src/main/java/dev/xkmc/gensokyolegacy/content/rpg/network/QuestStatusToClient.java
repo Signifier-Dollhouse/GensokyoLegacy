@@ -4,7 +4,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record QuestStatusToClient(
 		ResourceLocation id, QuestData data, Reason reason
-) implements SerialPacketBase<QuestStatusToClient> {
+) implements RecordPacketBase {
 
 	public enum Reason {
 		START, COMPLETE, UPDATE
@@ -36,7 +36,7 @@ public record QuestStatusToClient(
 		public static void setQuest(ResourceLocation id) {
 			var level = Minecraft.getInstance().level;
 			if (level == null) return;
-			var quest = level.registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, id));
+			var quest = level.registryAccess().registryOrThrow(CodecRegistry.Keys.QUEST).getHolder(ResourceKey.create(CodecRegistry.Keys.QUEST, id));
 			if (quest.isEmpty()) return;
 			QuestOverlay.setQuest(quest.get(), level.getGameTime());
 		}

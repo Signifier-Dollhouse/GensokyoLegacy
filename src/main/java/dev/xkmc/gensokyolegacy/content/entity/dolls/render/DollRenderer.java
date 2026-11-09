@@ -34,7 +34,7 @@ public class DollRenderer extends GeoEntityRenderer<DollEntity> {
 		if (controller == null) return;
 		Matrix4f pose = new Matrix4f(entityRenderTranslations).invert().mul(poseStack.last().pose());
 		var correction = controller.stabilizeSpearPose(pose, direction.toVector3f());
-		if (correction != null) poseStack.mulPose(correction);
+		if (correction != null) poseStack.last().pose().mul(correction);
 	}
 
 	Vec3 itemPointToWorld(DollEntity doll, PoseStack poseStack, Vector3f point, float partialTick) {

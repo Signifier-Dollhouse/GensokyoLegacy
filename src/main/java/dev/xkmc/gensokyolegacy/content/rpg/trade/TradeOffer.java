@@ -37,7 +37,7 @@ public record TradeOffer(
 
 	public boolean isSellOffer() {
 		if (!result.is(GLTagGen.CURRENCY) || ingredients.size() != 1) return true;
-		var entry = ingredients.getFirst();
+		var entry = ingredients.get(0);
 		var ing = entry.ingredient().getItems();
 		return ing.length == 1 && ing[0].is(GLTagGen.CURRENCY) && entry.count() > result.getCount();
 	}
@@ -58,7 +58,7 @@ public record TradeOffer(
 		if (offer.value().isSellOffer()) {
 			stack = offer.value().result.copy();
 		} else {
-			var ing = offer.value().ingredients().getFirst();
+			var ing = offer.value().ingredients().get(0);
 			stack = ing.ingredient().getItems()[0].copyWithCount(ing.count());
 		}
 		return GLItems.DC_OFFER.set(stack, id);

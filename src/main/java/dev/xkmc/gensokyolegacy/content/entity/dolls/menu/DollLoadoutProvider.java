@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public record DollLoadoutProvider(
@@ -26,7 +27,7 @@ public record DollLoadoutProvider(
 	}
 
 	public void open() {
-		sp.openMenu(this, buf -> {
+		NetworkHooks.openScreen(sp, this, buf -> {
 			buf.writeBoolean(true);
 			buf.writeInt(dollId);
 		});

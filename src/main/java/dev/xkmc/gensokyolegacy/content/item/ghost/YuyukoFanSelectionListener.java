@@ -46,12 +46,13 @@ public class YuyukoFanSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	@Override
-	public int getIndex(Player player, ItemStack stack) {
-		return YuyukoFanItem.getMode(stack).ordinal();
+	public int getIndex(Player player) {
+		ItemStack held = getHeldFan(player);
+		return held == null ? 0 : YuyukoFanItem.getMode(held).ordinal();
 	}
 
 	@Override
-	public List<ItemStack> getList(ItemStack stack) {
+	public List<ItemStack> getList() {
 		List<ItemStack> list = new ArrayList<>();
 		for (YuyukoFanMode mode : YuyukoFanMode.values()) {
 			list.add(YuyukoFanItem.iconStack(mode));
@@ -60,18 +61,7 @@ public class YuyukoFanSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	@Override
-	public int getSelHash(ItemStack stack) {
-		return YuyukoFanMode.values().length;
-	}
-
-	@Override
-	public int move(int i, Player player, ItemStack stack) {
-		var modes = YuyukoFanMode.values();
-		return Math.floorMod(YuyukoFanItem.getMode(stack).ordinal() + i, modes.length);
-	}
-
-	@Override
-	public void swap(Player sender, int index, ItemStack stack) {
+	public void swap(Player sender, int index) {
 		ItemStack held = getHeldFan(sender);
 		if (held == null) return;
 		YuyukoFanItem.setMode(held, YuyukoFanMode.byId(index));

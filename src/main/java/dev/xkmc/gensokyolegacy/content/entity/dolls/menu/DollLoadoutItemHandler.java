@@ -9,7 +9,7 @@ import dev.xkmc.gensokyolegacy.content.item.doll.DollSlot;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.FoldedPaperTalisman;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -75,12 +75,12 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 	}
 
 	private DollInventory itemData() {
-		var data = stack.get(GLItems.DOLL_LOADOUT.get());
+		var data = GLItems.DOLL_LOADOUT.get(stack);
 		return data != null ? data : DollInventory.empty();
 	}
 
 	private void saveItem(DollInventory data) {
-		if (!stack.isEmpty()) stack.set(GLItems.DOLL_LOADOUT.get(), data);
+		if (!stack.isEmpty()) GLItems.DOLL_LOADOUT.set(stack, data);
 	}
 
 	private MutableDollInventory inventory() {
@@ -138,7 +138,7 @@ public class DollLoadoutItemHandler implements IItemHandlerModifiable {
 		if (remainder.isEmpty() || !isItemValid(slot, remainder)) return remainder;
 		DollSlot target = slotOf(slot);
 		ItemStack current = getStackInSlot(slot).copy();
-		if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, remainder)) return remainder;
+		if (!current.isEmpty() && !ItemStack.isSameItemSameTags(current, remainder)) return remainder;
 		// Per-slot rule, not the slot ceiling: a hand takes one of anything but a whole stack
 		// of what it spends, and core and cloth always take exactly one.
 		int limit = slotLimit(target, remainder);

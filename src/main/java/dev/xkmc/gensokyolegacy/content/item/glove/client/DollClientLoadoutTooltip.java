@@ -1,8 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.glove.client;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
-import dev.xkmc.l2core.base.menu.base.MenuLayoutConfig;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -44,12 +42,10 @@ public record DollClientLoadoutTooltip(DollLoadoutTooltip inv) implements Client
 	}
 
 	private static void blit(GuiGraphics g, int x, int y, String name) {
-		var level = Minecraft.getInstance().level;
-		if (level == null) return;
-		var sprite = DollLoadoutMenu.MANAGER;
-		var tex = MenuLayoutConfig.getTexture(sprite.id());
-		var side = sprite.get(level.registryAccess()).getSide(name);
-		g.blit(tex, x, y, side.x, side.y, side.w, side.h);
+		var layout = DollLoadoutMenu.MANAGER.get();
+		if (layout == null) return;
+		var side = layout.getSide(name);
+		g.blit(layout.getTexture(), x, y, side.x, side.y, side.w, side.h);
 	}
 
 }

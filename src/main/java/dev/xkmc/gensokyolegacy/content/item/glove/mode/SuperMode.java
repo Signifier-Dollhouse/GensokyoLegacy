@@ -54,7 +54,11 @@ public class SuperMode extends DollGloveHandler {
 		var commands = attachment(sp).commands();
 		if (target == null || !DollGloveItem.isValidAttackTarget(sp, target)) {
 			sp.displayClientMessage(GLLang.ItemGlove.NO_TARGET.get(), true);
-		} else if (commands.issueOneTimeRandom(sp, target, DollActionType.SUPER_ATTACK) instanceof DollEntity doll) {
+			cooldown(sp, item);
+			return;
+		}
+		DollEntity doll = commands.issueOneTimeRandom(sp, target, DollActionType.SUPER_ATTACK);
+		if (doll != null) {
 			sp.displayClientMessage(GLLang.ItemGlove.SUPER.get(doll.getDisplayName()), true);
 		} else if (commands.hasSummonedDoll(sp) &&
 				!commands.hasCapableDoll(sp, DollActionType.SUPER_ATTACK)) {

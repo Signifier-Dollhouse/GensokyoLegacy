@@ -7,7 +7,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.compat.jei.BaseRecipeCategory;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeCategory;
 import dev.xkmc.l2serial.util.Wrappers;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -117,9 +117,8 @@ public class QuestRewardCategory extends BaseRecipeCategory<Holder<Quest>, Quest
 	private static List<LootDrop> rewardDrops(Quest quest) {
 		List<LootDrop> list = new ArrayList<>();
 		for (var reward : quest.rewards())
-			if (reward instanceof LootTableReward(
-					ResourceLocation table
-			)) list.addAll(QuestLootToClient.ClientHandler.get(table));
+			if (reward instanceof LootTableReward loot)
+				list.addAll(QuestLootToClient.ClientHandler.get(loot.table()));
 		return list;
 	}
 

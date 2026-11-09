@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
@@ -18,7 +18,7 @@ public record HomeBoundCondition(
 		boolean invert
 ) implements QuestCondition<HomeBoundCondition> {
 
-	public static final MapCodec<HomeBoundCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<HomeBoundCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.BOOL.optionalFieldOf("invert", false).forGetter(HomeBoundCondition::invert)
 	).apply(i, HomeBoundCondition::new));
 
@@ -30,7 +30,7 @@ public record HomeBoundCondition(
 	}
 
 	@Override
-	public MapCodec<HomeBoundCondition> codec() {
+	public Codec<HomeBoundCondition> codec() {
 		return CODEC;
 	}
 

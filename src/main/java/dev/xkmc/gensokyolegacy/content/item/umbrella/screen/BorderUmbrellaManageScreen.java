@@ -54,16 +54,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 
 	private BorderUmbrellaSlots getSlots(ItemStack held) {
 		if (held == null) return BorderUmbrellaSlots.defaultSlots();
-		return held.getOrDefault(GLItems.UMBRELLA_SLOTS.get(), BorderUmbrellaSlots.defaultSlots());
-	}
-
-	@Override
-	protected void setInitialFocus() {
-		if (editingIndex >= 0 && editBox != null) {
-			setInitialFocus(editBox);
-			return;
-		}
-		super.setInitialFocus();
+		return GLItems.UMBRELLA_SLOTS.getOrDefault(held, BorderUmbrellaSlots.defaultSlots());
 	}
 
 	@Override
@@ -247,7 +238,7 @@ public class BorderUmbrellaManageScreen extends Screen {
 			// row background
 			int bg = (i % 2 == 0) ? 0x20FFFFFF : 0x30FFFFFF;
 			// highlight selected slot
-			int selected = held.getOrDefault(GLItems.UMBRELLA_SLOT_SELECTED.get(), 0);
+			int selected = GLItems.UMBRELLA_SLOT_SELECTED.getOrDefault(held, 0);
 			if (i == selected) bg = 0x40FFFF55;
 			g.fill(panelLeft, y, panelLeft + PANEL_WIDTH, y + ROW_HEIGHT, bg);
 			// index

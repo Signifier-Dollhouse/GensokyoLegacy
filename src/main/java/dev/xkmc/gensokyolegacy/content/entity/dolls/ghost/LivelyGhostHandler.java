@@ -32,7 +32,7 @@ final class LivelyGhostHandler implements GhostVariantHandler {
 		if (ghost.tickCount % AURA_INTERVAL != 0) return;
 		owner.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, AURA_DURATION, 1, true, true, true));
 		owner.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, AURA_DURATION, 1, true, true, true));
-		owner.addEffect(new MobEffectInstance(GLEffects.LIVELY, AURA_DURATION, 0, true, true, true));
+		owner.addEffect(new MobEffectInstance(GLEffects.LIVELY.get(), AURA_DURATION, 0, true, true, true));
 	}
 
 }

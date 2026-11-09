@@ -13,12 +13,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.ClientHooks;
+import net.minecraftforge.client.ForgeHooksClient;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 
 import static dev.xkmc.gensokyolegacy.content.entity.youkai.renderer.YoukaiHeldItemLayer.itemBuffer;
 
@@ -73,7 +73,7 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 		ItemStack stack = getStackForBone(bone, doll);
 		if (stack == null) return;
 		poseStack.pushPose();
-		RenderUtil.translateToPivotPoint(poseStack, bone);
+		RenderUtils.translateToPivotPoint(poseStack, bone);
 		renderStackForBone(poseStack, bone, stack, doll, bufferSource, partialTick, packedLight, packedOverlay);
 		poseStack.popPose();
 	}
@@ -118,7 +118,7 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 		poseStack.pushPose();
 		var itemRenderer = Minecraft.getInstance().getItemRenderer();
 		var model = itemRenderer.getModel(stack, doll.level(), doll, doll.getId());
-		ClientHooks.handleCameraTransforms(poseStack, model, getTransformTypeForStack(bone, stack, doll), false);
+		ForgeHooksClient.handleCameraTransforms(poseStack, model, getTransformTypeForStack(bone, stack, doll), false);
 		poseStack.translate(-0.5F, -0.5F, -0.5F);
 		Vec3 tip = dollRenderer.itemPointToWorld(doll, poseStack, new Vector3f(8F / 16, 2.5F / 16, -11F / 16),
 				partialTick);

@@ -8,12 +8,14 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiFeatureSet;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.resources.ResourceLocation;
+import java.util.UUID;
+import dev.xkmc.l2library.util.math.MathHelper;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
@@ -25,15 +27,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.FollowTemptation;
 import net.minecraft.world.entity.ai.sensing.TemptingSensor;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.Tags;
 
 @SerialClass
 public class RumiaEntity extends SmartYoukaiEntity {
 
 	private static final EntityDimensions FALL = EntityDimensions.scalable(1.7f, 0.4f);
-	private static final ResourceLocation EXRUMIA = GensokyoLegacy.loc("ex_rumia");
+	private static final UUID EXRUMIA = MathHelper.getUUIDFromString("gensokyolegacy:ex_rumia");
 
 	@SerialField
 	public final RumiaStateMachine state = new RumiaStateMachine(this);
@@ -50,7 +52,7 @@ public class RumiaEntity extends SmartYoukaiEntity {
 		board.addExclusive(50, new FollowTemptation(e -> 1f), Activity.IDLE, Activity.PLAY, GLBrains.AT_HOME.get());
 		board.addExclusive(0, new RumiaParalyzeGoal(), GLBrains.DOWN.get());
 
-		board.addSensor(new TemptingSensor(stack -> stack.is(Tags.Items.FOODS_COOKED_MEAT)));
+		board.addSensor(new TemptingSensor(Ingredient.of(GLTagGen.COOKED_MEAT)));
 
 		board.addPrioritizedActivity(GLBrains.DOWN.get(), GLBrains.MEM_DOWN.get(), -100);
 	}
@@ -101,8 +103,8 @@ public class RumiaEntity extends SmartYoukaiEntity {
 		var atk = getAttribute(Attributes.ATTACK_DAMAGE);
 		assert hp != null && atk != null;
 		if (ex) {
-			hp.addPermanentModifier(new AttributeModifier(EXRUMIA, 4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-			atk.addPermanentModifier(new AttributeModifier(EXRUMIA, 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			hp.addPermanentModifier(new AttributeModifier(EXRUMIA, "ex_rumia", 4, AttributeModifier.Operation.MULTIPLY_TOTAL));
+			atk.addPermanentModifier(new AttributeModifier(EXRUMIA, "ex_rumia", 1, AttributeModifier.Operation.MULTIPLY_TOTAL));
 		} else {
 			hp.removeModifier(EXRUMIA);
 			atk.removeModifier(EXRUMIA);
@@ -131,8 +133,8 @@ public class RumiaEntity extends SmartYoukaiEntity {
 	}
 
 	@Override
-	public EntityDimensions getDefaultDimensions(Pose pPose) {
-		return isBlocked() ? FALL.scale(getScale()) : super.getDefaultDimensions(pPose);
+	public EntityDimensions getDimensions(Pose pPose) {
+		return isBlocked() ? FALL.scale(getScale()) : super.getDimensions(pPose);
 	}
 
 	@Override

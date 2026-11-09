@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
@@ -41,7 +41,7 @@ public class MistyLakeShoreBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.4f, 0.7f, 0x3a7f8c, 0x9cc0cc, 0x7da863, 0x6c965a, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -57,13 +57,13 @@ public class MistyLakeShoreBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, SHORE_SAND, Feature.RANDOM_PATCH, onGround(18, new Palette()
 						.add(Blocks.SAND, 3).add(Blocks.GRAVEL, 2).add(Blocks.MUD, 2).add(Blocks.COARSE_DIRT, 1).build(),
 				Blocks.SAND, Blocks.GRAVEL, Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.CLAY));
 		FeatureUtils.register(ctx, SHORE_FLOWERS, Feature.RANDOM_PATCH, onDirt(24, new Palette()
 				.add(GLNaturalBlocks.BRACKEN, 3).add(Blocks.FERN, 2).add(Blocks.LILY_OF_THE_VALLEY, 2)
-				.add(Blocks.OXEYE_DAISY, 2).add(Blocks.SHORT_GRASS, 2).build()));
+				.add(Blocks.OXEYE_DAISY, 2).add(Blocks.GRASS, 2).build()));
 	}
 
 	@Override

@@ -1,8 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.attachment.glove;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -23,6 +27,8 @@ import java.util.UUID;
  */
 @SerialClass
 public class GloveTargetAttachment extends PlayerCapabilityTemplate<GloveTargetAttachment> {
+
+	public static final Capability<GloveTargetAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	private record Entry(@Nullable UUID target, long time) {
 	}

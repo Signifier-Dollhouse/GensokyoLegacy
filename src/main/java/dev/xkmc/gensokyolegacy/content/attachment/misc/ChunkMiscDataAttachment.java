@@ -1,9 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.attachment.misc;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 /**
@@ -13,6 +17,8 @@ import net.minecraft.world.level.chunk.LevelChunk;
  */
 @SerialClass
 public class ChunkMiscDataAttachment extends GeneralCapabilityTemplate<LevelChunk, ChunkMiscDataAttachment> {
+
+	public static final Capability<ChunkMiscDataAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	/**
 	 * The five seconds a started summon holds the chunk, which is also the ritual's length.

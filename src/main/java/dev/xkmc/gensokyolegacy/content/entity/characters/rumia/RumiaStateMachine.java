@@ -5,9 +5,10 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.resources.ResourceLocation;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import java.util.UUID;
+import dev.xkmc.l2library.util.math.MathHelper;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -23,7 +24,7 @@ public class RumiaStateMachine {
 	private static final int SUCCESS_DELAY = 100, BLOCK_DELAY = 200;
 	private static final float SPEED = 2, KNOCK = 3;
 	private static final float DANMAKU_SPEED = 0.8f;
-	private static final ResourceLocation ATK = GensokyoLegacy.loc("rumia_charge_attack");
+	private static final UUID ATK = MathHelper.getUUIDFromString("gensokyolegacy:rumia_charge_attack");
 
 	public enum RumiaStage {
 		NONE, PREPARE, FLY, BLOCKED
@@ -167,7 +168,7 @@ public class RumiaStateMachine {
 		assert attr != null;
 		if (charged) {
 			BrainUtils.clearMemory(rumia, MemoryModuleType.WALK_TARGET);
-			attr.addPermanentModifier(new AttributeModifier(ATK, 34, AttributeModifier.Operation.ADD_VALUE));
+			attr.addPermanentModifier(new AttributeModifier(ATK, "rumia_charge_attack", 34, AttributeModifier.Operation.ADDITION));
 		} else {
 			attr.removeModifier(ATK);
 		}

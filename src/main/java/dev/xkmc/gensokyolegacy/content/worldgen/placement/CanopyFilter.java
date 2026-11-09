@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.placement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
  */
 public class CanopyFilter extends PlacementFilter {
 
-	public static final MapCodec<CanopyFilter> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<CanopyFilter> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.intRange(1, 64).fieldOf("min_gap").forGetter(e -> e.minGap),
 			Codec.BOOL.fieldOf("under").forGetter(e -> e.under)
 	).apply(i, CanopyFilter::new));

@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -69,17 +69,17 @@ public class TravelMode extends UmbrellaMode {
 			return InteractionResultHolder.fail(stack);
 		}
 		{
-			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+			int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(stack, 1000);
 			Vec3 look = player.getLookAngle().normalize();
 			Vec3 start = player.position();
 			Vec3 tentative = start.add(look.scale(dist));
 			BlockPos tpos = BlockPos.containing(tentative);
 			var travelData = new BorderUmbrellaTravelData(start, player.getYRot(), player.getXRot(), tpos);
-			stack.set(GLItems.UMBRELLA_TRAVEL.get(), travelData);
+			GLItems.UMBRELLA_TRAVEL.set(stack, travelData);
 		}
 		if (player instanceof ServerPlayer sp) {
-			var travelData = stack.get(GLItems.UMBRELLA_TRAVEL.get());
-			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+			var travelData = GLItems.UMBRELLA_TRAVEL.get(stack);
+			int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(stack, 1000);
 			BlockPos tpos = travelData != null ? travelData.target() : BlockPos.containing(sp.position().add(sp.getLookAngle().normalize().scale(dist)));
 			ServerLevel sl = sp.serverLevel();
 			ChunkPos cpos = new ChunkPos(tpos);
@@ -105,7 +105,7 @@ public class TravelMode extends UmbrellaMode {
 	public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration, BorderUmbrellaItem item) {
 		if (level.isClientSide) {
 			if (entity instanceof Player player) {
-				var data = stack.get(GLItems.UMBRELLA_TRAVEL.get());
+				var data = GLItems.UMBRELLA_TRAVEL.get(stack);
 				if (data != null) {
 					Vec3 eye = player.getEyePosition();
 					Vec3 target = Vec3.atCenterOf(data.target());
@@ -115,7 +115,7 @@ public class TravelMode extends UmbrellaMode {
 						// the charge origin). Stop locking and restore the original orientation.
 						for (var handStack : List.of(player.getMainHandItem(), player.getOffhandItem())) {
 							if (handStack.getItem() instanceof BorderUmbrellaItem) {
-								handStack.remove(GLItems.UMBRELLA_TRAVEL.get());
+								GLItems.UMBRELLA_TRAVEL.remove(handStack);
 							}
 						}
 						player.stopUsingItem();
@@ -146,12 +146,12 @@ public class TravelMode extends UmbrellaMode {
 		int used = getUseDuration(stack) - remainingUseDuration;
 		if (used < TravelModeUtil.TRAVEL_MIN_TICKS) return;
 		ServerLevel sl = sp.serverLevel();
-		var data = stack.get(GLItems.UMBRELLA_TRAVEL.get());
+		var data = GLItems.UMBRELLA_TRAVEL.get(stack);
 		BlockPos tpos;
 		if (data != null) {
 			tpos = data.target();
 		} else {
-			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+			int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(stack, 1000);
 			Vec3 look = sp.getLookAngle().normalize();
 			Vec3 start = sp.position();
 			Vec3 tentative = start.add(look.scale(dist));
@@ -172,10 +172,10 @@ public class TravelMode extends UmbrellaMode {
 		}
 		sp.getCooldowns().addCooldown(item, 20);
 		sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_DONE.get(), true);
-		stack.remove(GLItems.UMBRELLA_TRAVEL.get());
+		GLItems.UMBRELLA_TRAVEL.remove(stack);
 		for (var handStack : List.of(sp.getMainHandItem(), sp.getOffhandItem())) {
 			if (handStack.getItem() instanceof BorderUmbrellaItem) {
-				handStack.remove(GLItems.UMBRELLA_TRAVEL.get());
+				GLItems.UMBRELLA_TRAVEL.remove(handStack);
 			}
 		}
 		sp.stopUsingItem();
@@ -183,7 +183,7 @@ public class TravelMode extends UmbrellaMode {
 
 	@Override
 	public void onReleaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, BorderUmbrellaItem item) {
-		var data = stack.get(GLItems.UMBRELLA_TRAVEL.get());
+		var data = GLItems.UMBRELLA_TRAVEL.get(stack);
 		if (data != null) {
 			TravelModeUtil.restoreOrientation(entity, data.yRot(), data.xRot());
 		}

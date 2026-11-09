@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.util.Color;
+import software.bernie.geckolib.core.object.Color;
 
 /**
  * No held-item layer: a support ghost carries nothing. Power drives the model's opacity, so the
@@ -25,8 +25,8 @@ public class GhostRenderer extends GeoEntityRenderer<GhostEntity> {
 	@Override
 	public Color getRenderColor(GhostEntity animatable, float partialTick, int packedLight) {
 		Color base = super.getRenderColor(animatable, partialTick, packedLight);
-		return Color.ofARGB((int) (base.getAlpha() * animatable.powerAlpha()),
-				base.getRed(), base.getGreen(), base.getBlue());
+		return Color.ofRGBA(base.getRed(), base.getGreen(), base.getBlue(),
+				(int) (base.getAlpha() * animatable.powerAlpha()));
 	}
 
 	@Override

@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.eventbus.api.Event;
 
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class WeightedMushroomBlock extends MushroomBlock {
 								 ResourceKey<ConfiguredFeature<?, ?>> medium,
 								 ResourceKey<ConfiguredFeature<?, ?>> large,
 								 BlockBehaviour.Properties props) {
-		super(medium, props);
+		super(props, medium);
 		this.small = small;
 		this.medium = medium;
 		this.large = large;
@@ -44,21 +45,17 @@ public class WeightedMushroomBlock extends MushroomBlock {
 		Optional<? extends Holder<ConfiguredFeature<?, ?>>> optional = level.registryAccess()
 				.registryOrThrow(Registries.CONFIGURED_FEATURE)
 				.getHolder(key);
-		var event = EventHooks.fireBlockGrowFeature(level, random, pos, optional.orElse(null));
-		if (event.isCanceled()) {
-			return false;
-		}
-		optional = Optional.ofNullable(event.getFeature());
-		if (optional.isEmpty()) {
-			return false;
+		if (optional.isEmpty()) return false;
+		var event = ForgeEventFactory.blockGrowFeature(level, random, pos, optional.get());
+		if (event.getResult() == Event.Result.DENY) return false;
+		Holder<ConfiguredFeature<?, ?>> feature = event.getFeature();
+		if (feature == null) return false;
+		level.removeBlock(pos, false);
+		if (feature.value().place(level, level.getChunkSource().getGenerator(), random, pos)) {
+			return true;
 		} else {
-			level.removeBlock(pos, false);
-			if (optional.get().value().place(level, level.getChunkSource().getGenerator(), random, pos)) {
-				return true;
-			} else {
-				level.setBlock(pos, state, 3);
-				return false;
-			}
+			level.setBlock(pos, state, 3);
+			return false;
 		}
 	}
 

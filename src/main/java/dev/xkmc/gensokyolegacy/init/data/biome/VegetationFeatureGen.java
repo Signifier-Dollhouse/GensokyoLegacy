@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.MushroomFeatures.MushroomTreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
  */
 public class VegetationFeatureGen {
 
-	public static void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	public static void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		for (var type : MushroomTreeType.values()) {
 			var set = type.set.get();
 			ctx.register(type.cfKey, new ConfiguredFeature<>(

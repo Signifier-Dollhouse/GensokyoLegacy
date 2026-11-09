@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationController;
 
 /**
  * Arms a single lance flash 100 ms after the attack triggers, consumed by the held-item render.
@@ -16,6 +16,7 @@ public class DollOneShotController extends AnimationController<DollEntity> {
 
 	private static final long SPEAR_DELAY_MILLIS = 100;
 
+	private boolean attackTriggered;
 	private boolean spearParticleReady;
 	private long spearParticleTime;
 	@Nullable
@@ -29,14 +30,15 @@ public class DollOneShotController extends AnimationController<DollEntity> {
 	public boolean tryTriggerAnimation(String animName) {
 		if (!super.tryTriggerAnimation(animName)) return false;
 		spearDirection = null;
-		spearParticleReady = DollGeo.ATTACK.equals(getTriggeredAnimation());
+		attackTriggered = DollGeo.ATTACK_TRIGGER.equals(animName);
+		spearParticleReady = attackTriggered;
 		spearParticleTime = Util.getMillis() + SPEAR_DELAY_MILLIS;
 		return true;
 	}
 
 	@Nullable
 	public Matrix4f stabilizeSpearPose(Matrix4f pose, Vector3f direction) {
-		if (getAnimationState() != State.RUNNING || !DollGeo.ATTACK.equals(getTriggeredAnimation())) {
+		if (getAnimationState() != State.RUNNING || !attackTriggered) {
 			spearDirection = null;
 			return null;
 		}

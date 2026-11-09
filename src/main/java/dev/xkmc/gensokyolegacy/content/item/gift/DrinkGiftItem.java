@@ -1,12 +1,13 @@
 package dev.xkmc.gensokyolegacy.content.item.gift;
 
+import net.minecraft.world.level.Level;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 
 import java.util.List;
 
@@ -27,14 +28,14 @@ public class DrinkGiftItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-		super.appendHoverText(stack, context, list, flag);
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		super.appendHoverText(stack, level, list, flag);
 		FoodProperties props = stack.getFoodProperties(null);
-		if (props == null || props.effects().isEmpty()) return;
+		if (props == null || props.getEffects().isEmpty()) return;
 		// listed like the witch's hex brew: effect name with its potency and remaining
 		// duration, followed by the attribute lines a potion of the same effect would show
-		PotionContents.addPotionTooltip(props.effects().stream().map(FoodProperties.PossibleEffect::effect).toList(),
-				list::add, 1.0F, context.tickRate());
+		PotionUtils.addPotionTooltip(props.getEffects().stream().map(pair -> pair.getFirst()).toList(),
+				list, 1.0F);
 	}
 
 }

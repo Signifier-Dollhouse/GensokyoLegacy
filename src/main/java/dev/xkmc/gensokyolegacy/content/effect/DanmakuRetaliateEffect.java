@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.effect;
 
-import dev.xkmc.l2core.init.reg.registrate.LegacyHolder;
+import dev.xkmc.gensokyolegacy.compat.l2lib.LegacyHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
@@ -30,14 +30,14 @@ public abstract class DanmakuRetaliateEffect extends EmptyEffect {
 	}
 
 	public static void apply(LegacyHolder<MobEffect> holder, LivingEntity target, UUID owner, int duration) {
-		target.addEffect(new MobEffectInstance(holder, duration, 0));
+		target.addEffect(new MobEffectInstance(holder.get(), duration, 0));
 		if (holder.get() instanceof DanmakuRetaliateEffect effect)
 			target.getPersistentData().putUUID(effect.ownerKey, owner);
 	}
 
 	public static void onLivingHurt(LivingEntity victim, LegacyHolder<MobEffect> holder) {
-		MobEffectInstance instance = victim.getEffect(holder);
-		if (instance != null && instance.getEffect().value() instanceof DanmakuRetaliateEffect effect)
+		MobEffectInstance instance = victim.getEffect(holder.get());
+		if (instance != null && instance.getEffect() instanceof DanmakuRetaliateEffect effect)
 			effect.retaliate(victim);
 	}
 

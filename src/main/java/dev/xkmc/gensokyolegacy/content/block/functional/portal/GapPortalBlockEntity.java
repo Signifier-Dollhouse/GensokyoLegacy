@@ -5,10 +5,10 @@ import dev.xkmc.gensokyolegacy.content.attachment.gap.GapMappingData;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.l2core.base.tile.BaseBlockEntity;
+import dev.xkmc.l2library.base.tile.BaseBlockEntity;
 import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +55,7 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	}
 
 	@Override
-	public @Nullable DimensionTransition getPortalDestination(ServerLevel level, Entity e, BlockPos pos) {
+	public @Nullable PortalDestination getPortalDestination(ServerLevel level, Entity e, BlockPos pos) {
 		if (getBlockState().getValue(BlockStateProperties.HALF) == Half.TOP) {
 			if (level.getBlockEntity(pos.below()) instanceof GapPortalBlockEntity be) {
 				return be.getPortalDestination(level, e, pos.below());
@@ -73,23 +72,21 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 		ServerLevel targetLevel = level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, targetDim));
 		if (targetLevel == null) return null;
 		ensurePortalAt(targetLevel, targetPos, id, targetSide);
-		Vec3 vec3 = targetPos.getBottomCenter();
-		return new DimensionTransition(targetLevel, vec3, e.getDeltaMovement(), e.getYRot(), e.getXRot(),
-				DimensionTransition.PLAY_PORTAL_SOUND.then(DimensionTransition.PLACE_PORTAL_TICKET));
+		return PortalDestination.of(targetLevel, e, Vec3.atBottomCenterOf(targetPos));
 	}
 
 	public void setPlacedBy(ItemStack stack) {
 		if (!(level instanceof ServerLevel sl)) return;
-		boolean hadUuid = stack.has(GLItems.DC_UUID);
-		PortalSide sideVal = stack.has(GLItems.DC_PORTAL_SIDE) ? stack.get(GLItems.DC_PORTAL_SIDE) : null;
+		boolean hadUuid = GLItems.DC_UUID.has(stack);
+		PortalSide sideVal = GLItems.DC_PORTAL_SIDE.has(stack) ? GLItems.DC_PORTAL_SIDE.get(stack) : null;
 		if (!hadUuid) {
 			var nid = UUID.randomUUID();
-			stack.set(GLItems.DC_UUID, nid);
+			GLItems.DC_UUID.set(stack, nid);
 			sideVal = PortalSide.ENTRY;
-			stack.set(GLItems.DC_PORTAL_SIDE, sideVal);
+			GLItems.DC_PORTAL_SIDE.set(stack, sideVal);
 		}
 		if (sideVal == null) sideVal = PortalSide.ENTRY;
-		id = stack.get(GLItems.DC_UUID);
+		id = GLItems.DC_UUID.get(stack);
 		side = sideVal;
 		initData(sideVal);
 	}
@@ -198,8 +195,8 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	public ItemStack getItem() {
 		var ans = GLBlocks.GAP_PORTAL.asStack();
 		if (id != null) {
-			ans.set(GLItems.DC_UUID, id);
-			ans.set(GLItems.DC_PORTAL_SIDE, getSide());
+			GLItems.DC_UUID.set(ans, id);
+			GLItems.DC_PORTAL_SIDE.set(ans, getSide());
 		}
 		return ans;
 	}
@@ -207,8 +204,8 @@ public class GapPortalBlockEntity extends BaseBlockEntity implements IPortalBloc
 	public ItemStack getItem(PortalSide side) {
 		var ans = GLBlocks.GAP_PORTAL.asStack();
 		if (id != null) {
-			ans.set(GLItems.DC_UUID, id);
-			ans.set(GLItems.DC_PORTAL_SIDE, side);
+			GLItems.DC_UUID.set(ans, id);
+			GLItems.DC_PORTAL_SIDE.set(ans, side);
 		}
 		return ans;
 	}

@@ -22,17 +22,17 @@ import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AnvilUpdateEvent;
-import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.ShieldBlockEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MiscEventHandlers {
@@ -47,14 +47,14 @@ public class MiscEventHandlers {
 		if (right.is(Items.CHORUS_FRUIT)) {
 			if (unlock.travelUnlocked()) return;
 			ItemStack out = left.copy();
-			out.set(GLItems.UMBRELLA_UNLOCK.get(), unlock.withTravel(true));
+			GLItems.UMBRELLA_UNLOCK.set(out, unlock.withTravel(true));
 			e.setOutput(out);
 			e.setCost(5);
 			e.setMaterialCost(1);
 		} else if (right.is(Items.ECHO_SHARD)) {
 			if (unlock.captureUnlocked()) return;
 			ItemStack out = left.copy();
-			out.set(GLItems.UMBRELLA_UNLOCK.get(), unlock.withCapture(true));
+			GLItems.UMBRELLA_UNLOCK.set(out, unlock.withCapture(true));
 			e.setOutput(out);
 			e.setCost(10);
 			e.setMaterialCost(1);
@@ -63,8 +63,9 @@ public class MiscEventHandlers {
 
 	/** Hakkero, Shelf storage*/
 	@SubscribeEvent
-	public static void onPlayerTick(PlayerTickEvent.Post event) {
-		if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) return;
+		if (!(event.player instanceof ServerPlayer sp)) return;
 		if (sp.containerMenu instanceof HakkeroMenu furnace) furnace.tick();
 		if (sp.tickCount % 20 != 0) return;
 		var storage = PendingItemStorage.get(sp.serverLevel());
@@ -75,13 +76,13 @@ public class MiscEventHandlers {
 
 	/** Koishi, Rumia*/
 	@SubscribeEvent
-	public static void onShieldBlock(LivingShieldBlockEvent event) {
+	public static void onShieldBlock(ShieldBlockEvent event) {
 		if (event.getDamageSource().is(GLDamageTypes.KOISHI)) {
 			if (event.getEntity() instanceof Player player) {
 				GLMeta.KOISHI_ATTACK.type().getOrCreate(player).onBlock(player);
 			}
 		}
-		if (event.getBlocked() && event.getDamageSource().getDirectEntity() instanceof RumiaEntity rumia) {
+		if (event.getDamageSource().getDirectEntity() instanceof RumiaEntity rumia) {
 			rumia.state.onBlocked();
 		}
 	}
@@ -107,7 +108,7 @@ public class MiscEventHandlers {
 
 	/** Cat bell */
 	@SubscribeEvent
-	public static void onLivingTick(EntityTickEvent.Pre event) {
+	public static void onLivingTick(LivingEvent.LivingTickEvent event) {
 		if (event.getEntity() instanceof Cat cat && cat.level() instanceof ServerLevel) {
 			if (cat.isPassenger() && cat.getVehicle() instanceof ServerPlayer player) {
 				if (cat.getTags().contains("CatBell")) {
@@ -131,7 +132,7 @@ public class MiscEventHandlers {
 	/** Cat bell */
 	@SubscribeEvent
 	public static void onLivingInteraction(PlayerInteractEvent.EntityInteract event) {
-		if (event.getTarget() instanceof Cat cat && event.getItemStack().is(GLItems.CAT_BELL)) {
+		if (event.getTarget() instanceof Cat cat && GLItems.CAT_BELL.isIn(event.getItemStack())) {
 			event.setCancellationResult(GLItems.CAT_BELL.get().interactLivingEntity(event.getItemStack(), event.getEntity(), cat, event.getHand()));
 			event.setCanceled(true);
 		}

@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
@@ -16,13 +16,13 @@ public record KillEnemyRequirement(
 		String text, int count
 ) implements QuestRequirement<KillEnemyRequirement, KillTrigger> {
 
-	public static final MapCodec<KillEnemyRequirement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<KillEnemyRequirement> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("text").forGetter(KillEnemyRequirement::text),
 			Codec.INT.fieldOf("count").forGetter(KillEnemyRequirement::count)
 	).apply(i, KillEnemyRequirement::new));
 
 	@Override
-	public MapCodec<KillEnemyRequirement> codec() {
+	public Codec<KillEnemyRequirement> codec() {
 		return CODEC;
 	}
 

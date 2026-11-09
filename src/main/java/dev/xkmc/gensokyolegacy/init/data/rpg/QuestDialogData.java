@@ -13,15 +13,14 @@ import dev.xkmc.gensokyolegacy.content.rpg.dialog.*;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.content.rpg.requirement.RollItemRequirement;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeRecurrence;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2core.init.reg.ench.DataGenHolder;
-import dev.xkmc.l2core.init.reg.registrate.L2Registrate;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DataGenHolder;
+import dev.xkmc.l2library.base.L2Registrate;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -81,23 +80,15 @@ public class QuestDialogData {
 	/**
 	 * Registers all content contributed by the given instances into each datapack registry exactly once.
 	 */
-	public static void build(L2Registrate reg, QuestDialogData... all) {
-		reg.getDataGenInitializer().add(CodecRegistry.DIALOG.key(), ctx ->
+	public static void build(DataProviderInitializer init, QuestDialogData... all) {
+		init.add(CodecRegistry.DIALOG.key(), ctx ->
 				forAll(all, d -> d.dialogRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
-		reg.getDataGenInitializer().add(CodecRegistry.STARTER.key(), ctx ->
+		init.add(CodecRegistry.STARTER.key(), ctx ->
 				forAll(all, d -> d.starterRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
-		reg.getDataGenInitializer().add(CodecRegistry.QUEST.key(), ctx ->
+		init.add(CodecRegistry.QUEST.key(), ctx ->
 				forAll(all, d -> d.questRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
-		reg.getDataGenInitializer().add(CodecRegistry.TRADE.key(), ctx ->
+		init.add(CodecRegistry.TRADE.key(), ctx ->
 				forAll(all, d -> d.tradeRegistry.forEach((k, v) -> ctx.register(k, v.value()))));
-		reg.addDataGenerator(ProviderType.DATA_MAP, pvd -> {
-			var builder = pvd.builder(GLMeta.DIALOG_DATA.reg());
-			forAll(all, d -> d.defaultDialogMap.forEach((k, v) ->
-					builder.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false)));
-			var gifts = pvd.builder(GLMeta.GIFT_DIALOG_DATA.reg());
-			forAll(all, d -> d.giftDialogMap.forEach((k, v) ->
-					gifts.add(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(k), v, false)));
-		});
 	}
 
 	private static void forAll(QuestDialogData[] all, Consumer<QuestDialogData> c) {
@@ -106,7 +97,7 @@ public class QuestDialogData {
 	}
 
 	public ResourceLocation loc(String id) {
-		return ResourceLocation.fromNamespaceAndPath(modid, id);
+		return new ResourceLocation(modid, id);
 	}
 
 	public void prefix(String prefix) {
@@ -342,19 +333,19 @@ public class QuestDialogData {
 	}
 
 	public LootTableReward loot(String id, LootTable.Builder loot) {
-		var key = ResourceKey.create(Registries.LOOT_TABLE, loc(id));
+		var key = loc(id);
 		reg.addDataGenerator(ProviderType.LOOT, pvd -> pvd.addLootAction(
 				LootContextParamSets.ADVANCEMENT_REWARD,
 				c -> c.accept(key, loot)));
-		return new LootTableReward(key.location());
+		return new LootTableReward(key);
 	}
 
 	public ResourceLocation requestTable(String id, LootTable.Builder loot) {
-		var key = ResourceKey.create(Registries.LOOT_TABLE, loc("quest_req/" + prefix + "/" + id));
+		var key = loc("quest_req/" + prefix + "/" + id);
 		reg.addDataGenerator(ProviderType.LOOT, pvd -> pvd.addLootAction(
 				LootContextParamSets.ADVANCEMENT_REWARD,
 				c -> c.accept(key, loot)));
-		return key.location();
+		return key;
 	}
 
 	public RollItemRequirement rollItem(ResourceLocation table) {

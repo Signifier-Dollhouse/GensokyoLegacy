@@ -1,16 +1,16 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
-import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.neoforged.neoforge.common.Tags;
 
 /**
  * The one entry point for everything about the Gensokyo biomes: the list of the biomes themselves, and the tags on the
@@ -45,7 +45,7 @@ public class GLBiomeGen {
 	}
 
 	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
-			ProviderType.registerDynamicTag("biome", "biome", Registries.BIOME);
+			DataProviderInitializer.dynamicTag("biome");
 
 	public static final TagKey<Biome> CIRNO_NEST = biomeTag("has_structure/cirno_nest");
 	public static final TagKey<Biome> HAKUREI_SHRINE = biomeTag("has_structure/hakurei_shrine");
@@ -79,7 +79,7 @@ public class GLBiomeGen {
 	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
 	 *  Spelled out rather than imported because that mod is compile-only. */
 	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
-			ResourceLocation.fromNamespaceAndPath("youkaisfeasts", "cherry_biomes"));
+			new ResourceLocation("youkaisfeasts", "cherry_biomes"));
 
 	public static TagKey<Biome> biomeTag(String name) {
 		return TagKey.create(Registries.BIOME, GensokyoLegacy.loc(name));
@@ -100,7 +100,7 @@ public class GLBiomeGen {
 				.add(SakuraForestBiomeGen.KEY)
 				// Youkai's Feasts' own sakura forest, a shrine grove as much as ours. Optional, so that mod stays
 				// optional, and only that one biome: its sakura taiga and birch forest are another stand of trees.
-				.addOptional(ResourceLocation.parse("youkaisfeasts:sakura_forest"));
+				.addOptional(new ResourceLocation("youkaisfeasts:sakura_forest"));
 		// Our sakura forest is a cherry grove to Youkai's Feasts. "replace" stays false, which is the point: their
 		// file lists three sakura biomes and the loader clears all if any pack replaces. Magical forest is not one.
 		pvd.addTag(YSF_CHERRY_BIOMES).add(SakuraForestBiomeGen.KEY);
@@ -114,8 +114,10 @@ public class GLBiomeGen {
 		// vanilla overworld's forests and plains as well as Gensokyo's — nesting the shared tags costs nothing here,
 		// because reading a tag is not a claim about it, and it is the only way the overworld keeps its fairies.
 		pvd.addTag(PLAIN_FAIRY_SPAWN)
-				.addTag(Tags.Biomes.IS_FOREST)
-				.addTag(Tags.Biomes.IS_PLAINS)
+				.addTag(BiomeTags.IS_FOREST)
+				.add(Biomes.PLAINS)
+				.add(Biomes.SUNFLOWER_PLAINS)
+				.add(Biomes.SNOWY_PLAINS)
 				.addTag(IS_FOREST)
 				.addTag(IS_PLAINS);
 		pvd.addTag(IS_MAGICAL).add(MagicalForestBiomeGen.KEY).add(SakuraForestBiomeGen.KEY);

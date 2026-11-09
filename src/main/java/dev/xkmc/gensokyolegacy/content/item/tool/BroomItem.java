@@ -39,7 +39,7 @@ public class BroomItem extends Item {
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
 		if (player.getVehicle() instanceof BroomEntity) {
-			if (player.getMainHandItem().is(GLItems.MINI_HAKKERO))
+			if (player.getMainHandItem().is(GLItems.MINI_HAKKERO.get()))
 				return InteractionResultHolder.pass(stack);
 			if (!level.isClientSide) player.stopRiding();
 			return InteractionResultHolder.success(stack);
@@ -56,7 +56,7 @@ public class BroomItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.BROOM_LORE.get());
 	}
 

@@ -243,11 +243,11 @@ public class TaskBoard {
 		if (subFirst.size() > 1)
 			behaviors.add(new GateBehavior(ImmutableMap.of(), ImmutableSet.of(), GateBehavior.OrderPolicy.ORDERED, GateBehavior.RunningPolicy.RUN_ONE, subFirst));
 		else if (subFirst.size() == 1)
-			behaviors.add(subFirst.getFirst().getFirst());
+			behaviors.add(subFirst.get(0).getFirst());
 		if (subRandom.size() > 1)
 			behaviors.add(new GateBehavior(ImmutableMap.of(), ImmutableSet.of(), GateBehavior.OrderPolicy.SHUFFLED, GateBehavior.RunningPolicy.RUN_ONE, subRandom));
 		else if (subRandom.size() == 1)
-			behaviors.add(subRandom.getFirst().getFirst());
+			behaviors.add(subRandom.get(0).getFirst());
 		return behaviors;
 	}
 

@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.MobCategory;
@@ -39,11 +39,11 @@ public record StructJigsawBuilding(
 	}
 
 	@Override
-	public void registerTemplatePools(BootstrapContext<StructureTemplatePool> ctx, ResourceLocation id) {
+	public void registerTemplatePools(BootstapContext<StructureTemplatePool> ctx, ResourceLocation id) {
 		for (var e : parts) {
 			var pid = id.withSuffix("/" + e.id);
 			var empty = ctx.lookup(Registries.TEMPLATE_POOL)
-					.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.withDefaultNamespace("empty")));
+					.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecraft", "empty")));
 			var list = ctx.lookup(Registries.PROCESSOR_LIST)
 					.getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, pid));
 			var proj = e.isRoad() ? StructureTemplatePool.Projection.TERRAIN_MATCHING : StructureTemplatePool.Projection.RIGID;
@@ -55,7 +55,7 @@ public record StructJigsawBuilding(
 	}
 
 	@Override
-	public void registerProcessors(BootstrapContext<StructureProcessorList> ctx, ResourceLocation id) {
+	public void registerProcessors(BootstapContext<StructureProcessorList> ctx, ResourceLocation id) {
 		for (var e : parts) {
 			var pid = id.withSuffix("/" + e.id);
 			ctx.register(ResourceKey.create(Registries.PROCESSOR_LIST, pid),
@@ -64,9 +64,9 @@ public record StructJigsawBuilding(
 	}
 
 	@Override
-	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
+	public void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
-				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().getFirst().id())));
+				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().get(0).id())));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new JigsawStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
 				pool, maxDepth(), ConstantHeight.of(VerticalAnchor.absolute(0)), false, Heightmap.Types.WORLD_SURFACE_WG)

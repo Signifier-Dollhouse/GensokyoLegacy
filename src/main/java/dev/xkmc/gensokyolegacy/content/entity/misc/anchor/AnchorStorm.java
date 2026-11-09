@@ -18,7 +18,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +38,6 @@ public final class AnchorStorm {
 	private static final double AREA_RADIUS = 6;
 	private static final float AREA_DAMAGE = 12;
 	private static final Vec3 GRAVITY = new Vec3(0, -0.05, 0);
-	private static final int SMASH_PARTICLES = 750;
 	private static final int SMASH_SEARCH = 4;
 
 	private AnchorStorm() {
@@ -47,9 +48,9 @@ public final class AnchorStorm {
 	 */
 	public static int shedTrail(Entity self, Entity owner, int spent) {
 		if (spent >= MAX_TRAIL || !stormDanmaku()) return spent;
-		var r = self.getRandom();
+		var r = self.level().random;
 		var vec = new Vec3(r.nextGaussian(), r.nextGaussian(), r.nextGaussian()).scale(0.02);
-		spawn(self, owner, vec, TRAIL_LIFE + self.getRandom().nextInt(11));
+		spawn(self, owner, vec, TRAIL_LIFE + r.nextInt(11));
 		return spent + 1;
 	}
 
@@ -91,8 +92,11 @@ public final class AnchorStorm {
 	 */
 	public static void smash(Level level, BlockPos pos) {
 		playSmash(level, Vec3.atCenterOf(pos));
-		if (level instanceof ServerLevel sl)
-			sl.levelEvent(null, LevelEvent.PARTICLES_SMASH_ATTACK, pos, SMASH_PARTICLES);
+		if (level instanceof ServerLevel sl) {
+			BlockState state = level.getBlockState(pos);
+			if (!state.isAir())
+				sl.levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+		}
 	}
 
 	/**
@@ -103,11 +107,11 @@ public final class AnchorStorm {
 		playSmash(level, at);
 		BlockPos pos = supportBelow(level, at);
 		if (pos != null && level instanceof ServerLevel sl)
-			sl.levelEvent(null, LevelEvent.PARTICLES_SMASH_ATTACK, pos, SMASH_PARTICLES);
+			sl.levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(level.getBlockState(pos)));
 	}
 
 	private static void playSmash(Level level, Vec3 at) {
-		level.playSound(null, at.x, at.y, at.z, SoundEvents.MACE_SMASH_GROUND, SoundSource.PLAYERS, 1F, 1F);
+		level.playSound(null, at.x, at.y, at.z, SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1F, 1F);
 	}
 
 	@Nullable
@@ -134,7 +138,7 @@ public final class AnchorStorm {
 				SoundSource.PLAYERS, 1F, 1F);
 		Vec3 forward = self.getDeltaMovement().normalize();
 		if (forward.lengthSqr() < 1e-6) forward = new Vec3(0, 1, 0);
-		var r = self.getRandom();
+		var r = self.level().random;
 		for (int i = 0; i < 300; i++) {
 			Vec3 dir = new Vec3(r.nextGaussian(), r.nextGaussian(), r.nextGaussian())
 					.add(forward.scale(1.2));

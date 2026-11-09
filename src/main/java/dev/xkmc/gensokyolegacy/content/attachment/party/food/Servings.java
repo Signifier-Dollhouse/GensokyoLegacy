@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.food;
 
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 /**
  * Shared reading of a serving's {@link FoodProperties}.
@@ -17,11 +17,10 @@ public final class Servings {
 	 * Poison or wither on a serving: the same two {@code FeedModule} refuses.
 	 */
 	public static boolean refuses(FoodProperties props) {
-		for (var effect : props.effects()) {
-			var holder = effect.effect().getEffect();
+		for (var effect : props.getEffects()) {
+			var holder = effect.getFirst().getEffect();
 			if (holder == null) continue;
-			if (holder.is(net.minecraft.world.effect.MobEffects.POISON)
-					|| holder.is(net.minecraft.world.effect.MobEffects.WITHER)) {
+			if (holder == MobEffects.POISON || holder == MobEffects.WITHER) {
 				return true;
 			}
 		}
@@ -36,7 +35,7 @@ public final class Servings {
 	public static FoodProperties of(ItemStack stack) {
 		if (stack.isEmpty()) return null;
 		var props = stack.getFoodProperties(null);
-		if (props == null || props.nutrition() <= 0 || refuses(props)) return null;
+		if (props == null || props.getNutrition() <= 0 || refuses(props)) return null;
 		return props;
 	}
 
@@ -55,11 +54,16 @@ public final class Servings {
 	}
 
 	private static FoodProperties plate(FoodProperties props, int count) {
-		var list = new ArrayList<FoodProperties.PossibleEffect>();
+		var builder = new FoodProperties.Builder()
+				.nutrition(props.getNutrition() * count)
+				.saturationMod(props.getSaturationModifier());
+		if (props.isMeat()) builder.meat();
+		if (props.canAlwaysEat()) builder.alwaysEat();
+		if (props.isFastFood()) builder.fast();
 		for (int i = 0; i < count; i++)
-			list.addAll(props.effects());
-		return new FoodProperties(props.nutrition() * count, props.saturation() * count,
-				props.canAlwaysEat(), props.eatSeconds() * count, props.usingConvertsTo(), list);
+			for (var pair : props.getEffects())
+				builder.effect(new MobEffectInstance(pair.getFirst()), pair.getSecond());
+		return builder.build();
 	}
 
 	private Servings() {

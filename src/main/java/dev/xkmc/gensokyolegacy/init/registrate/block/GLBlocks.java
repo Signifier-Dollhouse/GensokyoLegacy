@@ -14,8 +14,8 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2modularblock.core.BlockTemplates;
-import dev.xkmc.l2modularblock.core.DelegateBlock;
+import dev.xkmc.l2modularblock.BlockTemplates;
+import dev.xkmc.l2modularblock.DelegateBlock;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.BlockTags;
@@ -28,8 +28,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -78,7 +78,7 @@ public class GLBlocks {
 		}
 
 		public Holder<Block> holder() {
-			return BEDS[ordinal()];
+			return BEDS[ordinal()].get().builtInRegistryHolder();
 		}
 	}
 

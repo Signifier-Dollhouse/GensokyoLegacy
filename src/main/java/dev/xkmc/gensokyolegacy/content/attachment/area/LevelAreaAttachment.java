@@ -1,14 +1,18 @@
 package dev.xkmc.gensokyolegacy.content.attachment.area;
 
-import dev.xkmc.l2core.capability.attachment.GeneralCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
+import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -21,6 +25,8 @@ import java.util.*;
  */
 @SerialClass
 public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelAreaAttachment> {
+
+	public static final Capability<LevelAreaAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	@SerialField
 	private final Map<UUID, AreaEffectEntry> byId = new LinkedHashMap<>();

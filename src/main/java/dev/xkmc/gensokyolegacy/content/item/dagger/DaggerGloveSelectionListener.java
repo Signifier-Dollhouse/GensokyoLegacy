@@ -4,7 +4,6 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.client.DaggerGloveModeWheel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -48,43 +47,26 @@ public class DaggerGloveSelectionListener extends IItemSelector implements Wheel
 	}
 
 	@Override
-	public int getIndex(Player player, ItemStack stack) {
-		return DaggerGloveItem.getMode(stack).ordinal();
+	public int getIndex(Player player) {
+		ItemStack held = getHeldGlove(player);
+		return held == null ? 0 : DaggerGloveItem.getMode(held).ordinal();
 	}
 
 	@Override
-	public List<ItemStack> getList(ItemStack stack) {
+	public List<ItemStack> getList() {
 		List<ItemStack> list = new ArrayList<>();
 		for (var mode : DaggerGloveMode.values()) {
 			// the flat icon variant, not the held separate-transforms model: the sidebar is
 			// gui-only, so it wants the mode's own icon like the wheel does
 			ItemStack icon = DaggerGloveItem.iconStack(mode);
-			icon.set(DataComponents.ITEM_NAME, mode.displayName());
+			icon.setHoverName(mode.displayName());
 			list.add(icon);
 		}
 		return list;
 	}
 
-	/**
-	 * Every mode is always listed, so the scroll list never changes shape and its hash never has to
-	 * be part of the cache key.
-	 */
 	@Override
-	public int getSelHash(ItemStack stack) {
-		return DaggerGloveMode.values().length;
-	}
-
-	/**
-	 * Scroll selection steps through every mode, wrapping; returns the new mode's ordinal.
-	 */
-	@Override
-	public int move(int i, Player player, ItemStack stack) {
-		var modes = DaggerGloveMode.values();
-		return Math.floorMod(DaggerGloveItem.getMode(stack).ordinal() + i, modes.length);
-	}
-
-	@Override
-	public void swap(Player sender, int index, ItemStack stack) {
+	public void swap(Player sender, int index) {
 		ItemStack held = getHeldGlove(sender);
 		if (held == null) return;
 		DaggerGloveItem.setMode(held, byOrdinal(index));

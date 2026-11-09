@@ -4,8 +4,8 @@ import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
 import dev.xkmc.danmakuapi.content.spell.mover.DanmakuMover;
 import dev.xkmc.danmakuapi.content.spell.mover.MoverInfo;
 import dev.xkmc.fastprojectileapi.entity.ProjectileMovement;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.world.phys.Vec3;
 
 @SerialClass

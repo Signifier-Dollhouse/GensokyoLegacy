@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.network;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
  * Gives the camera back to the player driving a head (gadget.md §6). The enter half needs no packet:
  * it is the head's own shift-click, so this only ever carries a release.
  */
-public record HeadReleaseToServer(int headId) implements SerialPacketBase<HeadReleaseToServer> {
+public record HeadReleaseToServer(int headId) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

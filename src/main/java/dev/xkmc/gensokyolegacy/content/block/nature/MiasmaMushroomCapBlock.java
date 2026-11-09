@@ -26,7 +26,7 @@ public class MiasmaMushroomCapBlock extends WeightedMushroomBlock {
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		super.randomTick(state, level, pos, random);
 		MiasmaAirBlock.emitAround(level, pos, MAX_INTENSITY, random);
 	}
@@ -43,10 +43,10 @@ public class MiasmaMushroomCapBlock extends WeightedMushroomBlock {
 	}
 
 	@Override
-	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		if (!level.isClientSide() && entity instanceof LivingEntity living) {
-			if (living.hasEffect(GLEffects.MIASMA) && living.tickCount % 20 == 0) return;
-			living.addEffect(new MobEffectInstance(GLEffects.MIASMA, 200, 0, true, false, true));
+			if (living.hasEffect(GLEffects.MIASMA.get()) && living.tickCount % 20 == 0) return;
+			living.addEffect(new MobEffectInstance(GLEffects.MIASMA.get(), 200, 0, true, false, true));
 		}
 	}
 

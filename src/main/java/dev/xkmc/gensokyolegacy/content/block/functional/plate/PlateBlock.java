@@ -7,13 +7,12 @@ import dev.xkmc.l2modularblock.mult.UseItemOnBlockMethod;
 import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
 import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -46,16 +45,16 @@ public class PlateBlock implements ShapePathFindBlockMethod, UseItemOnBlockMetho
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!isFood(stack) || !(level.getBlockEntity(pos) instanceof PlateBlockEntity be) || !be.stack.isEmpty())
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.PASS;
 		if (!level.isClientSide) {
 			be.stack = stack.copyWithCount(1);
 			stack.shrink(1);
 			be.notifyTile();
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.5F, 1.2F);
 		}
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -74,8 +73,9 @@ public class PlateBlock implements ShapePathFindBlockMethod, UseItemOnBlockMetho
 	 * plate has nowhere to put it.
 	 */
 	private static boolean isFood(ItemStack stack) {
-		var food = stack.get(DataComponents.FOOD);
-		return food != null && food.usingConvertsTo().isEmpty();
+		// 1.20.1 has no usingConvertsTo: a bowl food always leaves its bowl behind
+		if (!stack.isEdible()) return false;
+		return !stack.getItem().hasCraftingRemainingItem() && !(stack.getItem() instanceof BowlFoodItem);
 	}
 
 }

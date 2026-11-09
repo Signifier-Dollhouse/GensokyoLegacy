@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,16 +33,11 @@ public class LargeWaterLilyBlock extends WaterLilyBlock {
 	 */
 	private static final VoxelShape PAD = Block.box(1.0, 9.0, 1.0, 15.0, 10.5, 15.0);
 
-	private static final MapCodec<LargeWaterLilyBlock> CODEC = simpleCodec(LargeWaterLilyBlock::new);
 
 	public LargeWaterLilyBlock(Properties properties) {
 		super(properties, PAD);
 	}
 
-	@Override
-	public MapCodec<? extends BushBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -59,8 +54,8 @@ public class LargeWaterLilyBlock extends WaterLilyBlock {
 	}
 
 	@Override
-	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
-											   BlockHitResult hitResult) {
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+									InteractionHand hand, BlockHitResult hitResult) {
 		if (level.isClientSide) return InteractionResult.SUCCESS;
 		int next = (state.getValue(VARIANT) + 1) % VARIANTS;
 		level.setBlockAndUpdate(pos, state.setValue(VARIANT, next));

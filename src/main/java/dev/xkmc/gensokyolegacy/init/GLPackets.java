@@ -22,11 +22,11 @@ import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.network.*;
-import dev.xkmc.l2serial.network.PacketHandler;
-import dev.xkmc.l2serial.network.SerialPacketBase;
-import dev.xkmc.l2serial.network.SimplePacketBase;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import dev.xkmc.l2library.serial.config.PacketHandler;
+import dev.xkmc.l2serial.network.BasePacketHandler;
+import dev.xkmc.l2serial.network.RecordPacketBase;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkDirection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +34,7 @@ import java.util.function.Function;
 
 /**
  * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}. <p> Every packet is registered
- * here in one chain; each call site decides only the direction, not the codec. Serialized {@code Record} packets use
- * the two-argument forms (the codec comes from l2serial's {@code CodecAdaptor}); anything else passes its own {@link
- * StreamCodec} to the three-argument form.
+ * here in one chain; each call site decides only the direction, not the codec.
  */
 public class GLPackets {
 
@@ -106,34 +104,24 @@ public class GLPackets {
 	private static class Builder {
 
 		private final int version;
-		private final List<Function<PacketHandler, PacketHandler.PacketConfiguration<?>>> entries = new ArrayList<>();
+		private final List<Function<BasePacketHandler, BasePacketHandler.LoadedPacket<?>>> entries = new ArrayList<>();
 
 		private Builder(int version) {
 			this.version = version;
 		}
 
-		private <T extends Record & SerialPacketBase<T>> Builder toClient(Class<T> type) {
-			entries.add(e -> e.create(type, PacketHandler.NetDir.PLAY_TO_CLIENT));
+		private <T extends Record & RecordPacketBase> Builder toClient(Class<T> type) {
+			entries.add(e -> e.createRecord(type, NetworkDirection.PLAY_TO_CLIENT));
 			return this;
 		}
 
-		private <T extends Record & SerialPacketBase<T>> Builder toServer(Class<T> type) {
-			entries.add(e -> e.create(type, PacketHandler.NetDir.PLAY_TO_SERVER));
-			return this;
-		}
-
-		private <T extends SimplePacketBase> Builder toClient(Class<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
-			entries.add(e -> e.create(type, codec, PacketHandler.NetDir.PLAY_TO_CLIENT));
-			return this;
-		}
-
-		private <T extends SimplePacketBase> Builder toServer(Class<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
-			entries.add(e -> e.create(type, codec, PacketHandler.NetDir.PLAY_TO_SERVER));
+		private <T extends Record & RecordPacketBase> Builder toServer(Class<T> type) {
+			entries.add(e -> e.createRecord(type, NetworkDirection.PLAY_TO_SERVER));
 			return this;
 		}
 
 		private PacketHandler build() {
-			return new PacketHandler(GensokyoLegacy.MODID, version,
+			return new PacketHandler(new ResourceLocation(GensokyoLegacy.MODID, "main"), version,
 					entries.toArray(Function[]::new));
 		}
 

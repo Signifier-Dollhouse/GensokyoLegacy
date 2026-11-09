@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.item.nue;
 
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2core.util.DCStack;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -50,7 +50,7 @@ public class UfoItem extends Item {
 	}
 
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
+	public int getUseDuration(ItemStack stack) {
 		return HOLD_TICKS;
 	}
 
@@ -66,7 +66,7 @@ public class UfoItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemLores.UFO_LORE.get());
 		ItemStack content = getContent(stack);
 		if (!content.isEmpty()) {

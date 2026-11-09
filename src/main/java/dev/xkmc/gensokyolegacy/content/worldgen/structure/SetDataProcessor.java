@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class SetDataProcessor extends StructureProcessor {
 
-	public static final MapCodec<SetDataProcessor> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<SetDataProcessor> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), RuleBlockEntityModifier.CODEC).fieldOf("map").forGetter(e -> e.map)
 	).apply(i, SetDataProcessor::new));
 

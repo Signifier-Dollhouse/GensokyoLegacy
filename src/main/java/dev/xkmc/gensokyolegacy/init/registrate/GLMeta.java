@@ -20,24 +20,23 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
-import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.DialogConfig;
 import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
-import dev.xkmc.gensokyolegacy.content.rpg.dialog.Dialog;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityNetworkHandler;
-import dev.xkmc.l2core.init.reg.datapack.DataMapReg;
-import dev.xkmc.l2core.init.reg.simple.AttReg;
-import dev.xkmc.l2core.init.reg.simple.AttVal;
-import dev.xkmc.l2serial.serialization.codec.CodecAdaptor;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityNetworkHandler;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DataMapReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.AttReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.AttVal;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
 import dev.xkmc.l2serial.serialization.custom_handler.CodecHandler;
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.item.Item;
@@ -49,8 +48,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
-import net.neoforged.neoforge.registries.datamaps.DataMapType;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class GLMeta {
 
@@ -98,8 +99,7 @@ public class GLMeta {
 	public static final DataMapReg<EntityType<?>, DialogConfig> DIALOG_DATA =
 			GensokyoLegacy.REG.dataMap("default_dialog", Registries.ENTITY_TYPE, DialogConfig.class);
 	public static final DataMapReg<Structure, StructureConfig> STRUCTURE_DATA =
-			GensokyoLegacy.REG.dataMap(DataMapType.builder(GensokyoLegacy.loc("structure_config"),
-					Registries.STRUCTURE, new CodecAdaptor<>(StructureConfig.class)).build());
+			GensokyoLegacy.REG.dataMap("structure_config", Registries.STRUCTURE, StructureConfig.class);
 	public static final DataMapReg<EntityType<?>, GiftPreference> GIFT_PREFERENCE =
 			GensokyoLegacy.REG.dataMap("gift_preference", Registries.ENTITY_TYPE, GiftPreference.class);
 	public static final DataMapReg<EntityType<?>, GiftDialogData> GIFT_DIALOG_DATA =
@@ -110,19 +110,30 @@ public class GLMeta {
 			GensokyoLegacy.REG.dataMap("morichika_offer", Registries.ITEM, MorichikaOfferData.class);
 
 	public static void register() {
-		Handlers.enableVanilla(Fluid.class, BuiltInRegistries.FLUID);
-		// so GiftDialogData can name its dialogs as Holder<Dialog>: l2serial resolves a Holder
-		// through the reg its element type is registered under, and Dialog is a datapack registry
-		// rather than a built-in one, so the reg has to be declared here
-		Handlers.registerReg(Dialog.class, CodecRegistry.DIALOG.key());
-		new CodecHandler<>(FluidIngredient.class, FluidIngredient.CODEC, FluidIngredient.STREAM_CODEC);
-		new CodecHandler<>(BoundingBox.class, BoundingBox.CODEC, ByteBufCodecs.fromCodecWithRegistries(BoundingBox.CODEC));
-		new CodecHandler<>(BlockPos.class, BlockPos.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockPos.CODEC));
-		new CodecHandler<>(BlockState.class, BlockState.CODEC, ByteBufCodecs.fromCodecWithRegistries(BlockState.CODEC));
-		new CodecHandler<>(ChunkPos.class, RecordCodecBuilder.create(i -> i.group(
+		Handlers.enableVanilla(Fluid.class, () -> ForgeRegistries.FLUIDS);
+		register(BoundingBox.class, BoundingBox.CODEC);
+		register(BlockPos.class, BlockPos.CODEC);
+		register(BlockState.class, BlockState.CODEC);
+		register(ChunkPos.class, RecordCodecBuilder.create(i -> i.group(
 				Codec.INT.fieldOf("x").forGetter(e -> e.x),
 				Codec.INT.fieldOf("z").forGetter(e -> e.z)
-		).apply(i, ChunkPos::new)), ByteBufCodecs.fromCodecWithRegistries(Codec.LONG).map(ChunkPos::new, ChunkPos::toLong));
+		).apply(i, ChunkPos::new)));
+		register(FluidIngredient.class, FluidIngredient.CODEC);
+	}
+
+	private static <T> void register(Class<T> cls, Codec<T> codec) {
+		new CodecHandler<>(cls, codec, readNbt(codec), writeNbt(codec));
+	}
+
+	private static <T> Function<FriendlyByteBuf, T> readNbt(Codec<T> codec) {
+		return buf -> {
+			CompoundTag tag = buf.readNbt();
+			return codec.parse(NbtOps.INSTANCE, tag).result().orElseThrow();
+		};
+	}
+
+	private static <T> BiConsumer<FriendlyByteBuf, T> writeNbt(Codec<T> codec) {
+		return (buf, val) -> buf.writeNbt((CompoundTag) codec.encodeStart(NbtOps.INSTANCE, val).result().orElseThrow());
 	}
 
 }

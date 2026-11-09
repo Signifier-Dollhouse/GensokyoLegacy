@@ -1,58 +1,77 @@
 package dev.xkmc.gensokyolegacy.content.trigger;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.xkmc.l2core.init.reg.simple.Val;
-import net.minecraft.advancements.Criterion;
+import com.google.gson.JsonObject;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Val;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.SerializationContext;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class FeedCharacterTrigger extends SimpleCriterionTrigger<FeedCharacterTrigger.TriggerInstance> {
+
+	private final ResourceLocation id;
+
+	public FeedCharacterTrigger(ResourceLocation id) {
+		this.id = id;
+	}
+
+	public ResourceLocation getId() {
+		return id;
+	}
+
 	@Override
-	public Codec<FeedCharacterTrigger.TriggerInstance> codec() {
-		return FeedCharacterTrigger.TriggerInstance.CODEC;
+	protected TriggerInstance createInstance(JsonObject json, ContextAwarePredicate player, DeserializationContext ctx) {
+		return new TriggerInstance(id, player,
+				EntityPredicate.fromJson(json.get("entity")),
+				ItemPredicate.fromJson(json.get("item")));
 	}
 
 	public void trigger(ServerPlayer player, LivingEntity le, ItemStack item) {
 		trigger(player, e -> e.matches(player, le, item));
 	}
 
-	public record TriggerInstance(
-			Optional<ContextAwarePredicate> player,
-			Optional<EntityPredicate> entity,
-			Optional<ItemPredicate> item
-	) implements SimpleCriterionTrigger.SimpleInstance {
-		public static final Codec<FeedCharacterTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(i -> i.group(
-						EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(FeedCharacterTrigger.TriggerInstance::player),
-						EntityPredicate.CODEC.optionalFieldOf("entity").forGetter(FeedCharacterTrigger.TriggerInstance::entity),
-						ItemPredicate.CODEC.optionalFieldOf("item").forGetter(FeedCharacterTrigger.TriggerInstance::item)
-				).apply(i, FeedCharacterTrigger.TriggerInstance::new)
-		);
+	public static class TriggerInstance extends AbstractCriterionTriggerInstance {
+
+		private final @Nullable EntityPredicate entity;
+		private final @Nullable ItemPredicate item;
+
+		public TriggerInstance(ResourceLocation id, ContextAwarePredicate player,
+							   @Nullable EntityPredicate entity, @Nullable ItemPredicate item) {
+			super(id, player);
+			this.entity = entity;
+			this.item = item;
+		}
 
 		/**
 		 * A criterion bound to whichever trigger id asked for it, since one class is registered under several.
 		 *
 		 * @param trigger registered instance of this trigger to build the criterion against
 		 */
-		public static Criterion<FeedCharacterTrigger.TriggerInstance> usedItem(
-				Val<FeedCharacterTrigger> trigger,
-				@Nullable ContextAwarePredicate player, @Nullable EntityPredicate entity, @Nullable ItemPredicate item
-		) {
-			return trigger.get().createCriterion(new FeedCharacterTrigger.TriggerInstance(
-					Optional.ofNullable(player), Optional.ofNullable(entity), Optional.ofNullable(item)));
+		public static TriggerInstance usedItem(Val<FeedCharacterTrigger> trigger,
+											   @Nullable ContextAwarePredicate player, @Nullable EntityPredicate entity, @Nullable ItemPredicate item) {
+			return new TriggerInstance(trigger.get().getId(),
+					player == null ? ContextAwarePredicate.ANY : player, entity, item);
 		}
 
-		public boolean matches(ServerPlayer player, LivingEntity le, ItemStack item) {
-			return (entity().isEmpty() || entity().get().matches(player, le)) &&
-					(item().isEmpty() || item().get().test(item));
+		public boolean matches(ServerPlayer player, LivingEntity le, ItemStack stack) {
+			return (entity == null || entity.matches(player, le)) &&
+					(item == null || item.matches(stack));
+		}
+
+		@Override
+		public JsonObject serializeToJson(SerializationContext ctx) {
+			JsonObject ans = super.serializeToJson(ctx);
+			if (entity != null) ans.add("entity", entity.serializeToJson());
+			if (item != null) ans.add("item", item.serializeToJson());
+			return ans;
 		}
 
 	}

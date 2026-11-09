@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -12,12 +12,12 @@ public record HasQuestCompletedCondition(
 		ResourceLocation quest
 ) implements QuestCondition<HasQuestCompletedCondition> {
 
-	public static final MapCodec<HasQuestCompletedCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<HasQuestCompletedCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			ResourceLocation.CODEC.fieldOf("quest").forGetter(HasQuestCompletedCondition::quest)
 	).apply(i, HasQuestCompletedCondition::new));
 
 	@Override
-	public MapCodec<HasQuestCompletedCondition> codec() {
+	public Codec<HasQuestCompletedCondition> codec() {
 		return CODEC;
 	}
 

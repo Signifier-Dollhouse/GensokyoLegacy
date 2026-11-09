@@ -3,10 +3,8 @@ package dev.xkmc.gensokyolegacy.content.ui.quest;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.gensokyolegacy.init.registrate.GLMisc;
 import dev.xkmc.l2tabs.tabs.contents.BaseTextScreen;
 import dev.xkmc.l2tabs.tabs.core.TabManager;
-import dev.xkmc.l2tabs.tabs.inventory.InvTabData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,18 +15,18 @@ import net.minecraft.resources.ResourceLocation;
 public class QuestInfoScreen extends BaseTextScreen {
 
 	public QuestInfoScreen() {
-		super(GLLang.Quest.TAB.get(), ResourceLocation.fromNamespaceAndPath("l2tabs", "textures/gui/empty.png"));
+		super(GLLang.Quest.TAB.get(), new ResourceLocation("l2tabs", "textures/gui/empty.png"));
 	}
 
 	@Override
 	public void init() {
 		super.init();
-		new TabManager<>(this, new InvTabData()).init(this::addRenderableWidget, GLMisc.QUEST_TAB.get());
+		new TabManager(this).init(this::addRenderableWidget, QuestTab.TOKEN);
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics g, int mx, int my, float pt) {
-		super.renderBackground(g, mx, my, pt);
+	public void render(GuiGraphics g, int mx, int my, float pt) {
+		super.render(g, mx, my, pt);
 		int x = this.leftPos + 8;
 		int y = this.topPos + 6;
 
@@ -41,7 +39,7 @@ public class QuestInfoScreen extends BaseTextScreen {
 		x += 8;
 		for (var e : quest.data.entrySet()) {
 			if (!e.getValue().started) continue;
-			var holder = player.level().registryAccess().holder(ResourceKey.create(CodecRegistry.Keys.QUEST, e.getKey()));
+			var holder = player.level().registryAccess().registryOrThrow(CodecRegistry.Keys.QUEST).getHolder(ResourceKey.create(CodecRegistry.Keys.QUEST, e.getKey()));
 			if (holder.isEmpty()) continue;
 			var comp = Component.translatable(holder.get().value().title());
 			if (e.getValue().isCompletable(player, holder.get().value()))

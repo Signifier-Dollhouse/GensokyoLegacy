@@ -1,11 +1,11 @@
 package dev.xkmc.gensokyolegacy.content.rpg.action;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 
 public record CompleteQuestAction() implements DialogAction<CompleteQuestAction> {
 
-	public static final MapCodec<CompleteQuestAction> CODEC = MapCodec.unit(new CompleteQuestAction());
+	public static final Codec<CompleteQuestAction> CODEC = Codec.unit(new CompleteQuestAction());
 
 	@Override
 	public void execute(ActionContext context) {
@@ -15,7 +15,7 @@ public record CompleteQuestAction() implements DialogAction<CompleteQuestAction>
 	}
 
 	@Override
-	public MapCodec<CompleteQuestAction> codec() {
+	public Codec<CompleteQuestAction> codec() {
 		return CODEC;
 	}
 

@@ -1,10 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.fluid;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import dev.xkmc.gensokyolegacy.util.PotionData;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.fluids.FluidStack;
 
 public record ClientGLFluid(GLFluidType type) implements IClientFluidTypeExtensions {
 
@@ -25,8 +24,8 @@ public record ClientGLFluid(GLFluidType type) implements IClientFluidTypeExtensi
 
 	@Override
 	public int getTintColor(FluidStack stack) {
-		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-		if (contents != null) {
+		var contents = PotionData.read(stack);
+		if (!contents.isEmpty()) {
 			int c = contents.getColor();
 			if (c != -1) {
 				return 0xFF000000 | c;

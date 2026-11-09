@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -44,20 +44,21 @@ public class PartyFoodValue {
 	 * @return the appeal of one serving, or 0 for something not worth serving
 	 */
 	public static int appealOf(FoodProperties props) {
-		if (props.nutrition() <= 0 || Servings.refuses(props)) return 0;
+		if (props.getNutrition() <= 0 || Servings.refuses(props)) return 0;
 		float bonus = 0;
-		for (var e : props.effects()) {
-			var holder = e.effect().getEffect();
-			if (holder != null && holder.value().isBeneficial()) bonus += BENEFICIAL_BONUS;
+		for (var e : props.getEffects()) {
+			var holder = e.getFirst().getEffect();
+			if (holder != null && holder.isBeneficial()) bonus += BENEFICIAL_BONUS;
 		}
-		return clamp(Math.round(props.nutrition() * NUTRITION_SCALE + props.saturation() * SATURATION_SCALE + bonus));
+		float saturation = props.getNutrition() * props.getSaturationModifier() * 2.0f;
+		return clamp(Math.round(props.getNutrition() * NUTRITION_SCALE + saturation * SATURATION_SCALE + bonus));
 	}
 
 	/**
 	 * Every food this block offers. One entry, except a container, which reports one per
 	 * kind of thing held. A fresh list every call — never retained.
 	 */
-	public static List<FoodResult> results(CollisionGetter level, BlockPos pos, BlockState state) {
+	public static List<FoodResult> results(BlockGetter level, BlockPos pos, BlockState state) {
 		var container = PartyFoodHandler.containerOf(state.getBlock());
 		// a container is never answered from the cache: its contents are not in the state
 		if (container != null) return container.contents(level, pos, state);
@@ -76,7 +77,7 @@ public class PartyFoodValue {
 	/**
 	 * Decided entirely in code; nothing a datapack can write changes the answer.
 	 */
-	public static boolean isFood(CollisionGetter level, BlockPos pos, BlockState state) {
+	public static boolean isFood(BlockGetter level, BlockPos pos, BlockState state) {
 		for (var result : results(level, pos, state)) {
 			if (result.valid()) return true;
 		}

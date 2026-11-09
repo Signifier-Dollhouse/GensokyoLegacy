@@ -6,7 +6,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.GloveHandModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
 
 import java.util.Locale;
 

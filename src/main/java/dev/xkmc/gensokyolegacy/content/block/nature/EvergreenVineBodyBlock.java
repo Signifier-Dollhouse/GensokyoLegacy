@@ -18,7 +18,7 @@ public class EvergreenVineBodyBlock extends Block {
 	}
 
 	@Override
-	protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
 		if (direction == Direction.DOWN) {
 			boolean vine = neighborState.getBlock() instanceof EvergreenVineHeadBlock
 					|| neighborState.getBlock() instanceof EvergreenVineBodyBlock;

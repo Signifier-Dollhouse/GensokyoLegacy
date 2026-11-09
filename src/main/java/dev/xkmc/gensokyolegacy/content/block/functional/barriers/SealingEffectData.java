@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.EffectData;
 import dev.xkmc.gensokyolegacy.content.item.character.StrangeGlassesItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;

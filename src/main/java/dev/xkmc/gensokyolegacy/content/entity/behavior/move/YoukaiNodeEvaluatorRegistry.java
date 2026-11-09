@@ -6,11 +6,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,18 +28,18 @@ public class YoukaiNodeEvaluatorRegistry {
 	private static final List<YoukaiPathTypeHandler> GLOBAL_HANDLERS = new ArrayList<>();
 
 	public static void init() {
-		register(BlockTags.MOB_INTERACTABLE_DOORS, (ans, context, pos, state, mob) -> {
+		register(BlockTags.WOODEN_DOORS, (ans, level, pos, state, mob) -> {
 			if (!state.hasProperty(DoorBlock.OPEN)) return ans;
-			return state.getValue(DoorBlock.OPEN) ? PathType.DOOR_OPEN : PathType.DOOR_WOOD_CLOSED;
+			return state.getValue(DoorBlock.OPEN) ? BlockPathTypes.DOOR_OPEN : BlockPathTypes.DOOR_WOOD_CLOSED;
 		});
 		register(BlockTags.TRAPDOORS, YoukaiNodeHelpers::trapdoor);
-		register(GLTagGen.SLIDING_DOOR, (ans, context, pos, state, mob) -> {
-			if (SlidingDoorUtils.isSeatedAndOpenable(context.level(), pos))
-				return PathType.DOOR_WOOD_CLOSED;
-			return PathType.BLOCKED;
+		register(GLTagGen.SLIDING_DOOR, (ans, level, pos, state, mob) -> {
+			if (SlidingDoorUtils.isSeatedAndOpenable(level, pos))
+				return BlockPathTypes.DOOR_WOOD_CLOSED;
+			return BlockPathTypes.BLOCKED;
 		});
-		register(BlockTags.CLIMBABLE, (ans, context, pos, state, mob) -> {
-			if (ans == PathType.OPEN) return PathType.WALKABLE;
+		register(BlockTags.CLIMBABLE, (ans, level, pos, state, mob) -> {
+			if (ans == BlockPathTypes.OPEN) return BlockPathTypes.WALKABLE;
 			return ans;
 		});
 		registerGlobal(YoukaiNodeHelpers::partyFurniture);
@@ -60,15 +60,15 @@ public class YoukaiNodeEvaluatorRegistry {
 		GLOBAL_HANDLERS.add(handler);
 	}
 
-	static PathType apply(PathType ans, PathfindingContext context, BlockPos pos, @Nullable Mob mob) {
-		BlockState state = context.getBlockState(pos);
+	static BlockPathTypes apply(BlockPathTypes ans, CollisionGetter level, BlockPos pos, @Nullable Mob mob) {
+		BlockState state = level.getBlockState(pos);
 		var handler = BLOCK_HANDLERS.get(state.getBlock());
-		if (handler != null) ans = handler.getPathType(ans, context, pos, state, mob);
+		if (handler != null) ans = handler.getPathType(ans, level, pos, state, mob);
 		for (var entry : TAG_HANDLERS.entrySet()) {
-			if (state.is(entry.getKey())) ans = entry.getValue().getPathType(ans, context, pos, state, mob);
+			if (state.is(entry.getKey())) ans = entry.getValue().getPathType(ans, level, pos, state, mob);
 		}
 		for (var global : GLOBAL_HANDLERS) {
-			ans = global.getPathType(ans, context, pos, state, mob);
+			ans = global.getPathType(ans, level, pos, state, mob);
 		}
 		return ans;
 	}

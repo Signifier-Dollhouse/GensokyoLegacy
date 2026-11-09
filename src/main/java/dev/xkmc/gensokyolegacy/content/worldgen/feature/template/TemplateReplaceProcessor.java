@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature.template;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class TemplateReplaceProcessor extends StructureProcessor {
 
-	public static final MapCodec<TemplateReplaceProcessor> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<TemplateReplaceProcessor> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.unboundedMap(BuiltInRegistries.BLOCK.byNameCodec(), BuiltInRegistries.BLOCK.byNameCodec())
 					.fieldOf("replacements").forGetter(e -> e.replacements)
 	).apply(i, TemplateReplaceProcessor::new));

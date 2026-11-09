@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.action;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharDataHolder;
 import dev.xkmc.gensokyolegacy.content.rpg.core.GiftDialogData;
 import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
@@ -20,10 +20,10 @@ public record GiftReturnAction() implements DialogAction<GiftReturnAction> {
 	 * No fields: which table to roll and how much favor to spend are both read off the character, so a
 	 * dialog saying "give a gift back" carries nothing else.
 	 */
-	public static final MapCodec<GiftReturnAction> CODEC = MapCodec.unit(GiftReturnAction::new);
+	public static final Codec<GiftReturnAction> CODEC = Codec.unit(GiftReturnAction::new);
 
 	@Override
-	public MapCodec<GiftReturnAction> codec() {
+	public Codec<GiftReturnAction> codec() {
 		return CODEC;
 	}
 

@@ -85,7 +85,7 @@ public class DebugWand extends Item implements IDebugOverlayWand {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		list.add(GLLang.ItemDebug.WAND_BED.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.WAND_BLOCK.get().withStyle(ChatFormatting.GRAY));
 		list.add(GLLang.ItemDebug.WAND_STRUCTURE.get().withStyle(ChatFormatting.GRAY));

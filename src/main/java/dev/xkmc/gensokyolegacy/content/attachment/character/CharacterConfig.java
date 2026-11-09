@@ -28,7 +28,7 @@ public record CharacterConfig(
 
 	@Nullable
 	public static CharacterConfig of(EntityType<?> key) {
-		return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key).getData(GLMeta.ENTITY_DATA.reg());
+		return GLMeta.ENTITY_DATA.get(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(key));
 	}
 
 	@Nullable

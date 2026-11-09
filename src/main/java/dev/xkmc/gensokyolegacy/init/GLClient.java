@@ -11,8 +11,6 @@ import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
-import dev.xkmc.gensokyolegacy.content.fluid.ClientGLFluid;
-import dev.xkmc.gensokyolegacy.content.fluid.GLFluidType;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
@@ -26,37 +24,44 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.ClientHakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
+import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
+import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.l2tabs.tabs.core.TabRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.FrogRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.common.MinecraftForge;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID)
+@EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class GLClient {
 
 	@SubscribeEvent
 	public static void clientSetup(FMLClientSetupEvent event) {
 		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			NeoForge.EVENT_BUS.register(TLMRenderHandler.class);
+			MinecraftForge.EVENT_BUS.register(TLMRenderHandler.class);
 		}
 
+		MinecraftForge.EVENT_BUS.register(GLClient.class);
 		event.enqueueWork(() -> {
+			QuestTab.TOKEN = TabRegistry.registerTab(3750, QuestTab::new, () -> Items.BOOK, GLLang.Quest.TAB.get());
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_display"), BorderUmbrellaItem::displayPredicate);
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
@@ -84,15 +89,8 @@ public class GLClient {
 	}
 
 	@SubscribeEvent
-	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-		for (HexBrew brew : HexBrew.values()) {
-			GLFluidType type = (GLFluidType) brew.fluid.getType();
-			event.registerFluidType(new ClientGLFluid(type), type);
-		}
-	}
-
-	@SubscribeEvent
-	public static void clientTick(ClientTickEvent.Post event) {
+	public static void clientTick(TickEvent.ClientTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) return;
 		// the shared glove target cache (glove.md §2) traces for whichever gloves are held,
 		// so it is driven from one place rather than from every glove's inventoryTick
 		GloveTargetCache.tick();
@@ -102,18 +100,19 @@ public class GLClient {
 	}
 
 	@SubscribeEvent
-	public static void clientTickPre(ClientTickEvent.Pre event) {
+	public static void clientTickPre(TickEvent.ClientTickEvent event) {
+		if (event.phase != TickEvent.Phase.START) return;
 		// before the level tick, so the head flies on this frame's keys rather than last frame's
 		HeadPossession.readInput();
 	}
 
 	@SubscribeEvent
-	public static void addGuiLayer(RegisterGuiLayersEvent event) {
-		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("debug"), new DebugOverlay());
-		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("quest"), new QuestOverlay());
-		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("alchemy_hint"), new AlchemyHintOverlay());
-		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("doll_glove"), new DollGloveOverlay());
-		event.registerAbove(VanillaGuiLayers.CROSSHAIR, GensokyoLegacy.loc("doll_attack_status"), new DollAttackStatusOverlay());
+	public static void addGuiLayer(RegisterGuiOverlaysEvent event) {
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "debug", new DebugOverlay());
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "quest", new QuestOverlay());
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "alchemy_hint", new AlchemyHintOverlay());
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "doll_glove", new DollGloveOverlay());
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "doll_attack_status", new DollAttackStatusOverlay());
 	}
 
 	@SubscribeEvent
@@ -150,9 +149,9 @@ public class GLClient {
 			var renderer = event.getSkin(skin);
 			addCharacterLayers(renderer);
 		}
-		for (var type : event.getEntityTypes()) {
-			var renderer = event.getRenderer(type);
-			addCharacterLayers(renderer);
+		for (var type : ForgeRegistries.ENTITY_TYPES.getValues()) {
+			if (type.getCategory() == MobCategory.MISC) continue;
+			addCharacterLayers(event.getRenderer((EntityType) type));
 		}
 	}
 

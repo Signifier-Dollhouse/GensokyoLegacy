@@ -2,13 +2,14 @@ package dev.xkmc.gensokyolegacy.content.ui.trade;
 
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMisc;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraftforge.network.NetworkHooks;
 
 public record TradeProvider(
 		ServerPlayer sp, YoukaiEntity ch
@@ -24,10 +25,10 @@ public record TradeProvider(
 	}
 
 	public void open() {
-		sp.openMenu(this, this::write);
+		NetworkHooks.openScreen(sp, this, this::write);
 	}
 
-	private void write(RegistryFriendlyByteBuf buf) {
+	private void write(FriendlyByteBuf buf) {
 		buf.writeVarInt(ch.getId());
 	}
 

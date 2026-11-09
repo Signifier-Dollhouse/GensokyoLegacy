@@ -72,7 +72,7 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 	 */
 	private void tryOpenDoor(ServerLevel level, E entity, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		if (state.is(BlockTags.MOB_INTERACTABLE_DOORS) && state.getBlock() instanceof DoorBlock door) {
+		if (state.is(BlockTags.WOODEN_DOORS) && state.getBlock() instanceof DoorBlock door) {
 			if (!door.isOpen(state)) {
 				door.setOpen(entity, level, state, pos, true);
 				rememberDoorToClose(entity, level, pos);
@@ -135,7 +135,7 @@ public class YoukaiSmartDoorTask<E extends SmartYoukaiEntity> extends Behavior<E
 	 */
 	private boolean tryCloseDoor(ServerLevel level, E entity, BlockPos pos, @Nullable List<LivingEntity> nearby) {
 		BlockState state = level.getBlockState(pos);
-		if (state.is(BlockTags.MOB_INTERACTABLE_DOORS) && state.getBlock() instanceof DoorBlock door) {
+		if (state.is(BlockTags.WOODEN_DOORS) && state.getBlock() instanceof DoorBlock door) {
 			if (door.isOpen(state)) {
 				if (holdingForOthers(entity, pos, nearby)) return true;
 				door.setOpen(entity, level, state, pos, false);

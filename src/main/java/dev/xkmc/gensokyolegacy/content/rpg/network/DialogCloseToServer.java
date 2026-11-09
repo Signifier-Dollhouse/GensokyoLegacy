@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.network;
 
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.ui.dialog.DialogSession;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public record DialogCloseToServer(
 		int session, int character
-) implements SerialPacketBase<DialogCloseToServer> {
+) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

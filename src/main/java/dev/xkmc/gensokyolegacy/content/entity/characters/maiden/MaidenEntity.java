@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.entity.characters.maiden;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;

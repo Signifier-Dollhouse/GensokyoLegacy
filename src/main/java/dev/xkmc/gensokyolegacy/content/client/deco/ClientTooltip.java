@@ -22,7 +22,7 @@ public final class ClientTooltip {
 	public static double smoothGameTime(Level level) {
 		var client = Minecraft.getInstance();
 		if (client.level == null) return Double.NaN;
-		return level.getGameTime() + client.getTimer().getGameTimeDeltaPartialTick(true);
+		return level.getGameTime() + client.getFrameTime();
 	}
 
 }

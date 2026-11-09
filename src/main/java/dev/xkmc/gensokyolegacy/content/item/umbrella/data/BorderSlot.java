@@ -16,7 +16,7 @@ public record BorderSlot(
 ) {
 
 	public BorderSlot() {
-		this(BlockPos.ZERO, ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"), "", ItemStack.EMPTY, true);
+		this(BlockPos.ZERO, new ResourceLocation("minecraft", "overworld"), "", ItemStack.EMPTY, true);
 	}
 
 	public BorderSlot(BlockPos pos, ResourceLocation dim, String name, ItemStack icon) {

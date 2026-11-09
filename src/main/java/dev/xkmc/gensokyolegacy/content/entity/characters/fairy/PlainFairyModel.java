@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.fairy;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
  * The plain fairy rig: one mesh, five recolours, each in a bare and a flower-crowned
@@ -18,7 +18,7 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  * renamed here; re-export it from Blockbench against this mesh to get the front hair
  * strands back.
  */
-public class PlainFairyModel extends DefaultedEntityGeoModel<PlainFairyEntity> {
+public class PlainFairyModel extends HeadBoneGeoModel<PlainFairyEntity> {
 
 	private static final String TEXTURE_PREFIX = "textures/geo/fairy/fairy_";
 	private static final String FLOWER_SUFFIX = "_flower";

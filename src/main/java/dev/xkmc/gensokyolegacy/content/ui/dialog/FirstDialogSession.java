@@ -8,8 +8,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.handle.GroupHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.handle.IDialogHandle;
 import dev.xkmc.gensokyolegacy.content.rpg.network.FirstDialogToClient;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2menustacker.init.L2MenuStacker;
-import dev.xkmc.l2menustacker.screen.packets.CacheMouseToClient;
+import dev.xkmc.l2screentracker.init.L2ScreenTracker;
+import dev.xkmc.l2screentracker.screen.packets.CacheMouseToClient;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,7 @@ public class FirstDialogSession extends DialogSession {
 		if (index < 0 || index >= handles.size()) return;
 		// every option here hands off to another screen, so seed that screen's
 		// hover state from the mouse position this one is closing over
-		L2MenuStacker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), player);
+		L2ScreenTracker.PACKET_HANDLER.toClientPlayer(new CacheMouseToClient(), player);
 		handles.get(index).open(player, character);
 	}
 

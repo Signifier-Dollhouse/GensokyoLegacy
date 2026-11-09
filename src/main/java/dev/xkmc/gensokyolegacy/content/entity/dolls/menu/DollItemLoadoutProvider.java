@@ -1,13 +1,14 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.menu;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLMisc;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraftforge.network.NetworkHooks;
 
 public record DollItemLoadoutProvider(
 		ServerPlayer sp, PlayerSlot<?> slot
@@ -23,7 +24,7 @@ public record DollItemLoadoutProvider(
 	}
 
 	public void open() {
-		sp.openMenu(this, buf -> buf.writeBoolean(false));
+		NetworkHooks.openScreen(sp, this, buf -> buf.writeBoolean(false));
 	}
 
 	@Override

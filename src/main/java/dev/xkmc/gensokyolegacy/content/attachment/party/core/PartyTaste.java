@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -49,8 +50,8 @@ public record PartyTaste(
 		hungrySeat = Math.max(1, hungrySeat);
 		fullSeat = Math.max(1, fullSeat);
 		// clamped rather than trusted: over 1 leaves her certain, under 0 never fires
-		leaveChance = Math.clamp(leaveChance, 0, 1);
-		repGain = Math.clamp(repGain, 0, 1);
+		leaveChance = Mth.clamp(leaveChance, 0, 1);
+		repGain = Mth.clamp(repGain, 0, 1);
 	}
 
 	/**

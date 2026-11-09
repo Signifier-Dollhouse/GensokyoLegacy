@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.item.hakkero;
 import dev.xkmc.gensokyolegacy.content.item.common.InvClickItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
-import dev.xkmc.l2menustacker.screen.source.PlayerSlot;
+import dev.xkmc.l2screentracker.screen.source.PlayerSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ public class HakkeroPrototype extends Item implements InvClickItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
 		var data = GLItems.DC_HAKKERO_PROTOTYPE.getOrDefault(stack, Data.DEF);
 		list.add(GLLang.ItemLores.FURNACE_1_LORE.get());
 		list.add(GLLang.ItemFurnace.FURNACE_1_USE.get());
@@ -44,7 +44,7 @@ public class HakkeroPrototype extends Item implements InvClickItem {
 	public void handleClick(ServerPlayer sp, PlayerSlot<?> slot) {
 		ItemStack stack = slot.getItem(sp);
 		var data = GLItems.DC_HAKKERO_PROTOTYPE.getOrDefault(stack, Data.DEF);
-		stack.set(GLItems.DC_HAKKERO_PROTOTYPE, data.rotate());
+		GLItems.DC_HAKKERO_PROTOTYPE.set(stack, data.rotate());
 	}
 
 	@Override
@@ -72,14 +72,14 @@ public class HakkeroPrototype extends Item implements InvClickItem {
 		if (entry == null && data.state().getType() != null) {
 			var rec = data.state().findRecipeHolder(sp.serverLevel(), sp.getInventory().getItem(s0));
 			if (rec != null) {
-				entry = new Entry(rec.id(), 0, rec.value().getCookingTime() * 2);
+				entry = new Entry(rec.getKey(), 0, rec.getValue().getCookingTime() * 2);
 			}
 		}
 		if (entry != null) {
 			entry = entry.match(sp, data.state(), s0, s1);
 		}
 		if (entry != data.data()[index]) {
-			stack.set(GLItems.DC_HAKKERO_PROTOTYPE, data.with(index, entry));
+			GLItems.DC_HAKKERO_PROTOTYPE.set(stack, data.with(index, entry));
 		}
 	}
 
@@ -105,18 +105,18 @@ public class HakkeroPrototype extends Item implements InvClickItem {
 			if (recipe == null) return null;
 			ItemStack in = sp.getInventory().getItem(s0);
 			if (in.isEmpty()) return null;
-			if (!in.isStackable() && !in.getComponentsPatch().isEmpty()) return null;
+			if (!in.isStackable() && in.hasTag()) return null;
 			ItemStack out = sp.getInventory().getItem(s1);
 			var opt = sp.serverLevel().getServer().getRecipeManager().byKey(recipe);
 			if (opt.isEmpty()) return null;
-			var rec = opt.get().value();
+			var rec = opt.get();
 			if (!(rec instanceof AbstractCookingRecipe r)) return null;
 			if (mode.getType() != r.getType()) return null;
-			var inv = new SingleRecipeInput(in);
+			var inv = new SimpleContainer(in);
 			if (!r.matches(inv, sp.serverLevel())) return null;
-			ItemStack res = r.assemble(inv, sp.registryAccess());
+			ItemStack res = r.assemble(inv, sp.serverLevel().registryAccess());
 			if (!out.isEmpty()) {
-				if (!ItemStack.isSameItemSameComponents(res, out)) return null;
+				if (!ItemStack.isSameItemSameTags(res, out)) return null;
 				if (res.getCount() + out.getCount() > res.getMaxStackSize()) return null;
 			}
 			if (time + 1 < max) {

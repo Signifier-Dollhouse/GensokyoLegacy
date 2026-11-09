@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.feature.template;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  */
 public class TemplateStructureProcessor extends StructureProcessor {
 
-	public static final MapCodec<TemplateStructureProcessor> CODEC = MapCodec.unit(new TemplateStructureProcessor());
+	public static final Codec<TemplateStructureProcessor> CODEC = Codec.unit(new TemplateStructureProcessor());
 
 	@Nullable
 	@Override

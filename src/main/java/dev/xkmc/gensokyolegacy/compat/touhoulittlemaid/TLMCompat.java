@@ -5,8 +5,8 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 public class TLMCompat {
 
@@ -15,9 +15,9 @@ public class TLMCompat {
 		if (event.getTarget() instanceof GeneralYoukaiEntity e && event.getEntity().isCreative()) {
 			if (event.getItemStack().getItem() instanceof ItemGarageKit) {
 				if (!event.getTarget().level().isClientSide()) {
-					String id = ItemGarageKit.getMaidData(event.getItemStack()).getUnsafe().getString("model_id");
+					String id = ItemGarageKit.getMaidData(event.getItemStack()).getString("model_id");
 					TouhouSpellCards.setSpell(e, id);
-					var rl = ResourceLocation.parse(id);
+					var rl = new ResourceLocation(id);
 					var name = Component.translatable(rl.toLanguageKey("model") + ".name");
 					var desc = Component.translatable(rl.toLanguageKey("model") + ".desc");
 					e.setCustomName(name.append(" - ").append(desc));

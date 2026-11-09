@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
-import com.tterrag.registrate.providers.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.nature.FallenLeavesBlock;
 import dev.xkmc.gensokyolegacy.content.dimension.GensokyoDimension;
@@ -11,7 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.*;
@@ -86,7 +86,7 @@ public abstract class AbstractBiomeGen {
 			OrePlacements.ORE_IRON_UPPER, OrePlacements.ORE_IRON_MIDDLE, OrePlacements.ORE_IRON_SMALL,
 			OrePlacements.ORE_GOLD, OrePlacements.ORE_GOLD_LOWER,
 			OrePlacements.ORE_REDSTONE, OrePlacements.ORE_REDSTONE_LOWER,
-			OrePlacements.ORE_DIAMOND, OrePlacements.ORE_DIAMOND_MEDIUM, OrePlacements.ORE_DIAMOND_LARGE,
+			OrePlacements.ORE_DIAMOND, OrePlacements.ORE_DIAMOND_LARGE,
 			OrePlacements.ORE_DIAMOND_BURIED, OrePlacements.ORE_LAPIS, OrePlacements.ORE_LAPIS_BURIED,
 			OrePlacements.ORE_COPPER, CavePlacements.UNDERWATER_MAGMA);
 
@@ -227,10 +227,10 @@ public abstract class AbstractBiomeGen {
 	}
 
 	/** The biome itself, written out step by step. */
-	protected abstract Biome build(BootstrapContext<Biome> ctx);
+	protected abstract Biome build(BootstapContext<Biome> ctx);
 
 	/** The biome's own configured features. Anything several biomes place lives in {@link GensokyoBiomeFeatures}. */
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 	}
 
 	/** The biome's own placed features, in the order they must generate. */
@@ -238,10 +238,10 @@ public abstract class AbstractBiomeGen {
 	}
 
 	/** The biome's own noise, for its surface rules and its custom placement. */
-	protected void noise(BootstrapContext<NormalNoise.NoiseParameters> ctx) {
+	protected void noise(BootstapContext<NormalNoise.NoiseParameters> ctx) {
 	}
 
-	protected Layers layers(BootstrapContext<Biome> ctx) {
+	protected Layers layers(BootstapContext<Biome> ctx) {
 		return new Layers(ctx.lookup(Registries.PLACED_FEATURE), ctx.lookup(Registries.CONFIGURED_CARVER));
 	}
 
@@ -249,7 +249,7 @@ public abstract class AbstractBiomeGen {
 	 * The same lookups without the two carvers and without the step names, for the two biomes that take vanilla's own
 	 * {@code addDefaultOres} chain instead of writing their steps out.
 	 */
-	protected BiomeGenerationSettings.Builder raw(BootstrapContext<Biome> ctx) {
+	protected BiomeGenerationSettings.Builder raw(BootstapContext<Biome> ctx) {
 		return new BiomeGenerationSettings.Builder(ctx.lookup(Registries.PLACED_FEATURE),
 				ctx.lookup(Registries.CONFIGURED_CARVER));
 	}
@@ -299,11 +299,11 @@ public abstract class AbstractBiomeGen {
 	 */
 	public static final class Registrar {
 
-		private final BootstrapContext<PlacedFeature> ctx;
+		private final BootstapContext<PlacedFeature> ctx;
 		private final HolderGetter<ConfiguredFeature<?, ?>> configured;
 		private final List<ResourceKey<PlacedFeature>> order;
 
-		private Registrar(BootstrapContext<PlacedFeature> ctx, HolderGetter<ConfiguredFeature<?, ?>> configured,
+		private Registrar(BootstapContext<PlacedFeature> ctx, HolderGetter<ConfiguredFeature<?, ?>> configured,
 						  List<ResourceKey<PlacedFeature>> order) {
 			this.ctx = ctx;
 			this.configured = configured;
@@ -326,7 +326,7 @@ public abstract class AbstractBiomeGen {
 		}
 
 		/** The bootstrap context the features are registered into, for the few lookups a placement modifier needs. */
-		public BootstrapContext<PlacedFeature> ctx() {
+		public BootstapContext<PlacedFeature> ctx() {
 			return ctx;
 		}
 

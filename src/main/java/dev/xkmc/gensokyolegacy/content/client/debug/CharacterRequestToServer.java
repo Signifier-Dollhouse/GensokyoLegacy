@@ -9,13 +9,13 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.PartyModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.SmartYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
-public record CharacterRequestToServer(UUID id) implements SerialPacketBase<CharacterRequestToServer> {
+public record CharacterRequestToServer(UUID id) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

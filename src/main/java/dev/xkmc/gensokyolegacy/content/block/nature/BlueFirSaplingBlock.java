@@ -9,22 +9,23 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.event.ForgeEventFactory;
 
 /**
  * Blue fir sapling growing hand-built template trees: 1 sapling the medium tree, 2x2 the large tree
- * (via the {@link TreeGrower} mega slot), 3x3 the giant — vanilla has no 3x3 slot, so the giant is
+ * (via the grower's mega slot), 3x3 the giant — vanilla has no 3x3 slot, so the giant is
  * checked here first and anything smaller falls back to the grower.
  */
 public class BlueFirSaplingBlock extends SaplingBlock {
 
 	private final ResourceKey<ConfiguredFeature<?, ?>> giant;
 
-	public BlueFirSaplingBlock(TreeGrower grower, ResourceKey<ConfiguredFeature<?, ?>> giant, BlockBehaviour.Properties props) {
+	public BlueFirSaplingBlock(AbstractTreeGrower grower, ResourceKey<ConfiguredFeature<?, ?>> giant, BlockBehaviour.Properties props) {
 		super(grower, props);
 		this.giant = giant;
 	}
@@ -34,7 +35,7 @@ public class BlueFirSaplingBlock extends SaplingBlock {
 		if (state.getValue(STAGE) == 0) {
 			level.setBlock(pos, state.cycle(STAGE), 4);
 		} else if (!growGiant(level, pos, state, random)) {
-			treeGrower.growTree(level, level.getChunkSource().getGenerator(), pos, state, random);
+			super.advanceTree(level, pos, state, random);
 		}
 	}
 
@@ -42,9 +43,9 @@ public class BlueFirSaplingBlock extends SaplingBlock {
 		Holder<ConfiguredFeature<?, ?>> holder = level.registryAccess()
 				.registryOrThrow(Registries.CONFIGURED_FEATURE)
 				.getHolder(giant).orElse(null);
-		var event = EventHooks.fireBlockGrowFeature(level, random, pos, holder);
+		var event = ForgeEventFactory.blockGrowFeature(level, random, pos, holder);
 		holder = event.getFeature();
-		if (event.isCanceled()) return true;
+		if (event.getResult() == Event.Result.DENY) return true;
 		if (holder == null) return false;
 		Block block = state.getBlock();
 		for (int i = 0; i >= -2; i--) {

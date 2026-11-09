@@ -3,22 +3,21 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.stage;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyInv;
 import dev.xkmc.gensokyolegacy.init.registrate.GLRecipes;
-import dev.xkmc.l2core.serial.recipe.BaseRecipeBuilder;
+import dev.xkmc.l2library.serial.recipe.BaseRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
 
 public class AlchemyStageBuilder extends BaseRecipeBuilder<AlchemyStageBuilder, SimpleAlchemyStageRecipe, AlchemyStageRecipe<?>, AlchemyInv> {
 
 	private final ResourceLocation id;
 
 	public AlchemyStageBuilder(ResourceLocation id) {
-		super(GLRecipes.ALCHEMY_STAGE_SIMPLE.get(), Items.AIR);
+		super(GLRecipes.ALCHEMY_STAGE_SIMPLE.get());
 		this.id = id;
 	}
 

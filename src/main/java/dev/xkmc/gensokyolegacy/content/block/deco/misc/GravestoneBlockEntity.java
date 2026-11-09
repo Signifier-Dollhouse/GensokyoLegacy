@@ -11,10 +11,9 @@ import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.tile_api.TickableBlockEntity;
 import dev.xkmc.l2modularblock.type.BlockMethod;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +22,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -82,10 +82,9 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 	 * harmful effect.
 	 */
 	public static boolean isOffering(@Nullable FoodProperties props) {
-		if (props == null || props.nutrition() * props.saturation() * 2 < MIN_SATURATION) return false;
-		for (FoodProperties.PossibleEffect effect : props.effects()) {
-			var holder = effect.effect().getEffect();
-			if (holder != null && holder.value().getCategory() == MobEffectCategory.HARMFUL) return false;
+		if (props == null || props.getNutrition() * props.getSaturationModifier() * 2 < MIN_SATURATION) return false;
+		for (var effect : props.getEffects()) {
+			if (effect.getFirst().getEffect().getCategory() == MobEffectCategory.HARMFUL) return false;
 		}
 		return true;
 	}
@@ -152,14 +151,15 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 			notifyTile();
 			return;
 		}
-		FoodProperties props = food.get(DataComponents.FOOD);
+		FoodProperties props = food.getItem().getFoodProperties();
 		GhostVariant variant = props == null ? GhostVariant.CURIOS : roll(props, level.getRandom());
-		stack = props == null ? ItemStack.EMPTY
-				: props.usingConvertsTo().map(ItemStack::copy).orElse(ItemStack.EMPTY);
+		Item convert = food.getItem().getCraftingRemainingItem();
+		stack = props == null || convert == null ? ItemStack.EMPTY : new ItemStack(convert);
 		notifyTile();
 		if (level instanceof ServerLevel sl) {
 			summon(sl, variant);
-			if (sl.getServer().getPlayerList().getPlayer(summoner) instanceof ServerPlayer sp)
+			var sp = sl.getServer().getPlayerList().getPlayer(summoner);
+			if (sp != null)
 				GLCriteriaTriggers.GRAVESTONE_SUMMON.get().trigger(sp);
 			summoner = Util.NIL_UUID;
 		}
@@ -179,7 +179,7 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 	}
 
 	private static GhostVariant roll(FoodProperties props, RandomSource random) {
-		int foodie = props.nutrition() * 5;
+		int foodie = props.getNutrition() * 5;
 		int lively = beneficialEffects(props) * 10;
 		int total = foodie + lively;
 		if (total > 100) {
@@ -193,9 +193,8 @@ public class GravestoneBlockEntity extends PlateBlockEntity implements TickableB
 
 	private static int beneficialEffects(FoodProperties props) {
 		int count = 0;
-		for (FoodProperties.PossibleEffect effect : props.effects()) {
-			var holder = effect.effect().getEffect();
-			if (holder != null && holder.value().isBeneficial()) count++;
+		for (var effect : props.getEffects()) {
+			if (effect.getFirst().getEffect().isBeneficial()) count++;
 		}
 		return count;
 	}

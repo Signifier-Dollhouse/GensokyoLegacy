@@ -2,18 +2,19 @@ package dev.xkmc.gensokyolegacy.content.entity.behavior.move;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.PathfindingContext;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import org.jetbrains.annotations.Nullable;
 
 public class YoukaiWalkNodeEvaluator extends WalkNodeEvaluator {
 
 	@Override
-	public PathType getPathType(PathfindingContext context, int x, int y, int z) {
-		var ans = super.getPathType(context, x, y, z);
-		return YoukaiNodeEvaluatorUtils.getPathType(ans, context, x, y, z, mob);
+	public BlockPathTypes getBlockPathType(BlockGetter level, int x, int y, int z) {
+		var ans = super.getBlockPathType(level, x, y, z);
+		return YoukaiNodeEvaluatorUtils.getPathType(ans, (CollisionGetter) level, x, y, z, mob);
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class YoukaiWalkNodeEvaluator extends WalkNodeEvaluator {
 
 	private int addLadderNeighbor(Node[] outputArray, int count, Node node, int dy) {
 		if (count >= outputArray.length) return count;
-		if (mob == null || currentContext == null) return count;
+		if (mob == null || level == null) return count;
 		BlockPos pos = new BlockPos(node.x, node.y, node.z);
 		BlockPos target = pos.offset(0, dy, 0);
 		if (target.getY() < mob.level().getMinBuildHeight()) return count;
@@ -47,7 +48,7 @@ public class YoukaiWalkNodeEvaluator extends WalkNodeEvaluator {
 
 	@Nullable
 	private Node getLadderNode(BlockPos pos) {
-		PathType type = getCachedPathType(pos.getX(), pos.getY(), pos.getZ());
+		BlockPathTypes type = getCachedBlockType(mob, pos.getX(), pos.getY(), pos.getZ());
 		float malus = mob.getPathfindingMalus(type);
 		if (malus < 0) return null;
 		Node node = getNode(pos.getX(), pos.getY(), pos.getZ());
@@ -58,7 +59,7 @@ public class YoukaiWalkNodeEvaluator extends WalkNodeEvaluator {
 	}
 
 	private boolean isClimbable(BlockPos pos) {
-		return currentContext.level().getBlockState(pos).is(BlockTags.CLIMBABLE);
+		return level.getBlockState(pos).is(BlockTags.CLIMBABLE);
 	}
 
 }

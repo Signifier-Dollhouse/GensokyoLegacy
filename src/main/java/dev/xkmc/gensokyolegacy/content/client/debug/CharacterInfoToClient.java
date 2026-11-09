@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.content.client.debug;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationState;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public record CharacterInfoToClient(
 		ArrayList<Component> info,
 		ArrayList<Component> advanced
-) implements SerialPacketBase<CharacterInfoToClient> {
+) implements RecordPacketBase {
 
 	/**
 	 * What a party guest has eaten, for the one readout the client cannot answer: her tallies live on the

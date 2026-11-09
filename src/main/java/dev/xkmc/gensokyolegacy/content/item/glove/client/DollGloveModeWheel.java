@@ -57,7 +57,7 @@ public class DollGloveModeWheel implements PersistentWheel<DollGloveModeEntry> {
 		int ordinal = avail.get(index).ordinal();
 		GensokyoLegacy.HANDLER.toServer(new SelectorSelectPacket(ordinal));
 		// optimistic update
-		stack.set(GLItems.DOLL_GLOVE_MODE.get(), ordinal);
+		GLItems.DOLL_GLOVE_MODE.set(stack, ordinal);
 	}
 
 	@Override

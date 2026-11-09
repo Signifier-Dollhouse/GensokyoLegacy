@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
@@ -17,7 +17,7 @@ public record RandomDialogOption(
 		List<WeightedEntry> entries
 ) implements DialogOption<RandomDialogOption> {
 
-	public static final MapCodec<RandomDialogOption> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<RandomDialogOption> CODEC = RecordCodecBuilder.create(i -> i.group(
 			CodecRegistry.CONDITION.codec().listOf().fieldOf("conditions").forGetter(RandomDialogOption::conditions),
 			Codec.STRING.fieldOf("text").forGetter(RandomDialogOption::text),
 			WeightedEntry.CODEC.listOf().fieldOf("entries").forGetter(RandomDialogOption::entries)
@@ -28,17 +28,17 @@ public record RandomDialogOption(
 		for (var e : entries) {
 			total += Math.max(0, e.weight());
 		}
-		if (total <= 0) return entries.getFirst();
+		if (total <= 0) return entries.get(0);
 		int roll = random.nextInt(total);
 		for (var e : entries) {
 			roll -= Math.max(0, e.weight());
 			if (roll < 0) return e;
 		}
-		return entries.getLast();
+		return entries.get(entries.size() - 1);
 	}
 
 	@Override
-	public MapCodec<RandomDialogOption> codec() {
+	public Codec<RandomDialogOption> codec() {
 		return CODEC;
 	}
 

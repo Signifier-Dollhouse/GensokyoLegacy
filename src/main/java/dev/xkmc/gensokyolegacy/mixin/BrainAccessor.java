@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * {@code SmartBrain} re-implements {@link Brain#tick} to squeeze prioritized activities in between the vanilla
@@ -38,9 +37,6 @@ public interface BrainAccessor<T extends LivingEntity> {
 
 	@Accessor("lastScheduleUpdate")
 	void setLastScheduleUpdate(long gameTime);
-
-	@Invoker("memories")
-	Stream<?> brainMemoryValues();
 
 	@Invoker("forgetOutdatedMemories")
 	void doForgetOutdatedMemories();

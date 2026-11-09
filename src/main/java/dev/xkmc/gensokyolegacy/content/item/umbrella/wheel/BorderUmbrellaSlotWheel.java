@@ -35,7 +35,7 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 
 	@Override
 	public List<BorderSlotEntry> getWheelContent() {
-		var slots = stack.getOrDefault(GLItems.UMBRELLA_SLOTS.get(), BorderUmbrellaSlots.defaultSlots());
+		var slots = GLItems.UMBRELLA_SLOTS.getOrDefault(stack, BorderUmbrellaSlots.defaultSlots());
 		List<BorderSlotEntry> list = new ArrayList<>();
 		for (int i = 0; i < BorderUmbrellaSlots.MAX_SLOTS; i++) {
 			var slot = slots.slots()[i];
@@ -49,13 +49,13 @@ public class BorderUmbrellaSlotWheel implements WheelAdaptor<BorderSlotEntry> {
 	public int getIndex(Player player) {
 		ItemStack held = BorderUmbrellaSelectionListener.getHeldUmbrella(player);
 		if (held == null) return -1;
-		return held.getOrDefault(GLItems.UMBRELLA_SLOT_SELECTED.get(), 0);
+		return GLItems.UMBRELLA_SLOT_SELECTED.getOrDefault(held, 0);
 	}
 
 	@Override
 	public void select(int index) {
 		GensokyoLegacy.HANDLER.toServer(new BorderUmbrellaWheelSelectPacket(1, index));
-		stack.set(GLItems.UMBRELLA_SLOT_SELECTED.get(), Math.floorMod(index, BorderUmbrellaSlots.MAX_SLOTS));
+		GLItems.UMBRELLA_SLOT_SELECTED.set(stack, Math.floorMod(index, BorderUmbrellaSlots.MAX_SLOTS));
 	}
 
 	@Override

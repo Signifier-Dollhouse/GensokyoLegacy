@@ -12,8 +12,8 @@ import dev.xkmc.gensokyolegacy.content.rpg.reward.LootTableReward;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.init.reg.datapack.DatapackReg;
-import dev.xkmc.l2core.init.reg.simple.CdcVal;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DatapackReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.CdcVal;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 

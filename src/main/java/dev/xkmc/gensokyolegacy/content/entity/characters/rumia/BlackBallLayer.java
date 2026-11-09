@@ -36,7 +36,7 @@ public class BlackBallLayer<T extends RumiaEntity> extends RenderLayer<T, RumiaM
 			}
 			this.model.prepareMobModel(e, swing, swingAmp, pTick);
 			this.model.setupAnim(e, swing, swingAmp, age, yaw, pitch);
-			this.model.renderToBuffer(pose, vertexconsumer, light, LivingEntityRenderer.getOverlayCoords(e, 0.0F));
+			this.model.renderToBuffer(pose, vertexconsumer, light, LivingEntityRenderer.getOverlayCoords(e, 0.0F), 1f, 1f, 1f, 1f);
 		}
 	}
 

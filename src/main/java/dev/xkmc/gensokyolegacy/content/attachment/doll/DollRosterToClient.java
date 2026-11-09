@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.doll;
 
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.UUID;
  *
  * @see "doc/design/doll/glove.md"
  */
-public record DollRosterToClient(ArrayList<Entry> roster) implements SerialPacketBase<DollRosterToClient> {
+public record DollRosterToClient(ArrayList<Entry> roster) implements RecordPacketBase {
 
 	public record Entry(int id, UUID uuid) {
 	}

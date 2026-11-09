@@ -459,7 +459,7 @@ public class PartyContext {
 			roll -= weights.get(i);
 			if (roll < 0) return dishes.get(i);
 		}
-		return dishes.getLast();
+		return dishes.get(dishes.size() - 1);
 	}
 
 	// === leaving ===

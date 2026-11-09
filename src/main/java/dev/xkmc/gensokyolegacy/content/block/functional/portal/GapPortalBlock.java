@@ -22,7 +22,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -77,38 +77,38 @@ public class GapPortalBlock implements AnimateTickBlockMethod, ShapeBlockMethod,
 	}
 
 	@Override
-	public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
+	public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player pl, InteractionHand hand, BlockHitResult result) {
 		if (state.getValue(BlockStateProperties.HALF) == Half.TOP) pos = pos.below();
 		// Use portal item on portal with same uuid to generate the other side's data
-		if (!stack.isEmpty() && stack.has(GLItems.DC_UUID) && stack.has(GLItems.DC_PORTAL_SIDE)
+		if (!stack.isEmpty() && GLItems.DC_UUID.has(stack) && GLItems.DC_PORTAL_SIDE.has(stack)
 				&& level.getBlockEntity(pos) instanceof GapPortalBlockEntity gap && gap.id != null
-				&& stack.get(GLItems.DC_UUID).equals(gap.id)) {
+				&& GLItems.DC_UUID.get(stack).equals(gap.id)) {
 			if (level instanceof ServerLevel sl) {
 				var data = GapMappingData.get(sl);
 				var mapping = data.get(gap.id);
 				if (mapping != null && mapping.isPending()) {
-					PortalSide itemSide = stack.get(GLItems.DC_PORTAL_SIDE);
+					PortalSide itemSide = GLItems.DC_PORTAL_SIDE.get(stack);
 					PortalSide blockSide = gap.getSide();
 					if (itemSide != null && blockSide != null && itemSide != blockSide) {
 						GapMapping newMapping = GapPortalForcer.completePending(mapping, itemSide, sl);
-						if (newMapping.isPending()) return ItemInteractionResult.FAIL;
+						if (newMapping.isPending()) return InteractionResult.FAIL;
 						BlockPos targetPos = newMapping.posAt(itemSide);
 						ResourceLocation targetDim = newMapping.dimAt(itemSide);
 						ServerLevel targetLevel = sl.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, targetDim));
 						if (targetLevel == null || !GapPortalForcer.canPlaceAt(targetLevel, targetPos)) {
-							return ItemInteractionResult.FAIL;
+							return InteractionResult.FAIL;
 						}
 						if (!level.isClientSide()) {
 							data.set(gap.id, newMapping);
 							pl.setItemInHand(hand, ItemStack.EMPTY);
 							level.playSound(null, pos, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 1.0F, 1.0F);
 						}
-						return ItemInteractionResult.SUCCESS;
+						return InteractionResult.SUCCESS;
 					}
 				}
-				return ItemInteractionResult.FAIL;
+				return InteractionResult.FAIL;
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 		if (stack.isEmpty() && hand == InteractionHand.MAIN_HAND && level.getBlockEntity(pos) instanceof GapPortalBlockEntity gap) {
 			if (!level.isClientSide()) {
@@ -117,9 +117,9 @@ public class GapPortalBlock implements AnimateTickBlockMethod, ShapeBlockMethod,
 				level.removeBlock(pos.above(), false);
 				pl.setItemInHand(hand, toGive);
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.FAIL;
+		return InteractionResult.FAIL;
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -21,7 +20,6 @@ import java.util.function.Supplier;
  */
 public class SheddingLeavesBlock extends LeavesBlock {
 
-	private static final MapCodec<SheddingLeavesBlock> CODEC = simpleCodec(SheddingLeavesBlock::new);
 	/**
 	 * The chance per random tick that a leaf falls and the carpet below grows.
 	 */
@@ -53,19 +51,15 @@ public class SheddingLeavesBlock extends LeavesBlock {
 		this(properties, () -> ParticleTypes.CHERRY_LEAVES);
 	}
 
-	@Override
-	public MapCodec<? extends LeavesBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
-	protected boolean isRandomlyTicking(BlockState state) {
+	public boolean isRandomlyTicking(BlockState state) {
 		// every leaf of the tree sheds, not only the outermost ones, or the carpet would be a ring
 		return true;
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		super.randomTick(state, level, pos, random);
 		if (!level.getBlockState(pos).is(this)) return;
 		var kind = FallenLeafKind.of(this);

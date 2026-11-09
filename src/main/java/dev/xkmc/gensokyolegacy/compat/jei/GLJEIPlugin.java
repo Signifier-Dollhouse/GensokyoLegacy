@@ -27,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 @JeiPlugin
 public class GLJEIPlugin implements IModPlugin {
@@ -70,9 +69,7 @@ public class GLJEIPlugin implements IModPlugin {
 		if (level == null) return;
 		var manager = level.getRecipeManager();
 		registration.addRecipes(ALCHEMY, Wrappers.cast(
-				manager.getAllRecipesFor(GLRecipes.ALCHEMY_RT.get()).stream()
-						.map(RecipeHolder::value)
-						.toList()));
+				manager.getAllRecipesFor(GLRecipes.ALCHEMY_RT.get())));
 		// the rpg registries are datapack registries; they are only complete once the world is
 		// loaded, which is what having a level here means
 		var access = level.registryAccess();

@@ -2,9 +2,6 @@ package dev.xkmc.gensokyolegacy.content.item.ingredient;
 
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import net.minecraft.Util;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -12,17 +9,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
 
-public class FrozenFrogItem extends Item implements ProjectileItem {
+public class FrozenFrogItem extends Item {
 
-	public final ResourceKey<FrogVariant> variant;
+	public final FrogVariant variant;
 
-	public FrozenFrogItem(Properties pProperties, ResourceKey<FrogVariant> variant) {
+	public FrozenFrogItem(Properties pProperties, FrogVariant variant) {
 		super(pProperties);
 		this.variant = variant;
 	}
@@ -47,9 +42,5 @@ public class FrozenFrogItem extends Item implements ProjectileItem {
 		return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
 	}
 
-	@Override
-	public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-		return Util.make(new FrozenFrog(level, pos.x(), pos.y(), pos.z()), e -> e.setItem(stack));
-	}
 
 }

@@ -4,9 +4,8 @@ import dev.xkmc.gensokyolegacy.content.client.debug.InfoUpdateClientManager;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.particles.ColorParticleOption;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,16 +35,17 @@ public class FeedModule extends AbstractYoukaiModule {
 	}
 
 	public int getFavor(ItemStack food, FoodProperties prop) {
-		int ans = 3 + prop.nutrition() / 4;
-		if (prop.nutrition() == 0)
+		int ans = 3 + prop.getNutrition() / 4;
+		if (prop.getNutrition() == 0)
 			ans = 1;
 		boolean good = false;
-		for (var e : prop.effects()) {
-			if (e.effect().is(MobEffects.POISON))
+		for (var e : prop.getEffects()) {
+			var effect = e.getFirst().getEffect();
+			if (effect == MobEffects.POISON)
 				return -1;
-			if (e.effect().is(MobEffects.WITHER))
+			if (effect == MobEffects.WITHER)
 				return -1;
-			if (e.effect().getEffect().value().isBeneficial())
+			if (effect.isBeneficial())
 				good = true;
 		}
 		if (good)
@@ -78,7 +78,7 @@ public class FeedModule extends AbstractYoukaiModule {
 		onFeed(stack, food, player, favor);
 		ItemStack remain = stack.getCraftingRemainingItem();
 		stack.shrink(1);
-		feedCoolDown += food.nutrition() * 100;
+		feedCoolDown += food.getNutrition() * 100;
 		if (stack.getUseAnimation() == UseAnim.DRINK)
 			self.playSound(stack.getDrinkingSound());
 		else self.playSound(stack.getEatingSound());
@@ -98,9 +98,11 @@ public class FeedModule extends AbstractYoukaiModule {
 		if (!self.getFlag(YoukaiFlags.FED)) return;
 		int chance = self.isInvisible() ? 15 : 2;
 		if (self.getRandom().nextInt(chance) != 0) return;
-		self.level().addParticle(
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xff000000 | MobEffects.SATURATION.value().getColor()),
-				self.getRandomX(0.5D), self.getRandomY(), self.getRandomZ(0.5D), 0, 0, 0
+		// 1.20.1 has no colored ENTITY_EFFECT: the colour rides in the particle's velocity args
+		int color = MobEffects.SATURATION.getColor();
+		self.level().addParticle(ParticleTypes.ENTITY_EFFECT,
+				self.getRandomX(0.5D), self.getRandomY(), self.getRandomZ(0.5D),
+				(color >> 16 & 255) / 255.0, (color >> 8 & 255) / 255.0, (color & 255) / 255.0
 		);
 	}
 

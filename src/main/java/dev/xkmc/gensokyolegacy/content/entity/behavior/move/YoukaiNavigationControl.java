@@ -146,6 +146,13 @@ public class YoukaiNavigationControl {
 		flyNav.setCanFloat(true);
 	}
 
+	/**
+	 * {@link PathNavigation} has no accuracy overload in 1.20.1, so the active navigation is picked here.
+	 */
+	public boolean moveTo(double x, double y, double z, int accuracy, double speed) {
+		return isFlying ? flyNav.moveTo(x, y, z, accuracy, speed) : walkNav.moveTo(x, y, z, accuracy, speed);
+	}
+
 	public boolean moveTo(CompoundPath path, float speedModifier) {
 		if (path.flying()) {
 			if (!self.mayFly()) return false;
@@ -194,9 +201,8 @@ public class YoukaiNavigationControl {
 			super(mob, level);
 		}
 
-		@Override
 		public boolean moveTo(double x, double y, double z, int accuracy, double speed) {
-			boolean ans = super.moveTo(x, y, z, accuracy, speed);
+			boolean ans = moveToDirect(x, y, z, accuracy, speed);
 			if (path != null && path.canReach()) {
 				if (ans) return true;
 				if (!(isDone() || isStuck())) return false;
@@ -206,6 +212,10 @@ public class YoukaiNavigationControl {
 			setFlying();
 			flyNav.tempFly = true;
 			return flyNav.moveToDirect(x, y, z, accuracy, speed);
+		}
+
+		private boolean moveToDirect(double x, double y, double z, int accuracy, double speed) {
+			return super.moveTo(createPath(x, y, z, accuracy), speed);
 		}
 
 		@Override
@@ -244,13 +254,12 @@ public class YoukaiNavigationControl {
 			super(mob, level);
 		}
 
-		@Override
 		public boolean moveTo(double x, double y, double z, int accuracy, double speed) {
 			if (shouldLand() && isCloseToGround() && !isCombatActivity()) {
 				setWalking();
 				return walkNav.moveTo(x, y, z, accuracy, speed);
 			}
-			return super.moveTo(x, y, z, accuracy, speed);
+			return moveToDirect(x, y, z, accuracy, speed);
 		}
 
 		@Override
@@ -263,7 +272,7 @@ public class YoukaiNavigationControl {
 		}
 
 		private boolean moveToDirect(double x, double y, double z, int accuracy, double speed) {
-			return super.moveTo(x, y, z, accuracy, speed);
+			return super.moveTo(createPath(x, y, z, accuracy), speed);
 		}
 
 		private boolean moveToDirect(Entity entity, double speed) {

@@ -1,11 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.attachment.gap;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2core.capability.level.BaseSavedData;
+import dev.xkmc.gensokyolegacy.compat.l2lib.BaseSavedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.core.HolderLookup;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
@@ -17,10 +16,12 @@ import java.util.UUID;
 public class GapMappingData extends BaseSavedData<GapMappingData> {
 
 	private static final String ID = GensokyoLegacy.MODID + "_gap_mapping";
-	private static final Factory<GapMappingData> FACTORY = new Factory<>(GapMappingData::new, GapMappingData::new);
+	private static GapMappingData load(CompoundTag tag) {
+		return TagCodec.fromTag(tag, GapMappingData.class, new GapMappingData(), f -> true);
+	}
 
 	public static GapMappingData get(ServerLevel level) {
-		var ans = level.getServer().overworld().getDataStorage().computeIfAbsent(FACTORY, ID);
+		var ans = level.getServer().overworld().getDataStorage().computeIfAbsent(GapMappingData::load, GapMappingData::new, ID);
 		ans.level = level;
 		return ans;
 	}
@@ -32,11 +33,6 @@ public class GapMappingData extends BaseSavedData<GapMappingData> {
 
 	public GapMappingData() {
 		super(GapMappingData.class);
-	}
-
-	private GapMappingData(CompoundTag tag, HolderLookup.Provider pvd) {
-		super(GapMappingData.class);
-		new TagCodec(pvd).fromTag(tag, GapMappingData.class, this);
 	}
 
 	public @Nullable GapMapping get(UUID id) {

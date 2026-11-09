@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.Vec3i;
@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 
-	public static final MapCodec<MultiSpreadPlacement> CODEC = RecordCodecBuilder.mapCodec((i) -> placementCodec(i).and(
+	public static final Codec<MultiSpreadPlacement> CODEC = RecordCodecBuilder.create((i) -> placementCodec(i).and(
 			i.group(
 					Codec.intRange(1, 4096).fieldOf("spacing").forGetter(MultiSpreadPlacement::spacing),
 					RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(MultiSpreadPlacement::spreadType),
@@ -97,7 +97,7 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 
 	@Override
 	public ChunkPos getPotentialStructureChunk(long seed, int regionX, int regionZ) {
-		return this.getPotentialChunks(seed, regionX, regionZ).getFirst();
+		return this.getPotentialChunks(seed, regionX, regionZ).get(0);
 	}
 
 	@Override

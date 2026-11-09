@@ -1,13 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import dev.xkmc.gensokyolegacy.util.PotionData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -15,20 +14,21 @@ import org.jetbrains.annotations.Nullable;
 
 public interface AbstractPotionHandler extends HexBrewHandler {
 
+	default PotionData potion(ItemStack stack) {
+		PotionData data = PotionData.read(stack);
+		return data.isEmpty() ? defaultPotion() : data;
+	}
+
 	default void applyEffects(LivingEntity user, ItemStack stack) {
-		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-		if (contents == null) return;
-		for (MobEffectInstance e : contents.getAllEffects()) {
+		for (MobEffectInstance e : potion(stack).getAllEffects()) {
 			user.addEffect(new MobEffectInstance(e));
 		}
 	}
 
 	default MobEffectCategory getCategory(ItemStack stack) {
-		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-		if (contents == null) return MobEffectCategory.NEUTRAL;
 		boolean positive = false, negative = false;
-		for (MobEffectInstance e : contents.getAllEffects()) {
-			var c = e.getEffect().value().getCategory();
+		for (MobEffectInstance e : potion(stack).getAllEffects()) {
+			var c = e.getEffect().getCategory();
 			if (c == MobEffectCategory.BENEFICIAL) positive = true;
 			if (c == MobEffectCategory.HARMFUL) negative = true;
 		}
@@ -39,8 +39,8 @@ public interface AbstractPotionHandler extends HexBrewHandler {
 
 
 	default int getColor(ItemStack stack) {
-		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-		if (contents == null) return -1;
+		var contents = potion(stack);
+		if (contents.isEmpty()) return -1;
 		return contents.getColor();
 	}
 

@@ -141,7 +141,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 		}
 		BlockPos finalPos = walkTarget.getTarget().currentBlockPosition();
 		Vec3 pos = Vec3.atBottomCenterOf(stageViaInterior(entity, finalPos));
-		entity.getNavigation().moveTo(pos.x, pos.y, pos.z, 0, walkTarget.getSpeedModifier());
+		entity.navCtrl.moveTo(pos.x, pos.y, pos.z, 0, walkTarget.getSpeedModifier());
 		this.path = entity.navCtrl.getPath();
 		this.speedModifier = walkTarget.getSpeedModifier();
 		if (this.path != null && this.path.path().canReach()) {
@@ -152,7 +152,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 		if (this.path != null) return true;
 		Vec3 nextPos = DefaultRandomPos.getPosTowards(entity, 10, 7, pos, Mth.HALF_PI);
 		if (nextPos != null) {
-			entity.getNavigation().moveTo(nextPos.x(), nextPos.y(), nextPos.z(), 0, 1);
+			entity.navCtrl.moveTo(nextPos.x(), nextPos.y(), nextPos.z(), 0, 1);
 			this.path = entity.navCtrl.getPath();
 			return this.path != null;
 		}

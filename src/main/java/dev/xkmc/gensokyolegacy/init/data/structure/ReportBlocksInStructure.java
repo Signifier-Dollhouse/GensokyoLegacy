@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -39,12 +38,12 @@ public class ReportBlocksInStructure {
 			LOGGER.warn("Structure template not on classpath: {}", path);
 			return;
 		}
-		var tag = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
+		var tag = NbtIo.readCompressed(stream);
 		Object2IntLinkedOpenHashMap<ResourceLocation> count = new Object2IntLinkedOpenHashMap<>();
 		ListTag palette = tag.getList("palette", 10);
 		ResourceLocation[] ids = new ResourceLocation[palette.size()];
 		for (int i = 0; i < palette.size(); i++) {
-			ids[i] = ResourceLocation.parse(palette.getCompound(i).getString("Name"));
+			ids[i] = new ResourceLocation(palette.getCompound(i).getString("Name"));
 		}
 		ListTag blocks = tag.getList("blocks", 10);
 		for (int i = 0; i < blocks.size(); i++) {

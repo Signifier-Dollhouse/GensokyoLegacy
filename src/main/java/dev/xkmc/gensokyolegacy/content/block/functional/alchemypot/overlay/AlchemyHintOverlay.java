@@ -2,14 +2,12 @@ package dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.AlchemyPotBlockEntity;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
-import dev.xkmc.l2itemselector.overlay.OverlayUtil;
-import dev.xkmc.l2modularblock.core.DelegateBlockImpl;
+import dev.xkmc.l2library.base.overlay.OverlayUtil;
+import dev.xkmc.l2modularblock.DelegateBlockImpl;
 import dev.xkmc.l2modularblock.type.SingletonBlockMethod;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.BlockPos;
@@ -19,6 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -30,13 +30,13 @@ import java.util.List;
  *
  * @see "doc/design/alchemy_pot.md"
  */
-public class AlchemyHintOverlay implements LayeredDraw.Layer {
+public class AlchemyHintOverlay implements IGuiOverlay {
 
 	private int startTick = 0;
 	private BlockPos lastPos = null;
 
 	@Override
-	public void render(GuiGraphics g, DeltaTracker delta) {
+	public void render(ForgeGui gui, GuiGraphics g, float partialTick, int width, int height) {
 		int prev = startTick;
 		startTick = 0;
 		var mc = Minecraft.getInstance();
@@ -51,9 +51,8 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 		lastPos = pos;
 		startTick = prev;
 
-		int w = g.guiWidth(), h = g.guiHeight();
 		if (be.isReacting()) {
-			new ImageBox(g, (int) (w * 0.7), (int) (h * 0.5), 0).render(be.getHintLines(mc.player.isShiftKeyDown(), bhit));
+			new ImageBox(g, (int) (width * 0.7), (int) (height * 0.5), 0).render(be.getHintLines(mc.player.isShiftKeyDown(), bhit));
 			return;
 		}
 
@@ -73,7 +72,7 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 			}
 			display[i] = arr[time / 15 % arr.length];
 		}
-		new ImageBox(g, (int) (w * 0.7), (int) (h * 0.5), 0).render(display, Math.min(4, n), Math.min(3, (n - 1) / 4 + 1), total - n);
+		new ImageBox(g, (int) (width * 0.7), (int) (height * 0.5), 0).render(display, Math.min(4, n), Math.min(3, (n - 1) / 4 + 1), total - n);
 	}
 
 	@Nullable
@@ -98,7 +97,7 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 
 	}
 
-	// dedup by item id plus components patch, so potion variants stay distinct hints
+	// dedup by item id plus nbt, so potion variants stay distinct hints
 	private List<ItemStack[]> compile(List<Ingredient> list) {
 		Int2ObjectLinkedOpenHashMap<ItemStack[]> map = new Int2ObjectLinkedOpenHashMap<>();
 		for (var ing : list) {
@@ -113,8 +112,8 @@ public class AlchemyHintOverlay implements LayeredDraw.Layer {
 				if (s.isEmpty()) h = 0;
 				else {
 					h = BuiltInRegistries.ITEM.getId(s.getItem());
-					var patch = s.getComponentsPatch();
-					if (!patch.isEmpty()) h += patch.hashCode() * 15;
+					var tag = s.getTag();
+					if (tag != null) h += tag.hashCode() * 15;
 				}
 				hash = 31 * hash + h;
 			}

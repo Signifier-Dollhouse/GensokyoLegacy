@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.block.nature;
 
-import com.mojang.serialization.MapCodec;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class MiasmaAirBlock extends AirBlock {
 
-	public static final MapCodec<AirBlock> CODEC = simpleCodec(MiasmaAirBlock::new);
 
 	public static final IntegerProperty INTENSITY = IntegerProperty.create("intensity", 1, 8);
 
@@ -31,10 +29,6 @@ public class MiasmaAirBlock extends AirBlock {
 		registerDefaultState(stateDefinition.any().setValue(INTENSITY, 8));
 	}
 
-	@Override
-	public MapCodec<AirBlock> codec() {
-		return CODEC;
-	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -42,12 +36,12 @@ public class MiasmaAirBlock extends AirBlock {
 	}
 
 	@Override
-	protected boolean isRandomlyTicking(BlockState state) {
+	public boolean isRandomlyTicking(BlockState state) {
 		return true;
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		int lvl = state.getValue(INTENSITY);
 		if (!isSustained(level, pos, lvl)) {
 			if (lvl <= 1) {
@@ -142,12 +136,12 @@ public class MiasmaAirBlock extends AirBlock {
 	}
 
 	@Override
-	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		if (!level.isClientSide() && entity instanceof LivingEntity living) {
-			if (living.hasEffect(GLEffects.MIASMA) && living.tickCount % 20 == 0) return;
+			if (living.hasEffect(GLEffects.MIASMA.get()) && living.tickCount % 20 == 0) return;
 			int lvl = state.getValue(INTENSITY);
 			int amplifier = lvl <= 4 ? 0 : 1;
-			living.addEffect(new MobEffectInstance(GLEffects.MIASMA, 30, amplifier, true, false, true));
+			living.addEffect(new MobEffectInstance(GLEffects.MIASMA.get(), 30, amplifier, true, false, true));
 		}
 	}
 

@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.client.debug;
 
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public record BlockInfoToClient(
 		ArrayList<Component> info,
 		ArrayList<Component> advanced
-) implements SerialPacketBase<BlockInfoToClient> {
+) implements RecordPacketBase {
 
 	public static BlockInfoToClient empty() {
 		return new BlockInfoToClient(new ArrayList<>(), new ArrayList<>());

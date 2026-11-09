@@ -8,10 +8,10 @@ import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.SyncedDataTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.*;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
-import dev.xkmc.l2core.base.entity.SyncedData;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -120,28 +120,27 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		super.defineSynchedData(builder);
-		data().register(builder);
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		data().register(entityData);
 		// local list, not the field: the field does not exist yet during Entity construction
 		for (var e : createModules()) {
-			e.defineSynchedData(builder);
+			e.defineSynchedData(entityData);
 		}
 	}
 
 	public void addAdditionalSaveData(CompoundTag tag) {
 		super.addAdditionalSaveData(tag);
 		tag.putInt("Age", tickCount);
-		var cdc = new TagCodec(level().registryAccess());
-		tag.put("auto-serial", Objects.requireNonNull(cdc.toTag(new CompoundTag(), this)));
+		tag.put("auto-serial", Objects.requireNonNull(TagCodec.toTag(new CompoundTag(), this)));
 		if (hasRestriction()) {
-			var data = cdc.valueToTag(RestrictData.class, new RestrictData(getRestrictCenter(), getRestrictRadius()));
+			var data = TagCodec.valueToTag(RestrictData.class, new RestrictData(getRestrictCenter(), getRestrictRadius()), e -> true);
 			if (data != null) tag.put("Restrict", data);
 		}
 		data().write(level().registryAccess(), tag, entityData);
 		var moduleTag = new CompoundTag();
 		for (var e : modules) {
-			var val = cdc.toTag(new CompoundTag(), e);
+			var val = TagCodec.toTag(new CompoundTag(), e);
 			if (val != null) {
 				moduleTag.put(e.getId().toString(), val);
 			}
@@ -152,13 +151,12 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 	public void readAdditionalSaveData(CompoundTag tag) {
 		super.readAdditionalSaveData(tag);
 		tickCount = tag.getInt("Age");
-		var cdc = new TagCodec(level().registryAccess());
 		if (tag.contains("auto-serial")) {
-			Wrappers.run(() -> cdc.fromTag(tag.getCompound("auto-serial"), getClass(), this));
+			Wrappers.run(() -> TagCodec.fromTag(tag.getCompound("auto-serial"), getClass(), this, f -> true));
 		}
 		var data = tag.get("Restrict");
 		if (data != null) {
-			RestrictData res = cdc.valueFromTag(data, RestrictData.class);
+			RestrictData res = TagCodec.valueFromTag(data, RestrictData.class);
 			if (res != null) {
 				restrictTo(res.center(), (int) res.radius());
 			}
@@ -169,7 +167,7 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 			for (var e : modules) {
 				if (!moduleTag.contains(e.getId().toString())) continue;
 				var val = moduleTag.getCompound(e.getId().toString());
-				cdc.fromTag(val, e.getClass(), e);
+				TagCodec.fromTag(val, e.getClass(), e, f -> true);
 			}
 		}
 		if (getTarget() == null || isSleeping()) {
@@ -373,9 +371,9 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 
 	@Nullable
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pTag) {
 		initSpellCard();
-		return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
+		return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pTag);
 	}
 
 	public void initSpellCard() {
@@ -445,20 +443,8 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 	// a portal would drop it where the index does not describe it, so both gates refuse.
 
 	@Override
-	public boolean canUsePortal(boolean allowPassengers) {
+	public boolean canChangeDimensions() {
 		return false;
-	}
-
-	@Override
-	public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
-		return false;
-	}
-
-	@Override
-	public Vec3 getVehicleAttachmentPoint(Entity entity) {
-		// Match vanilla player sitting height so the sitting animation sits
-		// on chairs instead of floating above the seat.
-		return new Vec3(0, 0.5, 0);
 	}
 
 }

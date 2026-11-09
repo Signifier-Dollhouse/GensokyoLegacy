@@ -12,8 +12,6 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWand;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyWandData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.PortalSide;
-import dev.xkmc.gensokyolegacy.content.client.model.HatModel;
-import dev.xkmc.gensokyolegacy.content.client.model.SuwakoHatModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorMode;
@@ -60,32 +58,23 @@ import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
-import dev.xkmc.l2core.init.reg.registrate.SimpleEntry;
-import dev.xkmc.l2core.init.reg.simple.DCReg;
-import dev.xkmc.l2core.init.reg.simple.DCVal;
-import dev.xkmc.l2core.init.reg.simple.EnumCodec;
-import dev.xkmc.l2core.util.DCStack;
+import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCReg;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCVal;
+import dev.xkmc.gensokyolegacy.compat.l2lib.EnumCodec;
+import dev.xkmc.gensokyolegacy.compat.l2lib.DCStack;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
-import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -195,15 +184,13 @@ public class GLItems {
 	public static final DCVal<DaggerGloveMode> DAGGER_GLOVE_MODE = DC.enumVal("dagger_glove_mode", EnumCodec.of(DaggerGloveMode.class, DaggerGloveMode.values()));
 	public static final DCVal<ResourceLocation> DAGGER_GLOVE_RUNE = DC.loc("dagger_glove_rune");
 	public static final DCVal<Integer> SPIRITUAL_POWER = DC.intVal("spiritual_power");
-	public static final DCVal<Integer> SPIRITUAL_POWER_MAX = DC.intVal("spiritual_power_max");
 	public static final DCVal<YuyukoFanMode> YUYUKO_FAN_MODE =
 			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
-	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
-			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
+	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC, false);
 
 
 	static {
@@ -306,8 +293,8 @@ public class GLItems {
 		GLDecoBlocks.register();
 		GLNaturalBlocks.register();
 
-		TAB = reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
-				e -> e.icon(GLItems.DOLL_GLOVE::asStack));
+		TAB = SimpleEntry.of(reg.buildModCreativeTab("ingredients", "Gensokyo Legacy - Ingredients",
+				e -> e.icon(GLItems.DOLL_GLOVE::asStack)));
 
 		// currency
 		{
@@ -337,17 +324,17 @@ public class GLItems {
 			FROZEN_FROG_COLD = reg.item("frozen_frog_cold",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.COLD))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
+
 					.register();
 			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
+
 					.register();
 			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FROG))
+
 					.register();
 
 			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
@@ -365,9 +352,9 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1),
 							new MobEffectInstance(MobEffects.NIGHT_VISION, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
+
 					.lang("Tengu Sake").register();
 
 			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
@@ -375,9 +362,9 @@ public class GLItems {
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
 							new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
+
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
@@ -402,91 +389,91 @@ public class GLItems {
 					.lang("Ibuki Gourd").register();
 
 			FAIRY_CAKE = reg.item("fairy_cake", p -> new Item(p
-							.food(new FoodProperties.Builder().nutrition(4).saturationModifier(0.3f)
-									.effect(() -> new MobEffectInstance(GLEffects.FLOATING, 600), 1).build())))
+							.food(new FoodProperties.Builder().nutrition(4).saturationMod(0.3f)
+									.effect(() -> new MobEffectInstance(GLEffects.FLOATING.get(), 600), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(3, 1000, GiftType.FOOD))
+
 
 					.lang("Fairy Cake").register();
 
 			MAGIC_BOOK = reg.item("magic_book", MagicBookItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
-					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
+
+					
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 24, 1, 1))
+
 					.lang("Obscure Magic Book").register();
 
 			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
 			// be given something to drink. DIG_SPEED is the one effect that is haste on a mob and
 			// looting on an item, so this reads as luck at digging rather than as speed.
 			LUCKY_TEA = reg.item("lucky_tea", p -> new DrinkGiftItem(p.food(sake(
-							new MobEffectInstance(GLEffects.LOOTING, 3600, 0),
-							new MobEffectInstance(GLEffects.SPIRITUAL, 3600, 0)))))
+							new MobEffectInstance(GLEffects.LOOTING.get(), 3600, 0),
+							new MobEffectInstance(GLEffects.SPIRITUAL.get(), 3600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
+
 					.lang("Hakurei's Lucky Tea").register();
 
 			GOLDEN_LOTUS_TEA = reg.item("golden_lotus_tea", p -> new DrinkGiftItem(p.food(sake(
 							new MobEffectInstance(MobEffects.REGENERATION, 600, 0),
-							new MobEffectInstance(GLEffects.SPIRITUAL, 600, 0)))))
+							new MobEffectInstance(GLEffects.SPIRITUAL.get(), 600, 0)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.DRINK))
+
 					.lang("Golden Lotus Tea").register();
 
 			// haste II: the same effect as the tea's, one potency up
 			ZUN_BEER = reg.item("zun_beer", p -> new DrinkGiftItem(p.food(sake(
 							new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1)))))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
+
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
+
 					.lang("Zun Beer").register();
 
 			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
 			// too; the sakes above cannot, being drinks rather than food.
 			MAGIC_CANDY = reg.item("magic_candy", p -> new Item(p
-							.food(new FoodProperties.Builder().nutrition(2).saturationModifier(0.1f).alwaysEdible()
+							.food(new FoodProperties.Builder().nutrition(2).saturationMod(0.1f).alwaysEat()
 									.effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 600, 0), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(2, 1000, GiftType.FOOD))
+
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(2, 4, 3, 6))
+
 					.lang("Magic Candy").register();
 
 			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
-							.food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.6f)
+							.food(new FoodProperties.Builder().nutrition(6).saturationMod(0.6f)
 									.effect(() -> new MobEffectInstance(MobEffects.WATER_BREATHING, 600, 0), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(4, 1000, GiftType.FOOD))
+
 					.lang("Kappa Bento").register();
 
 			// Yuyuko's ghost dango: a ghost-themed sweet that feeds the spiritual pool of every
 			// carrier the eater has, not just the one in hand
 			GHOST_DANGO = reg.item("ghost_dango", p -> new Item(p
-							.food(new FoodProperties.Builder().nutrition(3).saturationModifier(0.3f).alwaysEdible()
-									.effect(() -> new MobEffectInstance(GLEffects.SPIRITUAL, 1200, 1), 1).build())))
+							.food(new FoodProperties.Builder().nutrition(3).saturationMod(0.3f).alwaysEat()
+									.effect(() -> new MobEffectInstance(GLEffects.SPIRITUAL.get(), 1200, 1), 1).build())))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(10, 1000, GiftType.FOOD))
+
 					.lang("Ghost Dango").register();
 
 			// a fan is for looking at, and for blowing
 			FANCY_FAN = reg.item("fancy_fan", FancyFanItem::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
-					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
+
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
+
 					.lang("Fancy Fan").register();
 		}
 
 		// tools
 		{
-			var head = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "head"));
-			var back = ItemTags.create(ResourceLocation.fromNamespaceAndPath("curios", "back"));
+			var head = ItemTags.create(new ResourceLocation("curios", "head"));
+			var back = ItemTags.create(new ResourceLocation("curios", "back"));
 			MINI_HAKKERO_PROTOTYPE = reg.item("mini_hakkero_prototype", HakkeroPrototype::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(16, 24, 1, 1))
+
 					.lang("Mini Hakkero [Prototype]").register();
 
 			// Marisa's rebuild of the prototype: same shape, its own darker texture
@@ -496,15 +483,15 @@ public class GLItems {
 
 			CENTIPICKAXE = reg.item("centipickaxe", CentiPickaxe::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.tab(TAB.key(), (a, b) -> b.accept(a.get().getDefaultInstance(b.getParameters().holders())))
+					.tab(TAB.key(), (a, b) -> b.accept(a.get().getDefaultInstance()))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(4, 6, 1, 1))
+
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
+
 					.lang("Nazrin's Dowser").register();
 
 			DOWSER_LEFT = reg.item("dowser_left", Item::new)
@@ -522,13 +509,13 @@ public class GLItems {
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(4, 6, 3, 5))
+
 					.lang("Mermaid's Pearl").register();
 
 			CAT_BELL = reg.item("cat_bell", CatBell::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(8, 12, 1, 1))
+
 					.lang("Cat Bell").register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
@@ -577,7 +564,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Bone Flute")
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
+
 					.tab(TAB.key())
 					.register();
 
@@ -652,16 +639,14 @@ public class GLItems {
 			STRAW_HAT = reg
 					.item("straw_hat", p -> new StrawHatItem(p.rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.STRAW))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.tag(head, GLTagGen.TOUHOU_HAT)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(3, 6, 4, 4))
+
 					.register();
 
 			SUWAKO_HAT = reg
 					.item("suwako_hat", p -> new SuwakoHatItem(p.rarity(Rarity.EPIC)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/curio/" + ctx.getName())))
-					.clientExtension(() -> () -> new HatModel(SuwakoHatModel.SUWAKO))
 					.tag(head, GLTagGen.TOUHOU_HAT)
 					.register();
 
@@ -690,14 +675,7 @@ public class GLItems {
 			// 3D model hand-written in models/custom, so only wire up the parent here. SeparateTransformsModelBuilder
 			// with gui_light: front is the modelled dagger (every display but the gui), the gui the flat 16x16 icon.
 			// The melee bonus is one below the danmaku damage so that base 1 + bonus equals the thrown hit.
-			IRON_DAGGER = reg.item("iron_dagger", p -> new IronDaggerItem(p
-							.attributes(ItemAttributeModifiers.builder()
-									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
-													DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
-											EquipmentSlotGroup.MAINHAND)
-									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
-											-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.build())))
+			IRON_DAGGER = reg.item("iron_dagger", p -> new IronDaggerItem(p))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
@@ -716,14 +694,7 @@ public class GLItems {
 			// The glove's held model carries a predicate override per mode rather than a flat layer0, so per-mode art
 			// can be dropped in without touching the wheel; the held half is the mitten DaggerGloveModel shares.
 			// Same melee profile as the dagger it launches: the throw copies the holder's attack damage.
-			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)
-							.attributes(ItemAttributeModifiers.builder()
-									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
-													DanmakuItems.Bullet.DAGGER.damage() - 1, AttributeModifier.Operation.ADD_VALUE),
-											EquipmentSlotGroup.MAINHAND)
-									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
-											-2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.build())))
+			DAGGER_GLOVE = reg.item("dagger_glove", p -> new DaggerGloveItem(p.stacksTo(1)))
 					.model(DaggerGloveModel::model)
 					.lang("Dagger Glove").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE)
@@ -731,17 +702,9 @@ public class GLItems {
 
 			// A pickaxe that throws itself. TOOL gives it diamond harvesting without durability, and
 			// the durability bar is free for the spiritual pool.
-			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)
-							.attributes(ItemAttributeModifiers.builder()
-									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 14.0,
-											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2,
-											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.build())
-							.component(DataComponents.TOOL, Tiers.DIAMOND.createToolProperties(BlockTags.MINEABLE_WITH_PICKAXE))))
+			MINAMITSU_ANCHOR = reg.item("minamitsu_anchor", p -> new AnchorItem(p.stacksTo(1)))
 					.model(AnchorModel::model)
-					.tag(ItemTags.PICKAXES, ItemTags.MINING_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE,
-							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.tag(ItemTags.PICKAXES)
 					.lang("Minamitsu's Anchor").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
 					.register();
@@ -773,13 +736,7 @@ public class GLItems {
 					.tag(GLTagGen.WEBSITE_HIDDEN)
 					.lang("Droplet Danmaku").register();
 
-			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)
-							.attributes(ItemAttributeModifiers.builder()
-									.add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 10.0,
-											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8,
-											AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-									.build())))
+			NUE_TRIDENT = reg.item("nue_trident", p -> new NueTridentItem(p.stacksTo(1).rarity(Rarity.RARE)))
 					.model((ctx, pvd) -> {
 						var base = pvd.nested()
 								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/" + ctx.getName())));
@@ -792,7 +749,7 @@ public class GLItems {
 								.perspective(ItemDisplayContext.GUI, guiModel)
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
-					.tag(ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
+					.tag(ItemTags.SWORDS)
 					.lang("Nue's Trident").tab(TAB.key())
 					.register();
 
@@ -815,7 +772,7 @@ public class GLItems {
 								.end().guiLight(BlockModel.GuiLight.FRONT);
 					})
 					.tag(head, GLTagGen.MORICHIKA_OFFERS)
-					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(6, 10, 1, 1))
+
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
 
@@ -889,26 +846,19 @@ public class GLItems {
 	}
 
 	/**
-	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
-	 * mistakes it for a meal), is drinkable on a full stomach, leaves an empty glass bottle behind, and rolls
-	 * every effect on the last gulp.
+	 * The same drink poured into something with no bottom to it. Still drinkable and still no nutrition, but
+	 * nothing is left behind: {@link GourdItem} puts the gourd back where it was.
 	 */
-	private static FoodProperties sake(MobEffectInstance... effects) {
-		return sake(false, effects);
+	private static FoodProperties gourd(MobEffectInstance... effects) {
+		return sake(effects);
 	}
 
 	/**
-	 * The same drink poured into something with no bottom to it. Still always drinkable and still no nutrition,
-	 * but nothing is left behind: {@link GourdItem} puts the gourd back where it was. Without this the player
-	 * would get a glass bottle per sip, and the "infinite" would read as a bottling machine.
+	 * The food properties of a bottle of sake. It feeds nothing (no nutrition, so the party food system never
+	 * mistakes it for a meal), is drinkable on a full stomach, and rolls every effect on the last gulp.
 	 */
-	private static FoodProperties gourd(MobEffectInstance... effects) {
-		return sake(false, effects);
-	}
-
-	private static FoodProperties sake(boolean leavesBottle, MobEffectInstance... effects) {
-		FoodProperties.Builder builder = new FoodProperties.Builder().alwaysEdible();
-		if (leavesBottle) builder.usingConvertsTo(Items.GLASS_BOTTLE);
+	private static FoodProperties sake(MobEffectInstance... effects) {
+		FoodProperties.Builder builder = new FoodProperties.Builder().alwaysEat();
 		for (MobEffectInstance effect : effects)
 			builder.effect(() -> new MobEffectInstance(effect), 1.0F);
 		return builder.build();

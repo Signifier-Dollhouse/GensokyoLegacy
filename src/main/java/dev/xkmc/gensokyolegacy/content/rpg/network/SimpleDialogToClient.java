@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.network;
 
 import dev.xkmc.gensokyolegacy.content.ui.dialog.SimpleDialogScreen;
-import dev.xkmc.l2serial.network.SerialPacketBase;
+import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public record SimpleDialogToClient(
 		int session, int character, String text, @Nullable ResourceLocation quest,
 		ArrayList<String> options
-) implements SerialPacketBase<SimpleDialogToClient> {
+) implements RecordPacketBase {
 
 	@Override
 	public void handle(Player player) {

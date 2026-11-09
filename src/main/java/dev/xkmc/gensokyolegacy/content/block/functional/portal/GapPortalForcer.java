@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.util.Mth;
 
 import java.util.UUID;
 
@@ -57,7 +58,7 @@ public class GapPortalForcer {
 		int tMax = target.getMaxBuildHeight();
 		if (sMax <= sMin) return y;
 		double ratio = (double) (y - sMin) / (sMax - sMin);
-		ratio = Math.clamp(ratio, 0.0, 1.0);
+		ratio = Mth.clamp(ratio, 0.0, 1.0);
 		return (int) (ratio * (tMax - tMin)) + tMin;
 	}
 

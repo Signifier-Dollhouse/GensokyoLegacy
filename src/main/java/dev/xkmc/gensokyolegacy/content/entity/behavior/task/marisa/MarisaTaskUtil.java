@@ -14,9 +14,10 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
@@ -82,8 +83,9 @@ public class MarisaTaskUtil {
 	public static void insertIntoChest(ServerLevel level, BlockPos chest, ItemStack stack, BlockPos dropPos) {
 		if (stack.isEmpty()) return;
 		if (chest != null && HomeSearchUtil.isValidChest(level, chest)) {
-			var cap = level.getCapability(Capabilities.ItemHandler.BLOCK, chest, Direction.UP);
-			if (cap == null && level.getBlockEntity(chest) instanceof BaseContainerBlockEntity cont) {
+			var be = level.getBlockEntity(chest);
+			IItemHandler cap = be == null ? null : be.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP).orElse(null);
+			if (cap == null && be instanceof BaseContainerBlockEntity cont) {
 				cap = new InvWrapper(cont);
 			}
 			if (cap != null) {

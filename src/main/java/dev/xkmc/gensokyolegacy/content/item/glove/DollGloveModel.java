@@ -7,7 +7,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.mode.DollGloveMode;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
 
 /**
  * Item model generation for the doll glove, split out of {@code GLItems} and built per mode (glove.md §3b).

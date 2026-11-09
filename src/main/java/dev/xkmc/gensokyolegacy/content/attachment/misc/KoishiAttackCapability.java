@@ -1,5 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.attachment.misc;
 
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KoishiHatTrigger;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLAdvGen;
@@ -10,9 +14,9 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLCriteriaTriggers;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.RayTraceUtil;
-import dev.xkmc.l2core.capability.player.PlayerCapabilityTemplate;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
+import dev.xkmc.l2serial.serialization.SerialClass;
+import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -20,6 +24,8 @@ import net.minecraft.world.phys.Vec3;
 
 @SerialClass
 public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttackCapability> {
+
+	public static final Capability<KoishiAttackCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
 	private static final int DELAY = 360, MARK_POS = 300;
 
@@ -33,7 +39,7 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 	private Vec3 source = null;
 
 	@Override
-	public void onClone(Player player, boolean isWasDeath) {
+	public void onClone(boolean isWasDeath) {
 		blockCount = 0;
 		tickRemain = 0;
 	}
@@ -51,7 +57,7 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 	}
 
 	@Override
-	public void tick(Player player) {
+	public void tick() {
 		if (!(player instanceof ServerPlayer sp)) {
 			if (source != null && tickRemain > 0 && tickRemain <= DELAY - MARK_POS) {
 				ClientCapHandler.showParticle(player, source);
@@ -71,7 +77,7 @@ public class KoishiAttackCapability extends PlayerCapabilityTemplate<KoishiAttac
 				if (!notValid(player)) {
 					float dmg = GLModConfig.SERVER.koishiAttackDamage.get();
 
-					var adv = sp.server.getAdvancements().get(GLAdvGen.KOISHI_FIRST);
+					var adv = sp.server.getAdvancements().getAdvancement(GLAdvGen.KOISHI_FIRST);
 					if (adv != null && !sp.getAdvancements().getOrStartProgress(adv).isDone()) {
 						GLCriteriaTriggers.KOISHI_FIRST.get().trigger(sp);
 						dmg = Math.min(dmg, player.getMaxHealth() - 1);

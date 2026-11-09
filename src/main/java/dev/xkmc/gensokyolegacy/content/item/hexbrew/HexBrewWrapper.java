@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.item.hexbrew;
 import dev.xkmc.gensokyolegacy.content.fluid.GLHexFluid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +81,7 @@ public class HexBrewWrapper implements IFluidHandlerItem {
 		if (container.getCount() != 1) return FluidStack.EMPTY;
 		if (resource.getAmount() < 250) return FluidStack.EMPTY;
 		FluidStack cur = getFluidFromBottle();
-		if (!FluidStack.isSameFluidSameComponents(cur, resource)) return FluidStack.EMPTY;
+		if (!cur.isFluidEqual(resource)) return FluidStack.EMPTY;
 		if (action.execute()) {
 			setFluid(FluidStack.EMPTY);
 		}

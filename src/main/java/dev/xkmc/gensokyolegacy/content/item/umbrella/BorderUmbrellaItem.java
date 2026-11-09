@@ -10,7 +10,6 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -43,7 +42,6 @@ public class BorderUmbrellaItem extends Item {
 		b.accept(a.get());
 		var stack = new ItemStack(a.get());
 		GLItems.UMBRELLA_UNLOCK.set(stack, new BorderUmbrellaUnlock(true, true));
-		stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
 		b.accept(stack);
 	}
 
@@ -53,8 +51,8 @@ public class BorderUmbrellaItem extends Item {
 	 * umbrella_open}), an {@code ICON} stack uses its mode's icon range.
 	 */
 	public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
-		if (!stack.has(GLItems.ICON.get())) return 0;
-		return stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD).ordinal() + 1;
+		if (!GLItems.ICON.has(stack)) return 0;
+		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD).ordinal() + 1;
 	}
 
 	/**
@@ -62,19 +60,19 @@ public class BorderUmbrellaItem extends Item {
 	 */
 	public static ItemStack displayStack(BorderUmbrellaMode mode) {
 		ItemStack stack = new ItemStack(GLItems.BORDER_UMBRELLA.get());
-		stack.set(GLItems.UMBRELLA_TYPE.get(), mode);
+		GLItems.UMBRELLA_TYPE.set(stack, mode);
 		return stack;
 	}
 
 	public static ItemStack iconStack(BorderUmbrellaMode mode) {
 		ItemStack stack = displayStack(mode);
-		stack.set(GLItems.ICON.get(), Unit.INSTANCE);
+		GLItems.ICON.set(stack, Unit.INSTANCE);
 		return stack;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+	public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		var unlock = GLItems.UMBRELLA_UNLOCK.getOrDefault(stack, BorderUmbrellaUnlock.DEFAULT);
 		list.add(GLLang.ItemUmbrella.MODE.get(mode.displayName()).withStyle(ChatFormatting.GRAY));
 		if (mode.showsSlot()) {
@@ -87,7 +85,7 @@ public class BorderUmbrellaItem extends Item {
 				list.add(sel.append(GLLang.ItemUmbrella.SLOT_EMPTY_ITEM.get()));
 			}
 		} else if (mode.showsDistance()) {
-			int dist = stack.getOrDefault(GLItems.UMBRELLA_DISTANCE.get(), 1000);
+			int dist = GLItems.UMBRELLA_DISTANCE.getOrDefault(stack, 1000);
 			list.add(GLLang.ItemUmbrella.DISTANCE.get(String.valueOf(dist)).withStyle(ChatFormatting.GRAY));
 		}
 		list.add(GLLang.ItemUmbrella.WHEEL.get(L2Keys.WHEEL.map.getKey().getDisplayName()).withStyle(ChatFormatting.GRAY));
@@ -110,41 +108,41 @@ public class BorderUmbrellaItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		return mode.handleUse(level, player, hand, stack, this);
 	}
 
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		var result = mode.handleInteractLiving(stack, player, target, hand, this);
 		if (result != InteractionResult.PASS) return result;
 		return super.interactLivingEntity(stack, player, target, hand);
 	}
 
 	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+	public int getUseDuration(ItemStack stack) {
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		int d = mode.getUseDuration(stack);
-		return d != 0 ? d : super.getUseDuration(stack, entity);
+		return d != 0 ? d : super.getUseDuration(stack);
 	}
 
 	@Override
 	public UseAnim getUseAnimation(ItemStack stack) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		var anim = mode.getUseAnimation(stack);
 		return anim != UseAnim.NONE ? anim : super.getUseAnimation(stack);
 	}
 
 	@Override
 	public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		mode.onUseTick(level, entity, stack, remainingUseDuration, this);
 	}
 
 	@Override
 	public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-		var mode = stack.getOrDefault(GLItems.UMBRELLA_TYPE.get(), BorderUmbrellaMode.RECORD);
+		var mode = GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD);
 		mode.onReleaseUsing(stack, level, entity, timeLeft, this);
 		super.releaseUsing(stack, level, entity, timeLeft);
 	}
@@ -152,7 +150,7 @@ public class BorderUmbrellaItem extends Item {
 	public static float isOpen(ItemStack stack, Level level, LivingEntity user, int index) {
 		// icon display stacks always resolve through umbrella_display, never the open model:
 		// display takes priority over the open flag by construction, not by override order
-		if (stack.has(GLItems.ICON.get())) return 0;
+		if (GLItems.ICON.has(stack)) return 0;
 		return GLItems.UMBRELLA_TYPE.getOrDefault(stack, BorderUmbrellaMode.RECORD) == BorderUmbrellaMode.RECORD ? 0 : 1;
 	}
 

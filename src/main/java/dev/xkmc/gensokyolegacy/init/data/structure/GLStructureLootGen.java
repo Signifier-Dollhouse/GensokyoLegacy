@@ -2,8 +2,6 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -14,10 +12,6 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public class GLStructureLootGen {
-
-	private static ResourceKey<LootTable> key(String id) {
-		return ResourceKey.create(Registries.LOOT_TABLE, GensokyoLegacy.loc(id));
-	}
 
 	public static void genLoot(RegistrateLootTableProvider pvd) {
 

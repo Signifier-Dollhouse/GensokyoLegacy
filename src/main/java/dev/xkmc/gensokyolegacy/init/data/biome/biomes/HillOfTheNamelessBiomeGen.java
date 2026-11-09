@@ -2,7 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome.biomes;
 
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
@@ -36,7 +36,7 @@ public class HillOfTheNamelessBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected Biome build(BootstrapContext<Biome> ctx) {
+	protected Biome build(BootstapContext<Biome> ctx) {
 		return biome(true, 0.3f, 0.4f, 0x4a7a86, 0x8aa0b0, 0x87a06a, 0x5f724b, new MobSpawnSettings.Builder(),
 				layers(ctx)
 						.lakes(LAVA_LAKES)
@@ -49,7 +49,7 @@ public class HillOfTheNamelessBiomeGen extends AbstractBiomeGen {
 	}
 
 	@Override
-	protected void configured(BootstrapContext<ConfiguredFeature<?, ?>> ctx) {
+	protected void configured(BootstapContext<ConfiguredFeature<?, ?>> ctx) {
 		FeatureUtils.register(ctx, HILL_FLOWERS, Feature.RANDOM_PATCH, onDirt(32, new Palette()
 				.add(Blocks.LILY_OF_THE_VALLEY, 4).add(Blocks.OXEYE_DAISY, 3)
 				.add(Blocks.ALLIUM, 2).add(Blocks.TALL_GRASS, 2).build()));

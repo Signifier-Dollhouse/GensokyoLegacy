@@ -1,10 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.merchant;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class MorichikaModel extends DefaultedEntityGeoModel<MorichikaEntity> {
+public class MorichikaModel extends HeadBoneGeoModel<MorichikaEntity> {
 
 	public MorichikaModel() {
 		super(GensokyoLegacy.loc("morichika"), "Head");

@@ -4,7 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 public class TLMClientCompat {
 

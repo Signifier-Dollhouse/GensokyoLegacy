@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.condition;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
@@ -18,12 +18,12 @@ public record AnyCondition(
 		List<QuestCondition<?>> conditions
 ) implements QuestCondition<AnyCondition> {
 
-	public static final MapCodec<AnyCondition> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<AnyCondition> CODEC = RecordCodecBuilder.create(i -> i.group(
 			CodecRegistry.CONDITION.codec().listOf().fieldOf("conditions").forGetter(AnyCondition::conditions)
 	).apply(i, AnyCondition::new));
 
 	@Override
-	public MapCodec<AnyCondition> codec() {
+	public Codec<AnyCondition> codec() {
 		return CODEC;
 	}
 

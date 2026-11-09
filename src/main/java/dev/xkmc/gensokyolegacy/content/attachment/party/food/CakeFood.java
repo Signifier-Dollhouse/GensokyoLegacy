@@ -27,7 +27,7 @@ public class CakeFood extends AbstractCountdownFood {
 	 */
 	private final FoodProperties fallback = new FoodProperties.Builder()
 			.nutrition((int) SLICE_NUTRITION)
-			.saturationModifier(SLICE_SATURATION / (SLICE_NUTRITION * 2f))
+			.saturationMod(SLICE_SATURATION / (SLICE_NUTRITION * 2f))
 			.build();
 
 	@Override

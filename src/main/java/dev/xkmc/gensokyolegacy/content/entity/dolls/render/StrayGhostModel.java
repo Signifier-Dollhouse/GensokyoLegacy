@@ -1,15 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.entity.dolls.render;
 
+import dev.xkmc.gensokyolegacy.util.HeadBoneGeoModel;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 /**
  * The wild ghost shares the ghost geo/animation files and the variant textures, so the player can
  * see what they are about to bind.
  */
-public class StrayGhostModel extends DefaultedEntityGeoModel<StrayGhostEntity> {
+public class StrayGhostModel extends HeadBoneGeoModel<StrayGhostEntity> {
 
 	public StrayGhostModel() {
 		super(StrayGhostEntity.TYPE, "Body");

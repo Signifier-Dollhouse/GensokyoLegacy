@@ -81,13 +81,13 @@ public class StrayHost implements DollHost {
 
 	public CompoundTag save(HolderLookup.Provider access) {
 		CompoundTag tag = new CompoundTag();
-		if (data != null) new TagCodec(access).toTag(tag, DollData.class, data);
+		if (data != null) TagCodec.toTag(tag, DollData.class, data);
 		return tag;
 	}
 
 	@Nullable
 	public static StrayHost load(HolderLookup.Provider access, CompoundTag tag) {
-		DollData data = new TagCodec(access).fromTag(tag, DollData.class);
+		DollData data = TagCodec.fromTag(tag, DollData.class);
 		if (data == null || !data.isSummoned()) return null;
 		return new StrayHost(data);
 	}

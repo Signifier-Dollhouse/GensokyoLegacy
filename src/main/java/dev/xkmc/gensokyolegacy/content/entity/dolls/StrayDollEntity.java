@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.HoverStrollGoal;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
@@ -21,10 +22,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
@@ -59,8 +60,8 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 
 	@Override
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
-										MobSpawnType reason, @Nullable SpawnGroupData spawnData) {
-		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData);
+										MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag pTag) {
+		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData, pTag);
 		if (level.getBiome(blockPosition()).is(MagicalForestBiomeGen.KEY) && getRandom().nextFloat() < 0.5F)
 			setItemSlot(EquipmentSlot.MAINHAND, GLItems.DOLL_LANCE.asStack());
 		return data;

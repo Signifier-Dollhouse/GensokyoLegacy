@@ -1,7 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.RaidTrigger;
@@ -15,13 +15,13 @@ public record RaidVictoryRequirement(
 		String text, int count
 ) implements QuestRequirement<RaidVictoryRequirement, RaidTrigger> {
 
-	public static final MapCodec<RaidVictoryRequirement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+	public static final Codec<RaidVictoryRequirement> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("text").forGetter(RaidVictoryRequirement::text),
 			Codec.INT.fieldOf("count").forGetter(RaidVictoryRequirement::count)
 	).apply(i, RaidVictoryRequirement::new));
 
 	@Override
-	public MapCodec<RaidVictoryRequirement> codec() {
+	public Codec<RaidVictoryRequirement> codec() {
 		return CODEC;
 	}
 
