@@ -113,6 +113,10 @@ public class GensokyoLegacy {
 				GLBlocks.ALCHEMY_POT_BE.get(),
 				(be, dir) -> be.getItemCap(dir));
 		event.registerBlockEntity(
+				Capabilities.ItemHandler.BLOCK,
+				GLBlocks.TREASURE_BASKET_BE.get(),
+				(be, dir) -> be.getItemCap(dir));
+		event.registerBlockEntity(
 				Capabilities.FluidHandler.BLOCK,
 				GLBlocks.ALCHEMY_POT_BE.get(),
 				(be, dir) -> be.getTankCap(dir));

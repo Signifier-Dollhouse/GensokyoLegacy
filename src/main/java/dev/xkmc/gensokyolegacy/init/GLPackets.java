@@ -59,7 +59,7 @@ public class GLPackets {
 				.toServer(StructureRepairToServer.class)
 				.toServer(StructureEditToServer.class)
 				.toClient(CombatToClient.class)
-				.toClient(AreaEffectSyncPacket.class, AreaEffectSyncPacket.CODEC)
+				.toClient(AreaEffectSyncPacket.class)
 
 				// quest and trade status, then the dialog packets:
 				// the dialog screen runs on no container menu, so it syncs over its own packets

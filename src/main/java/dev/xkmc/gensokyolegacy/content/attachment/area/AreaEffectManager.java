@@ -88,6 +88,16 @@ public final class AreaEffectManager {
 		return GLMeta.LEVEL_EFFECT.type().getOrCreate(level).get(id);
 	}
 
+	/**
+	 * The effect owned by the block at {@code ownerPos}, or null when the block owns none.
+	 */
+	@Nullable
+	public static AreaEffectEntry getOwner(ServerLevel level, BlockPos ownerPos) {
+		LevelAreaAttachment levelAtt = GLMeta.LEVEL_EFFECT.type().getOrCreate(level);
+		UUID id = levelAtt.getOwnerId(ownerPos);
+		return id == null ? null : levelAtt.get(id);
+	}
+
 	public static List<AreaEffectEntry> getAffecting(ServerLevel level, LevelChunk chunk) {
 		return AreaChunkHolder.of(level, chunk).getAffecting();
 	}

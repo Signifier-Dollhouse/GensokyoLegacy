@@ -5,15 +5,23 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectManager;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
+import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
 import dev.xkmc.l2modularblock.mult.OnPlaceBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
+import dev.xkmc.l2modularblock.mult.UseWithoutItemBlockMethod;
+import dev.xkmc.l2modularblock.type.BlockMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -24,7 +32,11 @@ import java.util.List;
  *
  * @see "doc/design/treasure_basket.md"
  */
-public class TreasureBasketBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod {
+public class TreasureBasketBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod,
+		UseWithoutItemBlockMethod {
+
+	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(
+			GLBlocks.TREASURE_BASKET_BE, TreasureBasketBlockEntity.class);
 
 	@Override
 	public @Nullable BlockState getStateForPlacement(BlockState def, BlockPlaceContext context) {
@@ -52,6 +64,17 @@ public class TreasureBasketBlock implements OnPlaceBlockMethod, OnReplacedBlockM
 		AreaEffectEntry entry = AreaEffectManager.removeOwner(sl, pos);
 		if (entry != null && entry.data instanceof TreasureBasketEffectData data)
 			data.dropContents(sl, pos);
+	}
+
+	@Override
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
+											BlockHitResult hit) {
+		if (level.isClientSide) return InteractionResult.SUCCESS;
+		if (!(player instanceof ServerPlayer sp) || !(level.getBlockEntity(pos) instanceof TreasureBasketBlockEntity be))
+			return InteractionResult.PASS;
+		// the block position is needed on the client, so it rides the open buffer
+		sp.openMenu(be, buf -> buf.writeBlockPos(pos));
+		return InteractionResult.SUCCESS;
 	}
 
 	/**

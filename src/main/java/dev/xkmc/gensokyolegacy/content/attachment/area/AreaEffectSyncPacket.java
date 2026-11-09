@@ -2,19 +2,16 @@ package dev.xkmc.gensokyolegacy.content.attachment.area;
 
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2serial.network.SerialPacketBase;
-import dev.xkmc.l2serial.serialization.codec.PacketCodec;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Client sync for one effect: ADD/UPDATE carry the entry, REMOVE carries only the id.
+ * Client sync for one effect: ADD/UPDATE carry the entry, REMOVE carries only the id. The default
+ * packet codec applies {@code SerialField::toClient}, so {@code toClient = false} payload fields
+ * never cross the wire.
  *
  * @see "doc/design/area_effect.md"
  */
@@ -23,11 +20,6 @@ public record AreaEffectSyncPacket(
 		UUID id,
 		@Nullable AreaEffectEntry entry
 ) implements SerialPacketBase<AreaEffectSyncPacket> {
-
-	// honours @SerialField(toClient = false), so server-only payload fields never cross the wire
-	public static final StreamCodec<RegistryFriendlyByteBuf, AreaEffectSyncPacket> CODEC = StreamCodec.of(
-			(buf, packet) -> PacketCodec.to(buf, packet, AreaEffectSyncPacket.class, SerialField::toClient),
-			buf -> Objects.requireNonNull(PacketCodec.from(buf, AreaEffectSyncPacket.class, null, SerialField::toClient)));
 
 	public enum Action {
 		ADD, UPDATE, REMOVE
