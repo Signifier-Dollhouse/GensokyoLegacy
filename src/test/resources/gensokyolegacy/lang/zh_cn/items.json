@@ -145,7 +145,8 @@
 		"jizo_straw_hat": "戴斗笠的地藏",
 		"jizo_myouren": "命莲寺地藏",
 		"jizo_narumi": "矢田寺成美地藏",
-		"gravestone": "墓碑"
+		"gravestone": "墓碑",
+		"locust_plaque": "槐木牌匾"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人形",

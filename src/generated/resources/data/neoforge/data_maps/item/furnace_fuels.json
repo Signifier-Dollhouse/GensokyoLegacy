@@ -156,6 +156,9 @@
     "gensokyolegacy:lime_cushion": {
       "burn_time": 50
     },
+    "gensokyolegacy:locust_plaque": {
+      "burn_time": 300
+    },
     "gensokyolegacy:magenta_cushion": {
       "burn_time": 50
     },
