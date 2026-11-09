@@ -2,7 +2,8 @@
 	"required": true,
 	"priority": 1000,
 	"package": "dev.xkmc.gensokyolegacy.mixin",
-	"compatibilityLevel": "JAVA_21",
+	"compatibilityLevel": "JAVA_17",
+	"refmap": "gensokyolegacy.refmap.json",
 	"mixins": [
 		"BrainAccessor",
 		"ChunkGeneratorMultiSpreadMixin",
