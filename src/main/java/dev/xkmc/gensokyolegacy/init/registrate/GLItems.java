@@ -21,6 +21,7 @@ import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorModel;
 import dev.xkmc.gensokyolegacy.content.item.anchor.DropletDanmakuItem;
 import dev.xkmc.gensokyolegacy.content.item.character.*;
 import dev.xkmc.gensokyolegacy.content.item.currency.CoinItem;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinStackItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveMode;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
@@ -99,7 +100,7 @@ public class GLItems {
 	public static final ItemEntry<Item> MYSTICAL_STRAW;
 
 	public static final ItemEntry<CoinItem> COIN;
-	public static final ItemEntry<Item> COIN_STACK;
+	public static final ItemEntry<CoinStackItem> COIN_STACK;
 	public static final int COIN_STACK_VALUE = 8;
 
 	public static final ItemEntry<Item> HAKUREI_GOHEI;
@@ -314,7 +315,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
 					.lang("Coin").register();
 			// eight to a stack, unlike the nine-to-a-block metals: see GLRecipeGen for the two recipes
-			COIN_STACK = reg.item("coin_stack", Item::new)
+			COIN_STACK = reg.item("coin_stack", CoinStackItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/currency/" + ctx.getName())))
 					.lang("Coin Stack").register();
 		}
@@ -369,7 +370,6 @@ public class GLItems {
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Tengu Sake").register();
 
-			// TODO placeholder favor / cooldown
 			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
 			GHOST_SAKE = reg.item("ghost_sake", p -> new DrinkGiftItem(p.food(sake(
 							new MobEffectInstance(MobEffects.DAMAGE_BOOST, 600, 1),
@@ -576,6 +576,7 @@ public class GLItems {
 			BONE_FLUTE = reg.item("bone_flute", p -> new BoneFluteItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Bone Flute")
+					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
 					.tab(TAB.key())
 					.register();

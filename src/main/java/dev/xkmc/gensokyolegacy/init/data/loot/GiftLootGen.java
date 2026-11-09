@@ -31,8 +31,7 @@ import java.util.List;
  * generosity step, each one roll, and the appeal the guest consumed picks her rung: every pool is gated by an {@link
  * AppealConsumedCondition} over a band of appeal ({@code min} inclusive, {@code max} exclusive, {@code max <= 0} no
  * ceiling) and the bands tile the range without gap or overlap, so exactly one pool ever answers a roll. <p> A rung is
- * written {@code tier(min, max, …)} and means whatever it is given: the bands are not derived from {@link
- * #APPEAL_PER_TIER} or {@link #TIERS}, which survive only as the numbers they were first measured against, and bands
+ * written {@code tier(min, max, …)} and means whatever it is given: bands
  * rather than floors stop the rungs overlapping. How many rungs a character needs, and how far apart, says how much she
  * eats and how steeply her tastes run out. Gating the pool rather than its entries costs one condition test per roll
  * instead of one per entry. <p> Rungs are written out rather than read from a tag, even where the mod has one meaning
@@ -43,17 +42,6 @@ import java.util.List;
  * @see "doc/design/party/send.md"
  */
 public class GiftLootGen {
-
-	/**
-	 * Appeal that buys the guest one more step of generosity.
-	 */
-	public static final int APPEAL_PER_TIER = 20;
-
-	/**
-	 * Generosity steps, from the plain gift up to the one that costs her something.
-	 */
-	public static final int TIERS = 5;
-
 	/**
 	 * {@code advancement_reward} because that is the stock param set carrying both halves of the context a gift table
 	 * needs: the guest herself, for {@link AppealConsumedCondition}, and an origin.
@@ -210,7 +198,8 @@ public class GiftLootGen {
 						gift(GLItems.STRAW_HAT, 10)),
 				tier(200, 0, gift(GLItems.MINI_HAKKERO_PROTOTYPE, 10),
 						gift(GLItems.CENTIPICKAXE, 10),
-						gift(GLItems.DOWSER, 10)));
+						gift(GLItems.DOWSER, 10),
+						gift(GLItems.BONE_FLUTE, 10)));
 	}
 
 	/**

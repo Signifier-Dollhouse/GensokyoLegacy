@@ -8,6 +8,11 @@ import net.minecraft.util.RandomSource;
  */
 public record MorichikaOfferData(int minPrice, int maxPrice, int minStock, int maxStock) {
 
+	/**
+	 * What an item without a datamap entry sells for: one coin, one in stock.
+	 */
+	public static final MorichikaOfferData DEFAULT = new MorichikaOfferData(1, 1, 1, 1);
+
 	public int rollPrice(RandomSource rand) {
 		if (maxPrice <= minPrice) return minPrice;
 		return minPrice + rand.nextInt(maxPrice - minPrice + 1);
