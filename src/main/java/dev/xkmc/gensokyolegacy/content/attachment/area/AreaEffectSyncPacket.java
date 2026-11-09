@@ -9,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * Client sync for one effect: ADD/UPDATE carry the entry, REMOVE carries only the id.
+ * Client sync for one effect: ADD/UPDATE carry the entry, REMOVE carries only the id. The default
+ * packet codec applies {@code SerialField::toClient}, so {@code toClient = false} payload fields
+ * never cross the wire.
  *
  * @see "doc/design/area_effect.md"
  */

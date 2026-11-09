@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/treasure_basket"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 270
+    }
+  }
+}
