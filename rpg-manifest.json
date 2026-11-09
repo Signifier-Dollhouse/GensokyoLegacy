@@ -134,6 +134,7 @@
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_shroomlight.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/marisa/sell_spider_eye.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/minamitsu/offer_anchor.json",
+        "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/brew_golden_lotus_tea.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_dagger_glove.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_guide_book.json",
         "src/generated/resources/data/gensokyolegacy/gensokyolegacy/trade/morichika/offer_koishi_hat.json",
@@ -730,13 +731,13 @@
     "assets/lang/vanilla/en_us.json",
     "assets/lang/vanilla/zh_cn.json"
   ],
-  "revision": "3c55a2e2455ef0c0361aab99ec44857e",
+  "revision": "807ca9bd3eb54fe4052f8b58a4e80d3e",
   "stats": {
     "quest": 27,
     "dialog": 22,
     "dialog_starter": 35,
-    "trade": 62,
-    "files": 146,
+    "trade": 63,
+    "files": 147,
     "recipes": 333,
     "guideEntries": 102
   }
