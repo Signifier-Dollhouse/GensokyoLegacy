@@ -7,8 +7,8 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "minecraft:cake",
-        "minecraft:cookie"
+        {"item": "minecraft:cake"},
+        {"item": "minecraft:cookie"}
       ],
       "title": "Plain Fairies",
       "text": "Small, and they drift through forests and plains. Left alone, a fairy is harmless, just a little clingy. She follows whoever is holding something she wants.$(br2)A cake is a proper meal, and she throws you Fairy Dust for it — worth the trip.$(br2)Cookies are one of the foods she likes too. What you get back for one is a flower."

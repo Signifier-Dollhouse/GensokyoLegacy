@@ -7,15 +7,15 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:sturdy_teddy_bear",
-        "gensokyolegacy:magic_candy",
-        "gensokyolegacy:kappa_bento",
-        "gensokyolegacy:lucky_tea",
-        "gensokyolegacy:tengu_sake",
-        "gensokyolegacy:ghost_sake",
-        "gensokyolegacy:zun_beer",
-        "gensokyolegacy:magic_book",
-        "gensokyolegacy:fancy_fan"
+        {"item": "gensokyolegacy:sturdy_teddy_bear"},
+        {"item": "gensokyolegacy:magic_candy"},
+        {"item": "gensokyolegacy:kappa_bento"},
+        {"item": "gensokyolegacy:lucky_tea"},
+        {"item": "gensokyolegacy:tengu_sake"},
+        {"item": "gensokyolegacy:ghost_sake"},
+        {"item": "gensokyolegacy:zun_beer"},
+        {"item": "gensokyolegacy:magic_book"},
+        {"item": "gensokyolegacy:fancy_fan"}
       ],
       "text": "Every guest who ate from your table leaves something behind."
     }

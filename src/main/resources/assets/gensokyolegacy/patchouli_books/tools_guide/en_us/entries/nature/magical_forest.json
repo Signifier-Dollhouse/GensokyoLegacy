@@ -13,9 +13,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:ghost_fire_mushroom",
-        "gensokyolegacy:ghost_fire_mushroom_block",
-        "gensokyolegacy:cyan_mushroom_stem"
+        {"item": "gensokyolegacy:ghost_fire_mushroom"},
+        {"item": "gensokyolegacy:ghost_fire_mushroom_block"},
+        {"item": "gensokyolegacy:cyan_mushroom_stem"}
       ],
       "title": "Ghost Fire Mushrooms",
       "text": "The mushrooms that light the forest floor. Every cap gives off a faint glow of its own, so a patch of them reads like a row of lanterns strung under the canopy, and a mature ghost fire stands taller than a person on a slender stem."
@@ -23,9 +23,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:dream_mushroom",
-        "gensokyolegacy:dream_mushroom_block",
-        "gensokyolegacy:purple_mushroom_stem"
+        {"item": "gensokyolegacy:dream_mushroom"},
+        {"item": "gensokyolegacy:dream_mushroom_block"},
+        {"item": "gensokyolegacy:purple_mushroom_stem"}
       ],
       "title": "Dream Mushrooms",
       "text": "The tallest and roundest of the three, and entirely lightless. Dream mushrooms give off no glow whatsoever, so a dream grove stays dim even at midday — which is how you learn to recognise one from a distance."
@@ -33,9 +33,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:demonic_miasma_mushroom",
-        "gensokyolegacy:demonic_miasma_mushroom_block",
-        "gensokyolegacy:red_mushroom_stem"
+        {"item": "gensokyolegacy:demonic_miasma_mushroom"},
+        {"item": "gensokyolegacy:demonic_miasma_mushroom_block"},
+        {"item": "gensokyolegacy:red_mushroom_stem"}
       ],
       "title": "Demonic Miasma Mushrooms",
       "text": "The least conspicuous of the three breathes out a heavy miasma, which billows beneath the cap and then creeps along the forest floor. Standing in it is never a good idea — living things grow weak."
@@ -43,10 +43,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:blue_fir_sapling",
-        "gensokyolegacy:blue_fir_log",
-        "gensokyolegacy:blue_fir_wood",
-        "gensokyolegacy:blue_fir_leaves"
+        {"item": "gensokyolegacy:blue_fir_sapling"},
+        {"item": "gensokyolegacy:blue_fir_log"},
+        {"item": "gensokyolegacy:blue_fir_wood"},
+        {"item": "gensokyolegacy:blue_fir_leaves"}
       ],
       "title": "Blue Fir",
       "text": "A boreal lineage reshaped by a warmer, wetter climate: tall, winding trunks under layers of flat-spread needles, dotted with mushrooms and trailing sparse vines."
@@ -54,10 +54,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:eugune_red",
-        "gensokyolegacy:eugune_brown",
-        "gensokyolegacy:eugune_ghost_fire",
-        "gensokyolegacy:evergreen_vine"
+        {"item": "gensokyolegacy:eugune_red"},
+        {"item": "gensokyolegacy:eugune_brown"},
+        {"item": "gensokyolegacy:eugune_ghost_fire"},
+        {"item": "gensokyolegacy:evergreen_vine"}
       ],
       "title": "Eugune and Vines",
       "text": "Eugune bracket fungi grow out of the trunks, in three colors; evergreen vines hang from the branches in long strands."
@@ -65,12 +65,12 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:star_flower",
-        "gensokyolegacy:flame_cattail",
-        "gensokyolegacy:broom_grass",
-        "gensokyolegacy:bracken",
-        "gensokyolegacy:mystical_straw",
-        "gensokyolegacy:cedar_fallen_leaves"
+        {"item": "gensokyolegacy:star_flower"},
+        {"item": "gensokyolegacy:flame_cattail"},
+        {"item": "gensokyolegacy:broom_grass"},
+        {"item": "gensokyolegacy:bracken"},
+        {"item": "gensokyolegacy:mystical_straw"},
+        {"item": "gensokyolegacy:cedar_fallen_leaves"}
       ],
       "title": "Forest Floor",
       "text": "Star flowers, tall enough to reach and bright enough to notice; flame cattails growing in and around the ponds; broom grass as common as any weed; bracken threaded through it all. The floor of the Magical Forest looks like an untended herbalist's storehouse."

@@ -25,8 +25,8 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:minamitsu_anchor",
-        "gensokyolegacy:yuyuko_fan"
+        {"item": "gensokyolegacy:minamitsu_anchor"},
+        {"item": "gensokyolegacy:yuyuko_fan"}
       ],
       "title": "灵力",
       "text": "有些物品自带灵力池，以一道青色耐久条显示：$(br2)$(l:special_tools/minamitsu_anchor)村纱水蜜的锚$(/l)$(br)$(l:special_tools/yuyuko_fan)幽幽子的扇子$(/l)",
@@ -40,10 +40,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:jizo",
-        "gensokyolegacy:jizo_straw_hat",
-        "gensokyolegacy:jizo_myouren",
-        "gensokyolegacy:jizo_narumi"
+        {"item": "gensokyolegacy:jizo"},
+        {"item": "gensokyolegacy:jizo_straw_hat"},
+        {"item": "gensokyolegacy:jizo_myouren"},
+        {"item": "gensokyolegacy:jizo_narumi"}
       ],
       "title": "地藏",
       "text": "手持带有灵力池的物品右键地藏。它会收走一整级经验及当前进度，按每点经验 2 点灵力（默认值）换算成灵力。四种造像只是外观不同。"
@@ -57,14 +57,14 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:large_water_lily",
-        "gensokyolegacy:small_water_lily",
-        "gensokyolegacy:tower_grass_small",
-        "gensokyolegacy:tower_grass_large",
-        "gensokyolegacy:spooky_bush",
-        "gensokyolegacy:locust_sapling",
-        "gensokyolegacy:locust_log",
-        "gensokyolegacy:locust_hollow_log"
+        {"item": "gensokyolegacy:large_water_lily"},
+        {"item": "gensokyolegacy:small_water_lily"},
+        {"item": "gensokyolegacy:tower_grass_small"},
+        {"item": "gensokyolegacy:tower_grass_large"},
+        {"item": "gensokyolegacy:spooky_bush"},
+        {"item": "gensokyolegacy:locust_sapling"},
+        {"item": "gensokyolegacy:locust_log"},
+        {"item": "gensokyolegacy:locust_hollow_log"}
       ],
       "title": "睡莲、塔禾与槐树",
       "text": "大大小小的睡莲浮在寺里的水塘上。大睡莲有七种姿态——浮叶、花苞、盛放、莲蓬都在其中——右键已放置的睡莲可以依次切换。塔禾能收获魔法干草。阴森灌木长在花丛间。槐树——连同树苗、树洞原木和落叶——是会从坟头重新长起来的那棵树。"

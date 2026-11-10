@@ -8,9 +8,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:reimu_bed",
-        "gensokyolegacy:marisa_bed",
-        "gensokyolegacy:morichika_bed"
+        {"item": "gensokyolegacy:reimu_bed"},
+        {"item": "gensokyolegacy:marisa_bed"},
+        {"item": "gensokyolegacy:morichika_bed"}
       ],
       "title": "私人订制",
       "text": "每一种床都只属于一位角色，不可重复绑定。把它放进对应屋子里的一间房，角色会认下这张床。玩家无法使用，也不会成为玩家重生点。"

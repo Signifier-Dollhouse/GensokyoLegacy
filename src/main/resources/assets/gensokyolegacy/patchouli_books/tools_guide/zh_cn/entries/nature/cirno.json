@@ -17,9 +17,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:frozen_frog_cold",
-        "gensokyolegacy:frozen_frog_warm",
-        "gensokyolegacy:frozen_frog_temperate"
+        {"item": "gensokyolegacy:frozen_frog_cold"},
+        {"item": "gensokyolegacy:frozen_frog_warm"},
+        {"item": "gensokyolegacy:frozen_frog_temperate"}
       ],
       "title": "冻青蛙",
       "text": "妖精冰晶冻住的青蛙。扔出去会落地变回青蛙。"

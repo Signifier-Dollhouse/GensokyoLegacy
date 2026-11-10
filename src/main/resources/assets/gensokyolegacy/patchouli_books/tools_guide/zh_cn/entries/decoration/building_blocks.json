@@ -7,10 +7,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "tag:gensokyolegacy:noren",
-        "tag:gensokyolegacy:striped_noren",
-        "tag:gensokyolegacy:wavy_noren",
-        "tag:gensokyolegacy:long_noren"
+        {"tag": "gensokyolegacy:noren"},
+        {"tag": "gensokyolegacy:striped_noren"},
+        {"tag": "gensokyolegacy:wavy_noren"},
+        {"tag": "gensokyolegacy:long_noren"}
       ],
       "title": "门帘",
       "text": "门帘就是挂在门口的对开布帘。门帘共有素色、条纹、波浪纹和长款 4 种花纹，每种都有 16 种羊毛颜色。"
@@ -18,10 +18,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:red_lantern",
-        "gensokyolegacy:white_lantern",
-        "gensokyolegacy:lettered_red_lantern",
-        "gensokyolegacy:lettered_white_lantern"
+        {"item": "gensokyolegacy:red_lantern"},
+        {"item": "gensokyolegacy:white_lantern"},
+        {"item": "gensokyolegacy:lettered_red_lantern"},
+        {"item": "gensokyolegacy:lettered_white_lantern"}
       ],
       "title": "灯笼",
       "text": "四种灯笼，红白两色，各有素面与带字两种，亮度都足以单靠一盏照亮整间屋子，一串灯笼看上去就像一整条，"
@@ -35,9 +35,9 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:wrought_iron_bars",
-        "gensokyolegacy:wrought_iron_pillar",
-        "gensokyolegacy:candlestick"
+        {"item": "gensokyolegacy:wrought_iron_bars"},
+        {"item": "gensokyolegacy:wrought_iron_pillar"},
+        {"item": "gensokyolegacy:candlestick"}
       ],
       "title": "铁艺栏杆",
       "text": "上过黑漆的铁器，给人庄重感。"
@@ -45,10 +45,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:shoji_frame",
-        "gensokyolegacy:shoji_frame_pane",
-        "gensokyolegacy:paper_window",
-        "gensokyolegacy:paper_window_pane"
+        {"item": "gensokyolegacy:shoji_frame"},
+        {"item": "gensokyolegacy:shoji_frame_pane"},
+        {"item": "gensokyolegacy:paper_window"},
+        {"item": "gensokyolegacy:paper_window_pane"}
       ],
       "title": "纸制品",
       "text": "两种纸制的建筑方块，都各有整块与薄板两种形态。它们透光而不挡光，所以拿它们密闭房间依然能够保持亮度，也能当燃料烧。"
@@ -68,10 +68,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:ice_bricks",
-        "gensokyolegacy:ice_brick_stairs",
-        "gensokyolegacy:ice_brick_slab",
-        "gensokyolegacy:ice_brick_vertical_slab"
+        {"item": "gensokyolegacy:ice_bricks"},
+        {"item": "gensokyolegacy:ice_brick_stairs"},
+        {"item": "gensokyolegacy:ice_brick_slab"},
+        {"item": "gensokyolegacy:ice_brick_vertical_slab"}
       ],
       "title": "冰砖",
       "text": "用浮冰切出的建筑方块，也有楼梯、台阶和墙板三种形态。适合用于雪地中的建筑。"

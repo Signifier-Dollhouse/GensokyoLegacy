@@ -25,8 +25,8 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:minamitsu_anchor",
-        "gensokyolegacy:yuyuko_fan"
+        {"item": "gensokyolegacy:minamitsu_anchor"},
+        {"item": "gensokyolegacy:yuyuko_fan"}
       ],
       "title": "Spiritual Power",
       "text": "Some items carry a spiritual power pool, shown as a cyan bar:$(br2)$(l:special_tools/minamitsu_anchor)Minamitsu's Anchor$(/l)$(br)$(l:special_tools/yuyuko_fan)Yuyuko's Fan$(/l)",
@@ -40,10 +40,10 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:jizo",
-        "gensokyolegacy:jizo_straw_hat",
-        "gensokyolegacy:jizo_myouren",
-        "gensokyolegacy:jizo_narumi"
+        {"item": "gensokyolegacy:jizo"},
+        {"item": "gensokyolegacy:jizo_straw_hat"},
+        {"item": "gensokyolegacy:jizo_myouren"},
+        {"item": "gensokyolegacy:jizo_narumi"}
       ],
       "title": "Jizo",
       "text": "Right-click a Jizo with a spiritual item in hand. It takes one whole experience level and the progress into the next, and returns it as spiritual power: 2 per experience point by default. The four carvings differ only in look."
@@ -57,14 +57,14 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        "gensokyolegacy:large_water_lily",
-        "gensokyolegacy:small_water_lily",
-        "gensokyolegacy:tower_grass_small",
-        "gensokyolegacy:tower_grass_large",
-        "gensokyolegacy:spooky_bush",
-        "gensokyolegacy:locust_sapling",
-        "gensokyolegacy:locust_log",
-        "gensokyolegacy:locust_hollow_log"
+        {"item": "gensokyolegacy:large_water_lily"},
+        {"item": "gensokyolegacy:small_water_lily"},
+        {"item": "gensokyolegacy:tower_grass_small"},
+        {"item": "gensokyolegacy:tower_grass_large"},
+        {"item": "gensokyolegacy:spooky_bush"},
+        {"item": "gensokyolegacy:locust_sapling"},
+        {"item": "gensokyolegacy:locust_log"},
+        {"item": "gensokyolegacy:locust_hollow_log"}
       ],
       "title": "Lilies, Grass and Locust",
       "text": "Small and large water lilies float on the temple's pools. The large one has seven looks — pad, bud, bloom and seed pod among them — and right-clicking a placed lily cycles through them. Tower grass is harvested for Mystical Straw. Spooky bushes grow among the flowers. The locust, with its sapling, hollow log and fallen leaves, is the tree that grows back over a grave."
