@@ -1,97 +1,66 @@
-# 1.20.1 backport
+# 1.21.1 → 1.20.1 port notes
 
-Status: A0 (L2 libraries), B0 (FastProjectileAPI) and B1 (DanmakuAPI) are
-complete in their repos. A1 (mod bootstrap) is done — the Forge 1.20.1 build
-configures, resolves both classpaths and passes `prepareRuns`; no Java source
-has been ported yet. Current detail in [`state.md`](state.md), the source map
-in [`source-port.md`](source-port.md). Branch `backport`.
+The Forge 1.20.1 port is complete (`mod_version=1.0.7-beta.2+1.20.1`). This
+directory is no longer a work plan: it keeps the mapping tables that a future
+merge of 1.21.1 work into the 1.20.1 branch needs.
 
-Gensokyo Legacy is being moved from NeoForge 1.21.1 to Forge 1.20.1. This is a
-cross-generation port, not a loader swap: the 1.21 line of the L2 libraries was
-rewritten (registration, capabilities, networking, config), so the mod's
-dependency layer has to be rebuilt for 1.20.1 before any content compiles.
+- [`api.md`](api.md) — what changes between the 1.21.1 code and 1.20.1, by area.
+- [`libraries.md`](libraries.md) — the library versions the branch is frozen
+  at, and which 1.21 refactors are deliberately not ported.
 
-## Source and target
+## Target toolchain
 
-| | source | target |
+| | 1.21.1 source | 1.20.1 branch |
 |---|---|---|
-| loader | NeoForge 21.1.238 | Forge 47.1.3 |
+| loader | NeoForge 21.1.x | Forge 47.1.3 |
 | Java | 21 | 17 |
 | Gradle | 8.8 | 8.10 |
-| build plugin | `net.neoforged.moddev` 2.0.80 | `net.minecraftforge.gradle` `[6.0,6.2)` |
-| Registrate | `MC1.21-1.3.0+50` | `MC1.20-1.3.11` |
-| L2 base | l2core 3.0.8 | l2library 2.5.x + backported 3.x deltas |
+| build plugin | `net.neoforged.moddev` 2.0.80 | ForgeGradle `[6.0,6.2)` |
+| mappings | official | official |
+| access transformer | official names | SRG names |
+| mixin | `JAVA_21` | `JAVA_17` + refmap |
 | mod descriptor | `META-INF/neoforge.mods.toml` | `META-INF/mods.toml` |
-| `pack_format` | 9 (stale) | 15 |
-| mod version | `1.0.7-beta.1+1.21.1` | to be chosen |
+| `pack.mcmeta` | — | `pack_format` 15 |
+| Registrate | `MC1.21-1.3.0+50` | `MC1.20-1.3.11` |
+| L2 base | `l2core` 3.x | `l2library` 2.5.7 + `compat/l2lib` shims |
 
-Reference implementation: `~/git/delight/Youkai-Homecoming-1.20` (Youkai's
-Feasts, Forge 1.20.1). It is a guide, not an oracle: it ships a stale
-`pack.mcmeta` (9), imports `fastprojectileapi` without declaring it, and has
-Touhou Little Maid commented out.
+## Merging a 1.21.1 change
 
-## Scale
+1. Bring the source change over with a normal merge, then compile. Do not
+   merge generated resources by hand; regenerate them (step 5).
+2. Rewrite the imports with the tables in [`api.md`](api.md) §1: `l2core`,
+   `l2serial`, `l2modularblock`, `l2menustacker`, `l2itemselector.overlay` and
+   `net.neoforged`. Java 21-only syntax is listed in §2.
+3. Adapt the constructs that are not import swaps: registration (§3),
+   attachments/capabilities (§4), packets (§5), data components (§6), data
+   maps (§7), events (§11) and client/rendering (§12).
+4. Watch the mixin and access-transformer traps in §15. `defaultRequire: 1`
+   makes a missing target a hard failure, so a renamed vanilla method shows up
+   as a startup crash, not a compile error.
+5. `./gradlew compileJava`, then `./gradlew runData` once the code compiles.
+6. Run `python3 tools/export_dialogs.py` if dialogs or quests changed, and the
+   `organize.ResourceOrganizer` main if zh_cn changed. Commit generated output
+   with the source change.
+7. `./gradlew build` and one `runClient` before calling the merge done.
 
-- 1,205 Java files, 97,502 lines.
-- 21 mixins, 48 packet classes, 136 attachment files, 71 datagen classes.
-- 2,971 generated resource files.
-- 91 files depend on danmaku / fast-projectile APIs.
+## Build notes
 
-Library imports in `src/main/java`:
-
-| package | imports |
-|---|---|
-| `dev.xkmc.l2serial` | 283 |
-| `dev.xkmc.danmakuapi` | 260 |
-| `dev.xkmc.l2modularblock` | 158 |
-| `dev.xkmc.l2core` | 127 |
-| `dev.xkmc.l2itemselector` | 52 |
-| `dev.xkmc.fastprojectileapi` | 24 |
-| `dev.xkmc.l2menustacker` | 22 |
-| `dev.xkmc.l2damagetracker` | 15 |
-| `dev.xkmc.l2tabs` | 11 |
-| `dev.xkmc.l2library` | 5 |
-
-`l2harvester` is never imported, but it is jar-in-jar'd: `youkaisfeasts`
-declares it a mandatory dependency and the slim build does not ship it.
-
-## Decisions
-
-Resolved:
-
-| # | decision | choice |
-|---|---|---|
-| D1 | loader target | Forge 1.20.1 only |
-| D2 | L2 strategy | 1.20.1 L2 2.x with the legacy API; add only the contents the mod needs; L2Library-1.20 stands in for L2Core |
-| D3 | danmaku | port DanmakuAPI and FastProjectileAPI, using `Youkai-Homecoming-1.20` `main` as the 1.20.1 reference |
-| D4 | data components | shim layer over NBT, keep call sites |
-| D12 | data maps | `BaseConfig` / `ConfigTypeEntry` in l2library 1.20.1, not a custom reload listener |
-| D19 | L2DamageTracker, L2Tabs | target the legacy 1.20.1 API; do not backport the 1.21.1 refactor |
-| D20 | L2Serial | legacy 1.20.1 API; backport fixes only, no 3.x packet model |
-| D21 | L2Library / L2Core | legacy 1.20.1 API and class location; backport the missing classes into `dev.xkmc.l2library` |
-| D22 | L2ItemSelector | legacy 1.20.1 API; overlay lives in `l2library.base.overlay` |
-| D23 | L2ModularBlock | backport the 3.x contents, keep the legacy class location (no `core/` move) |
-| O2 | `DoubleBlockImpl` | restore the missing 1.21.1 content first, then port it down |
-| O3 | Touhou Little Maid | keep; same integration exists in Youkai-Homecoming-1.20 |
-| O4 | l2harvester | not ported and never imported; jar-in-jar the 1.20.1 build because `youkaisfeasts` requires it |
-| O5 | L2ScreenTracker | use the legacy `l2screentracker` names; backport `CacheMouseToClient` / `MouseCache` |
-| O6 | registration framework | mod-side compat layer on need; no `init/reg` additions to the L2Library jar |
-| O7 | BaseConfig reads | confirmed: `ConfigTypeEntry.getEntry(id)` + `PacketHandlerWithConfig` |
-| D24 | L2 dependencies | L2Library slim is an explicit external dependency; the jars it ships are `implementation`; only non-shipped libraries are `jarJar`'d |
-
-No open decisions remain; the library work plan is in
-[`library-plan.md`](library-plan.md).
-
-The L2Core enchantment system is explicitly out of scope for 1.20.1.
-`DataGenHolder` is the one exception — it lives in that package but is a generic
-datagen holder used by the mod.
-
-## Documents
-
-- [`state.md`](state.md) — current work state: versions, artifacts, blockers.
-- [`source-port.md`](source-port.md) — compile baseline, mechanical rewrites, compat surface, port order.
-- [`libraries.md`](libraries.md) — per-library state, 3.x deltas, jar/source gaps.
-- [`discrepancies.md`](discrepancies.md) — class- and signature-level API differences.
-- [`library-plan.md`](library-plan.md) — jar-by-jar work plan, build order, outputs.
-- [`plan.md`](plan.md) — workstreams, phase order, exit criteria, risks.
-- [`decisions.md`](decisions.md) — decision log with rationale.
+- `java.toolchain.languageVersion = 17`; Gradle itself runs on JDK 17–21.
+  The library repos still on Gradle 7.3 must run on JDK 17
+  (`Unsupported class file major version 65` otherwise).
+- `systemProp.fg.repo.recompile=false` in `gradle.properties` is load-bearing:
+  ForgeGradle must use the AT-applied mapped jar, not recompile it.
+- ForgeGradle's certificate check fails against `maven.minecraftforge.net` on
+  this machine; pass `-Dnet.minecraftforge.gradle.check.certs=false` when a
+  dependency download fails. `--offline` is safe after the first resolve.
+- A clean build of a project that declares an AT can race two configurations
+  resolving the generated AT variant (`imtd is null`, missing `..._at_...`
+  variant). Wipe `build/`, resolve one configuration, then build.
+- `libs/` is `flatDir`: sources jars are not resolved automatically. Attach the
+  matching `-sources.jar` manually in the IDE.
+- `python3 tools/stripjarjar.py <jar>` after every re-export of
+  `youkaisfeasts`: its jar-in-jar payload duplicates the L2 jars on the dev
+  classpath and splits packages. See `doc/tools.md`.
+- Java 21 source constructs: record patterns (`instanceof X(...)`) occur in the
+  1.21.1 tree. `Math.clamp` and `List.getFirst/getLast` are the other common
+  ones.

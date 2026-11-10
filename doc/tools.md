@@ -158,7 +158,8 @@ change it describes.
 The mod jars under `libs/` are real published builds, so `youkaisfeasts` carries
 `META-INF/jarjar/` — `metadata.json` plus a copy of Registrate, `l2core`,
 `l2serial`, `l2damagetracker`, `l2modularblocks`, `l2harvester` and TerraBlender.
-That duplicates libraries this project already declares as `jarJar(...)`, which is
+That duplicates libraries this project already puts on the classpath
+(`jarJar(...)` or `implementation`), which is
 the JPMS split-package failure the dev launcher cannot work around from any
 dependency scope. Strip the payload so the host mod supplies them:
 

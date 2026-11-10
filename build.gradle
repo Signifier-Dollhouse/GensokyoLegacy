@@ -157,6 +157,11 @@ dependencies {
     implementation fg.deobf("dev.xkmc.l2modularblock:l2modularblock:${l2modularblock_version}")
     implementation fg.deobf("dev.xkmc.l2itemselector:l2itemselector:${l2itemselector_version}")
 
+    // External mod dependencies, not jar-in-jar'd. l2harvester is only required
+    // by youkaisfeasts; GensokyoLegacy never imports it.
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:${geckolib_version}")
+    implementation fg.deobf("dev.xkmc.l2harvester:l2harvester:${l2harvester_version}")
+
     // Not carried by L2Library.
     implementation fg.deobf(jarJar("dev.xkmc.l2damagetracker:l2damagetracker:${l2damagetracker_version}")) {
         transitive = false
@@ -169,14 +174,6 @@ dependencies {
     implementation fg.deobf(jarJar("dev.xkmc.danmakuapi:danmaku_api:${danmaku_api_version}")) {
         transitive = false
         jarJar.ranged(it, mavenRange(danmaku_api_version))
-    }
-    implementation fg.deobf(jarJar("dev.xkmc.l2harvester:l2harvester:${l2harvester_version}")) {
-        transitive = false
-        jarJar.ranged(it, "[${l2harvester_version},)")
-    }
-    implementation fg.deobf(jarJar("software.bernie.geckolib:geckolib-forge-1.20.1:${geckolib_version}")) {
-        transitive = false
-        jarJar.ranged(it, "[${geckolib_version},)")
     }
     implementation fg.deobf(jarJar("com.github.glitchfiend:TerraBlender-forge:${terrablender_version}")) {
         transitive = false
@@ -274,7 +271,7 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
     mainFile.addEnvironment("Client", "Server")
     mainFile.addGameVersion("1.20.1")
     mainFile.addModLoader("Forge")
-    mainFile.addRequirement("curios", "patchouli")
+    mainFile.addRequirement("l2library", "geckolib", "curios", "patchouli")
     mainFile.releaseType = "release"
     disableVersionDetection()
 }
@@ -290,6 +287,8 @@ modrinth {
     loaders = ["forge"]
     changelog = new File('./changelog.txt').text.split("\n\n")[0]
     dependencies {
+        required.project "l2library"
+        required.project "geckolib"
         required.project "curios"
         required.project "patchouli"
     }

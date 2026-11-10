@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  * Item data registration for 1.20.1. There is no component registry to write to; each value
  * is a named NBT entry, so registration simply builds the accessor. See
- * {@code doc/backport/source-port.md} for the call-site rewrite.
+ * {@code doc/backport/api.md} §6 for the call-site rewrite.
  */
 public record DCReg() {
 
