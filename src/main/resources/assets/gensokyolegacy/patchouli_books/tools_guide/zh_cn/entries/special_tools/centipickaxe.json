@@ -1,9 +1,9 @@
 {
   "name": "百百世的镐",
   "icon": "gensokyolegacy:centipickaxe",
-  "category": "gensokyolegacy:misc_tools",
+  "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_centipickaxe",
-  "sortnum": 1,
+  "sortnum": 14,
   "pages": [
     {
       "type": "patchouli:spotlight",

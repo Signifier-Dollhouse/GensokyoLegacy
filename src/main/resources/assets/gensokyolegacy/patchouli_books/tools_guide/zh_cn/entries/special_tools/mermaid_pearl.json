@@ -1,9 +1,9 @@
 {
   "name": "人鱼珍珠",
   "icon": "gensokyolegacy:mermaid_pearl",
-  "category": "gensokyolegacy:misc_tools",
+  "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_mermaid_pearl",
-  "sortnum": 3,
+  "sortnum": 16,
   "pages": [
     {
       "type": "patchouli:spotlight",

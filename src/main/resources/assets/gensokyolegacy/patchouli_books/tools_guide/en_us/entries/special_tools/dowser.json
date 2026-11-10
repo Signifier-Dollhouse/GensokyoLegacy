@@ -1,9 +1,9 @@
 {
   "name": "Nazrin's Dowser",
   "icon": "gensokyolegacy:dowser",
-  "category": "gensokyolegacy:misc_tools",
+  "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_dowser",
-  "sortnum": 2,
+  "sortnum": 15,
   "pages": [
     {
       "type": "patchouli:spotlight",
