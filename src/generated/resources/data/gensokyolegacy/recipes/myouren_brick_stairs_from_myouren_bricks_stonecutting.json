@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "gensokyolegacy:myouren_bricks"
+  },
+  "result": "gensokyolegacy:myouren_brick_stairs"
+}

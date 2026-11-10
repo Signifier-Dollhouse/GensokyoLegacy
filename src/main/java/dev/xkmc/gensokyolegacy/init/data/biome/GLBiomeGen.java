@@ -1,8 +1,8 @@
 package dev.xkmc.gensokyolegacy.init.data.biome;
 
-import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import net.minecraft.core.registries.Registries;
@@ -45,7 +45,7 @@ public class GLBiomeGen {
 	}
 
 	public static final ProviderType<RegistrateTagsProvider.Impl<Biome>> BIOME_TAG =
-			DataProviderInitializer.dynamicTag("biome");
+			DataProviderInitializer.dynamicTag("biome", Registries.BIOME);
 
 	public static final TagKey<Biome> CIRNO_NEST = biomeTag("has_structure/cirno_nest");
 	public static final TagKey<Biome> HAKUREI_SHRINE = biomeTag("has_structure/hakurei_shrine");
@@ -54,13 +54,15 @@ public class GLBiomeGen {
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
-	/** Our own copies of the overworld's biome categories, same names in our own namespace.
+	/**
+	 * Our own copies of the overworld's biome categories, same names in our own namespace.
 	 *
-	 *  <p>Gensokyo biomes deliberately stay out of {@code minecraft:is_forest} and the rest. Those are shared
-	 *  vocabulary: every mod that ships a forest biome writes to the same tag, so what is in them is a claim about
-	 *  the biome that other mods read to decide their own behaviour — a mod testing {@code c:is_forest} for "put
-	 *  mushrooms down" would start finding them on a cliff it cannot see. Ours are the same classification without
-	 *  the side effect, and reading both pairs is fine, which is what {@link #PLAIN_FAIRY_SPAWN} does. */
+	 * <p>Gensokyo biomes deliberately stay out of {@code minecraft:is_forest} and the rest. Those are shared
+	 * vocabulary: every mod that ships a forest biome writes to the same tag, so what is in them is a claim about
+	 * the biome that other mods read to decide their own behaviour — a mod testing {@code c:is_forest} for "put
+	 * mushrooms down" would start finding them on a cliff it cannot see. Ours are the same classification without
+	 * the side effect, and reading both pairs is fine, which is what {@link #PLAIN_FAIRY_SPAWN} does.
+	 */
 	public static final TagKey<Biome> IS_MAGICAL = biomeTag("is_magical");
 	public static final TagKey<Biome> IS_FOREST = biomeTag("is_forest");
 	public static final TagKey<Biome> IS_PLAINS = biomeTag("is_plains");
@@ -75,9 +77,11 @@ public class GLBiomeGen {
 	public static final TagKey<Biome> IS_DRY = biomeTag("is_dry");
 	public static final TagKey<Biome> IS_TAIGA = biomeTag("is_taiga");
 
-	/** Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
-	 *  the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
-	 *  Spelled out rather than imported because that mod is compile-only. */
+	/**
+	 * Youkai's Feasts' own cherry tag, written by our datagen run: a tag provider writes to the namespace of
+	 * the tag it is handed, so this is the only way to reach a foreign tag without a hand-written file.
+	 * Spelled out rather than imported because that mod is compile-only.
+	 */
 	public static final TagKey<Biome> YSF_CHERRY_BIOMES = TagKey.create(Registries.BIOME,
 			new ResourceLocation("youkaisfeasts", "cherry_biomes"));
 
@@ -152,6 +156,10 @@ public class GLBiomeGen {
 		pvd.addTag(IS_DRY).add(MyourenTempleBarrensBiomeGen.KEY);
 		pvd.addTag(IS_TAIGA).add(BambooForestOfTheLostBiomeGen.KEY)
 				.add(UntroddenValleyBiomeGen.KEY);
+	}
+
+	public static void register() {
+
 	}
 
 }

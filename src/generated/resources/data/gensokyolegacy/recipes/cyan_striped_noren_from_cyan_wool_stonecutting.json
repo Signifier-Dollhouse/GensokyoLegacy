@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "minecraft:cyan_wool"
+  },
+  "result": "gensokyolegacy:cyan_striped_noren"
+}

@@ -27,7 +27,6 @@
                 "data": {
                   "Name": "minecraft:skeleton_skull",
                   "Properties": {
-                    "powered": "false",
                     "rotation": "0"
                   }
                 },

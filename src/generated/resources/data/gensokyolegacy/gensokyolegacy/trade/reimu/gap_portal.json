@@ -29,7 +29,7 @@
     "restockTime": 6000
   },
   "result": {
-    "count": 1,
+    "Count": 1,
     "id": "gensokyolegacy:gap_portal"
   }
 }

@@ -3,7 +3,7 @@
     "parent": "gensokyolegacy:custom/minamitsu_anchor"
   },
   "gui_light": "front",
-  "loader": "neoforge:separate_transforms",
+  "loader": "forge:separate_transforms",
   "overrides": [
     {
       "model": "gensokyolegacy:item/minamitsu_anchor_voyage",

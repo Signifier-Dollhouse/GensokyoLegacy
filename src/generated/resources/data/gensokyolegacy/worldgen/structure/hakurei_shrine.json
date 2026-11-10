@@ -1,13 +1,15 @@
 {
   "type": "gensokyolegacy:flat_check",
-  "biomes": "#gensokyolegacy:has_structure/hakurei_shrine",
-  "height_tolerance": 5,
-  "max_distance_from_center": 80,
-  "set": "gensokyolegacy:hakurei_shrine",
-  "size": 6,
-  "spawn_overrides": {},
-  "start_pool": "gensokyolegacy:hakurei_shrine/root",
-  "step": "underground_decoration",
-  "terrain_adaptation": "beard_thin",
-  "use_expansion_hack": false
+  "value": {
+    "biomes": "#gensokyolegacy:has_structure/hakurei_shrine",
+    "height_tolerance": 5,
+    "max_distance_from_center": 80,
+    "set": "gensokyolegacy:hakurei_shrine",
+    "size": 6,
+    "spawn_overrides": {},
+    "start_pool": "gensokyolegacy:hakurei_shrine/root",
+    "step": "underground_decoration",
+    "terrain_adaptation": "beard_thin",
+    "use_expansion_hack": false
+  }
 }

@@ -17,10 +17,10 @@
     "restockTime": 24000
   },
   "result": {
-    "components": {
+    "Count": 1,
+    "id": "patchouli:guide_book",
+    "tag": {
       "patchouli:book": "gensokyolegacy:tools_guide"
-    },
-    "count": 1,
-    "id": "patchouli:guide_book"
+    }
   }
 }

@@ -8,10 +8,8 @@ import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.client.HeadPossession;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
-import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
@@ -43,8 +41,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.common.MinecraftForge;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -52,7 +48,6 @@ public class GLClient {
 
 	@SubscribeEvent
 	public static void clientSetup(FMLClientSetupEvent event) {
-		MinecraftForge.EVENT_BUS.register(GLClient.class);
 		event.enqueueWork(() -> {
 			QuestTab.TOKEN = TabRegistry.registerTab(3750, QuestTab::new, () -> Items.BOOK, GLLang.Quest.TAB.get());
 			ItemProperties.register(GLItems.BORDER_UMBRELLA.get(), GensokyoLegacy.loc("umbrella_open"), BorderUmbrellaItem::isOpen);
@@ -79,24 +74,6 @@ public class GLClient {
 			GLItems.COIN.get().getTypeForRender();
 			ProjectileRenderHelper.setup();
 		});
-	}
-
-	@SubscribeEvent
-	public static void clientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END) return;
-		// the shared glove target cache (glove.md §2) traces for whichever gloves are held,
-		// so it is driven from one place rather than from every glove's inventoryTick
-		GloveTargetCache.tick();
-		// after the level tick, so the head under a possessed camera reports the frame it
-		// just flew rather than the keys it has not pressed yet
-		HeadPossession.tick();
-	}
-
-	@SubscribeEvent
-	public static void clientTickPre(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.START) return;
-		// before the level tick, so the head flies on this frame's keys rather than last frame's
-		HeadPossession.readInput();
 	}
 
 	@SubscribeEvent

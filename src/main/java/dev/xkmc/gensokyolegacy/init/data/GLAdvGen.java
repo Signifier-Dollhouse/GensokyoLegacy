@@ -212,7 +212,7 @@ public class GLAdvGen {
 				.type(FrameType.TASK, true, true, false);
 		spiritualTool.create("gain_spiritual", GLItems.GOLDEN_LOTUS_TEA.get(),
 						CriterionBuilder.one(EffectsChangedTrigger.TriggerInstance.hasEffects(
-								MobEffectsPredicate.ANY.and(GLEffects.SPIRITUAL.get()))),
+								MobEffectsPredicate.effects().and(GLEffects.SPIRITUAL.get()))),
 						"Spiritual Surge", "Gain the Spiritual effect")
 				.type(FrameType.TASK, true, true, false);
 		hakurei.create("obtain_talisman", GLTalismans.HEAL_TALISMAN.get(),

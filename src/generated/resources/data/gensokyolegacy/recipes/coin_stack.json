@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    },
+    {
+      "item": "gensokyolegacy:coin"
+    }
+  ],
+  "result": {
+    "item": "gensokyolegacy:coin_stack"
+  }
+}

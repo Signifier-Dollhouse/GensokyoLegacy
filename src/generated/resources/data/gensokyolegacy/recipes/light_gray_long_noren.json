@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "gensokyolegacy:long_noren"
+    },
+    {
+      "tag": "forge:dyes/light_gray"
+    }
+  ],
+  "result": {
+    "item": "gensokyolegacy:light_gray_long_noren"
+  }
+}

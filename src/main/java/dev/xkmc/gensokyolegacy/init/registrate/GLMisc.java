@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.registrate;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
+import dev.xkmc.gensokyolegacy.compat.l2lib.*;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutScreen;
@@ -11,12 +12,16 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.pocket.TalismanPocketScreen
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeMenu;
 import dev.xkmc.gensokyolegacy.content.ui.trade.TradeScreen;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.compat.l2lib.SR;
-import dev.xkmc.gensokyolegacy.compat.l2lib.Val;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class GLMisc {
+
+	private static final CdcReg<IGlobalLootModifier> RM = CdcReg.of(GensokyoLegacy.REG, ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS);
+
+	private static final CdcVal<AddItemModifier> ADD_ITEM = RM.reg("add_item", AddItemModifier.CODEC);
 
 	private static final SR<LootItemConditionType> LIC = SR.of(GensokyoLegacy.REG, Registries.LOOT_CONDITION_TYPE);
 	/**

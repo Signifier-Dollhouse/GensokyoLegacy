@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "minecraft:purple_wool"
+  },
+  "result": "gensokyolegacy:purple_long_noren"
+}

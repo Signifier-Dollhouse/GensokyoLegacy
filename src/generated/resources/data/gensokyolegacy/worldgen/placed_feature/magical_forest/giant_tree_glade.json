@@ -3,10 +3,12 @@
   "placement": [
     {
       "type": "gensokyolegacy:jittered_grid",
-      "cell": 28,
-      "chance": 0.4,
-      "margin": 5,
-      "salt": 7310001
+      "value": {
+        "cell": 28,
+        "chance": 0.4,
+        "margin": 5,
+        "salt": 7310001
+      }
     },
     {
       "type": "gensokyolegacy:noise_band",

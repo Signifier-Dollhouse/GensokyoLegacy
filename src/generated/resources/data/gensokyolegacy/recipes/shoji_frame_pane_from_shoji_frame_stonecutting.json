@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 4,
+  "ingredient": {
+    "item": "gensokyolegacy:shoji_frame"
+  },
+  "result": "gensokyolegacy:shoji_frame_pane"
+}

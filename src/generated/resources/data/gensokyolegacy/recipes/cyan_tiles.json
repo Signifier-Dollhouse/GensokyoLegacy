@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "minecraft:deepslate_tiles"
+    },
+    "X": {
+      "item": "minecraft:cyan_dye"
+    }
+  },
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "result": {
+    "count": 8,
+    "item": "gensokyolegacy:cyan_tiles"
+  },
+  "show_notification": true
+}

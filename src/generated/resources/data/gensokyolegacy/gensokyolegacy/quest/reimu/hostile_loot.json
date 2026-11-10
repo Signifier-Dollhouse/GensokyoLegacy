@@ -161,17 +161,13 @@
     "a-zombie": {
       "type": "gensokyolegacy:kill_mob",
       "count": 10,
-      "target": {
-        "type": "#minecraft:zombies"
-      },
+      "target": "gensokyolegacy:zombies",
       "text": "gensokyolegacy/reimu/hostile_loot/requirement/zombie"
     },
     "b-skeleton": {
       "type": "gensokyolegacy:kill_mob",
       "count": 10,
-      "target": {
-        "type": "#minecraft:skeletons"
-      },
+      "target": "minecraft:skeletons",
       "text": "gensokyolegacy/reimu/hostile_loot/requirement/skeleton"
     },
     "c-loot": {

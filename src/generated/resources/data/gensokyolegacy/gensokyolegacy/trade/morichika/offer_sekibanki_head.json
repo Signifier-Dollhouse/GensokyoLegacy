@@ -17,7 +17,7 @@
     "restockTime": 168000
   },
   "result": {
-    "count": 1,
+    "Count": 1,
     "id": "gensokyolegacy:sekibanki_head"
   }
 }

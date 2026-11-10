@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "gensokyolegacy:star_flower"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "I I",
+    "IFI",
+    "III"
+  ],
+  "result": {
+    "item": "gensokyolegacy:alchemy_pot"
+  },
+  "show_notification": true
+}

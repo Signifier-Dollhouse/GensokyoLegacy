@@ -1,0 +1,107 @@
+{
+  "criteria": {
+    "0": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "gensokyolegacy:magical_forest"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "1": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "gensokyolegacy:sakura_forest"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "2": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "gensokyolegacy:myouren_temple_barrens"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "3": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "gensokyolegacy:gap"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "4": {
+      "conditions": {
+        "entity": {
+          "type": "#gensokyolegacy:feedable_fairies"
+        }
+      },
+      "trigger": "gensokyolegacy:feed_fairy"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "gensokyolegacy:textures/gui/advancements/backgrounds/main.png",
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.welcome.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:border_umbrella"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.welcome.title"
+    }
+  },
+  "requirements": [
+    [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "gensokyolegacy:tools_guide"
+    ]
+  },
+  "sends_telemetry_event": true
+}

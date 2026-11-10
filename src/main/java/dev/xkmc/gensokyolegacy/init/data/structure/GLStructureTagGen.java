@@ -30,7 +30,7 @@ public class GLStructureTagGen {
 	 * shrine" style lookups are written against them.
 	 */
 	public static final ProviderType<RegistrateTagsProvider.Impl<Structure>> STRUCTURE_TAG =
-			DataProviderInitializer.dynamicTag("structure");
+			DataProviderInitializer.dynamicTag("structure", Registries.STRUCTURE);
 
 	public static final TagKey<Structure> CIRNO_NEST_STRUCTURE = structureTag("cirno_nest");
 	public static final TagKey<Structure> HAKUREI_SHRINE_STRUCTURE = structureTag("hakurei_shrine");
@@ -238,6 +238,10 @@ public class GLStructureTagGen {
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("ice_brick_stairs"));
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_chair"));
+	}
+
+	public static void register() {
+
 	}
 
 }

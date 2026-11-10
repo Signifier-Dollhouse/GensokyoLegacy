@@ -5,6 +5,7 @@
   - ILivingEntityExtension interface mixin: override the method in LivingEntity and mixin the method (so that it doesn't conflict with other mods doing the same)
   - gravity attribute get value in travel: check if the attribute instance is indeed gravity.
   - never use overwrite or redirect
+- Why CodecRegistry not using vanilla registry anymore?
 
 Debug and testing focus:
 - item container slot check if dupe could be possible

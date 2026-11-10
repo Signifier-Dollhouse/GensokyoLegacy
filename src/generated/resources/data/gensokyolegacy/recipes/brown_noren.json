@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "gensokyolegacy:noren"
+    },
+    {
+      "tag": "forge:dyes/brown"
+    }
+  ],
+  "result": {
+    "item": "gensokyolegacy:brown_noren"
+  }
+}

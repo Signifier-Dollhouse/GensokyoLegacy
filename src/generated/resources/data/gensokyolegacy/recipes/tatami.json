@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "T": {
+      "item": "gensokyolegacy:tatami_block"
+    }
+  },
+  "pattern": [
+    "TTT"
+  ],
+  "result": {
+    "count": 16,
+    "item": "gensokyolegacy:tatami"
+  },
+  "show_notification": true
+}

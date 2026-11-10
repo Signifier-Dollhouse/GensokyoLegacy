@@ -1,0 +1,42 @@
+{
+  "parent": "gensokyolegacy:main/welcome",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "structure": "gensokyolegacy:morichika_shop"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.enter_morichika_shop.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:coin"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.enter_morichika_shop.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -17,20 +17,27 @@
     "restockTime": 12000
   },
   "result": {
-    "components": {
-      "minecraft:potion_contents": {
-        "custom_color": -3318613,
-        "custom_effects": [
-          {
-            "amplifier": 1,
-            "duration": 900,
-            "id": "minecraft:regeneration",
-            "show_icon": true
-          }
-        ]
-      }
-    },
-    "count": 1,
-    "id": "gensokyolegacy:witch_hexbrew_bottle"
+    "Count": 1,
+    "id": "gensokyolegacy:witch_hexbrew_bottle",
+    "tag": {
+      "CustomPotionColor": 13458603,
+      "CustomPotionEffects": [
+        {
+          "Ambient": 0,
+          "Amplifier": 1,
+          "CurativeItems": [
+            {
+              "Count": 1,
+              "id": "minecraft:milk_bucket"
+            }
+          ],
+          "Duration": 900,
+          "Id": 10,
+          "ShowIcon": 1,
+          "ShowParticles": 1,
+          "forge:id": "minecraft:regeneration"
+        }
+      ]
+    }
   }
 }

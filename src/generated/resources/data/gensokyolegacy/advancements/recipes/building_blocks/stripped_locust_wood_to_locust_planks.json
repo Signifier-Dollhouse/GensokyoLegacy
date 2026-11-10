@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_stripped_locust_wood": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:stripped_locust_wood"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:stripped_locust_wood_to_locust_planks"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_stripped_locust_wood",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:stripped_locust_wood_to_locust_planks"
+    ]
+  },
+  "sends_telemetry_event": false
+}

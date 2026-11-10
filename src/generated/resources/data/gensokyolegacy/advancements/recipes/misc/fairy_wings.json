@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fairy_dust": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:fairy_dust"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:fairy_wings"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_fairy_dust",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:fairy_wings"
+    ]
+  },
+  "sends_telemetry_event": false
+}

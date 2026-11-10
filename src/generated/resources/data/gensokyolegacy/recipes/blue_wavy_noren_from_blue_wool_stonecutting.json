@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "minecraft:blue_wool"
+  },
+  "result": "gensokyolegacy:blue_wavy_noren"
+}

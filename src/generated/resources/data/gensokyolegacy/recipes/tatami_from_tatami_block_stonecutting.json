@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 8,
+  "ingredient": {
+    "item": "gensokyolegacy:tatami_block"
+  },
+  "result": "gensokyolegacy:tatami"
+}

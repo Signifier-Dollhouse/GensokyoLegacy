@@ -1,0 +1,30 @@
+{
+  "parent": "gensokyolegacy:main/gravestone_summon",
+  "criteria": {
+    "0": {
+      "conditions": {},
+      "trigger": "gensokyolegacy:bind_ghost"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.bind_ghost.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:bone_flute"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.bind_ghost.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

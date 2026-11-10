@@ -17,7 +17,7 @@
     "restockTime": 24000
   },
   "result": {
-    "count": 1,
+    "Count": 1,
     "id": "gensokyolegacy:lava_talisman"
   }
 }

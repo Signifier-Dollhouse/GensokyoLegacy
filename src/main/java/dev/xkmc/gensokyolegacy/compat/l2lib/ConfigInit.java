@@ -16,6 +16,8 @@ import java.util.function.Supplier;
  */
 public class ConfigInit {
 
+	private static boolean titleAdded = false;
+
 	private String folder = null;
 	private String path = "";
 
@@ -58,7 +60,10 @@ public class ConfigInit {
 		val.path = path;
 		val.type = type;
 		val.spec = spec;
-		reg.addRawLang(reg.getModid() + ".configuration.title", "Configuration");
+		if (!titleAdded) {
+			titleAdded = true;
+			reg.addRawLang(reg.getModid() + ".configuration.title", "Configuration");
+		}
 	}
 
 	public static class Builder extends ForgeConfigSpec.Builder {

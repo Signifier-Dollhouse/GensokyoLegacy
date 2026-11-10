@@ -1,0 +1,38 @@
+{
+  "parent": "gensokyolegacy:main/enter_alice_house",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:doll_glove"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_doll_glove.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:doll_glove"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_doll_glove.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

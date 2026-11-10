@@ -17,18 +17,22 @@
       "type": "gensokyolegacy:grid_exclusion",
       "layers": [
         {
-          "cell": 28,
-          "chance": 0.85,
           "distance": 5,
-          "margin": 5,
-          "salt": 7310001
+          "layer": {
+            "cell": 28,
+            "chance": 0.85,
+            "margin": 5,
+            "salt": 7310001
+          }
         },
         {
-          "cell": 18,
-          "chance": 0.95,
           "distance": 4,
-          "margin": 3,
-          "salt": 7310002
+          "layer": {
+            "cell": 18,
+            "chance": 0.95,
+            "margin": 3,
+            "salt": 7310002
+          }
         }
       ]
     },

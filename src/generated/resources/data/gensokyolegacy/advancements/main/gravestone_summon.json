@@ -1,0 +1,30 @@
+{
+  "parent": "gensokyolegacy:main/welcome",
+  "criteria": {
+    "0": {
+      "conditions": {},
+      "trigger": "gensokyolegacy:gravestone_summon"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.gravestone_summon.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:gravestone"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.gravestone_summon.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

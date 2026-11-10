@@ -1,0 +1,39 @@
+{
+  "parent": "gensokyolegacy:main/obtain_cat_bell",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:centipickaxe"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_centipickaxe.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:centipickaxe",
+      "nbt": "{Damage:0,Enchantments:[{id:\"minecraft:efficiency\",lvl:5s},{id:\"minecraft:fortune\",lvl:3s},{id:\"minecraft:mending\",lvl:1s}]}"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_centipickaxe.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

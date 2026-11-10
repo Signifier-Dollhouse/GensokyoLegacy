@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "item": "gensokyolegacy:black_tiles"
+  },
+  "result": "gensokyolegacy:black_tiles_vertical_slab"
+}

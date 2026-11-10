@@ -2,31 +2,31 @@ package dev.xkmc.gensokyolegacy.init;
 
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
-import dev.xkmc.gensokyolegacy.content.spell.card.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.compat.datagen.GLDatapackProvider;
+import dev.xkmc.gensokyolegacy.compat.l2lib.GLRegistrate;
+import dev.xkmc.gensokyolegacy.compat.l2lib.Reg;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
 import dev.xkmc.gensokyolegacy.content.cooldown.CooldownRates;
 import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
-import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
-import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
-import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
-import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrewWrapper;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaSelectionListener;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.spell.card.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.event.GLAttackListener;
 import dev.xkmc.gensokyolegacy.event.GLClickHandler;
 import dev.xkmc.gensokyolegacy.init.data.*;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeModifierGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLOverworldRegion;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
 import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.*;
@@ -35,56 +35,33 @@ import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureLootGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureTagGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.ReportBlocksInStructure;
 import dev.xkmc.gensokyolegacy.init.registrate.*;
-import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.mixin.ItemAccessor;
 import dev.xkmc.gensokyolegacy.util.ProjectileDispenser;
-import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
-import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkAreaAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.doll.DollAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.glove.GloveTargetAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.home.core.StructureAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.misc.ChunkMiscDataAttachment;
-import dev.xkmc.gensokyolegacy.content.attachment.misc.FrogGodCapability;
-import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
-import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
-import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
-import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
-import dev.xkmc.gensokyolegacy.compat.l2lib.GLRegistrate;
-import dev.xkmc.gensokyolegacy.compat.l2lib.Reg;
 import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
-import dev.xkmc.l2library.serial.config.PacketHandler;
 import dev.xkmc.l2library.capability.entity.GeneralCapabilityHolder;
+import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
+import dev.xkmc.l2library.serial.config.PacketHandler;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
-import net.minecraftforge.data.event.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import terrablender.api.Regions;
 import vazkii.patchouli.api.PatchouliAPI;
 
-import java.util.Arrays;
 import java.util.Set;
 
 @Mod(GensokyoLegacy.MODID)
-@EventBusSubscriber(modid = GensokyoLegacy.MODID)
+@EventBusSubscriber(modid = GensokyoLegacy.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class GensokyoLegacy {
 
 	public static final Logger LOGGER = LogManager.getLogger();
@@ -122,34 +99,9 @@ public class GensokyoLegacy {
 
 		new GLClickHandler(loc("main"));
 		AttackEventHandler.register(1765, new GLAttackListener());
-	}
 
-	@SubscribeEvent
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		// Block-entity and item providers are attached on their owners in 1.20.1; this only
-		// declares the attachment-style capability types, which are keyed by the class token.
-		event.register(CharacterAttachment.class);
-		event.register(QuestAttachment.class);
-		event.register(TradeAttachment.class);
-		event.register(StructureAttachment.class);
-		event.register(KoishiAttackCapability.class);
-		event.register(DollAttachment.class);
-		event.register(GloveTargetAttachment.class);
-		event.register(FrogGodCapability.class);
-		event.register(LevelAreaAttachment.class);
-		event.register(ChunkAreaAttachment.class);
-		event.register(ChunkMiscDataAttachment.class);
-		event.register(PartyAttachment.class);
-	}
-
-	@SubscribeEvent
-	public static void attachChunkCapabilities(AttachCapabilitiesEvent<LevelChunk> event) {
-		attach(event);
-	}
-
-	@SubscribeEvent
-	public static void attachLevelCapabilities(AttachCapabilitiesEvent<Level> event) {
-		attach(event);
+		GLBiomeGen.register();
+		GLStructureTagGen.register();
 	}
 
 	/**
@@ -157,7 +109,7 @@ public class GensokyoLegacy {
 	 * pass so {@code AttVal.type().getOrCreate(...)} finds a provider.
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static void attach(AttachCapabilitiesEvent<?> event) {
+	static void attach(AttachCapabilitiesEvent<?> event) {
 		if (!(event.getObject() instanceof ICapabilityProvider obj)) return;
 		for (GeneralCapabilityHolder holder : GeneralCapabilityHolder.INTERNAL_MAP.values()) {
 			if (holder.entity_class.isInstance(obj)) {
@@ -219,8 +171,24 @@ public class GensokyoLegacy {
 		new GLDamageTypes(out, event.getLookupProvider(), helper, MODID)
 				.generate(event.includeServer(), gen);
 
-		var dynamic = new DatapackBuiltinEntriesProvider(out, event.getLookupProvider(), init.builder(),
-				Set.of(MODID));
+		var reimu = new ReimuQDGen();
+		var marisa = new MarisaQDGen();
+		var morichika = new MorichikaQDGen();
+		var alice = new AliceQDGen();
+		var sakuya = new SakuyaQDGen();
+		var suika = new SuikaQDGen();
+		var cirno = new CirnoQDGen();
+		var yuyuko = new YuyukoQDGen();
+		var minamitsu = new MinamitsuQDGen();
+		QuestDialogData.build(init,
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu,
+				new GiftQDGen());
+
+		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
+		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, event.getLookupProvider()));
+
+		var dynamic = new GLDatapackProvider("Gensokyo Legacy Registries", out, event.getLookupProvider(),
+				init.builder(), Set.of(MODID, "minecraft"));
 		gen.addProvider(event.includeServer(), dynamic);
 		var registries = dynamic.getRegistryProvider();
 
@@ -233,21 +201,6 @@ public class GensokyoLegacy {
 				"structure", Registries.STRUCTURE, out, registries, helper);
 		GLStructureTagGen.genStructureTag(structureTags);
 		gen.addProvider(event.includeServer(), structureTags);
-
-		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
-		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, registries));
-
-		var reimu = new ReimuQDGen();
-		var marisa = new MarisaQDGen();
-		var morichika = new MorichikaQDGen();
-		var alice = new AliceQDGen();
-		var sakuya = new SakuyaQDGen();
-		var suika = new SuikaQDGen();
-		var cirno = new CirnoQDGen();
-		var yuyuko = new YuyukoQDGen();
-		var minamitsu = new MinamitsuQDGen();
-		QuestDialogData.build(init, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko,
-				minamitsu, new GiftQDGen());
 
 		ReportBlocksInStructure.report();
 	}

@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_coin_stack": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:coin_stack"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "gensokyolegacy:coin"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_coin_stack",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "gensokyolegacy:coin"
+    ]
+  },
+  "sends_telemetry_event": false
+}

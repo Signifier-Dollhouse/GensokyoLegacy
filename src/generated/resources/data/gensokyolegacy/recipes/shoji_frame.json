@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "SPS",
+    "SSS"
+  ],
+  "result": {
+    "count": 4,
+    "item": "gensokyolegacy:shoji_frame"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,38 @@
+{
+  "parent": "gensokyolegacy:main/bind_ghost",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gensokyolegacy:yuyuko_fan"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_yuyuko_fan.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "gensokyolegacy:yuyuko_fan"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.gensokyolegacy.advancements.main.obtain_yuyuko_fan.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

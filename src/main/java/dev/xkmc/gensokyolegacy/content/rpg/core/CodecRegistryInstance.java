@@ -1,41 +1,69 @@
 package dev.xkmc.gensokyolegacy.content.rpg.core;
 
 import com.mojang.serialization.Codec;
-import com.tterrag.registrate.util.OneTimeEventReceiver;
-import dev.xkmc.gensokyolegacy.compat.l2lib.CdcReg;
+import com.mojang.serialization.DataResult;
 import dev.xkmc.gensokyolegacy.compat.l2lib.CdcVal;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.l2serial.util.Wrappers;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public record CodecRegistryInstance<T extends CodecElement<?>>(
-		ResourceKey<Registry<Codec<? extends T>>> key,
-		Supplier<IForgeRegistry<Codec<? extends T>>> registry,
-		CdcReg<T> reg
-) {
+/**
+ * Codec dispatch for the RPG element types. Forge registries are not available until after mod
+ * construction, so the name-to-codec mapping is kept locally instead of in a registry.
+ */
+public final class CodecRegistryInstance<T extends CodecElement<?>> {
+
+	private final ResourceLocation id;
+	private final Map<ResourceLocation, Codec<? extends T>> byId = new LinkedHashMap<>();
+	private final Map<Codec<? extends T>, ResourceLocation> byCodec = new IdentityHashMap<>();
+
+	private CodecRegistryInstance(ResourceLocation id) {
+		this.id = id;
+	}
 
 	public static <T extends CodecElement<?>> CodecRegistryInstance<T> of(String id) {
-		ResourceKey<Registry<Codec<? extends T>>> key = ResourceKey.createRegistryKey(GensokyoLegacy.loc(id));
-		RegistryBuilder<Codec<? extends T>> builder = new RegistryBuilder<>();
-		builder.setName(key.location());
-		Supplier<IForgeRegistry<Codec<? extends T>>>[] holder = new Supplier[]{() -> null};
-		OneTimeEventReceiver.addModListener(GensokyoLegacy.REGISTRATE, NewRegistryEvent.class,
-				e -> holder[0] = e.create(builder));
-		return new CodecRegistryInstance<>(key, () -> holder[0].get(), CdcReg.of(GensokyoLegacy.REG, key));
+		return new CodecRegistryInstance<>(GensokyoLegacy.loc(id));
 	}
 
 	public Codec<T> codec() {
-		return registry.get().getCodec().dispatch(x -> Wrappers.cast(x.codec()), e -> e);
+		return ResourceLocation.CODEC.partialDispatch("type",
+				e -> {
+					ResourceLocation key = byCodec.get(e.codec());
+					return key == null
+							? DataResult.error(() -> "Unregistered " + id + " codec: " + e.getClass().getName())
+							: DataResult.success(key);
+				},
+				key -> {
+					Codec<? extends T> codec = byId.get(key);
+					return codec == null
+							? DataResult.error(() -> "Unknown " + id + " type: " + key)
+							: DataResult.success(codec);
+				});
 	}
 
-	public <E extends T> CdcVal<E> reg(String id, Codec<E> codec) {
-		return reg.reg(id, codec);
+	public <E extends T> CdcVal<E> reg(String name, Codec<E> codec) {
+		ResourceLocation key = GensokyoLegacy.loc(name);
+		byId.put(key, codec);
+		byCodec.put(codec, key);
+		return new Entry<>(key, codec);
+	}
+
+	private record Entry<T>(ResourceLocation id, Codec<T> codec) implements CdcVal<T> {
+
+		@Override
+		public Codec<T> get() {
+			return codec;
+		}
+
+		@Override
+		public ResourceKey<? super Codec<T>> key() {
+			throw new UnsupportedOperationException(id + " is not registry-backed");
+		}
+
 	}
 
 }

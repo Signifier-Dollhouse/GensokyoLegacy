@@ -182,7 +182,8 @@ dependencies {
 
     implementation fg.deobf("curse.maven:farmers-delight-398521:8000996")
     implementation fg.deobf("curse.maven:display-delight-1144296:8242933")
-    implementation fg.deobf("curse.maven:kaleidoscope-cookery-1309203:9019240")
+    // Compile-only: its 1.6.0 datagen needs a newer Forge (ParticleDescriptionProvider).
+    compileOnly fg.deobf("curse.maven:kaleidoscope-cookery-1309203:9019240")
     compileOnly fg.deobf("curse.maven:some-assembly-required-422951:7701961")
 
     implementation fg.deobf("youkaisfeasts:youkaisfeasts:${youkaisfeasts_version}")

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "gensokyolegacy:wavy_noren"
+    },
+    {
+      "tag": "forge:dyes/green"
+    }
+  ],
+  "result": {
+    "item": "gensokyolegacy:green_wavy_noren"
+  }
+}

@@ -28,10 +28,6 @@
         0,
         8
       ],
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
-      },
       "rotation": {
         "angle": 45.0,
         "axis": "y",
@@ -75,10 +71,6 @@
         0,
         0.8
       ],
-      "neoforge_data": {
-        "block_light": 15,
-        "sky_light": 15
-      },
       "rotation": {
         "angle": 45.0,
         "axis": "y",

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "PSP",
+    "S S",
+    "PSP"
+  ],
+  "result": {
+    "item": "gensokyolegacy:crate"
+  },
+  "show_notification": true
+}

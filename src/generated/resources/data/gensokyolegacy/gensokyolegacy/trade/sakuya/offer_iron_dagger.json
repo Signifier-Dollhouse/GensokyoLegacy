@@ -1,11 +1,6 @@
 {
   "character": "gensokyolegacy:izayoi_sakuya",
-  "conditions": [
-    {
-      "type": "gensokyolegacy:visit_structure",
-      "structure": "gensokyolegacy:morichika_shop"
-    }
-  ],
+  "conditions": [],
   "ingredients": [
     {
       "count": 4,
@@ -17,7 +12,7 @@
     "restockTime": 24000
   },
   "result": {
-    "count": 1,
+    "Count": 1,
     "id": "gensokyolegacy:iron_dagger"
   }
 }

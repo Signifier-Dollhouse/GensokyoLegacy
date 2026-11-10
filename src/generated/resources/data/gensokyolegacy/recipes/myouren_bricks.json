@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": {
+      "item": "minecraft:diorite"
+    },
+    "B": {
+      "item": "minecraft:soul_soil"
+    }
+  },
+  "pattern": [
+    " A ",
+    "ABA",
+    " A "
+  ],
+  "result": {
+    "count": 4,
+    "item": "gensokyolegacy:myouren_bricks"
+  },
+  "show_notification": true
+}

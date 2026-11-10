@@ -1,40 +1,31 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.KillTrigger;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
 public record KillMobRequirement(
-		String text, EntityPredicate target, int count
+		String text, ResourceLocation target, int count
 ) implements QuestRequirement<KillMobRequirement, KillTrigger> {
-
-	public static final Codec<EntityPredicate> ENTITY_PREDICATE = Codec.PASSTHROUGH.xmap(
-			d -> EntityPredicate.fromJson(d.convert(JsonOps.INSTANCE).getValue()),
-			e -> new Dynamic<>(JsonOps.INSTANCE, e.serializeToJson()));
 
 	public static final Codec<KillMobRequirement> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("text").forGetter(KillMobRequirement::text),
-			ENTITY_PREDICATE.fieldOf("target").forGetter(KillMobRequirement::target),
+			ResourceLocation.CODEC.fieldOf("target").forGetter(KillMobRequirement::target),
 			Codec.INT.fieldOf("count").forGetter(KillMobRequirement::count)
 	).apply(i, KillMobRequirement::new));
 
-	public KillMobRequirement(String text, EntityType<?> type, int count) {
-		this(text, EntityPredicate.Builder.entity().of(type).build(), count);
-	}
-
 	public KillMobRequirement(String text, TagKey<EntityType<?>> type, int count) {
-		this(text, EntityPredicate.Builder.entity().of(type).build(), count);
+		this(text, type.location(), count);
 	}
 
 	@Override
@@ -49,7 +40,7 @@ public record KillMobRequirement(
 
 	@Override
 	public int match(KillTrigger trigger) {
-		return target.matches(trigger.player(), trigger.target()) ? 1 : 0;
+		return trigger.target().getType().is(TagKey.create(ForgeRegistries.Keys.ENTITY_TYPES, target)) ? 1 : 0;
 	}
 
 	@Override

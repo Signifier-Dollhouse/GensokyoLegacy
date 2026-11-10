@@ -3,10 +3,12 @@
   "placement": [
     {
       "type": "gensokyolegacy:jittered_grid",
-      "cell": 12,
-      "chance": 0.7,
-      "margin": 2,
-      "salt": 7310003
+      "value": {
+        "cell": 12,
+        "chance": 0.7,
+        "margin": 2,
+        "salt": 7310003
+      }
     },
     {
       "type": "gensokyolegacy:noise_band",
@@ -17,18 +19,22 @@
       "type": "gensokyolegacy:grid_exclusion",
       "layers": [
         {
-          "cell": 28,
-          "chance": 0.85,
           "distance": 7,
-          "margin": 5,
-          "salt": 7310001
+          "layer": {
+            "cell": 28,
+            "chance": 0.85,
+            "margin": 5,
+            "salt": 7310001
+          }
         },
         {
-          "cell": 18,
-          "chance": 0.95,
           "distance": 5,
-          "margin": 3,
-          "salt": 7310002
+          "layer": {
+            "cell": 18,
+            "chance": 0.95,
+            "margin": 3,
+            "salt": 7310002
+          }
         }
       ]
     },

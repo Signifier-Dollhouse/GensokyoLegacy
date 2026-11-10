@@ -3,7 +3,7 @@
     "parent": "gensokyolegacy:block/tower_grass_large"
   },
   "gui_light": "front",
-  "loader": "neoforge:separate_transforms",
+  "loader": "forge:separate_transforms",
   "perspectives": {
     "gui": {
       "parent": "gensokyolegacy:custom/nature/tower_grass_icon",

@@ -1,0 +1,14 @@
+{
+  "criteria": {
+    "koishi_hat": {
+      "conditions": {},
+      "trigger": "gensokyolegacy:koishi_hat"
+    }
+  },
+  "requirements": [
+    [
+      "koishi_hat"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

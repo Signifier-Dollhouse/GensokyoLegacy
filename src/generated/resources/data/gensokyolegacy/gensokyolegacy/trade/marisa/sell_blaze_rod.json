@@ -17,7 +17,7 @@
     "restockTime": 24000
   },
   "result": {
-    "count": 2,
+    "Count": 2,
     "id": "gensokyolegacy:coin"
   }
 }

@@ -34,16 +34,17 @@ public class DataProviderInitializer {
 	 * {@link GatherDataEvent#getLookupProvider()} does not carry. The real provider is constructed directly in
 	 * {@code gatherData}; this type only exists so the generator methods keep one parameter type.
 	 */
-	public static <T> ProviderType<RegistrateTagsProvider.Impl<T>> dynamicTag(String type) {
-		return ProviderType.register(type, (registrate, event) -> {
-			throw new UnsupportedOperationException("dynamic tag providers are created in gatherData");
-		});
+	public static <T> ProviderType<RegistrateTagsProvider.Impl<T>> dynamicTag(String type, ResourceKey<? extends Registry<T>> key) {
+		return ProviderType.register("tags/" + type,
+				(pvd) -> (reg, e) ->
+						new RegistrateTagsProvider.Impl<T>(reg, pvd, type, e.getGenerator().getPackOutput(),
+								key, e.getLookupProvider(), e.getExistingFileHelper()));
 	}
 
 	public static <T> RegistrateTagsProvider.Impl<T> tagProvider(AbstractRegistrate<?> registrate,
-			ProviderType<RegistrateTagsProvider.Impl<T>> type, String name,
-			ResourceKey<? extends Registry<T>> key, PackOutput out,
-			CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper helper) {
+																 ProviderType<RegistrateTagsProvider.Impl<T>> type, String name,
+																 ResourceKey<? extends Registry<T>> key, PackOutput out,
+																 CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper helper) {
 		return new RegistrateTagsProvider.Impl<>(registrate, type, name, out, key, registries, helper);
 	}
 

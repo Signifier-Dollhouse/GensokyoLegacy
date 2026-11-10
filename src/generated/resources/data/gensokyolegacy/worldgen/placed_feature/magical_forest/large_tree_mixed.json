@@ -3,10 +3,12 @@
   "placement": [
     {
       "type": "gensokyolegacy:jittered_grid",
-      "cell": 18,
-      "chance": 0.8,
-      "margin": 3,
-      "salt": 7310002
+      "value": {
+        "cell": 18,
+        "chance": 0.8,
+        "margin": 3,
+        "salt": 7310002
+      }
     },
     {
       "type": "gensokyolegacy:noise_band",
@@ -23,11 +25,13 @@
       "type": "gensokyolegacy:grid_exclusion",
       "layers": [
         {
-          "cell": 28,
-          "chance": 0.85,
           "distance": 10,
-          "margin": 5,
-          "salt": 7310001
+          "layer": {
+            "cell": 28,
+            "chance": 0.85,
+            "margin": 5,
+            "salt": 7310001
+          }
         }
       ]
     },
