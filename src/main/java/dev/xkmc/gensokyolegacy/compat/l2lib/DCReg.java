@@ -1,19 +1,10 @@
 package dev.xkmc.gensokyolegacy.compat.l2lib;
 
 import com.mojang.serialization.Codec;
-import dev.xkmc.l2serial.serialization.codec.CodecAdaptor;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.FloatTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.LongTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
