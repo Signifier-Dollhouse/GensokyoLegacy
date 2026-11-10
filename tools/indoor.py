@@ -18,13 +18,13 @@ from structview import load_blocks
 # non-full-cube decoration that you can stand/walk through or ignore for volume
 AIRLIKE_PREFIX = (
     'minecraft:air',
-    'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern',
+    'minecraft:tall_grass', 'minecraft:fern',
     'minecraft:dandelion', 'minecraft:poppy', 'minecraft:vine',
     'minecraft:light_blue_carpet', 'minecraft:end_rod', 'minecraft:chain',
     'minecraft:glow_lichen', 'minecraft:torch', 'minecraft:snow',
 )
 AIRLIKE_EXACT = {
-    'minecraft:paintings', 'minecraft:sculk',
+    'minecraft:grass', 'minecraft:paintings', 'minecraft:sculk',
 }
 
 
