@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.entity.youkai;
 
-import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.content.spell.card.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.DefaultCombatManager;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.combat.YoukaiCombatManager;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
@@ -33,8 +33,6 @@ public class GeneralYoukaiEntity extends SmartYoukaiEntity {
 
 	protected static final SyncedData SPELL_DATA = new SyncedData(GeneralYoukaiEntity::defineId, YOUKAI_DATA);
 
-	private static final EntityDataAccessor<String> SPELL_MODEL = SPELL_DATA.define(SyncedData.STRING, "", "modelId");
-
 	public GeneralYoukaiEntity(EntityType<? extends GeneralYoukaiEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel, 8);
 	}
@@ -42,19 +40,6 @@ public class GeneralYoukaiEntity extends SmartYoukaiEntity {
 	@Override
 	protected SyncedData data() {
 		return SPELL_DATA;
-	}
-
-	public String getModelId() {
-		String ans = entityData.get(SPELL_MODEL);
-		if (ans.isEmpty()) return "";
-		return ans;
-	}
-
-	public void syncModel() {
-		String model = null;
-		if (spellCard != null) model = spellCard.getModelId();
-		if (model == null) model = "";
-		entityData.set(SPELL_MODEL, model);
 	}
 
 	@Override

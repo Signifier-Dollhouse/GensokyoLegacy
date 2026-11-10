@@ -83,12 +83,6 @@ versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
-modId = "touhou_little_maid"
-mandatory = false
-versionRange = "[1.1,)"
-ordering = "AFTER"
-side = "BOTH"
-[[dependencies.${mod_id}]]
 modId = "jei"
 mandatory = false
 versionRange = "[15,)"

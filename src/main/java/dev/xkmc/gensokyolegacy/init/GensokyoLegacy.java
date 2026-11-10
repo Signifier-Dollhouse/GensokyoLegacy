@@ -1,10 +1,8 @@
 package dev.xkmc.gensokyolegacy.init;
 
-import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
-import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMCompat;
-import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TouhouSpellCards;
+import dev.xkmc.gensokyolegacy.content.spell.card.TouhouSpellCards;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.BlockFoods;
 import dev.xkmc.gensokyolegacy.content.cooldown.CooldownRates;
 import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
@@ -124,9 +122,6 @@ public class GensokyoLegacy {
 
 		new GLClickHandler(loc("main"));
 		AttackEventHandler.register(1765, new GLAttackListener());
-		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			MinecraftForge.EVENT_BUS.register(TLMCompat.class);
-		}
 	}
 
 	@SubscribeEvent

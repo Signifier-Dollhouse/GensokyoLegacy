@@ -1,8 +1,6 @@
 package dev.xkmc.gensokyolegacy.init;
 
-import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import dev.xkmc.fastprojectileapi.render.ProjectileRenderHelper;
-import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMRenderHandler;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.AlchemyHintOverlay;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileClientTooltip;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileTooltip;
@@ -41,7 +39,6 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.event.*;
@@ -55,10 +52,6 @@ public class GLClient {
 
 	@SubscribeEvent
 	public static void clientSetup(FMLClientSetupEvent event) {
-		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			MinecraftForge.EVENT_BUS.register(TLMRenderHandler.class);
-		}
-
 		MinecraftForge.EVENT_BUS.register(GLClient.class);
 		event.enqueueWork(() -> {
 			QuestTab.TOKEN = TabRegistry.registerTab(3750, QuestTab::new, () -> Items.BOOK, GLLang.Quest.TAB.get());
@@ -139,9 +132,6 @@ public class GLClient {
 
 	@SubscribeEvent
 	public static void addLayer(EntityRenderersEvent.AddLayers event) {
-		if (ModList.get().isLoaded(TouhouLittleMaid.MOD_ID)) {
-			TLMRenderHandler.addLayers(event);
-		}
 		if (event.getRenderer(EntityType.FROG) instanceof FrogRenderer r) {
 			r.addLayer(new FrogHatLayer<>(r, event.getEntityModels()));
 		}
