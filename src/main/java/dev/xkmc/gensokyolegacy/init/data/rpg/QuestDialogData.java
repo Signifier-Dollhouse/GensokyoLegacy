@@ -149,6 +149,14 @@ public class QuestDialogData {
 		defaultDialog(type, greetingText, visitGreetingText, "", tradeText);
 	}
 
+	public Map<EntityType<?>, DialogConfig> defaultDialogs() {
+		return defaultDialogMap;
+	}
+
+	public Map<EntityType<?>, GiftDialogData> giftDialogs() {
+		return giftDialogMap;
+	}
+
 	public void defaultDialog(EntityType<?> type, String greetingText, String visitGreetingText,
 							  String partyGreetingText, String tradeText) {
 		defaultDialogMap.put(type, new DialogConfig(
@@ -165,7 +173,11 @@ public class QuestDialogData {
 	 */
 	public void giftDialog(EntityType<?> type, Holder<Dialog> like, Holder<Dialog> neutral,
 						   Holder<Dialog> dislike, int threshold, ResourceLocation returnTable) {
-		giftDialogMap.put(type, new GiftDialogData(like, neutral, dislike, threshold, returnTable));
+		giftDialogMap.put(type, new GiftDialogData(id(like), id(neutral), id(dislike), threshold, returnTable));
+	}
+
+	private static ResourceLocation id(Holder<Dialog> holder) {
+		return holder.unwrapKey().orElseThrow().location();
 	}
 
 	/**

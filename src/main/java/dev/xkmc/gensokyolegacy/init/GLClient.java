@@ -8,9 +8,9 @@ import dev.xkmc.gensokyolegacy.content.client.debug.DebugOverlay;
 import dev.xkmc.gensokyolegacy.content.client.model.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.BlackBallModel;
 import dev.xkmc.gensokyolegacy.content.entity.characters.rumia.RumiaModel;
+import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.common.ClientInvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
-import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
@@ -35,12 +35,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GensokyoLegacy.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -118,7 +121,12 @@ public class GLClient {
 		}
 		for (var type : ForgeRegistries.ENTITY_TYPES.getValues()) {
 			if (type.getCategory() == MobCategory.MISC) continue;
-			addCharacterLayers(event.getRenderer((EntityType) type));
+			try {
+				EntityRenderer<?> renderer = event.getRenderer((EntityType) type);
+				addCharacterLayers(renderer);
+			} catch (Exception ignore) {
+
+			}
 		}
 	}
 

@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItemDataMaps;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
 import dev.xkmc.l2library.base.L2Registrate;
@@ -125,6 +126,7 @@ public class GLNaturalBlocks {
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
 				.register();
+		GLItemDataMaps.add(STAR_FLOWER, new GiftItemData(1, 1000, GiftType.MAGIC), null);
 
 		// 地涌金莲: random-tick growth through three sizes, the last one a double plant
 		GOLDEN_LOTUS = reg.block("golden_lotus", GoldenLotusBlock::new)

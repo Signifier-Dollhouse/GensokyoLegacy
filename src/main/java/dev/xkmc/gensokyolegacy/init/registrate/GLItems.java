@@ -326,16 +326,19 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 
 					.register();
+			GLItemDataMaps.add(FROZEN_FROG_COLD, new GiftItemData(3, 1000, GiftType.FROG), null);
 			FROZEN_FROG_WARM = reg.item("frozen_frog_warm",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.WARM))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 
 					.register();
+			GLItemDataMaps.add(FROZEN_FROG_WARM, new GiftItemData(3, 1000, GiftType.FROG), null);
 			FROZEN_FROG_TEMPERATE = reg.item("frozen_frog_temperate",
 							p -> new FrozenFrogItem(p.stacksTo(16), FrogVariant.TEMPERATE))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/ingredient/" + ctx.getName())))
 
 					.register();
+			GLItemDataMaps.add(FROZEN_FROG_TEMPERATE, new GiftItemData(3, 1000, GiftType.FROG), null);
 
 			INVITATION_LETTER = reg.item("invitation_letter", InvitationLetterItem::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/" + ctx.getName())))
@@ -539,6 +542,22 @@ public class GLItems {
 					.lang("Border Umbrella").tab(TAB.key(), BorderUmbrellaItem::fillCreativeModeTab)
 					.tag(L2ISTagGen.SELECTABLE)
 					.register();
+			GLItemDataMaps.add(CAT_BELL, null, new MorichikaOfferData(8, 12, 1, 1));
+			GLItemDataMaps.add(CENTIPICKAXE, null, new MorichikaOfferData(4, 6, 1, 1));
+			GLItemDataMaps.add(DOWSER, null, new MorichikaOfferData(12, 18, 1, 1));
+			GLItemDataMaps.add(FAIRY_CAKE, new GiftItemData(3, 1000, GiftType.FOOD), null);
+			GLItemDataMaps.add(FANCY_FAN, new GiftItemData(5, 1000, GiftType.COLLECTION), new MorichikaOfferData(10, 20, 1, 1));
+			GLItemDataMaps.add(GHOST_DANGO, new GiftItemData(10, 1000, GiftType.FOOD), null);
+			GLItemDataMaps.add(GHOST_SAKE, new GiftItemData(5, 1000, GiftType.ALCOHOL), new MorichikaOfferData(5, 10, 3, 6));
+			GLItemDataMaps.add(GOLDEN_LOTUS_TEA, new GiftItemData(4, 1000, GiftType.DRINK), null);
+			GLItemDataMaps.add(KAPPA_BENTO, new GiftItemData(4, 1000, GiftType.FOOD), null);
+			GLItemDataMaps.add(LUCKY_TEA, new GiftItemData(4, 1000, GiftType.DRINK), null);
+			GLItemDataMaps.add(MAGIC_BOOK, new GiftItemData(6, 1000, GiftType.BOOK), new MorichikaOfferData(12, 24, 1, 1));
+			GLItemDataMaps.add(MAGIC_CANDY, new GiftItemData(2, 1000, GiftType.FOOD), new MorichikaOfferData(2, 4, 3, 6));
+			GLItemDataMaps.add(MERMAID_PEARL, null, new MorichikaOfferData(4, 6, 3, 5));
+			GLItemDataMaps.add(MINI_HAKKERO_PROTOTYPE, null, new MorichikaOfferData(16, 24, 1, 1));
+			GLItemDataMaps.add(TENGU_SAKE, new GiftItemData(5, 1000, GiftType.ALCOHOL), new MorichikaOfferData(5, 10, 3, 6));
+			GLItemDataMaps.add(ZUN_BEER, new GiftItemData(5, 1000, GiftType.ALCOHOL), new MorichikaOfferData(5, 10, 3, 6));
 
 			BROOM = reg.item("broom", BroomItem::new)
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
@@ -567,6 +586,7 @@ public class GLItems {
 
 					.tab(TAB.key())
 					.register();
+			GLItemDataMaps.add(BONE_FLUTE, null, new MorichikaOfferData(12, 18, 1, 1));
 
 			YUYUKO_FAN = reg.item("yuyuko_fan", p -> new YuyukoFanItem(p.stacksTo(1)))
 					.model((ctx, pvd) -> {
@@ -643,6 +663,7 @@ public class GLItems {
 					.tag(head, GLTagGen.TOUHOU_HAT)
 
 					.register();
+			GLItemDataMaps.add(STRAW_HAT, null, new MorichikaOfferData(3, 6, 4, 4));
 
 			SUWAKO_HAT = reg
 					.item("suwako_hat", p -> new SuwakoHatItem(p.rarity(Rarity.EPIC)))
@@ -775,6 +796,7 @@ public class GLItems {
 
 					.lang("Strange Glasses").tab(TAB.key())
 					.register();
+			GLItemDataMaps.add(STRANGE_GLASSES, null, new MorichikaOfferData(6, 10, 1, 1));
 
 			// Worn in the chest armor slot, not the curios back slot alone, so it still works with curios
 			// absent. Both are alternatives; which is in use is answered at draw time by CuriosManager#getWings,

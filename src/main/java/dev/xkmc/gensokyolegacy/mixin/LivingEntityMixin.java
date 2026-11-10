@@ -61,9 +61,12 @@ public abstract class LivingEntityMixin {
 	}
 
 	// 1.20.1 has no getGravity(); travel reads the ENTITY_GRAVITY attribute's value directly.
+	// Guard the instance: an earlier getValue() from another mixin must not be read as gravity.
 	@WrapOperation(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;getValue()D", ordinal = 0))
 	public double gensokyoLegacy$gravity(AttributeInstance instance, Operation<Double> original) {
-		return MixinHookHandlers.getGravity((LivingEntity) (Object) this, original.call(instance));
+		LivingEntity self = (LivingEntity) (Object) this;
+		if (instance != self.getAttribute(ForgeMod.ENTITY_GRAVITY.get())) return original.call(instance);
+		return MixinHookHandlers.getGravity(self, original.call(instance));
 	}
 
 	@WrapOperation(method = "getFrictionInfluencedSpeed", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getFlyingSpeed()F"))

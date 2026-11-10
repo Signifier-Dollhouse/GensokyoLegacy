@@ -1,6 +1,9 @@
 package dev.xkmc.gensokyolegacy.compat.l2lib;
 
 import com.mojang.serialization.Codec;
+import dev.xkmc.gensokyolegacy.compat.l2lib.datamap.DataMapConfig;
+import dev.xkmc.l2library.serial.config.BaseConfig;
+import dev.xkmc.l2library.serial.config.PacketHandlerWithConfig;
 import dev.xkmc.l2serial.serialization.codec.CodecAdaptor;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -18,10 +21,12 @@ public final class Reg {
 
 	private final String modid;
 	private final IEventBus bus;
+	private final PacketHandlerWithConfig channel;
 
-	public Reg(String modid) {
+	public Reg(String modid, PacketHandlerWithConfig channel) {
 		this.modid = modid;
 		this.bus = FMLJavaModLoadingContext.get().getModEventBus();
+		this.channel = channel;
 	}
 
 	public String modid() {
@@ -59,12 +64,9 @@ public final class Reg {
 		return dataReg(id, new CodecAdaptor<>(cls));
 	}
 
-	public <K, V> DataMapReg<K, V> dataMap(String id, ResourceKey<? extends Registry<K>> key, Class<V> cls) {
-		return new DataMapReg<>(loc(id), key, new CodecAdaptor<>(cls));
-	}
-
-	public <K, V> DataMapReg<K, V> dataMap(String id, ResourceKey<? extends Registry<K>> key, Codec<V> codec) {
-		return new DataMapReg<>(loc(id), key, codec);
+	public <K, V, C extends DataMapConfig<V>> DataMapReg<K, V> dataMap(
+			String id, ResourceKey<? extends Registry<K>> key, Class<C> cls) {
+		return new DataMapReg<>(channel, loc(id), key, cls);
 	}
 
 	public ResourceLocation loc(String id) {

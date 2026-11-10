@@ -102,9 +102,14 @@ public class GiftModule extends AbstractYoukaiModule {
 			(accepted ? YoukaiAnim.LIKE : YoukaiAnim.DISLIKE).play(self);
 			return;
 		}
-		var dialog = !accepted ? config.dislike()
+		var id = !accepted ? config.dislike()
 				: factor > neutral ? config.like()
 				: config.neutral();
+		var dialog = GiftDialogData.holder(self.level().registryAccess(), id);
+		if (dialog == null) {
+			(accepted ? YoukaiAnim.LIKE : YoukaiAnim.DISLIKE).play(self);
+			return;
+		}
 		var talk = self.getModule(TalkModule.class);
 		if (talk.isEmpty() || talk.get().isTalking()) {
 			(accepted ? YoukaiAnim.LIKE : YoukaiAnim.DISLIKE).play(self);

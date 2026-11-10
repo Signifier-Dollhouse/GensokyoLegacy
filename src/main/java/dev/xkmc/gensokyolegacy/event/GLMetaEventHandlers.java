@@ -17,13 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLMetaEventHandlers {
@@ -75,8 +75,8 @@ public class GLMetaEventHandlers {
 		if (!(chunk.getLevel() instanceof ServerLevel sl)) return;
 		// A party lives on its chunk and outlives the server, but the ticker entry does not: only PartySend fills
 		// ACTIVE, so a restored party has state with nothing to advance it. Re-register on chunk load, post-NBT read.
-		var party = PartyAttachment.of(sl, chunk.getPos());
-		if (party != null && party.active()) PartyTicker.register(sl, chunk.getPos());
+		var party = PartyAttachment.of(chunk);
+		if (party.active()) PartyTicker.register(sl, chunk.getPos());
 		String key = Long.toHexString(chunk.getPos().toLong());
 		var att = GLMeta.LEVEL_EFFECT.type().getOrCreate(sl);
 		var pendingIds = att.getPending().remove(key);

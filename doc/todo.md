@@ -1,3 +1,4 @@
+Review focus:
 - create and some_assembly_required compat should be restored.
   - reference modular golems for adding create dep in gradle, and fetch SAR from curseforge with file version 7658719
 - verify if any event has phase (PRE/POST) that we are supposed to check for, primarily tick event.

@@ -139,7 +139,7 @@ Both live in the **container** list, not this one, because they are containers. 
 The catch-all earns its place. Farmer's Delight's feasts are all the same `FeastBlock` class and each hands out a different serving item, which at one point looked like it needed a per-block table; it does not, because `FeastBlock.getServingItem(BlockState)` and `PieBlock.getPieSliceItem()` are both public and the handler simply asks the block.
 
 ```java
-// init/registrate/BlockFoods.java
+// content/attachment/party/food/BlockFoods.java
 public static void register() {
     PartyFoodHandler.register(new CakeFood());       // instanceof CakeBlock
     if (loaded(FD)) {
@@ -277,7 +277,7 @@ So the table top was always a valid surface for block foods, and the change boug
 
 ### 7.1 Create has no block food at all
 
-Create 6.0.10 is in the dev environment for this feature, but it contributes nothing here and has no handler. Its food is entirely **items** — `blaze_cake`, `bar_of_chocolate`, `chocolate_berries`, `honeyed_apple` — and they are deployables: the deployer places a rendered item, never a block. `AllBlocks` has no food in it at all. The sandwich item it appears to share with Some Assembly Required is that mod's own. This is worth stating rather than leaving to a reader who greps for a missing handler.
+Create 6.0.1 is in the dev environment for this feature, but it contributes nothing here and has no handler. Its food is entirely **items** — `blaze_cake`, `bar_of_chocolate`, `chocolate_berries`, `honeyed_apple` — and they are deployables: the deployer places a rendered item, never a block. `AllBlocks` has no food in it at all. The sandwich item it appears to share with Some Assembly Required is that mod's own. This is worth stating rather than leaving to a reader who greps for a missing handler.
 
 ### 7.2 Display Delight — one block per food, so the block is the table
 
@@ -317,18 +317,16 @@ else level.setBlock(pos, plated.hasPlate(state)
 
 ### 7.3 Some Assembly Required — a sandwich is a container
 
-`SandwichBlock` holds its layers in a `SandwichBlockEntity` as a `SandwichContents`, so it belongs in the container list and must never touch `FoodResultCache`.
+`SandwichBlock` holds its layers in a `SandwichBlockEntity`, so it belongs in the container list and must never touch `FoodResultCache`. Its `size` property is the model's height in layers and is **not** a serve count, so the block entity is read rather than the state.
 
-Its `size` property is the model's height in layers and is **not** a serve count, so `SandwichContents` is read rather than the state. The price comes from the mod's own item for those contents, which is the only authoritative answer — `SandwichItem.getFoodProperties` is overridden to read the `SANDWICH_CONTENTS` component and sum the layers' `nutrition` and `saturation` through `createFoodProperties`:
+The price comes from the mod's own item for those contents, which is the only authoritative answer. 1.20.1 has no data components, so `SandwichBlock.createSandwich(BlockEntity)` snapshots the block entity into a sandwich item's `BlockEntityTag`; `SandwichItem.getFoodProperties(ItemStack, LivingEntity)` then reads the handler back out of that item and sums the layers' `nutrition` and `saturation`:
 
 ```java
-public FoodProperties getFoodProperties(ItemStack stack, LivingEntity entity) {
-    return stack.getOrDefault(SANDWICH_CONTENTS, EMPTY).createFoodProperties(entity);
-}
+var serving = SandwichBlock.createSandwich(level.getBlockEntity(pos));
 ```
 
-`SandwichContents.makeItem()` builds that item with the component already set, so `Servings.of(serving)` — the codebase's usual `getFoodProperties(null)` path — reaches it unchanged and no reflection or private field is needed. An empty or part-built stack yields `ItemStack.EMPTY` or no food value and is skipped, which is what keeps a half-assembled pile of bread and filling out of the spread.
+`Servings.of(serving)` goes through Forge's stack-sensitive `ItemStack.getFoodProperties(null)` bouncer, so the item reaches its own override unchanged and no reflection or private field is needed. An empty or part-built stack yields `ItemStack.EMPTY` or no food value and is skipped, which is what keeps a half-assembled pile of bread and filling out of the spread.
 
-**One placed sandwich is one indivisible serving, where a player eats it a layer at a time.** `SandwichBlockEntity.useWithoutItem` calls `contents.dropLast()` per click, so the mod counts a tall sandwich down. A party does not: `contents` prices the whole sandwich once, and a guest who takes that serving has eaten the lot, so `consume` clears the block. Pricing by the layer instead would mean one guest draining a six-layer sandwich over six visits, with each layer re-derived from ingredients the mod only sums in `createFoodProperties`.
+**One placed sandwich is one indivisible serving, where a player eats it a layer at a time.** `SandwichBlockEntity.interact` hands the player one layer per click, so the mod counts a tall sandwich down. A party does not: `contents` prices the whole sandwich once, and a guest who takes that serving has eaten the lot, so `consume` clears the block. Pricing by the layer instead would mean one guest draining a six-layer sandwich over six visits, with each layer re-derived from ingredients the mod only sums in `getFoodProperties`.
 
 It is a dish, so `isPutOut` is the ordinary `PartyArea.touchingFurniture` — unlike `PotFood`, a sandwich on the kitchen floor is not something a host has done.

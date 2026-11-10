@@ -61,7 +61,11 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class GLEntities {
 
@@ -94,6 +98,22 @@ public class GLEntities {
 	public static final EntityEntry<AnchorHookEntity> ANCHOR_HOOK;
 	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
 	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
+
+	// Authored beside each character so the config generator can emit both data maps without
+	// restating the entity list a second time. The entry is kept unresolved: {@code get()} is
+	// illegal in the static initializer, before the registry is bound.
+	public record DataMapEntry(EntityEntry<?> entity, @Nullable PartyTaste taste,
+							   @Nullable GiftPreference gift) {}
+
+	private static final List<DataMapEntry> DATA_MAPS = new ArrayList<>();
+
+	private static void dataMap(EntityEntry<?> entity, @Nullable PartyTaste taste, @Nullable GiftPreference gift) {
+		DATA_MAPS.add(new DataMapEntry(entity, taste, gift));
+	}
+
+	public static Stream<DataMapEntry> dataMaps() {
+		return DATA_MAPS.stream();
+	}
 
 
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
@@ -332,6 +352,7 @@ public class GLEntities {
 
 					.register();
 			EntityInteractions.register(PLAIN_FAIRY.getId(), PlainFairyEntity::interactions);
+			dataMap(PLAIN_FAIRY, null, GIFT_FAIRY);
 
 			CIRNO = GensokyoLegacy.REGISTRATE
 					.entity("cirno", CirnoEntity::new, MobCategory.CREATURE)
@@ -345,6 +366,7 @@ public class GLEntities {
 					.register();
 
 			EntityInteractions.register(CIRNO.getId(), CirnoEntity::interactions);
+			dataMap(CIRNO, TASTE_CIRNO, GIFT_CIRNO);
 
 			REIMU = GensokyoLegacy.REGISTRATE
 					.entity("hakurei_reimu", ReimuEntity::new, MobCategory.CREATURE)
@@ -356,6 +378,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(REIMU, TASTE_REIMU, GIFT_REIMU);
 
 			MARISA = GensokyoLegacy.REGISTRATE
 					.entity("kirisame_marisa", MarisaEntity::new, MobCategory.CREATURE)
@@ -367,6 +390,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(MARISA, TASTE_MARISA, GIFT_MARISA);
 
 			MORICHIKA = GensokyoLegacy.REGISTRATE
 					.entity("morichika_rinnosuke", MorichikaEntity::new, MobCategory.CREATURE)
@@ -378,6 +402,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(MORICHIKA, TASTE_MORICHIKA, GIFT_MORICHIKA);
 
 			ALICE = GensokyoLegacy.REGISTRATE
 					.entity("alice_margatroid", AliceEntity::new, MobCategory.CREATURE)
@@ -389,6 +414,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(ALICE, TASTE_ALICE, GIFT_ALICE);
 
 			IZAYOI_SAKUYA = GensokyoLegacy.REGISTRATE
 					.entity("izayoi_sakuya", SakuyaEntity::new, MobCategory.CREATURE)
@@ -400,6 +426,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(IZAYOI_SAKUYA, TASTE_SAKUYA, GIFT_SAKUYA);
 
 			IBUKI_SUIKA = GensokyoLegacy.REGISTRATE
 					.entity("ibuki_suika", SuikaEntity::new, MobCategory.MONSTER)
@@ -411,6 +438,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(IBUKI_SUIKA, TASTE_SUIKA, GIFT_SUIKA);
 
 			SAIGYOUJI_YUYUKO = GensokyoLegacy.REGISTRATE
 					.entity("saigyouji_yuyuko", YuyukoEntity::new, MobCategory.CREATURE)
@@ -422,6 +450,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(SAIGYOUJI_YUYUKO, TASTE_YUYUKO, GIFT_YUYUKO);
 
 			MINAMITSU = GensokyoLegacy.REGISTRATE
 					.entity("murasa_minamitsu", MinamitsuEntity::new, MobCategory.CREATURE)
@@ -433,6 +462,7 @@ public class GLEntities {
 					
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(MINAMITSU, TASTE_MINAMITSU, GIFT_MINAMITSU);
 		}
 
 	}

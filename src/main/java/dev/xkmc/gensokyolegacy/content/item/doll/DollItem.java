@@ -167,13 +167,15 @@ public class DollItem extends Item implements InvClickItem {
 	}
 
 	/**
-	 * Consumes the summoned item, mirroring ModularGolems {@code GolemHolder}: shrink, then
-	 * force-write the hand slot so the consumption sticks even in creative (a bare shrink alone
-	 * does not). Doll items are singletons, so the slot always ends up empty.
+	 * Consumes the summoned item and returns what is left in the hand. Writing
+	 * {@link ItemStack#EMPTY} rather than the shrunk stack is what makes the consumption stick in
+	 * creative, where {@code ServerPlayerGameMode} refills the stack object it was handed.
 	 */
-	private static void consumeSummoned(ServerPlayer sp, InteractionHand hand, ItemStack stack) {
+	private static ItemStack consumeSummoned(ServerPlayer sp, InteractionHand hand, ItemStack stack) {
 		stack.shrink(1);
-		sp.setItemInHand(hand, stack);
+		ItemStack left = stack.isEmpty() ? ItemStack.EMPTY : stack;
+		sp.setItemInHand(hand, left);
+		return left;
 	}
 
 	@Override
@@ -184,8 +186,7 @@ public class DollItem extends Item implements InvClickItem {
 			Vec3 pos = player.position().add(0, 1, 0).add(player.getLookAngle().scale(2.0));
 			DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);
 			if (att.summon(sp, stack, pos)) {
-				consumeSummoned(sp, hand, stack);
-				return InteractionResultHolder.consume(stack);
+				return InteractionResultHolder.consume(consumeSummoned(sp, hand, stack));
 			}
 			Component blocker = summonBlocker(sp, stack);
 			if (blocker != null) sp.displayClientMessage(blocker, true);

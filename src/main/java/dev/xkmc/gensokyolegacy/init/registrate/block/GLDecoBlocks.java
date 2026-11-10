@@ -24,6 +24,7 @@ import dev.xkmc.gensokyolegacy.content.item.gift.GiftType;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLRecipeGen;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItemDataMaps;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2library.base.L2Registrate;
 import dev.xkmc.gensokyolegacy.compat.l2lib.SimpleEntry;
@@ -118,6 +119,7 @@ public class GLDecoBlocks {
 					.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 					.build()
 					.register();
+			GLItemDataMaps.add(STURDY_TEDDY_BEAR, new GiftItemData(5, 1000, GiftType.TOY), new MorichikaOfferData(5, 10, 2, 3));
 		}
 
 		GLFurniture.register();

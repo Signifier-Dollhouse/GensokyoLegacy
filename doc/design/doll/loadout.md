@@ -44,7 +44,7 @@ Direction discipline: server logic reads and writes the ledger directly (`DollEn
 
 ## 4. Arming — the loadout editor menu
 
-Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content/entity/dolls/menu/`, opened by sneak-interacting the doll as owner/creative), built on l2core's `BaseContainerMenu` + JSON layout exactly like the equipment menu in ModularGolems and our own talisman pocket:
+Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content/entity/dolls/menu/`, opened by sneak-interacting the doll as owner/creative), built on l2library's `BaseContainerMenu` + JSON layout exactly like the equipment menu in ModularGolems and our own talisman pocket:
 
 - Four slots arranged as a cross with no gaps on the right side: left main hand, right off hand, top core, middle cloth (the body-worn slot), plus the player inventory; shift-click moves both ways.
 - **Every slot is locked**, on two axes, both enforced in `DollLoadoutItemHandler` — the only writer:
@@ -53,7 +53,7 @@ Click-arming is gone; the loadout is managed through `DollLoadoutMenu` (`content
   - The count rule is **stack-dependent**, which `IItemHandler.getSlotLimit` cannot express, so it is asked per item: the menu's `LoadoutSlot` (a two-line `ItemHandlerCopySlot` subclass) overrides `getMaxStackSize(ItemStack)` with `DollLoadoutItemHandler.stackLimit`. Every vanilla placement path sizes its transfer through that overload — click, number-key swap, shift-click, drag — so nothing is ever over-written and then truncated away. `insertItem` applies the same rule for non-menu callers, and `getSlotLimit` answers the 64 ceiling as the honest stack-agnostic answer.
 - Backed live by the ledger `MutableDollInventory` through `DollLoadoutItemHandler`, refreshing the client mirror on every change — no staging, no take-back on close.
 - Like the ModularGolems equipment menu, the doll itself renders on the left side of the screen (`InventoryScreen.renderEntityInInventoryFollowsAngle`, mouse-following), and the slots use a background atlas instead of baked-in frames: layout comps are blank `empty_slot`s while the screen draws `slot` frames plus per-slot ghost icons (`slotbg_main` sword, `slotbg_off` shield, `slotbg_core` gem, `slotbg_cloth` paper) from the texture side sprites whenever a slot is empty. The container source lives at `src/test/.../gui/-templates/container/gensokyolegacy/doll_loadout.json` — regenerate with `organize.GUIGenerator`, never hand-edit the texture or coordinates.
-- Layout `data/.../l2core/menu_layout/doll_loadout.json` + texture `textures/gui/container/doll_loadout.png`; menu type `GLMisc.DOLL_LOADOUT`; `stillValid` closes when the doll is gone or the viewer isn't the owner.
+- Layout `data/.../l2library_config/menu_layout/doll_loadout.json` + texture `textures/gui/container/doll_loadout.png`; menu type `GLMisc.DOLL_LOADOUT`; `stillValid` closes when the doll is gone or the viewer isn't the owner.
 - The same menu edits a doll **item**: right-clicking the stack in an inventory (`InvClickItem` via `GLClickHandler`, item.md §8) opens it through `DollItemLoadoutProvider`, backed live by the stack's `DOLL_LOADOUT` component instead of the ledger. The network flag (`true` = entity id, `false` = item) tells `fromNetwork` which backing to build client-side.
 - Plain empty-hand itemize is unchanged; non-sneak interactions with items pass through.
 

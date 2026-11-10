@@ -69,7 +69,7 @@ The doll shows its remaining health over `BaseDollEntity.DEFAULT_MAX_HEALTH` (20
 1. Server-side only; `ServerPlayer` required.
 2. Compute the spawn position: the clicked block's collision shape decides whether the doll goes inside the block or on the clicked face; the actual point is the block *center* at `+0.05` y (so the doll hovers slightly above the surface it was placed on).
 3. `DollAttachment att = GLMeta.DOLL.type().getOrCreate(sp);` then `att.summon(sp, ctx.getItemInHand(), pos)` (pairing.md §3.1 — no entry can pre-exist, item and `DollData` never coexist).
-4. On success: `shrink(1)` unless creative, return `CONSUME`; otherwise `FAIL`.
+4. On success: consume one, creative included, by writing `ItemStack.EMPTY` into the hand — not the shrunk stack, which `ServerPlayerGameMode` refills in creative — and return `CONSUME`; otherwise `FAIL`.
 
 ## 6. Trading and granting
 

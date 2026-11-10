@@ -1,0 +1,58 @@
+{
+  "values": {
+    "gensokyolegacy:alice_margatroid": {
+      "greeting": "gensokyolegacy/alice/chat/greeting",
+      "partyGreeting": "",
+      "trade": "gensokyolegacy/alice/chat/trade",
+      "visitGreeting": "gensokyolegacy/alice/chat/visit_greeting"
+    },
+    "gensokyolegacy:cirno": {
+      "greeting": "gensokyolegacy/cirno/chat/greeting",
+      "partyGreeting": "gensokyolegacy/cirno/chat/party_greeting",
+      "trade": "gensokyolegacy/cirno/chat/trade",
+      "visitGreeting": "gensokyolegacy/cirno/chat/visit_greeting"
+    },
+    "gensokyolegacy:hakurei_reimu": {
+      "greeting": "gensokyolegacy/reimu/chat/greeting",
+      "partyGreeting": "",
+      "trade": "gensokyolegacy/reimu/chat/trade",
+      "visitGreeting": "gensokyolegacy/reimu/chat/visit_greeting"
+    },
+    "gensokyolegacy:ibuki_suika": {
+      "greeting": "gensokyolegacy/suika/chat/greeting",
+      "partyGreeting": "gensokyolegacy/suika/chat/party_greeting",
+      "trade": "",
+      "visitGreeting": ""
+    },
+    "gensokyolegacy:izayoi_sakuya": {
+      "greeting": "gensokyolegacy/sakuya/chat/greeting",
+      "partyGreeting": "",
+      "trade": "gensokyolegacy/sakuya/chat/trade",
+      "visitGreeting": "gensokyolegacy/sakuya/chat/visit_greeting"
+    },
+    "gensokyolegacy:kirisame_marisa": {
+      "greeting": "gensokyolegacy/marisa/chat/greeting",
+      "partyGreeting": "",
+      "trade": "gensokyolegacy/marisa/chat/trade",
+      "visitGreeting": "gensokyolegacy/marisa/chat/visit_greeting"
+    },
+    "gensokyolegacy:morichika_rinnosuke": {
+      "greeting": "gensokyolegacy/morichika/chat/greeting",
+      "partyGreeting": "",
+      "trade": "gensokyolegacy/morichika/chat/trade",
+      "visitGreeting": "gensokyolegacy/morichika/chat/visit_greeting"
+    },
+    "gensokyolegacy:murasa_minamitsu": {
+      "greeting": "gensokyolegacy/minamitsu/chat/greeting",
+      "partyGreeting": "gensokyolegacy/minamitsu/chat/party_greeting",
+      "trade": "gensokyolegacy/minamitsu/chat/trade",
+      "visitGreeting": "gensokyolegacy/minamitsu/chat/visit_greeting"
+    },
+    "gensokyolegacy:saigyouji_yuyuko": {
+      "greeting": "gensokyolegacy/yuyuko/chat/greeting",
+      "partyGreeting": "gensokyolegacy/yuyuko/chat/party_greeting",
+      "trade": "",
+      "visitGreeting": ""
+    }
+  }
+}

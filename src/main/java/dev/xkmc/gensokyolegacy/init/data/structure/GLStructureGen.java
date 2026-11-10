@@ -1,14 +1,19 @@
 package dev.xkmc.gensokyolegacy.init.data.structure;
 
 import dev.xkmc.gensokyolegacy.compat.datagen.DataProviderInitializer;
+import dev.xkmc.gensokyolegacy.compat.l2lib.datamap.DataMapConfigs;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.*;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
+import dev.xkmc.l2library.serial.config.ConfigDataProvider;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -156,6 +161,36 @@ public class GLStructureGen {
 	}
 
 	private static final Supplier<List<StructStructure>> STRUCTURES = Lazy.of(GLStructureGen::initStructures);
+
+	public static void dataMap(ConfigDataProvider.Collector collector) {
+		var beds = new DataMapConfigs.Beds();
+		var entities = new DataMapConfigs.Characters();
+		var structures = new DataMapConfigs.Structures();
+		for (var e : STRUCTURES.get()) {
+			var config = e.config();
+			for (var bedData : e.beds()) {
+				for (var bed : bedData.bed())
+					beds.values.put(bed.unwrapKey().orElseThrow().location(), new BedData(bedData.entity().value()));
+				entities.values.put(BuiltInRegistries.ENTITY_TYPE.getKey(bedData.entity().value()),
+						bedData.data().withId(e.id()));
+				config.addEntity(bedData.entity().value());
+			}
+			for (var entry : e.visits().entrySet())
+				config.visit(entry.getKey(), entry.getValue());
+			structures.values.put(e.id(), config.build());
+		}
+
+		// Minamitsu has no preset home: her bed binds to any custom home, so a player-built
+		// room holding a Minamitsu bed claims her and respawns her there.
+		beds.values.put(GLBlocks.Beds.MINAMITSU.holder().unwrapKey().orElseThrow().location(),
+				new BedData(GLEntities.MINAMITSU.get()));
+		entities.values.put(BuiltInRegistries.ENTITY_TYPE.getKey(GLEntities.MINAMITSU.get()),
+				CharacterConfig.forStructure(6000, 12000, 12, 30));
+
+		collector.add(GLMeta.BED_DATA.entry(), GensokyoLegacy.loc("main"), beds);
+		collector.add(GLMeta.ENTITY_DATA.entry(), GensokyoLegacy.loc("main"), entities);
+		collector.add(GLMeta.STRUCTURE_DATA.entry(), GensokyoLegacy.loc("main"), structures);
+	}
 
 	public static void init(DataProviderInitializer init) {
 		init.add(Registries.PROCESSOR_LIST, ctx -> {

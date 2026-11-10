@@ -7,6 +7,7 @@ import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
+import dev.xkmc.l2library.util.Proxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -79,7 +80,7 @@ public class BorderUmbrellaSelectionListener extends IItemSelector implements Wh
 
 	@Nullable
 	private static ItemStack clientHeld() {
-		Player player = Minecraft.getInstance().player;
+		Player player = Proxy.getPlayer();
 		return player == null ? null : getHeldUmbrella(player);
 	}
 

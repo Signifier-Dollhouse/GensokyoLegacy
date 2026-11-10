@@ -32,6 +32,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
+// Maven version ranges reject the "+mc" suffix that some of our jarJar'd libs carry.
+def mavenRange = { String version -> "[${version.split('\\+')[0]},)" }
+
 minecraft {
     mappings channel: 'official', version: "${minecraft_version}"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -161,11 +164,11 @@ dependencies {
     }
     implementation fg.deobf(jarJar("dev.xkmc.fastprojectileapi:fast_projectile_api:${fast_projectile_api_version}")) {
         transitive = false
-        jarJar.ranged(it, "[${fast_projectile_api_version},)")
+        jarJar.ranged(it, mavenRange(fast_projectile_api_version))
     }
     implementation fg.deobf(jarJar("dev.xkmc.danmakuapi:danmaku_api:${danmaku_api_version}")) {
         transitive = false
-        jarJar.ranged(it, "[${danmaku_api_version},)")
+        jarJar.ranged(it, mavenRange(danmaku_api_version))
     }
     implementation fg.deobf(jarJar("dev.xkmc.l2harvester:l2harvester:${l2harvester_version}")) {
         transitive = false
@@ -184,7 +187,7 @@ dependencies {
     implementation fg.deobf("curse.maven:display-delight-1144296:8242933")
     // Compile-only: its 1.6.0 datagen needs a newer Forge (ParticleDescriptionProvider).
     compileOnly fg.deobf("curse.maven:kaleidoscope-cookery-1309203:9019240")
-    compileOnly fg.deobf("curse.maven:some-assembly-required-422951:7701961")
+    compileOnly fg.deobf("curse.maven:some-assembly-required-422951:7658719")
 
     implementation fg.deobf("youkaisfeasts:youkaisfeasts:${youkaisfeasts_version}")
 

@@ -1,9 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
@@ -14,6 +10,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -30,7 +29,8 @@ import java.util.UUID;
 @SerialClass
 public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, PartyAttachment> {
 
-	public static final Capability<PartyAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+	public static final Capability<PartyAttachment> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+	});
 
 	public enum Phase {
 		IDLE, GATHERING, FEASTING, CLOSING
@@ -528,6 +528,12 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	public static PartyAttachment of(ServerLevel level, ChunkPos pos) {
 		LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, false);
 		if (chunk == null) return null;
+		var party = GLMeta.PARTY.type().getOrCreate(chunk);
+		party.owner = chunk;
+		return party;
+	}
+
+	public static PartyAttachment of(LevelChunk chunk) {
 		var party = GLMeta.PARTY.type().getOrCreate(chunk);
 		party.owner = chunk;
 		return party;

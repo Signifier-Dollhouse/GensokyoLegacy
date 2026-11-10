@@ -40,7 +40,7 @@ import dev.xkmc.gensokyolegacy.util.ProjectileDispenser;
 import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
 import dev.xkmc.l2library.capability.entity.GeneralCapabilityHolder;
 import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
-import dev.xkmc.l2library.serial.config.PacketHandler;
+import dev.xkmc.l2library.serial.config.PacketHandlerWithConfig;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -67,9 +67,9 @@ public class GensokyoLegacy {
 	public static final Logger LOGGER = LogManager.getLogger();
 
 	public static final String MODID = "gensokyolegacy";
-	public static final Reg REG = new Reg(MODID);
+	public static final PacketHandlerWithConfig HANDLER = GLPackets.create(4);
+	public static final Reg REG = new Reg(MODID, HANDLER);
 	public static final GLRegistrate REGISTRATE = new GLRegistrate(MODID);
-	public static final PacketHandler HANDLER = GLPackets.create(4);
 
 	public GensokyoLegacy() {
 
@@ -120,7 +120,6 @@ public class GensokyoLegacy {
 
 	@SubscribeEvent
 	public static void commonSetup(FMLCommonSetupEvent event) {
-		PacketHandler.setup(event);
 		event.enqueueWork(() -> {
 			BlockFoods.register();
 			BorderUmbrellaSelectionListener.register();
@@ -180,9 +179,11 @@ public class GensokyoLegacy {
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
 		var minamitsu = new MinamitsuQDGen();
+		var gift = new GiftQDGen();
 		QuestDialogData.build(init,
-				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu,
-				new GiftQDGen());
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift);
+		gen.addProvider(event.includeServer(), new GLConfigGen(gen,
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift));
 
 		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
 		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, event.getLookupProvider()));

@@ -22,7 +22,7 @@ import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.network.*;
-import dev.xkmc.l2library.serial.config.PacketHandler;
+import dev.xkmc.l2library.serial.config.PacketHandlerWithConfig;
 import dev.xkmc.l2serial.network.BasePacketHandler;
 import dev.xkmc.l2serial.network.RecordPacketBase;
 import net.minecraft.resources.ResourceLocation;
@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Builds the mod's single {@link PacketHandler}, kept as {@link GensokyoLegacy#HANDLER}. <p> Every packet is registered
- * here in one chain; each call site decides only the direction, not the codec.
+ * Builds the mod's single {@link PacketHandlerWithConfig}, kept as {@link GensokyoLegacy#HANDLER}. <p> Every packet is
+ * registered here in one chain; each call site decides only the direction, not the codec.
  */
 public class GLPackets {
 
 	private GLPackets() {}
 
-	public static PacketHandler create(int version) {
+	public static PacketHandlerWithConfig create(int version) {
 		return new Builder(version)
 				// debug packets, plus the shared structure block editing
 				.toClient(CharDataToClient.class)
@@ -120,8 +120,8 @@ public class GLPackets {
 			return this;
 		}
 
-		private PacketHandler build() {
-			return new PacketHandler(new ResourceLocation(GensokyoLegacy.MODID, "main"), version,
+		private PacketHandlerWithConfig build() {
+			return new PacketHandlerWithConfig(new ResourceLocation(GensokyoLegacy.MODID, "main"), version,
 					entries.toArray(Function[]::new));
 		}
 

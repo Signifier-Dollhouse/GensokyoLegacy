@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2itemselector.select.item.IItemSelector;
 import dev.xkmc.l2itemselector.wheel.WheelAdaptor;
+import dev.xkmc.l2library.util.Proxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -79,7 +80,7 @@ public class DollGloveSelectionListener extends IItemSelector implements WheelAd
 	}
 
 	private static List<DollGloveMode> clientModes() {
-		Player player = Minecraft.getInstance().player;
+		Player player = Proxy.getPlayer();
 		if (player == null) return DollGloveModes.potentiallyVisible();
 		ItemStack held = getHeldGlove(player);
 		if (held == null) return DollGloveModes.potentiallyVisible();

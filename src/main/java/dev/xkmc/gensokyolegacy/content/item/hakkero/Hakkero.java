@@ -24,9 +24,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.util.Mth;
+import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -83,7 +85,9 @@ public class Hakkero extends Item implements InvClickItem {
 	}
 
 	public static int burnTime(ItemStack fuel) {
-		return fuel.isEmpty() ? 0 : fuel.getBurnTime(null);
+		// Item.getBurnTime returns -1 for anything that relies on vanilla fuel values, and
+		// ForgeHooks resolves both those and the item's own override.
+		return fuel.isEmpty() ? 0 : ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
 	}
 
 	// ------------------------------------------------------------------ processing
