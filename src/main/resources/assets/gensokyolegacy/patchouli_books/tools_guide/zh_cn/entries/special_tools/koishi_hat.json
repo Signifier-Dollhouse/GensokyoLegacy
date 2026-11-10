@@ -1,8 +1,8 @@
 {
   "name": "帽子先生",
   "icon": "gensokyolegacy:koishi_hat",
-  "category": "gensokyolegacy:hats",
-  "sortnum": 3,
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 20,
   "pages": [
     {
       "type": "patchouli:spotlight",

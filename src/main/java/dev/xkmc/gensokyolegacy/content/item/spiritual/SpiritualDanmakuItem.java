@@ -50,4 +50,9 @@ public class SpiritualDanmakuItem extends DanmakuItem implements SpiritualCarrie
 		SpiritualPower.appendHoverText(stack, list);
 	}
 
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return slotChanged;
+	}
+
 }

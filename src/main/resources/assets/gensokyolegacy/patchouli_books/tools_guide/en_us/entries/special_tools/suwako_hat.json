@@ -1,8 +1,8 @@
 {
   "name": "Suwako Hat",
   "icon": "gensokyolegacy:suwako_hat",
-  "category": "gensokyolegacy:hats",
-  "sortnum": 2,
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 19,
   "pages": [
     {
       "type": "patchouli:spotlight",

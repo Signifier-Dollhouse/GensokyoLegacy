@@ -47,4 +47,9 @@ public class SpiritualItem extends Item implements SpiritualCarrier {
 		SpiritualPower.appendHoverText(stack, list);
 	}
 
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return slotChanged;
+	}
+
 }

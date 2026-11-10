@@ -112,7 +112,7 @@ public class Hakkero extends Item implements InvClickItem {
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return false;
+		return slotChanged;
 	}
 
 	/**

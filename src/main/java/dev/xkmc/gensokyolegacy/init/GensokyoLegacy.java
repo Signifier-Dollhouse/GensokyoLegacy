@@ -93,7 +93,7 @@ public class GensokyoLegacy {
 									.requires(Items.BOOK).requires(GLItems.MAGIC_BOOK.get()),
 							() -> Items.BOOK)
 					.buildBook("Gensokyo Tools Guide",
-							"This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.$(br2)Open it from any Patchouli guide book. An entry shows $(bold)what it does$(), $(bold)how to use it$() and $(bold)where it comes from$().",
+							"This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.",
 							1, GLItems.TAB.key());
 		}
 
