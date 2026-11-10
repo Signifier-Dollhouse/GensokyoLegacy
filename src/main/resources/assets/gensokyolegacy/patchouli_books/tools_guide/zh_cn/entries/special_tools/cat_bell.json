@@ -1,9 +1,9 @@
 {
   "name": "猫铃铛",
   "icon": "gensokyolegacy:cat_bell",
-  "category": "gensokyolegacy:misc_tools",
+  "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_cat_bell",
-  "sortnum": 4,
+  "sortnum": 17,
   "pages": [
     {
       "type": "patchouli:spotlight",

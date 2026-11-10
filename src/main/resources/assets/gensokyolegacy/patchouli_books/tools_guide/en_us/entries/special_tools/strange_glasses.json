@@ -1,9 +1,9 @@
 {
   "name": "Strange Glasses",
   "icon": "gensokyolegacy:strange_glasses",
-  "category": "gensokyolegacy:misc_tools",
+  "category": "gensokyolegacy:special_tools",
   "advancement": "gensokyolegacy:main/obtain_strange_glasses",
-  "sortnum": 5,
+  "sortnum": 18,
   "pages": [
     {
       "type": "patchouli:spotlight",

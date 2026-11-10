@@ -30,19 +30,8 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.GhostRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayDollRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayGhostRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.misc.ButterflyDanmakuBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.CoinDanmakuBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
-import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
-import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.NueTridentProjectile;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.*;
+import dev.xkmc.gensokyolegacy.content.entity.misc.*;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.AnchorHookRenderer;
@@ -278,7 +267,7 @@ public class GLEntities {
 			IRON_DAGGER = GensokyoLegacy.REGISTRATE
 					.<IronDaggerBulletEntity>entity("iron_dagger", IronDaggerBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
-					.renderer(() -> IronDaggerBulletRenderer::new)
+					.renderer(() -> ItemBulletRenderer::new)
 					.register();
 
 			// the butterfly danmaku: same bullet, but it leaves a petal trail, so it needs its own

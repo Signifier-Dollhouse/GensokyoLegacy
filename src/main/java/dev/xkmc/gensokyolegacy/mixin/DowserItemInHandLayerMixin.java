@@ -1,5 +1,7 @@
 package dev.xkmc.gensokyolegacy.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,17 +24,18 @@ public abstract class DowserItemInHandLayerMixin {
 		return entity.getMainHandItem().is(GLItems.DOWSER.get()) && entity.getOffhandItem().isEmpty();
 	}
 
-	@Redirect(method = "render*", at = @At(value = "INVOKE",
+	@WrapOperation(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
-	private ItemStack gensokyolegacy$dowserMainHand(LivingEntity entity) {
+	private ItemStack gensokyolegacy$dowserMainHand(LivingEntity entity, Operation<ItemStack> original) {
 		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_LEFT.asStack();
-		return entity.getMainHandItem();
+		return original.call(entity);
 	}
 
-	@Redirect(method = "render*", at = @At(value = "INVOKE",
+	@WrapOperation(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
-	private ItemStack gensokyolegacy$dowserOffHand(LivingEntity entity) {
+	private ItemStack gensokyolegacy$dowserOffHand(LivingEntity entity, Operation<ItemStack> original) {
 		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_RIGHT.asStack();
-		return entity.getOffhandItem();
+		return original.call(entity);
 	}
+
 }
