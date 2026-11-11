@@ -448,7 +448,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 		Entity e = level.getEntity(data.uuid);
 		if (e instanceof BaseDollEntity doll) {
 			if (!matches(doll, player, data)) {
-				GensokyoLegacy.LOGGER.warn(GLLang.Doll.RESYNC_TAMPERED.get().getString());
+				GensokyoLegacy.LOGGER.debug(GLLang.Doll.RESYNC_TAMPERED.get().getString());
 				doll.discard();
 				data.state = DollState.TEMP;
 			} else if (doll.level() == player.level() && doll.distanceTo(player) >= PULLBACK_DISTANCE) {
@@ -457,7 +457,7 @@ public class DollAttachment extends PlayerCapabilityTemplate<DollAttachment> imp
 				data.state = DollState.TEMP;
 			}
 		} else {
-			GensokyoLegacy.LOGGER.warn(GLLang.Doll.RESYNC_MISSING.get().getString());
+			GensokyoLegacy.LOGGER.debug(GLLang.Doll.RESYNC_MISSING.get().getString());
 			data.state = DollState.TEMP;
 		}
 	}

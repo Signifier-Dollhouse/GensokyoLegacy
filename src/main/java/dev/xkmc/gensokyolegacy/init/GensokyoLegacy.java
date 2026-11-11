@@ -71,7 +71,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = GLPackets.create(4);
+	public static final PacketHandler HANDLER = GLPackets.create(5);
 
 	public GensokyoLegacy() {
 
