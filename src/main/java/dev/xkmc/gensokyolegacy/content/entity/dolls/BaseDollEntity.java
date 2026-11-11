@@ -453,7 +453,7 @@ public abstract class BaseDollEntity extends DamageRefactorEntity
 		if (tickCount % INVERSE_INTERVAL == 0) {
 			DollData data = host.findSummoned(getUUID());
 			if (data == null || !data.type.equals(getDollTypeId())) {
-				GensokyoLegacy.LOGGER.warn(GLLang.Doll.RESYNC_ORPHAN.get().getString());
+				GensokyoLegacy.LOGGER.debug(GLLang.Doll.RESYNC_ORPHAN.get().getString());
 				discard();
 			}
 		}
