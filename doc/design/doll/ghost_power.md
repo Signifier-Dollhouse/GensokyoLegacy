@@ -29,7 +29,8 @@ between. Both ghost renderers override `getRenderColor` to scale the vertex alph
 `getRenderType` to return `RenderType.entityTranslucent`. The default `entityCutoutNoCull` would
 discard alpha instead of blending it, so the render-type override is what makes fading visible at
 all. Invisible and glowing entities keep the vanilla renderer paths; the haunting ghost is the
-exception, returning no render type while it hides for a volley.
+exception, skipping the model render entirely while it hides for a volley — GeckoLib passes
+`getRenderType` straight into `getBuffer`, so a null render type would crash instead of hiding.
 
 ## 3. Drain while following
 

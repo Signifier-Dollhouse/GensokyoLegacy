@@ -5,8 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.compat.l2lib.AttReg;
 import dev.xkmc.gensokyolegacy.compat.l2lib.AttVal;
 import dev.xkmc.gensokyolegacy.compat.l2lib.DataMapReg;
-import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;
-import dev.xkmc.gensokyolegacy.compat.l2lib.datamap.DataMapConfigs;
+import dev.xkmc.gensokyolegacy.compat.l2lib.FluidIngredient;import dev.xkmc.gensokyolegacy.compat.l2lib.datamap.DataMapConfigs;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.area.LevelAreaAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterAttachment;
@@ -31,14 +30,19 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestAttachment;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeAttachment;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2library.capability.player.PlayerCapabilityNetworkHandler;
+import dev.xkmc.l2serial.serialization.custom_handler.ClassHandler;
 import dev.xkmc.l2serial.serialization.custom_handler.CodecHandler;
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.item.Item;
@@ -115,6 +119,21 @@ public class GLMeta {
 		Handlers.enableVanilla(Fluid.class, () -> ForgeRegistries.FLUIDS);
 		register(BoundingBox.class, BoundingBox.CODEC);
 		register(BlockPos.class, BlockPos.CODEC);
+		// l2serial 1.2.8 has no Component handler (l2serial 3.x does); packets
+		// carrying Component (dialog labels, greetings) fall through to the
+		// @SerialClass path and fail with "cannot serialize ClassCache"
+		new ClassHandler<>(Component.class,
+				Component.Serializer::toJsonTree, Component.Serializer::fromJson,
+				FriendlyByteBuf::readComponent, FriendlyByteBuf::writeComponent,
+				tag -> Component.Serializer.fromJson(tag.getAsString()),
+				e -> StringTag.valueOf(Component.Serializer.toJson(e)));
+		// l2serial 1.2.8's SetCodec needs a type parameter; raw IntOpenHashSet fields
+		// (AbnormalCache) throw "type parameter is missing" and lose structure_data on save
+		new ClassHandler<>(IntOpenHashSet.class, null, null,
+				buf -> IntOpenHashSet.of(buf.readVarIntArray()),
+				(buf, set) -> buf.writeVarIntArray(set.toIntArray()),
+				tag -> IntOpenHashSet.of(((IntArrayTag) tag).getAsIntArray()),
+				set -> new IntArrayTag(set.toIntArray()));
 		register(BlockState.class, BlockState.CODEC);
 		register(ChunkPos.class, RecordCodecBuilder.create(i -> i.group(
 				Codec.INT.fieldOf("x").forGetter(e -> e.x),
