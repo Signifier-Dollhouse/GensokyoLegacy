@@ -120,11 +120,17 @@
     "gensokyolegacy:drawer_cabinet": {
       "burn_time": 300
     },
+    "gensokyolegacy:flagpole": {
+      "burn_time": 300
+    },
     "gensokyolegacy:gray_cushion": {
       "burn_time": 50
     },
     "gensokyolegacy:green_cushion": {
       "burn_time": 50
+    },
+    "gensokyolegacy:green_frame_lantern": {
+      "burn_time": 300
     },
     "gensokyolegacy:jungle_chair": {
       "burn_time": 300
@@ -159,6 +165,9 @@
     "gensokyolegacy:locust_plaque": {
       "burn_time": 300
     },
+    "gensokyolegacy:locust_wall": {
+      "burn_time": 150
+    },
     "gensokyolegacy:magenta_cushion": {
       "burn_time": 50
     },
@@ -181,6 +190,9 @@
       "burn_time": 150
     },
     "gensokyolegacy:mangrove_sliding_door": {
+      "burn_time": 300
+    },
+    "gensokyolegacy:myouren_donation_box": {
       "burn_time": 300
     },
     "gensokyolegacy:oak_chair": {

@@ -1,32 +1,62 @@
 {
   "variants": {
-    "facing=east,half=bottom": {
+    "alternate=false,facing=east,half=bottom": {
       "model": "gensokyolegacy:block/locust_plaque",
       "y": 90
     },
-    "facing=east,half=top": {
+    "alternate=false,facing=east,half=top": {
       "model": "gensokyolegacy:block/locust_plaque_top",
       "y": 90
     },
-    "facing=north,half=bottom": {
+    "alternate=false,facing=north,half=bottom": {
       "model": "gensokyolegacy:block/locust_plaque"
     },
-    "facing=north,half=top": {
+    "alternate=false,facing=north,half=top": {
       "model": "gensokyolegacy:block/locust_plaque_top"
     },
-    "facing=south,half=bottom": {
+    "alternate=false,facing=south,half=bottom": {
       "model": "gensokyolegacy:block/locust_plaque",
       "y": 180
     },
-    "facing=south,half=top": {
+    "alternate=false,facing=south,half=top": {
       "model": "gensokyolegacy:block/locust_plaque_top",
       "y": 180
     },
-    "facing=west,half=bottom": {
+    "alternate=false,facing=west,half=bottom": {
       "model": "gensokyolegacy:block/locust_plaque",
       "y": 270
     },
-    "facing=west,half=top": {
+    "alternate=false,facing=west,half=top": {
+      "model": "gensokyolegacy:block/locust_plaque_top",
+      "y": 270
+    },
+    "alternate=true,facing=east,half=bottom": {
+      "model": "gensokyolegacy:block/locust_plaque_alternate",
+      "y": 90
+    },
+    "alternate=true,facing=east,half=top": {
+      "model": "gensokyolegacy:block/locust_plaque_top",
+      "y": 90
+    },
+    "alternate=true,facing=north,half=bottom": {
+      "model": "gensokyolegacy:block/locust_plaque_alternate"
+    },
+    "alternate=true,facing=north,half=top": {
+      "model": "gensokyolegacy:block/locust_plaque_top"
+    },
+    "alternate=true,facing=south,half=bottom": {
+      "model": "gensokyolegacy:block/locust_plaque_alternate",
+      "y": 180
+    },
+    "alternate=true,facing=south,half=top": {
+      "model": "gensokyolegacy:block/locust_plaque_top",
+      "y": 180
+    },
+    "alternate=true,facing=west,half=bottom": {
+      "model": "gensokyolegacy:block/locust_plaque_alternate",
+      "y": 270
+    },
+    "alternate=true,facing=west,half=top": {
       "model": "gensokyolegacy:block/locust_plaque_top",
       "y": 270
     }

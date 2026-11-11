@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "base=false": {
+      "model": "gensokyolegacy:block/flagpole"
+    },
+    "base=true": {
+      "model": "gensokyolegacy:block/flagpole_base"
+    }
+  }
+}

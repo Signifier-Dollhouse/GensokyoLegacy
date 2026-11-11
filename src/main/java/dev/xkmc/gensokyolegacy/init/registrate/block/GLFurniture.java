@@ -30,16 +30,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
 public class GLFurniture {
 
-	public static final BlockEntry<DelegateBlock> DONATION_BOX;
+	public static final BlockEntry<DelegateBlock> DONATION_BOX, MYOUREN_DONATION_BOX;
 	public static final BlockEntityEntry<DonationBoxBlockEntity> DONATION_BOX_BE;
 
 	public static final BlockEntry<DelegateBlock> SHELF;
@@ -56,6 +59,9 @@ public class GLFurniture {
 	public static final BlockEntry<DelegateBlock> BOOK_PILE, BOOK_STACK;
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
+	public static final BlockEntry<LanternBlock> GREEN_FRAME_LANTERN;
+	public static final BlockEntry<FlagpoleBlock> FLAGPOLE;
+	public static final BlockEntry<DelegateBlock> MYOUREN_FLAG;
 
 	public static final BlockEntry<DelegateBlock> STONE_LANTERN;
 
@@ -73,20 +79,11 @@ public class GLFurniture {
 		{
 
 			// 赛钱箱
-			DONATION_BOX = reg.block("donation_box", p -> DelegateBlock.newBaseBlock(p,
-							BlockTemplates.HORIZONTAL, new DonationBoxShape(), DonationBoxBlockEntity.TE))
-					.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
-					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
-									.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
-									.renderType("cutout")))
-					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
-					.register();
+			DONATION_BOX = registerDonationBox(reg, "donation_box", new DonationBoxShape());
+			MYOUREN_DONATION_BOX = registerDonationBox(reg, "myouren_donation_box", DonationBoxShape.myouren());
 
 			DONATION_BOX_BE = reg.blockEntity("donation_box", DonationBoxBlockEntity::new)
-					.validBlock(DONATION_BOX)
+					.validBlocks(DONATION_BOX, MYOUREN_DONATION_BOX)
 					.register();
 
 			SHELF = reg.block("oak_shelf", p -> DelegateBlock.newBaseBlock(p,
@@ -252,10 +249,48 @@ public class GLFurniture {
 
 		// 灯笼：四种共用同一模型，下方有任意灯笼时使用连接材质
 		{
-			RED_LANTERN = registerLantern(reg, "red_lantern", MapColor.COLOR_RED);
-			WHITE_LANTERN = registerLantern(reg, "white_lantern", MapColor.SNOW);
-			LETTERED_RED_LANTERN = registerLantern(reg, "lettered_red_lantern", MapColor.COLOR_RED);
-			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW);
+			RED_LANTERN = registerLantern(reg, "red_lantern", MapColor.COLOR_RED, true);
+			WHITE_LANTERN = registerLantern(reg, "white_lantern", MapColor.SNOW, true);
+			LETTERED_RED_LANTERN = registerLantern(reg, "lettered_red_lantern", MapColor.COLOR_RED, true);
+			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW, true);
+			GREEN_FRAME_LANTERN = registerLantern(reg, "green_frame_lantern", MapColor.COLOR_GREEN, false);
+		}
+
+		{
+			FLAGPOLE = reg.block("flagpole", FlagpoleBlock::new)
+					.properties(p -> p.mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> {
+						var pole = pvd.models().getBuilder("block/flagpole")
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/flagpole")))
+								.renderType("cutout");
+						var base = pvd.models().getBuilder("block/flagpole_base")
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/flagpole_base")))
+								.renderType("cutout");
+						pvd.getVariantBuilder(ctx.get()).forAllStates(state -> ConfiguredModel.builder()
+								.modelFile(state.getValue(FlagpoleBlock.BASE) ? base : pole).build());
+					})
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().model((ctx, pvd) -> pvd.getBuilder(ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("block/flagpole_base"))))
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300))
+					.build().register();
+
+			MYOUREN_FLAG = reg.block("myouren_flag", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new DoubleBlockImpl(), new MyourenFlagBlock()))
+					.properties(p -> p.mapColor(MapColor.COLOR_PURPLE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+					.blockstate((ctx, pvd) -> {
+						var whole = pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/myouren_flag")))
+								.renderType("cutout");
+						var top = pvd.models().getBuilder("block/" + ctx.getName() + "_top")
+								.texture("particle", pvd.modLoc("block/deco/myouren_flag"));
+						pvd.horizontalBlock(ctx.get(), state ->
+								state.getValue(BlockStateProperties.HALF) == Half.TOP ? top : whole);
+					})
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.simpleItem()
+					.loot(StoneLanternBlock::genLoot)
+					.register();
 		}
 
 		// 石灯笼：两格高的石头摆件，笠上只是块石头，不发光
@@ -372,13 +407,31 @@ public class GLFurniture {
 				.register();
 	}
 
-	private static BlockEntry<LanternBlock> registerLantern(L2Registrate reg, String id, MapColor color) {
+	private static BlockEntry<DelegateBlock> registerDonationBox(L2Registrate reg, String id, DonationBoxShape shape) {
+		return reg.block(id, p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, shape, DonationBoxBlockEntity.TE))
+				.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
+				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
+						pvd.models().getBuilder("block/" + ctx.getName())
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
+								.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
+								.renderType("cutout")))
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+				.register();
+	}
+
+	private static BlockEntry<LanternBlock> registerLantern(L2Registrate reg, String id, MapColor color,
+														 boolean hasConnectedTexture) {
 		return reg.block(id, LanternBlock::new)
 				.properties(p -> p.mapColor(color).strength(0.5F).sound(SoundType.WOOD).noOcclusion()
 						.lightLevel(s -> 15))
 				.blockstate((ctx, pvd) -> {
-					var normal = GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), false);
-					var connected = GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), true);
+					var normal = hasConnectedTexture ? GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), false)
+							: pvd.models().getBuilder("block/furniture/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/" + ctx.getName())))
+									.renderType("cutout");
+					var connected = hasConnectedTexture
+							? GLBlockDatagenHelper.buildLanternModel(pvd, ctx.getName(), true) : normal;
 					var builder = pvd.getVariantBuilder(ctx.get());
 					for (Direction dir : Direction.Plane.HORIZONTAL) {
 						// 文字面在模型北面：north 不旋转，south 180，west 90，east 270

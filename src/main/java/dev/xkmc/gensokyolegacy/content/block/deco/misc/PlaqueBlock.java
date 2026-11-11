@@ -8,6 +8,7 @@ import dev.xkmc.l2core.serial.loot.LootHelper;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
 import dev.xkmc.l2modularblock.core.DelegateBlock;
 import dev.xkmc.l2modularblock.core.VoxelBuilder;
+import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
 import dev.xkmc.l2modularblock.mult.ShapeUpdateBlockMethod;
@@ -22,11 +23,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -37,7 +41,12 @@ import org.jetbrains.annotations.Nullable;
  * 牌匾贴着挂它的那面墙，只有朝向轴上一格厚。
  */
 public class PlaqueBlock implements ShapePathFindBlockMethod, DefaultStateBlockMethod, PlacementBlockMethod,
-		SurviveBlockMethod, ShapeUpdateBlockMethod {
+		SurviveBlockMethod, ShapeUpdateBlockMethod, CreateBlockStateBlockMethod {
+
+	/**
+	 * 匾面图案变体：false 用默认图案，true 换另一张贴图； {@link PlaqueItem} 在创造模式右键空气切换。
+	 */
+	public static final BooleanProperty ALTERNATE = BooleanProperty.create("alternate");
 
 	/**
 	 * 朝向由 {@link BlockTemplates#HORIZONTAL} 加上，这里只引用它的属性。
@@ -56,8 +65,13 @@ public class PlaqueBlock implements ShapePathFindBlockMethod, DefaultStateBlockM
 			new VoxelBuilder(4, 0, 15, 12, 16, 16));
 
 	@Override
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(ALTERNATE);
+	}
+
+	@Override
 	public BlockState getDefaultState(BlockState state) {
-		return state.setValue(HALF, Half.BOTTOM).setValue(FACING, Direction.NORTH);
+		return state.setValue(HALF, Half.BOTTOM).setValue(FACING, Direction.NORTH).setValue(ALTERNATE, false);
 	}
 
 	@Override
@@ -101,23 +115,31 @@ public class PlaqueBlock implements ShapePathFindBlockMethod, DefaultStateBlockM
 	public static void buildStates(Block block, RegistrateBlockstateProvider pvd, String name) {
 		var whole = pvd.models().getBuilder("block/" + name)
 				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/" + name)))
-				.texture("all", pvd.modLoc("block/deco/" + name))
-				.texture("particle", pvd.modLoc("block/deco/" + name))
+				.texture("all", pvd.modLoc("block/deco/" + name + "_2"))
+				.texture("particle", pvd.modLoc("block/deco/" + name + "_2"))
+				.renderType("cutout");
+		var alternate = pvd.models().getBuilder("block/" + name + "_alternate")
+				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/" + name)))
+				.texture("all", pvd.modLoc("block/deco/" + name + "_3"))
+				.texture("particle", pvd.modLoc("block/deco/" + name + "_3"))
 				.renderType("cutout");
 		// 上半格只占位置，模型在下半格那一份里
 		var empty = pvd.models().getBuilder("block/" + name + "_top")
-				.texture("particle", pvd.modLoc("block/deco/" + name));
-		pvd.horizontalBlock(block, state -> state.getValue(HALF) == Half.TOP ? empty : whole);
+				.texture("particle", pvd.modLoc("block/deco/" + name + "_2"));
+		pvd.horizontalBlock(block, state -> state.getValue(HALF) == Half.TOP ? empty
+				: state.getValue(ALTERNATE) ? alternate : whole);
 	}
 
 	/**
 	 * 两格高的模型直接当物品图标会超出格子，所以单独出一份压扁、居中的图标模型。
 	 */
 	public static void genItemModel(RegistrateItemModelProvider pvd, String name) {
-		pvd.getBuilder(name)
-				.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/" + name + "_item")))
-				.texture("all", pvd.modLoc("block/deco/" + name))
-				.renderType("cutout");
+		var parent = new ModelFile.UncheckedModelFile(pvd.modLoc("custom/deco/" + name + "_item"));
+		var alternate = pvd.getBuilder(name + "_alternate")
+				.parent(parent).texture("all", pvd.modLoc("block/deco/" + name + "_3")).renderType("cutout");
+		pvd.getBuilder(name).parent(parent).texture("all", pvd.modLoc("block/deco/" + name + "_2"))
+				.renderType("cutout")
+				.override().predicate(PlaqueItem.ALTERNATE_MODEL, 1).model(alternate).end();
 	}
 
 	/**
@@ -126,8 +148,8 @@ public class PlaqueBlock implements ShapePathFindBlockMethod, DefaultStateBlockM
 	public static void genLoot(RegistrateBlockLootTables pvd, DelegateBlock block) {
 		var helper = new LootHelper(pvd);
 		var pool = LootPool.lootPool().add(helper.item(block.asItem())
-				.when(helper.enumState(block, HALF, Half.BOTTOM)));
+				.when(helper.enumState(block, HALF, Half.BOTTOM))
+				.apply(CopyBlockState.copyState(block).copy(ALTERNATE)));
 		pvd.add(block, LootTable.lootTable().withPool(pvd.applyExplosionCondition(block, pool)));
 	}
-
 }

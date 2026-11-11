@@ -23,8 +23,28 @@ public class DonationBoxShape implements ShapePathFindBlockMethod {
 			Block.box(-1, 14, -5, 17, 16, 21)
 	);
 
+	private final VoxelShape northSouth;
+	private final VoxelShape westEast;
+
+	public DonationBoxShape() {
+		this(SHAPE_NS, SHAPE_WE);
+	}
+
+	private DonationBoxShape(VoxelShape northSouth, VoxelShape westEast) {
+		this.northSouth = northSouth;
+		this.westEast = westEast;
+	}
+
+	public static DonationBoxShape myouren() {
+		return new DonationBoxShape(
+				Shapes.or(Block.box(-11, 0, -1, 27, 2, 17), Block.box(-8, 2, 0, 24, 14, 16),
+						Block.box(-9, 14, -1, 25, 17, 17)),
+				Shapes.or(Block.box(-1, 0, -11, 17, 2, 27), Block.box(0, 2, -8, 16, 14, 24),
+						Block.box(-1, 14, -9, 17, 17, 25)));
+	}
+
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-		return state.getValue(FACING) == Direction.NORTH || state.getValue(FACING) == Direction.SOUTH ? SHAPE_NS : SHAPE_WE;
+		return state.getValue(FACING).getAxis() == Direction.Axis.Z ? northSouth : westEast;
 	}
 }

@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.MyourenFenceBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
@@ -326,7 +327,7 @@ public class GLDecoBlocks {
 					.properties(p -> p.mapColor(MapColor.COLOR_PURPLE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
 					.blockstate((ctx, pvd) -> PlaqueBlock.buildStates(ctx.get(), pvd, ctx.getName()))
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.item().model((ctx, pvd) -> PlaqueBlock.genItemModel(pvd, ctx.getName()))
+					.item(PlaqueItem::new).model((ctx, pvd) -> PlaqueBlock.genItemModel(pvd, ctx.getName()))
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
 					.loot(PlaqueBlock::genLoot)
 					.register();
