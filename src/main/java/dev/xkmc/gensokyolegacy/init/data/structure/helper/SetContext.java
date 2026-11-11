@@ -23,4 +23,11 @@ public record SetContext(ResourceLocation set, int setIndex, int setCount) {
 		return new SetContext(self.set(), members.indexOf(self), total);
 	}
 
+	/**
+	 * A fallback member: it has no region pick, so no index and no count.
+	 */
+	public static SetContext fallback(StructStructure self) {
+		return new SetContext(self.set(), -1, -1);
+	}
+
 }
