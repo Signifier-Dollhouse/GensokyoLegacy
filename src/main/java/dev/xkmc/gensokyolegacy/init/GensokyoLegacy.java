@@ -177,6 +177,7 @@ public class GensokyoLegacy {
 		var out = gen.getPackOutput();
 		var helper = event.getExistingFileHelper();
 		var pvd = event.getLookupProvider();
+		gen.addProvider(event.includeClient(), new GLFurnitureModelGen(out, helper));
 		gen.addProvider(event.includeServer(), new GLGLMProvider(out, pvd));
 		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, pvd));
 

@@ -1,0 +1,15 @@
+{
+  "parent": "gensokyolegacy:custom/deco/locust_plaque_item",
+  "overrides": [
+    {
+      "model": "gensokyolegacy:item/locust_plaque_alternate",
+      "predicate": {
+        "gensokyolegacy:plaque_alternate": 1.0
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/locust_plaque_2"
+  }
+}

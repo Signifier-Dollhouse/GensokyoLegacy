@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "gensokyolegacy:block/myouren_donation_box",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "gensokyolegacy:block/myouren_donation_box"
+    },
+    "facing=south": {
+      "model": "gensokyolegacy:block/myouren_donation_box",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "gensokyolegacy:block/myouren_donation_box",
+      "y": 270
+    }
+  }
+}

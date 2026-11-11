@@ -1,6 +1,7 @@
 {
   "values": [
     "gensokyolegacy:donation_box",
+    "gensokyolegacy:myouren_donation_box",
     "gensokyolegacy:oak_shelf",
     "gensokyolegacy:drawer_cabinet",
     "gensokyolegacy:door_cabinet",
@@ -14,9 +15,13 @@
     "gensokyolegacy:white_lantern",
     "gensokyolegacy:lettered_red_lantern",
     "gensokyolegacy:lettered_white_lantern",
+    "gensokyolegacy:green_frame_lantern",
+    "gensokyolegacy:flagpole",
+    "gensokyolegacy:myouren_flag",
     "gensokyolegacy:magic_table",
     "gensokyolegacy:sewing_machine",
     "gensokyolegacy:candlestick",
+    "gensokyolegacy:locust_plaque",
     "gensokyolegacy:tatami",
     "gensokyolegacy:tatami_block",
     "gensokyolegacy:paper_window",
@@ -87,6 +92,7 @@
     "gensokyolegacy:locust_planks",
     "gensokyolegacy:stripped_locust_log",
     "gensokyolegacy:stripped_locust_wood",
+    "gensokyolegacy:locust_wall",
     "gensokyolegacy:locust_log",
     "gensokyolegacy:locust_wood",
     "gensokyolegacy:locust_hollow_log",
@@ -101,6 +107,12 @@
     "gensokyolegacy:morichika_bed",
     "gensokyolegacy:marisa_bed",
     "gensokyolegacy:alice_bed",
-    "gensokyolegacy:minamitsu_bed"
+    "gensokyolegacy:minamitsu_bed",
+    "gensokyolegacy:nue_bed",
+    "gensokyolegacy:byakuren_bed",
+    "gensokyolegacy:kyouko_bed",
+    "gensokyolegacy:ichirin_bed",
+    "gensokyolegacy:nazrin_bed",
+    "gensokyolegacy:shou_bed"
   ]
 }

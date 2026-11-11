@@ -10,6 +10,8 @@ import dev.xkmc.gensokyolegacy.content.block.deco.door.NorenJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoor;
 import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.MyourenFenceBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
@@ -67,6 +69,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> STURDY_TEDDY_BEAR;
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
+	public static final BlockEntry<DelegateBlock> LOCUST_PLAQUE;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FENCE;
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
@@ -122,6 +125,16 @@ public class GLDecoBlocks {
 		}
 
 		GLFurniture.register();
+
+		LOCUST_PLAQUE = reg.block("locust_plaque", p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new DoubleBlockImpl(), new PlaqueBlock()))
+				.properties(p -> p.mapColor(MapColor.COLOR_PURPLE).strength(1.0F).sound(SoundType.WOOD).noOcclusion())
+				.blockstate((ctx, pvd) -> PlaqueBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.item(PlaqueItem::new).model((ctx, pvd) -> PlaqueBlock.buildItemModel(pvd, ctx.getName()))
+				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(300)).build()
+				.loot(PlaqueBlock::genLoot)
+				.register();
 
 		// building blocks
 		{

@@ -42,7 +42,13 @@ public class GLBlocks {
 		MORICHIKA(Blocks.LIGHT_BLUE_BED, new FlatBedShape()),
 		MARISA(Blocks.BLACK_BED, new WesternBedShape()),
 		ALICE(Blocks.WHITE_BED, new WesternBedShape()),
-		MINAMITSU(Blocks.CYAN_BED, new FlatBedShape());
+		MINAMITSU(Blocks.CYAN_BED, new FlatBedShape()),
+		NUE(Blocks.BLACK_BED, new FlatBedShape()),
+		BYAKUREN(Blocks.PURPLE_BED, new FlatBedShape()),
+		KYOUKO(Blocks.GREEN_BED, new FlatBedShape()),
+		ICHIRIN(Blocks.BLUE_BED, new FlatBedShape()),
+		NAZRIN(Blocks.GRAY_BED, new FlatBedShape()),
+		SHOU(Blocks.YELLOW_BED, new FlatBedShape());
 
 		private final BedBlock template;
 		private final BedShape shape;
