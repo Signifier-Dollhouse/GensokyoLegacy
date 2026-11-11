@@ -1,6 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
+import dev.xkmc.gensokyolegacy.content.entity.broom.DismountBroomToServer;
+import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
@@ -38,10 +40,13 @@ public class BroomItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (player.getVehicle() instanceof BroomEntity) {
+		if (player.getVehicle() instanceof BroomEntity broom) {
 			if (player.getMainHandItem().is(GLItems.MINI_HAKKERO.get()))
 				return InteractionResultHolder.pass(stack);
-			if (!level.isClientSide) player.stopRiding();
+			// use repeats while the button is held and the mount reaches the client late, so
+			// it cannot toggle the ride off: the client asks for the dismount explicitly
+			if (level.isClientSide && broom.readyForUse())
+				GensokyoLegacy.HANDLER.toServer(new DismountBroomToServer());
 			return InteractionResultHolder.success(stack);
 		}
 		if (level.isClientSide) return InteractionResultHolder.success(stack);
@@ -51,7 +56,9 @@ public class BroomItem extends Item {
 		broom.moveTo(player.getX() + ahead.x, player.getY() + 0.6, player.getZ() + ahead.z,
 				player.getYRot(), player.getXRot());
 		level.addFreshEntity(broom);
-		return player.startRiding(broom) ? InteractionResultHolder.success(stack)
+		player.getCooldowns().addCooldown(GLItems.BROOM.get(), 10);
+		// force: a previous ride's boarding cooldown must not swallow the summon
+		return player.startRiding(broom, true) ? InteractionResultHolder.success(stack)
 				: InteractionResultHolder.fail(stack);
 	}
 

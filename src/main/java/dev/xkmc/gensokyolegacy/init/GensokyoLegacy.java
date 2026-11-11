@@ -66,7 +66,7 @@ public class GensokyoLegacy {
 	public static final Logger LOGGER = LogManager.getLogger();
 
 	public static final String MODID = "gensokyolegacy";
-	public static final PacketHandlerWithConfig HANDLER = GLPackets.create(4);
+	public static final PacketHandlerWithConfig HANDLER = GLPackets.create(5);
 	public static final Reg REG = new Reg(MODID, HANDLER);
 	public static final GLRegistrate REGISTRATE = new GLRegistrate(MODID);
 
