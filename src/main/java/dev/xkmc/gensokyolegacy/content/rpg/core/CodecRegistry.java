@@ -24,7 +24,7 @@ public class CodecRegistry {
 		public static final ResourceKey<Registry<Dialog>> DIALOG = ResourceKey.createRegistryKey(GensokyoLegacy.loc("dialog"));
 		public static final ResourceKey<Registry<DialogStarter>> STARTER = ResourceKey.createRegistryKey(GensokyoLegacy.loc("dialog_starter"));
 		public static final ResourceKey<Registry<Quest>> QUEST = ResourceKey.createRegistryKey(GensokyoLegacy.loc("quest"));
-		public static final ResourceKey<Registry<TradeOffer>> TRADE = ResourceKey.createRegistryKey(GensokyoLegacy.loc("trade_offer"));
+		public static final ResourceKey<Registry<TradeOffer>> TRADE = ResourceKey.createRegistryKey(GensokyoLegacy.loc("trade"));
 
 	}
 

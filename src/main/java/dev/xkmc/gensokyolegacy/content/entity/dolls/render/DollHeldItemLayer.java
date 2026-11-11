@@ -75,6 +75,9 @@ public class DollHeldItemLayer extends BlockAndItemGeoLayer<DollEntity> {
 		poseStack.pushPose();
 		RenderUtils.translateToPivotPoint(poseStack, bone);
 		renderStackForBone(poseStack, bone, stack, doll, bufferSource, partialTick, packedLight, packedOverlay);
+		// renderStatic switched the shared BufferSource to the item's render type, and the
+		// bone loop keeps writing to that builder; point it back (as the base method does)
+		buffer = bufferSource.getBuffer(renderType);
 		poseStack.popPose();
 	}
 

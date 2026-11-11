@@ -134,7 +134,7 @@ QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice);
 
 `QuestDialogData.build(L2Registrate, QuestDialogData...)` is a single static
 method that registers each datapack registry (dialog / dialog_starter / quest /
-trade_offer) plus the `entity_type/default_dialog` data map *exactly once*,
+trade) plus the `entity_type/default_dialog` data map *exactly once*,
 iterating all instances' content — a second `.add` per registry makes
 `RegistrySetBuilder` throw `Multiple entries with same key`. Subclasses keep
 **per-instance (non-static) content maps**; `build` owns the one-time
