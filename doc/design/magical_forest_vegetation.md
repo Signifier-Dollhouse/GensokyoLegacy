@@ -105,7 +105,7 @@
 存档 region/*.mca
    │  tools/template_export/export_templates.py + manifest.json      （离线，dev-only）
    ▼
-data/gensokyolegacy/structure/magical_forest/{tree,bush,mushroom}/*.nbt
+data/gensokyolegacy/structures/magical_forest/{tree,bush,mushroom}/*.nbt
    │
    ▼
 TemplateFeature(config: 模板加权表 / processor_list / 地面与坡度 / 根系下延 / post_features)

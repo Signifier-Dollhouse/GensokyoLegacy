@@ -41,7 +41,6 @@ import dev.xkmc.l2damagetracker.contents.attack.AttackEventHandler;
 import dev.xkmc.l2library.capability.entity.GeneralCapabilityHolder;
 import dev.xkmc.l2library.compat.patchouli.PatchouliHelper;
 import dev.xkmc.l2library.serial.config.PacketHandlerWithConfig;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -154,6 +153,8 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, GLTagGen::onBlockTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, GLTagGen::onItemTagGen);
 		REGISTRATE.addDataGenerator(ProviderType.ENTITY_TAGS, GLTagGen::onEntityTagGen);
+		REGISTRATE.addDataGenerator(GLBiomeGen.BIOME_TAG, GLBiomeGen::genBiomeTag);
+		REGISTRATE.addDataGenerator(GLStructureTagGen.STRUCTURE_TAG, GLStructureTagGen::genStructureTag);
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftLootGen::genLoot);
@@ -190,18 +191,10 @@ public class GensokyoLegacy {
 
 		var dynamic = new GLDatapackProvider("Gensokyo Legacy Registries", out, event.getLookupProvider(),
 				init.builder(), Set.of(MODID, "minecraft"));
+		// the dynamic-tag providers are created by Registrate itself (one per registered ProviderType); the
+		// addDataGenerator callbacks above run inside their addTags. Validation reads the vanilla lookup, so
+		// mod-namespace references resolve through --existing against src/generated/resources instead.
 		gen.addProvider(event.includeServer(), dynamic);
-		var registries = dynamic.getRegistryProvider();
-
-		var biomeTags = DataProviderInitializer.tagProvider(REGISTRATE, GLBiomeGen.BIOME_TAG, "biome",
-				Registries.BIOME, out, registries, helper);
-		GLBiomeGen.genBiomeTag(biomeTags);
-		gen.addProvider(event.includeServer(), biomeTags);
-
-		var structureTags = DataProviderInitializer.tagProvider(REGISTRATE, GLStructureTagGen.STRUCTURE_TAG,
-				"structure", Registries.STRUCTURE, out, registries, helper);
-		GLStructureTagGen.genStructureTag(structureTags);
-		gen.addProvider(event.includeServer(), structureTags);
 
 		ReportBlocksInStructure.report();
 	}

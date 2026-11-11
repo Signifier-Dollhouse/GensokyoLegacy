@@ -180,7 +180,7 @@ tool, not the deletion. Re-running on a clean jar is a no-op.
 ### Reading a template
 
 ```sh
-python3 tools/nbt.py src/main/resources/data/gensokyolegacy/structure/alice_house/root.nbt
+python3 tools/nbt.py src/main/resources/data/gensokyolegacy/structures/alice_house/root.nbt
 python3 tools/structview.py <template.nbt>          # summary + palette histogram
 python3 tools/structview.py <template.nbt> air      # enclosed air pockets
 python3 tools/structview.py <template.nbt> layers    # every y, x across / z down
@@ -198,9 +198,9 @@ rather than a second copy, so what it validates cannot drift from what ships:
 
 ```sh
 ./gradlew runData
-python3 tools/checkconfig.py alice_house src/main/resources/data/gensokyolegacy/structure/alice_house/root.nbt
-python3 tools/checkconfig.py marisa_house src/main/resources/data/gensokyolegacy/structure/marisa_house.nbt
-python3 tools/checkconfig.py hakurei_shrine src/main/resources/data/gensokyolegacy/structure/hakurei_shrine/root.nbt
+python3 tools/checkconfig.py alice_house src/main/resources/data/gensokyolegacy/structures/alice_house/root.nbt
+python3 tools/checkconfig.py marisa_house src/main/resources/data/gensokyolegacy/structures/marisa_house.nbt
+python3 tools/checkconfig.py hakurei_shrine src/main/resources/data/gensokyolegacy/structures/hakurei_shrine/root.nbt
 ```
 
 It enforces, per structure:

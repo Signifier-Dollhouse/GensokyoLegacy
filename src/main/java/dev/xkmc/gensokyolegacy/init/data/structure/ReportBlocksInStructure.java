@@ -33,7 +33,7 @@ public class ReportBlocksInStructure {
 	}
 
 	public static void report(String path) throws IOException {
-		var stream = ReportBlocksInStructure.class.getResourceAsStream("/data/gensokyolegacy/structure/" + path);
+		var stream = ReportBlocksInStructure.class.getResourceAsStream("/data/gensokyolegacy/structures/" + path);
 		if (stream == null) {
 			LOGGER.warn("Structure template not on classpath: {}", path);
 			return;

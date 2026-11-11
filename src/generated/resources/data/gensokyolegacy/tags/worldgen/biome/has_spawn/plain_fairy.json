@@ -1,0 +1,10 @@
+{
+  "values": [
+    "#minecraft:is_forest",
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:snowy_plains",
+    "#gensokyolegacy:is_forest",
+    "#gensokyolegacy:is_plains"
+  ]
+}

@@ -1,14 +1,10 @@
 package dev.xkmc.gensokyolegacy.compat.datagen;
 
-import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
-import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,21 +27,14 @@ public class DataProviderInitializer {
 
 	/**
 	 * Tag providers over a dynamic registry need the built entries in their lookup, which the vanilla
-	 * {@link GatherDataEvent#getLookupProvider()} does not carry. The real provider is constructed directly in
-	 * {@code gatherData}; this type only exists so the generator methods keep one parameter type.
+	 * {@link GatherDataEvent#getLookupProvider()} does not carry. {@link #dynamicTag} only registers the type so
+	 * Registrate builds a provider per tag kind; the callbacks run inside their {@code addTags} at run time.
 	 */
 	public static <T> ProviderType<RegistrateTagsProvider.Impl<T>> dynamicTag(String type, ResourceKey<? extends Registry<T>> key) {
 		return ProviderType.register("tags/" + type,
 				(pvd) -> (reg, e) ->
 						new RegistrateTagsProvider.Impl<T>(reg, pvd, type, e.getGenerator().getPackOutput(),
 								key, e.getLookupProvider(), e.getExistingFileHelper()));
-	}
-
-	public static <T> RegistrateTagsProvider.Impl<T> tagProvider(AbstractRegistrate<?> registrate,
-																 ProviderType<RegistrateTagsProvider.Impl<T>> type, String name,
-																 ResourceKey<? extends Registry<T>> key, PackOutput out,
-																 CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper helper) {
-		return new RegistrateTagsProvider.Impl<>(registrate, type, name, out, key, registries, helper);
 	}
 
 }
