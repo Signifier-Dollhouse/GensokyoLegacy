@@ -77,7 +77,9 @@
 			"feed_note": "拿着它右键她即可；只有当她不再把你当敌人时才会回礼，单靠喂食最多涨到 %s 声望",
 			"shelf_price": "价格：%s",
 			"shelf_stock": "库存：%s",
-			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机"
+			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机",
+			"treasure_tower_tag": "石头标签：#%s",
+			"treasure_tower_note": "宝石会被消耗，寻宝塔留在手中"
 		}
 	},
 	"jei": {
@@ -87,7 +89,8 @@
 			"quest": "任务奖励",
 			"gift": "宴会赠礼",
 			"interaction": "互动",
-			"shelf_offer": "森近霖之助的货架商品"
+			"shelf_offer": "森近霖之助的货架商品",
+			"treasure_tower": "寻宝塔"
 		}
 	},
 	"death.attack": {

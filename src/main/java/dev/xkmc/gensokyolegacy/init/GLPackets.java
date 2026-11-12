@@ -20,6 +20,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.treasure.network.TreasureTowerToClient;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.network.*;
 import dev.xkmc.l2serial.network.PacketHandler;
@@ -77,6 +78,7 @@ public class GLPackets {
 				.toClient(PartyGiftToClient.class)
 				.toClient(Dowser.DowserToClient.class)
 				.toClient(CatBell.MountToClient.class)
+				.toClient(TreasureTowerToClient.class)
 				.toClient(Hakkero.BroomBoostToClient.class)
 
 				.toServer(BorderUmbrellaWheelSelectPacket.class)

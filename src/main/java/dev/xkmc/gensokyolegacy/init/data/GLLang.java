@@ -876,7 +876,8 @@ public final class GLLang {
 		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
 		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
 		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction"),
-		SHELF_OFFER("jei.gensokyolegacy.shelf_offer", "Morichika Shelf Offers");
+		SHELF_OFFER("jei.gensokyolegacy.shelf_offer", "Morichika Shelf Offers"),
+		TREASURE_TOWER("jei.gensokyolegacy.treasure_tower", "Treasure Tower");
 
 		private final String def;
 		private final int argn;
@@ -938,7 +939,9 @@ public final class GLLang {
 		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1),
 		SHELF_PRICE("Price: %s", 1),
 		SHELF_STOCK("Stock: %s", 1),
-		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0);
+		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0),
+		TREASURE_TOWER_TAG("Stone tag: #%s", 1),
+		TREASURE_TOWER_NOTE("The gem is spent; the tower keeps its place in the hand", 0);
 
 		private final String def;
 		private final int argn;
@@ -1315,6 +1318,51 @@ public final class GLLang {
 		}
 	}
 
+	public enum ItemTreasureTower implements LangEntry {
+		NEED_POWER("The tower needs at least %s spiritual power", 1, ChatFormatting.RED),
+		TOOLTIP("Hold right-click for a second, then release it at stone to turn it and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemTreasureTower(String def) {
+			this(def, 0, null);
+		}
+
+		ItemTreasureTower(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemTreasureTower(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".treasure_tower." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum ItemUfo implements LangEntry {
 		CONTAINS("Contains %s", 1),
 		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY);
@@ -1499,7 +1547,7 @@ public final class GLLang {
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
-				ItemAnchor.values(), ItemUfo.values(),
+				ItemAnchor.values(), ItemUfo.values(), ItemTreasureTower.values(),
 				Jizo.values(), Gravestone.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

@@ -713,6 +713,8 @@
   "gensokyolegacy.jei.shelf_note": "Morichika restocks shelves at random; the shelf rolls the price and stock each time",
   "gensokyolegacy.jei.shelf_price": "Price: %s",
   "gensokyolegacy.jei.shelf_stock": "Stock: %s",
+  "gensokyolegacy.jei.treasure_tower_note": "The gem is spent; the tower keeps its place in the hand",
+  "gensokyolegacy.jei.treasure_tower_tag": "Stone tag: #%s",
   "gensokyolegacy.jizo.full": "That item cannot hold any more spiritual power",
   "gensokyolegacy.jizo.no_xp": "Jizo needs a full level of experience to draw on",
   "gensokyolegacy.jizo.restored": "Jizo restored %s spiritual power",
@@ -800,6 +802,8 @@
   "gensokyolegacy.trade.option": "Trade",
   "gensokyolegacy.trade.sell": "Sell %s to %s",
   "gensokyolegacy.trade.stock": "Stock: %s/%s",
+  "gensokyolegacy.treasure_tower.need_power": "The tower needs at least %s spiritual power",
+  "gensokyolegacy.treasure_tower.tooltip": "Hold right-click for a second, then release it at stone to turn it and the stone it touches into that gem's ore",
   "gensokyolegacy.ufo.contains": "Contains %s",
   "gensokyolegacy.ufo.hold": "Hold right-click for two seconds to take it back",
   "gensokyolegacy.umbrella.capture_fail": "Cannot capture this entity",
@@ -1620,6 +1624,7 @@
   "item.gensokyolegacy.suwako_hat": "Suwako Hat",
   "item.gensokyolegacy.talisman_pocket": "Talisman Pocket",
   "item.gensokyolegacy.tengu_sake": "Tengu Sake",
+  "item.gensokyolegacy.treasure_tower": "Treasure Tower",
   "item.gensokyolegacy.ufo": "UFO",
   "item.gensokyolegacy.witch_hexbrew_bottle": "Witch Hexbrew Bottle",
   "item.gensokyolegacy.witch_splash_bottle": "Witch Splash Bottle",
@@ -1634,6 +1639,7 @@
   "jei.gensokyolegacy.quest": "Quest Rewards",
   "jei.gensokyolegacy.shelf_offer": "Morichika Shelf Offers",
   "jei.gensokyolegacy.trade": "Trade",
+  "jei.gensokyolegacy.treasure_tower": "Treasure Tower",
   "patchouli.gensokyolegacy.landing": "This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.",
   "patchouli.gensokyolegacy.title": "Gensokyo Tools Guide"
 }
