@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "gensokyolegacy:magical_forest",
+  "spawners": {
+    "type": "gensokyolegacy:stray_doll",
+    "maxCount": 5,
+    "minCount": 3,
+    "weight": 10
+  }
+}

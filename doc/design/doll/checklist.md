@@ -24,10 +24,12 @@ Ghosts and wild strays (done — stray.md):
 - `content/entity/dolls/ghost/GhostEntity.java` — the owned support summon, `BaseDollEntity` + `GhostVariantHolder`, `nature() == SUMMON`, no item; variant behaviour delegated to `GhostVariantHandler`
 - `content/entity/dolls/StrayFlyingMob.java` — shared flying body for both wild types: flying navigation/move control, no gravity, one-block hover like the plain fairy
 - `content/entity/dolls/goals/HoverStrollGoal.java` — air-target wander that bypasses `FlyingPathNavigation.isStableDestination`
+- `content/entity/dolls/goals/FollowStrayLeaderGoal.java` — pack follow behaviour; hunt-on-sight uses vanilla `NearestAttackableTargetGoal` with the leader-leash predicate
 - `content/entity/dolls/ghost/StrayGhostEntity.java` — the wild ownerless ghost, `StrayFlyingMob`, fully passive, persistent, variant-bearing
 - `content/entity/dolls/ghost/GhostVariant.java` + `GhostVariantHolder.java` — `CURIOS` / `FOODIE` / `LIVELY` / `DUAL` / `HAUNTING`, synced id, texture stem, display name; each constant holds a `GhostVariantHandler` (`CuriosGhostHandler`, `FoodieGhostHandler`, `LivelyGhostHandler`, `DualGhostHandler`, `HauntingGhostHandler`)
 - `content/entity/dolls/ghost/GhostVariantModule.java` — mirrors the synced id into `DollData.variant` across park/resummon
-- `content/entity/dolls/StrayDollEntity.java` — the wild neutral doll, `StrayFlyingMob`, own entity type and spawn egg
+- `content/entity/dolls/StrayDollEntity.java` — the wild hostile pack doll, `StrayFlyingMob`, own entity type, natural spawn and spawn egg; a leader is crowned only at the third spawned member, and leaderless dolls search within 8 blocks every 100 ticks; synced leader UUID for the pack link
+- `content/client/render/StrayDollLinkRenderer.java` + `RopeRenderer.java` — the leader-to-follower thread, sharing the glove links' drooping leash band
 - `content/item/ghost/BoneFluteItem.java` — adopt a stray ghost / release an owned ghost
 - `content/item/spiritual/SpiritualPower.java` + `content/item/ghost/YuyukoFanItem.java`, `content/item/ghost/YuyukoFanMode.java`, `content/item/ghost/SummonFanHandler.java`, `content/item/ghost/AbsorbFanHandler.java`, `content/item/ghost/ScatterFanHandler.java`, `content/item/ghost/HauntFanHandler.java`, `content/item/ghost/ButterflyDanmakuItem.java`, `content/spell/item/YuyukoScatterItemSpell.java` — the universal spiritual pool and the fan's four modes (ghost_power.md §4)
 - `content/entity/dolls/ghost/GhostVariant.java` (`HAUNTING`), `HauntingGhostHandler.java`, `HauntingGhostModule.java`, `content/entity/misc/ButterflyDanmakuBulletEntity.java` — the ledger's hunting variant and its 96-butterfly volley (ghost_power.md §4.1)

@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.data.biome;
 
 import com.tterrag.registrate.providers.DataProviderInitializer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MyourenTempleBarrensBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.core.HolderSet;
@@ -28,6 +29,10 @@ public class GLBiomeModifierGen {
 			ctx.register(biomeMod("plain_fairy"), new BiomeModifiers.AddSpawnsBiomeModifier(
 					ctx.lookup(Registries.BIOME).getOrThrow(GLBiomeGen.PLAIN_FAIRY_SPAWN),
 					List.of(new MobSpawnSettings.SpawnerData(GLEntities.PLAIN_FAIRY.get(), 10, 3, 3))
+			));
+			ctx.register(biomeMod("stray_doll"), new BiomeModifiers.AddSpawnsBiomeModifier(
+					HolderSet.direct(ctx.lookup(Registries.BIOME).getOrThrow(MagicalForestBiomeGen.KEY)),
+					List.of(new MobSpawnSettings.SpawnerData(GLEntities.STRAY_DOLL.get(), 10, 3, 5))
 			));
 			ctx.register(biomeMod("stray_ghost"), new BiomeModifiers.AddSpawnsBiomeModifier(
 					HolderSet.direct(ctx.lookup(Registries.BIOME).getOrThrow(MyourenTempleBarrensBiomeGen.KEY)),
