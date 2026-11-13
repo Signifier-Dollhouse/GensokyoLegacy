@@ -467,7 +467,33 @@ public final class GLLang {
 		PARTY_WAND_TOTALS("hunger: %s   appeal: %s", 2),
 		PARTY_WAND_NOBODY("Nobody would come"),
 		PARTY_WAND_GUEST("  %s", 1),
-		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
+		PARTY_WAND_STALE("(taken away from that table - may be out of date)"),
+		MIRROR_ROOT("Recorded root piece %s", 1),
+		MIRROR_LINKED("Linked %s -> %s", 2),
+		MIRROR_TREE("Structure mirror tree: %s pieces, %s links", 2),
+		MIRROR_TREE_EMPTY("Structure mirror tree is empty", 0, ChatFormatting.GRAY),
+		MIRROR_REPAIR_OK("All %s jigsaw pairs are valid", 1),
+		MIRROR_REPAIR_SUMMARY("Jigsaw pairs: %s total, %s valid, %s fixed, %s failed", 4),
+		MIRROR_DELETED("Removed pair and entry #%s", 1),
+		MIRROR_NO_STRUCTURE("No structure block bounds contain this block", 0, ChatFormatting.RED),
+		MIRROR_NO_PARENT_NAME("Structure block at %s is missing, unloaded or unnamed", 1, ChatFormatting.RED),
+		MIRROR_NOT_RECORDED("This block is not inside a recorded piece", 0, ChatFormatting.RED),
+		MIRROR_NOT_FACE("This block is not on a bound face", 0, ChatFormatting.RED),
+		MIRROR_CORNER("This block is on an edge or corner (%s out-of-bound neighbours)", 1, ChatFormatting.RED),
+		MIRROR_NO_CHILD("No structure block bounds contain the adjacent block at %s", 1, ChatFormatting.RED),
+		MIRROR_ALREADY("Both pieces are already recorded; a piece has exactly one parent", 0, ChatFormatting.RED),
+		MIRROR_JIGSAW("A jigsaw already exists at %s", 1, ChatFormatting.RED),
+		MIRROR_STRUCTURE_BLOCK("A structure block occupies %s", 1, ChatFormatting.RED),
+		MIRROR_PLACE_FAILED("Could not place the jigsaw pair", 0, ChatFormatting.RED),
+		MIRROR_NO_DATA("No structure data recorded", 0, ChatFormatting.RED),
+		MIRROR_NOT_PAIR("This jigsaw is not part of a recorded pair", 0, ChatFormatting.RED),
+		MIRROR_AMBIGUOUS("Multiple recorded pairs share this jigsaw", 0, ChatFormatting.RED),
+		MIRROR_NOT_LEAF("Entry #%s is not a leaf piece (%s children); delete its children first", 2, ChatFormatting.RED),
+		MIRROR_USE_HINT("Click a block inside a structure bound to record the root", 0, ChatFormatting.GRAY),
+		MIRROR_LINK_HINT("Click a face block to link the adjacent piece", 0, ChatFormatting.GRAY),
+		MIRROR_DELETE_HINT("Left-click a jigsaw to delete its pair and leaf child", 0, ChatFormatting.GRAY),
+		MIRROR_AIR_HINT("Right-click air to print the tree; shift-right-click to repair", 0, ChatFormatting.GRAY),
+		MIRROR_PIECES("%s pieces recorded", 1, ChatFormatting.DARK_AQUA);
 
 		private final String def;
 		private final int argn;
@@ -485,7 +511,7 @@ public final class GLLang {
 		ItemDebug(String def, int argn, @Nullable ChatFormatting format) {
 			this.def = def;
 			this.argn = argn;
-			this.key = GensokyoLegacy.MODID + ".item." + name().toLowerCase(Locale.ROOT);
+			this.key = GensokyoLegacy.MODID + ".debug." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
