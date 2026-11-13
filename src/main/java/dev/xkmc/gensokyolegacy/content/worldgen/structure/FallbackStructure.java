@@ -22,8 +22,9 @@ import java.util.Optional;
 /**
  * Structure member of a {@link FlatCheckStructure} set that fills the candidates the region's picked flat rejected.
  * It takes no part in the region pick (no set index/count) and is associated with a candidate by a position-seeded
- * pick among the set's fallback members. Distances to flats and to earlier kept fallback candidates use the flat's
- * safety radius; a reserved region has no flat to yield to, so every candidate is attempted there.
+ * pick among the set's fallback members. Distances to the primary and secondary starts and to earlier kept fallback
+ * candidates use the flat's safety radius; a reserved region has no higher-tier start to yield to, so every candidate
+ * is attempted there.
  *
  * @see "doc/design/structure/fallback.md"
  */
@@ -80,7 +81,8 @@ public class FallbackStructure extends Structure {
 	}
 
 	private JigsawCheck check() {
-		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, heightTolerance, biomes());
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, heightTolerance,
+				biomes(), 0);
 	}
 
 	@Override
@@ -99,8 +101,6 @@ public class FallbackStructure extends Structure {
 		int spacing = r.placement().spacing();
 		int rx = Math.floorDiv(me.x, spacing);
 		int rz = Math.floorDiv(me.z, spacing);
-		int pick = FlatCheckStructure.pickForRegion(ctx.seed(), rx, rz, r.placement().salt(), r.flatCount());
-		FlatCheckStructure flat = r.flatFor(pick);
 		int radius = r.flatRadius();
 		// Border margin: keeps every cross-region fallback pair farther apart than the radius.
 		if (2 * MultiSpreadPlacement.borderDistance(me, spacing) < radius) {
@@ -118,11 +118,8 @@ public class FallbackStructure extends Structure {
 		if (!pre.pass()) {
 			return Optional.empty();
 		}
-		if (nearFlat(ctx, me, cands, r, flat)) {
-			return Optional.empty();
-		}
-		// The picked flat owns this candidate when it passes; a reserved region has none to yield to.
-		if (flat != null && flat.passesCandidate(flat.ctxFor(ctx, me), me, r.placement())) {
+		// Higher tiers own their start chunk and a radius around it; a reserved pick owns nothing.
+		if (radius > 0 && (nearStart(ctx, me, cands, r, rx, rz) || nearNeighbourStart(ctx, me, r, rx, rz))) {
 			return Optional.empty();
 		}
 		JigsawCheck.Validated v = check.validateLayout(ctx, me, pre.y());
@@ -130,7 +127,8 @@ public class FallbackStructure extends Structure {
 	}
 
 	/**
-	 * The set's placement, flat members, fallback members and this member's position among the fallbacks.
+	 * The set's placement, flat members, secondary members, fallback members and this member's position among the
+	 * fallbacks.
 	 */
 	private Optional<Resolved> resolve() {
 		Holder<StructureSet> holder = this.set;
@@ -141,32 +139,34 @@ public class FallbackStructure extends Structure {
 			return Optional.empty();
 		}
 		List<FlatCheckStructure> flats = new ArrayList<>();
+		List<SecondaryStructure> secondaries = new ArrayList<>();
 		List<FallbackStructure> fallbacks = new ArrayList<>();
 		for (var entry : holder.value().structures()) {
 			var structure = entry.structure().value();
 			if (structure instanceof FlatCheckStructure flat) {
 				flats.add(flat);
+			} else if (structure instanceof SecondaryStructure secondary) {
+				secondaries.add(secondary);
 			} else if (structure instanceof FallbackStructure fallback) {
 				fallbacks.add(fallback);
 			}
 		}
-		int index = -1;
-		for (int i = 0; i < fallbacks.size(); i++) {
-			if (fallbacks.get(i) == this) {
-				index = i;
-				break;
-			}
-		}
+		int index = fallbacks.indexOf(this);
 		if (flats.isEmpty() || index < 0) {
 			return Optional.empty();
 		}
-		return Optional.of(new Resolved(placement, flats, fallbacks, index,
-				flats.getFirst().setCount(), flats.getFirst().safetyRadius()));
+		int radius = 0;
+		for (var flat : flats) {
+			radius = Math.max(radius, flat.safetyRadius());
+		}
+		return Optional.of(new Resolved(placement, flats, secondaries, fallbacks, index,
+				flats.getFirst().setCount(), radius));
 	}
 
 	private record Resolved(
 			MultiSpreadPlacement placement,
 			List<FlatCheckStructure> flats,
+			List<SecondaryStructure> secondaries,
 			List<FallbackStructure> fallbacks,
 			int index,
 			int flatCount,
@@ -181,6 +181,20 @@ public class FallbackStructure extends Structure {
 				}
 			}
 			return null;
+		}
+
+		@Nullable
+		SecondaryStructure secondaryFor(int pick) {
+			for (SecondaryStructure secondary : secondaries) {
+				if (secondary.setIndex() == pick) {
+					return secondary;
+				}
+			}
+			return null;
+		}
+
+		int secondaryCount() {
+			return secondaries.isEmpty() ? 0 : secondaries.getFirst().setCount();
 		}
 
 	}
@@ -234,45 +248,61 @@ public class FallbackStructure extends Structure {
 	}
 
 	/**
-	 * True when a flat start could sit within the radius of {@code me}. Same-region candidates use the picked flat;
-	 * neighbours use their own region pick. The flat always wins, so there is no centre-distance tie-break.
+	 * True when a primary or secondary start of the own region sits within the radius of {@code me}. A reserved pick
+	 * owns nothing, so only the tiers that hold a start are consulted.
 	 */
-	private static boolean nearFlat(GenerationContext ctx, ChunkPos me, List<ChunkPos> own, Resolved r,
-									@Nullable FlatCheckStructure flat) {
-		int radius = r.flatRadius();
-		if (radius <= 0) {
-			return false;
-		}
-		long dist = (long) radius * radius;
-		int spacing = r.placement().spacing();
+	private static boolean nearStart(GenerationContext ctx, ChunkPos me, List<ChunkPos> cands, Resolved r,
+									 int rx, int rz) {
+		long dist = (long) r.flatRadius() * r.flatRadius();
+		FlatCheckStructure flat = r.flatFor(FlatCheckStructure.pickForRegion(ctx.seed(), rx, rz,
+				r.placement().salt(), r.flatCount()));
 		if (flat != null) {
-			for (ChunkPos c : own) {
-				if (c.equals(me)) {
-					continue;
-				}
-				if (MultiSpreadPlacement.distanceSquared(c, me) <= dist && flat.prefilterAt(ctx, c)) {
-					return true;
-				}
+			int p = flat.firstPassInRegion(ctx, r.placement(), rx, rz);
+			if (p >= 0 && MultiSpreadPlacement.distanceSquared(me, cands.get(p)) <= dist) {
+				return true;
 			}
 		}
-		if (MultiSpreadPlacement.borderDistance(me, spacing) >= radius) {
+		SecondaryStructure secondary = r.secondaryFor(FlatCheckStructure.pickForRegion(ctx.seed(), rx, rz,
+				r.placement().salt() ^ SecondaryStructure.PICK_MIX, r.secondaryCount()));
+		if (secondary != null) {
+			int s = secondary.startInRegion(ctx, rx, rz);
+			if (s >= 0 && MultiSpreadPlacement.distanceSquared(me, cands.get(s)) <= dist) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * True when a neighbour region's primary or secondary start sits within the radius of {@code me}. Only scanned when
+	 * {@code me} is close enough to the border for a radius to reach across.
+	 */
+	private static boolean nearNeighbourStart(GenerationContext ctx, ChunkPos me, Resolved r, int rx, int rz) {
+		int spacing = r.placement().spacing();
+		if (MultiSpreadPlacement.borderDistance(me, spacing) >= r.flatRadius()) {
 			return false;
 		}
-		int rx = Math.floorDiv(me.x, spacing);
-		int rz = Math.floorDiv(me.z, spacing);
+		long dist = (long) r.flatRadius() * r.flatRadius();
 		for (int drx = -1; drx <= 1; drx++) {
 			for (int drz = -1; drz <= 1; drz++) {
 				if (drx == 0 && drz == 0) {
 					continue;
 				}
 				int nx = rx + drx, nz = rz + drz;
-				FlatCheckStructure nflat = r.flatFor(FlatCheckStructure.pickForRegion(
-						ctx.seed(), nx, nz, r.placement().salt(), r.flatCount()));
-				if (nflat == null) {
-					continue;
+				List<ChunkPos> ncands = r.placement().getPotentialChunks(ctx.seed(), nx * spacing, nz * spacing);
+				FlatCheckStructure flat = r.flatFor(FlatCheckStructure.pickForRegion(ctx.seed(), nx, nz,
+						r.placement().salt(), r.flatCount()));
+				if (flat != null) {
+					int p = flat.firstPassInRegion(ctx, r.placement(), nx, nz);
+					if (p >= 0 && MultiSpreadPlacement.distanceSquared(me, ncands.get(p)) <= dist) {
+						return true;
+					}
 				}
-				for (ChunkPos c : r.placement().getPotentialChunks(ctx.seed(), nx * spacing, nz * spacing)) {
-					if (MultiSpreadPlacement.distanceSquared(c, me) <= dist && nflat.prefilterAt(ctx, c)) {
+				SecondaryStructure secondary = r.secondaryFor(FlatCheckStructure.pickForRegion(ctx.seed(), nx, nz,
+						r.placement().salt() ^ SecondaryStructure.PICK_MIX, r.secondaryCount()));
+				if (secondary != null) {
+					int s = secondary.startInRegion(ctx, nx, nz);
+					if (s >= 0 && MultiSpreadPlacement.distanceSquared(me, ncands.get(s)) <= dist) {
 						return true;
 					}
 				}

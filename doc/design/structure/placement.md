@@ -3,7 +3,7 @@
 How a gensokyo legacy structure reaches a start position, and why the placement values live in only one place.
 
 Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md),
-[fallback.md](fallback.md).
+[secondary.md](secondary.md), [fallback.md](fallback.md).
 
 ## 1. The pair
 
@@ -12,6 +12,10 @@ Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed
 | `MultiSpreadPlacement` | `content/worldgen/structure/MultiSpreadPlacement.java` | `minecraft:random_spread` sibling registered as `gensokyolegacy:multi_spread`. Yields `attempts` uniform candidates per `spacing x spacing` region from one salted random (`getPotentialChunks`), and hooks `getPotentialStructureChunk` / `isPlacementChunk` so vanilla `/locate` and `ChunkGeneratorStructureState` drive off the attempt-0 candidate. `separation` is unused and never written. `salt()` is widened to public for the structure holding it. |
 | `FlatCheckStructure` | `content/worldgen/structure/FlatCheckStructure.java` | The structure itself. Decides, per candidate chunk, whether a start is placed: prefilter (sea/biome at the middle column) → margin safety against neighbouring regions → speculative jigsaw layout with biome/root-height/rigid/joint checks. Only the least-index passing candidate of a region survives. |
 | `ChunkGeneratorMultiSpreadMixin` | `mixin/ChunkGeneratorMultiSpreadMixin.java` | Vanilla `findNearestMapStructure` and `getNearestGeneratedStructure` both route to one ring walk: region rings from the centre out, every `attempts` candidate per region, stopping at the first ring with a start. Candidates whose middle column samples no biome in the set's biome tag are pre-filtered. |
+
+A set may hold three tiers: primaries (`FlatCheckStructure`, one per region), secondaries (`SecondaryStructure`,
+one per region and only where the picked primary placed nothing) and tinies (`FallbackStructure`, several per region).
+Priority is primary > secondary > tiny, enforced by abstention. See [secondary.md](secondary.md).
 
 Both sides must agree on the candidate grid, which is a function of
 `(seed, chunkX, chunkZ, spacing, spreadType, salt, attempts)`.

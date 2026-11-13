@@ -1,10 +1,10 @@
-# Fallback structures — filling the positions a flat check rejects
+# Fallback structures — the tiny tier
 
-A `FallbackStructure` is a second structure type that lives in the same `StructureSet` as the
-`FlatCheckStructure` members and only generates at placement candidates where the region's picked flat structure
-failed its eligibility check, or where the region's pick is a reserved slot. It never takes part in the region pick.
+A `FallbackStructure` is the tiny tier of a structure set. It lives in the same `StructureSet` as the
+`FlatCheckStructure` primaries and `SecondaryStructure` secondaries and only generates at placement candidates that
+are not within the shared radius of a higher-tier start. It never takes part in the region pick.
 
-Related: [placement.md](placement.md), [structure_bed_entity.md](structure_bed_entity.md).
+Related: [placement.md](placement.md), [secondary.md](secondary.md), [structure_bed_entity.md](structure_bed_entity.md).
 
 ## 1. Rules
 
@@ -12,10 +12,11 @@ Related: [placement.md](placement.md), [structure_bed_entity.md](structure_bed_e
 |---|---|
 | A region remains owned by one `FlatCheckStructure`, chosen by `pickForRegion(seed, rx, rz, salt, flatCount)` and gated by that member's `set_index`/`set_count`. | Fallbacks have no `set_index`/`set_count` and do not change either number. |
 | Every placement attempt (candidate chunk) is associated with one fallback member, picked from the position. | `FallbackStructure` picks `pickForPosition(seed, chunkX, chunkZ, salt, fallbackCount)` among the set's fallback members; only the chosen member may generate. |
-| A fallback is attempted where the region's picked flat failed its check at that candidate; a reserved pick has no flat, so every candidate of that region is eligible. | Mutual exclusion at one candidate: the fallback abstains when the flat passes, and the flat already returns empty when it fails. A reserved region has no flat to yield to. |
-| A fallback must not sit too close to a flat. | Reuse the flat's `safety_radius` margin rule, with the flat always winning. |
-| Fallbacks may generate at several candidates in one region. | One start per candidate chunk; a candidate within the flat's `safety_radius` of a kept earlier candidate of the same region is skipped. |
-| A fallback must not sit too close to a fallback in a neighbouring region. | A candidate below half the flat's `safety_radius` from any region border is skipped, so cross-border pairs are always more than the radius apart without scanning the neighbour. |
+| A fallback is attempted where the region's picked primary started nowhere in the region. | The fallback abstains within the radius of the primary's start (`p`) and of the secondary's start (`s`); a reserved primary pick starts nowhere and yields nothing to it. |
+| A fallback must not sit too close to a primary or secondary start. | Yield within the shared `safety_radius` of the start chunk; the higher tier always wins, with no centre tie-break. |
+| Fallbacks may generate at several candidates in one region. | One start per candidate chunk; a candidate within the primary's `safety_radius` of a kept earlier candidate of the same region is skipped. |
+| A fallback must not sit too close to a fallback in a neighbouring region. | A candidate below half the primary's `safety_radius` from any region border is skipped, so cross-border pairs are always more than the radius apart without scanning the neighbour. |
+| A fallback has lower priority than a secondary structure. | The fallback also yields to the secondary's start; see [secondary.md](secondary.md) §7. The fallback never feeds back into the primary or secondary gates. |
 
 `MultiSpreadPlacement` already yields `attempts` candidate chunks per `spacing x spacing` region, and vanilla
 `ChunkGenerator#createStructures` visits every set member at each candidate and stops at the first valid start. The
@@ -24,56 +25,56 @@ placement.
 
 ## 2. Membership and released worlds
 
-The fallback belongs to the **same** `StructureSet` as the flats (`"set": "<same id>"`). This is required: a
-structure that is not in the set is never asked for a start.
+The fallback belongs to the **same** `StructureSet` as the primaries and secondaries (`"set": "<same id>"`). This is
+required: a structure that is not in the set is never asked for a start.
 
-Datagen keeps the two groups apart:
+Datagen keeps the tiers apart:
 
 - `set_count` is computed over `FlatCheckStructure` members only, as today (including the reserved-slot total of
-  the forest houses);
+  the forest houses); the secondary has its own index space;
 - the fallback's position among `FallbackStructure` members in `structures` is its identity for the per-position
   pick; it is read back from the set at worldgen, so the entry needs no index field;
 - adding, removing or reordering fallbacks reshuffles which fallback appears at a position, but cannot move a
-  flat region pick, because neither `flatCount` nor `set_index` changes. This is the "does not occupy set index /
-  add to set count" guarantee.
+  primary or secondary pick, because neither `flatCount` nor `set_index` changes. This is the "does not occupy set
+  index / add to set count" guarantee.
 
-A region's pick may land on a reserved slot (forest houses reserve 2-3). There is no flat member with that index,
-so there is no flat ownership to yield to: every candidate of the region is eligible for the fallback, subject to
-the fallback's own gates (position pick, prefilter, layout) and the distance rules.
+A region's primary pick may land on a reserved slot (forest houses reserve 2-3). There is no primary member with that
+index, so there is no primary start to yield to: every candidate of the region is eligible for the fallback, subject
+to the fallback's own gates (position pick, prefilter, layout) and the distance rules. The same holds when the region's
+secondary pick is reserved or its check fails.
 
-A set with fallbacks but without flat members places nothing — the distance radius comes from the flats — so
-datagen should reject that configuration.
+A set with fallbacks but without primary members places nothing — the distance radius comes from the primaries — so
+datagen rejects that configuration.
 
 ## 3. Decision flow
 
 `findGenerationPoint(ctx)` at candidate `me`:
 
 ```
-1. resolve set -> MultiSpreadPlacement, flat members, fallback members
+1. resolve set -> MultiSpreadPlacement, primary members, secondary members, fallback members
    (empty when unbound / set is not MultiSpreadPlacement / this is not in the set)
 2. me must be one of placement.getPotentialChunks(seed, me.x, me.z), at candidate index idx
-3. flatCount = the flat members' set_count (the datagen total, reserved slots included), not the member list
-   size; flat = the flat member whose set_index == pickForRegion(seed, region(me), placement.salt(), flatCount);
-   flatRadius = the safety_radius shared by the set's flat members
-   -- a reserved slot leaves flat = null and does not stop the fallback
+3. flatCount = the primary members' set_count (the datagen total, reserved slots included), not the member list
+   size; flatRadius = max safety_radius over the set's primary members
 4. border margin: 2 * borderDist(me) < flatRadius -> empty
 5. fallback spacing: greedily walk candidates 0 .. idx-1, discarding points that fail step 4, and keeping a
    candidate only when it is farther than flatRadius (squared distance) from every already kept point; if me is
    within that radius of any kept point -> empty
 6. if this is not pickForPosition(seed, me.x, me.z, placement.salt(), fallbackCount) among the fallbacks -> empty
 7. fallback prefilter (sea / own biome tag at the middle column) fails -> empty
-8. flat margin: for the picked flat of me's region (when flat != null, me excluded) and of every neighbouring
-   region, a candidate within flatRadius chunks of me that passes that flat's prefilter -> empty
-9. flat != null and flat.passesCandidate(ctxFor(me), me, placement) -> empty   // the flat owns this candidate
-10. fallback's own layout check (jigsaw, root height tolerance, rigid/joint) -> stub or empty
+8. higher-tier distance: p = the picked primary's first passing candidate (memo, -1 when reserved or failing) and
+   s = the picked secondary's start (memo, -1 when its gate fails); reject me when it is within flatRadius of
+   cand[p] or cand[s] in this region, and for every neighbouring region when me is closer to that border than
+   the radius
+9. fallback's own layout check (jigsaw, root height tolerance, rigid/joint) -> stub or empty
 ```
 
-A reserved region runs steps 1-8 and 10 with `flat = null`: step 9 has no owner to yield to, so every candidate
-that survives the border margin, spacing, the position pick and the prefilter is attempted. Step 8 still looks at
-the neighbouring regions' picks, because the distance rule is about the actual flat starts around `me`, not about
-this region's ownership.
+A reserved region owns no start: steps 4-7 and 9 still run, and step 8 finds nothing to yield to, so every candidate
+that survives the border margin, spacing, the position pick and the prefilter is attempted. Step 8 still reads the
+neighbouring regions' verdicts, because the distance rule is about the actual starts around `me`, not about this
+region's ownership.
 
-`borderDist` is the same quantity `checkMarginSafe` uses: the smallest chunk distance from `me` to the four edges
+`borderDist` is the same quantity `marginSafe` uses: the smallest chunk distance from `me` to the four edges
 of its `spacing x spacing` region. The `2 * borderDist < flatRadius` form means a kept point is at least half a
 radius from every edge. Two points in adjacent regions at distances `d` and `d'` from the shared edge have chunk
 coordinates `d + d' + 1` apart on the normal axis, so even at the smallest kept distance the separation is at least
@@ -81,10 +82,9 @@ coordinates `d + d' + 1` apart on the normal axis, so even at the smallest kept 
 fire. The `+ 1` is the edge chunk itself, which is why exactly half a radius is allowed.
 
 Gate order is the cost order. Steps 3-6 are pure arithmetics on the seed and candidate list, step 7 is two
-height/biome samples, step 8 samples only candidates inside the radius (normally a handful), step 9 is the
-speculative flat layout, and step 10 the speculative fallback layout. In a region where the flat passes early, most
-candidates stop at step 9; in a region where it never passes they pay both layouts; a reserved region skips step 9
-and pays only the fallback layout. Both are the layouts the two structures would build for themselves anyway.
+height/biome samples, step 8 is memo lookups plus one `getPotentialChunks` per neighbour consulted, and step 9 is the
+speculative fallback layout. A memo lookup can trigger one whole-region higher-tier scan, which is shared by every
+candidate of that region, the secondary and the tiny tier. No speculative primary or secondary layout is built here.
 
 Step 9 must be the flat's **single-candidate** verdict, not "the flat placed nothing in this region": a candidate
 suppressed by an earlier flat pass still answers "the flat passed here", so the fallback abstains. This keeps one
@@ -110,28 +110,25 @@ band is symmetric, so neither side needs to know whether the other kept a point.
 
 ## 4. The distance rule
 
-The flat's own rule stays where it is: `FlatCheckStructure#checkMarginSafe` rejects a candidate within
+The flat's own rule stays where it is: `JigsawCheck#marginSafe` (shared with the secondary) rejects a candidate within
 `safety_radius` of a neighbouring region's prefilter-passing candidate that is at most as close to its region centre.
-The fallback does not reuse that method, because it needs the radius test without the centre tie-break; it applies the
-same radius to two pairs instead:
+The fallback applies the same radius to a different pair:
 
-- flat vs fallback: `FallbackStructure#nearFlat`. The flat always wins. A flat candidate within `safety_radius`
-  chunks whose prefilter passes rejects the fallback; no tie-break, because the flat does not evaluate fallbacks and
-  a tie-break could let both through. The same region's picked flat is scanned over its own candidate list, a
-  neighbouring region's picked flat over that region's candidates, and the neighbour scan only runs when the
-  candidate is closer to a border than the radius.
+- higher tier vs fallback: `FallbackStructure#nearStart` rejects a candidate within `safety_radius` chunks of the
+  picked primary's start (`p`) or the picked secondary's start (`s`) in the same region; `nearNeighbourStart` does the
+  same for a neighbouring region, and only runs when the candidate is closer to a border than the radius. The higher
+  tier always wins: no tie-break, because the higher tier does not evaluate fallbacks and a tie-break could let both
+  through. `p` and `s` are the memoised whole-region verdicts of [secondary.md](secondary.md) §4, so the fallback never
+  rebuilds a higher-tier layout. A reserved pick owns no start, so only tiers that hold a start are consulted.
 - fallback vs fallback: `FallbackStructure#spacingBlocked`, per step 5 — candidates are walked in attempt order and a
   candidate within `safety_radius` chunks of a kept earlier point is skipped, without checking whether that earlier
   point generated anything. A skipped point is not kept, so it does not block later candidates. Across regions,
   step 4 skips candidates below half the radius from any border, which bounds every cross-border pair to more
   than one radius without a neighbour scan.
 
-The fallback reads `safety_radius` from the set's flat members rather than owning a copy, so the two cannot drift
-if the flat's value is tuned. A reserved region has no picked flat, so the value is taken from any flat member of
-the set; datagen must keep the value equal across a set's flats.
-
-The flat check uses the prefilter only, mirroring the existing flat rule: cheap, and conservative when the nearby
-flat would have failed its full layout.
+The fallback reads `safety_radius` from the set's primary members rather than owning a copy (`max` across them, should
+a datapack let them disagree), so the tiers cannot drift if the radius is tuned. Datagen keeps the value equal across a
+set's primaries.
 
 ## 5. Code plan
 
@@ -141,8 +138,9 @@ flat would have failed its full layout.
   - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `height_tolerance`,
     `set`, and no `set_index`/`set_count`;
   - `findGenerationPoint` per §3; own layout check through `JigsawCheck`;
-  - `resolve()` reads placement, flat members, fallback members and this member's fallback index from the set;
-  - static `pickForPosition`, `spacingBlocked` (step 5) and `nearFlat` (step 8);
+  - `resolve()` reads placement, primary and secondary members, fallback members and this member's fallback index from
+    the set;
+  - static `pickForPosition`, `spacingBlocked` (step 5), `nearStart` and `nearNeighbourStart` (step 8);
   - port `FlatCheckStructure`'s `verifyRange` guard (`max_distance_from_center + 12 <= 128`).
 - `content/worldgen/structure/JigsawCheck.java`
   - moved `validateLayout` + `prefilter` + `freeHeight` + `Prefilter` + `Validated` out of `FlatCheckStructure`
@@ -156,22 +154,23 @@ flat would have failed its full layout.
 ### Changed
 
 - `init/registrate/GLWorldGen.java`: `STRUCTURES.reg("fallback", () -> () -> FallbackStructure.CODEC)`.
-- `FlatCheckStructure`: exposes package-private `setIndex()`, `setCount()`, `safetyRadius()`, `passesCandidate(...)`,
-  `prefilterAt(...)` and `ctxFor(ctx, pos)`; no public API change.
+- `FlatCheckStructure`: exposes package-private `setIndex()`, `setCount()`, `safetyRadius()` and
+  `firstPassInRegion(...)`; its `checkMarginSafe` moved into `JigsawCheck#marginSafe`; no public API change.
 - `MultiSpreadPlacement`: static `borderDistance(ChunkPos, int)` and `distanceSquared(ChunkPos, ChunkPos)` for the
   fallback's positional gates.
-- `helper/SetContext.java`: `fallback(self)` hands out a context with `setIndex = setCount = -1`; flats keep using
-  `of(self, flats, total)` with indices computed over the flat members only.
-- `helper/StructBuilding.java`: `default int safetyRadius()` returning 0; the flat building records already expose
-  the component under that name.
-- `helper/StructStructure.java`: unchanged — a fallback is recognised as `building instanceof StructFallbackBuilding`.
+- `helper/SetContext.java`: `tiny(self)` hands out a context with `setIndex = setCount = -1`; primaries and secondaries
+  use `of(self, sameTier, total)` with indices computed over their own tier only.
+- `helper/StructBuilding.java`: `default int safetyRadius()` returning 0 and `default Role role()` returning `PRIMARY`;
+  the flat building records already expose the component under that name, and `StructFallbackBuilding#role` returns
+  `TINY`.
+- `helper/StructStructure.java`: unchanged — a fallback is recognised by its building's `role()`.
 - `init/data/structure/GLStructureGen.java`
-  - `Registries.STRUCTURE`: flats get `SetContext.of(e, flats, setTotal(e.set(), flats))`; fallbacks get
-    `SetContext.fallback(e)`;
+  - `Registries.STRUCTURE`: primaries and secondaries get `SetContext.of(e, sameTier, setTotal(...))`; tinies get
+    `SetContext.tiny(e)`;
   - `Registries.STRUCTURE_SET`: keep writing **all** members — vanilla needs them in the set; the existing
-    spacing/attempts check now runs over every member, plus a `safety_radius` check over the flat members, and a
-    set without flats is rejected;
-  - `dataMap`: skips fallbacks (no beds, rooms or visits, nothing to register);
+    spacing/attempts check now runs over every member, plus a `safety_radius` check over the primary members, and a
+    set without primaries is rejected;
+  - `dataMap`: skips `Role.TINY` members (no beds, rooms or visits, nothing to register);
   - example entry: one fallback in `magical_forest_houses` (its own template), one in the `hakurei_shrine` /
     `cirno_nest` sets once their fallback assets exist. The fallback's biome tag is the union of the set's flat
     tags; the forest houses all use `magical_forest`, so that tag is reused as is.

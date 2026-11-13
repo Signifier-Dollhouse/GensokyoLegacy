@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.SecondaryStructure;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -26,8 +27,14 @@ public record StructFlatBuilding(
 		Map<MobCategory, StructureSpawnOverride> spawns,
 		int heightTolerance,
 		int maxDistanceFromCenter,
-		int safetyRadius
+		int safetyRadius,
+		Role role
 ) implements StructBuilding {
+
+	public StructFlatBuilding(List<StructureProcessor> processors, Map<MobCategory, StructureSpawnOverride> spawns,
+							  int heightTolerance, int maxDistanceFromCenter, int safetyRadius) {
+		this(processors, spawns, heightTolerance, maxDistanceFromCenter, safetyRadius, Role.PRIMARY);
+	}
 
 	@Override
 	public void registerTemplatePools(BootstrapContext<StructureTemplatePool> ctx, ResourceLocation id) {
@@ -50,10 +57,19 @@ public record StructFlatBuilding(
 	public void registerStructure(BootstrapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
+		var settings = new Structure.StructureSettings(biome, spawns(),
+				GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN);
+		var ref = StructBuilding.setRef(set);
+		if (role == Role.SECONDARY) {
+			ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new SecondaryStructure(
+					settings, pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
+					ref, set.setIndex(), set.setCount()
+			));
+			return;
+		}
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
-				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
-				pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
-				StructBuilding.setRef(set), safetyRadius(), set.setIndex(), set.setCount()
+				settings, pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
+				ref, safetyRadius(), set.setIndex(), set.setCount()
 		));
 	}
 
