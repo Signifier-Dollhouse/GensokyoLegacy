@@ -12,6 +12,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.door.SlidingDoorJsons;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.MyourenFenceBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.ScrollBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
@@ -70,6 +71,8 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
 	public static final BlockEntry<DelegateBlock> LOCUST_PLAQUE;
+	public static final BlockEntry<DelegateBlock> SCROLL_EMPTY, SCROLL_CLOUD, SCROLL_MOUNTAIN,
+			SCROLL_SUN, SCROLL_TEMPLE, SCROLL_TEXT;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FENCE;
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
@@ -333,6 +336,16 @@ public class GLDecoBlocks {
 					.register();
 		}
 
+		// 画卷:挂在墙上的两格高卷轴,六种画面各是一个独立的方块
+		{
+			SCROLL_EMPTY = registerScroll(reg, "scroll_empty", "Empty Scroll");
+			SCROLL_CLOUD = registerScroll(reg, "scroll_cloud", "Cloud Scroll");
+			SCROLL_MOUNTAIN = registerScroll(reg, "scroll_mountain", "Mountain Scroll");
+			SCROLL_SUN = registerScroll(reg, "scroll_sun", "Sun Scroll");
+			SCROLL_TEMPLE = registerScroll(reg, "scroll_temple", "Temple Scroll");
+			SCROLL_TEXT = registerScroll(reg, "scroll_text", "Text Scroll");
+		}
+
 		// 红魔馆木椅: oak stool draped with red wool, fuel follows the recipe
 		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
@@ -421,6 +434,19 @@ public class GLDecoBlocks {
 
 	public static void register() {
 
+	}
+
+	private static BlockEntry<DelegateBlock> registerScroll(L2Registrate reg, String id, String name) {
+		return reg.block(id, p -> DelegateBlock.newBaseBlock(p,
+						BlockTemplates.HORIZONTAL, new DoubleBlockImpl(), new ScrollBlock()))
+				.properties(p -> p.mapColor(MapColor.SAND).strength(0.5F).sound(SoundType.WOOD).noOcclusion())
+				.lang(name)
+				.blockstate((ctx, pvd) -> ScrollBlock.buildStates(ctx.get(), pvd, ctx.getName()))
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.item().model((ctx, pvd) -> ScrollBlock.genItemModel(pvd, ctx.getName()))
+				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
+				.loot(ScrollBlock::genLoot)
+				.register();
 	}
 
 	public enum WoodType implements IBlockSet {

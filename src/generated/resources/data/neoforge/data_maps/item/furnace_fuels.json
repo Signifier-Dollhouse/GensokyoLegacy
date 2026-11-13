@@ -216,6 +216,9 @@
     "gensokyolegacy:orange_cushion": {
       "burn_time": 50
     },
+    "gensokyolegacy:paper_lantern": {
+      "burn_time": 100
+    },
     "gensokyolegacy:paper_sliding_door": {
       "burn_time": 100
     },
@@ -236,6 +239,24 @@
     },
     "gensokyolegacy:red_lantern": {
       "burn_time": 300
+    },
+    "gensokyolegacy:scroll_cloud": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_empty": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_mountain": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_sun": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_temple": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_text": {
+      "burn_time": 100
     },
     "gensokyolegacy:sewing_machine": {
       "burn_time": 300

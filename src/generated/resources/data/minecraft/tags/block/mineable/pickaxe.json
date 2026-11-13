@@ -1,5 +1,6 @@
 {
   "values": [
+    "gensokyolegacy:censer",
     "gensokyolegacy:stone_lantern",
     "gensokyolegacy:magic_potion_bottle",
     "gensokyolegacy:jizo",
@@ -48,7 +49,6 @@
     "gensokyolegacy:myouren_fence",
     "gensokyolegacy:alchemy_pot",
     "gensokyolegacy:sealing_pot",
-    "gensokyolegacy:treasure_basket",
     "gensokyolegacy:plate"
   ]
 }
