@@ -4,8 +4,11 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorNode;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorRoom;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +58,7 @@ public class StructureConfigBuilder {
 		var rooms = new ArrayList<>(List.of(
 				new InteriorRoom("west_ground_west", new BoundingBox(3, 2, 14, 9, 6, 22)),
 				new InteriorRoom("west_ground_east", new BoundingBox(10, 2, 14, 17, 6, 22)),
-				new InteriorRoom("west_upper_bedroom", new BoundingBox(3, 7, 15, 14, 8, 21)),
+				room("west_upper_bedroom", new BoundingBox(3, 7, 15, 14, 8, 21), GLEntities.MARISA.get()),
 				new InteriorRoom("upper_hall", new BoundingBox(15, 7, 15, 25, 8, 21)),
 				new InteriorRoom("east_ground", new BoundingBox(18, 2, 9, 26, 6, 21)),
 				new InteriorRoom("east_upper_platform", new BoundingBox(19, 7, 9, 25, 8, 14))
@@ -124,8 +127,9 @@ public class StructureConfigBuilder {
 	}
 
 	/**
-	 * Every room must be wired: {@code findRoute} follows declared nodes only, so an unwired room is unreachable.
-	 * corridor_up is the exception - wired to the wing, not the tower, so the balcony is no exit onto the drop.
+	 * Every room must carry at least one node: a room with no node cannot be entered or left. Rooms in other
+	 * components are reached through outdoor transfers between entry nodes. corridor_up is the exception -
+	 * wired to the wing, not the tower, so the balcony is no exit onto the drop.
 	 * The stair node stages clear of the run at (19,1,15) and (15,5,15); stair_hall meets landing at y4/y5.
 	 */
 	private static StructureInterior aliceInterior() {
@@ -135,7 +139,7 @@ public class StructureConfigBuilder {
 				new InteriorRoom("hall_ground", new BoundingBox(12, 1, 6, 21, 4, 14)),
 				new InteriorRoom("stair_hall", new BoundingBox(13, 1, 15, 21, 4, 16)),
 				new InteriorRoom("east_room", new BoundingBox(22, 1, 6, 26, 4, 16)),
-				new InteriorRoom("wing_upper", new BoundingBox(12, 5, 7, 26, 8, 14)),
+				room("wing_upper", new BoundingBox(12, 5, 7, 26, 8, 14), GLEntities.ALICE.get()),
 				new InteriorRoom("landing", new BoundingBox(13, 5, 15, 21, 8, 16)),
 				new InteriorRoom("cabinet_nook", new BoundingBox(23, 5, 15, 25, 8, 15)),
 				new InteriorRoom("corridor_up", new BoundingBox(10, 5, 10, 11, 8, 12))
@@ -153,6 +157,10 @@ public class StructureConfigBuilder {
 				new InteriorNode(new BlockPos(26, 6, 8), new BlockPos(26, 6, 8), 5, -1)
 		));
 		return new StructureInterior(rooms, nodes);
+	}
+
+	private static InteriorRoom room(String name, BoundingBox box, @Nullable EntityType<?> owner) {
+		return new InteriorRoom(name, box, owner);
 	}
 
 }

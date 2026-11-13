@@ -167,7 +167,10 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 	 * Stage through the interior rooms. When the entity or its final target sits outside them the
 	 * exterior side is handled directly while the indoor side still stages through the room graph:
 	 * an exterior start heads for the nearest entry first, an exterior target stages to the best
-	 * exit and then walks out directly. Returns the final target whenever staging does not apply.
+	 * exit and then walks out directly. Routes may cross the outdoors between scattered buildings.
+	 * Returns the final target whenever staging does not apply.
+	 *
+	 * @see "doc/design/structure/interior_rework.md"
 	 */
 	private static BlockPos stageViaInterior(YoukaiEntity entity, BlockPos finalPos) {
 		if (!(entity instanceof SmartYoukaiEntity smart)) return finalPos;
@@ -182,8 +185,8 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 		if (from == to) return finalPos;
 		BlockPos feet = entity.blockPosition();
 		if (from >= 0 && to >= 0) {
-			List<BlockPos> waypoints = new ArrayList<>();
-			if (!appendRoute(interior, waypoints, from, to)) return finalPos;
+			var waypoints = interior.route(from, to);
+			if (waypoints.isEmpty()) return finalPos;
 			return firstUnreached(feet, waypoints, finalPos);
 		}
 		if (from < 0 && to >= 0) {
@@ -191,39 +194,21 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 			if (entry == null) return finalPos;
 			List<BlockPos> waypoints = new ArrayList<>();
 			waypoints.add(entry.posA());
-			if (!appendRoute(interior, waypoints, entry.roomA(), to)) return finalPos;
+			if (entry.roomA() != to) {
+				var inside = interior.route(entry.roomA(), to);
+				if (inside.isEmpty()) return finalPos;
+				waypoints.addAll(inside);
+			}
 			return firstUnreached(feet, waypoints, finalPos);
 		}
 		if (from >= 0) {
 			var entry = bestExit(interior, from, finalPos);
 			if (entry == null) return finalPos;
-			List<BlockPos> waypoints = new ArrayList<>();
-			if (!appendRoute(interior, waypoints, from, entry.roomA())) return finalPos;
+			List<BlockPos> waypoints = new ArrayList<>(interior.route(from, entry.roomA()));
 			waypoints.add(entry.posA());
 			return firstUnreached(feet, waypoints, finalPos);
 		}
 		return finalPos;
-	}
-
-	private static boolean appendRoute(StructureInterior interior, List<BlockPos> waypoints, int from, int to) {
-		if (from == to) return true;
-		var route = interior.findRoute(from, to);
-		if (route.isEmpty()) return false;
-		int side = from;
-		for (var edge : route) {
-			if (side == edge.roomA()) {
-				waypoints.add(edge.posA());
-				if (edge.isDual()) waypoints.add(edge.posB());
-				side = edge.roomB();
-			} else if (side == edge.roomB()) {
-				if (edge.isDual()) waypoints.add(edge.posB());
-				waypoints.add(edge.posA());
-				side = edge.roomA();
-			} else {
-				return false;
-			}
-		}
-		return side == to;
 	}
 
 	@Nullable
@@ -251,7 +236,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 			int legs;
 			if (node.roomA() == from) legs = 0;
 			else {
-				var route = interior.findRoute(from, node.roomA());
+				var route = interior.route(from, node.roomA());
 				if (route.isEmpty()) continue;
 				legs = route.size();
 			}

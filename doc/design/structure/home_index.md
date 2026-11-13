@@ -16,7 +16,7 @@ Related: [structure_bed_entity.md](structure_bed_entity.md), [youkai_character.m
 | `IntegrityVerifier` | `content/attachment/home/structure/IntegrityVerifier.java` | Compares `level.getBlockState` vs `palette[raster[resolve(pos)]]`. Random `VERIFY_SCAN=500`/tick (only `VERIFY_FETCH=200` actually fetched via `resolve`). Categorises into `AbnormalCache`. Takes both the `houseBound` union (snapshot domain) and the `houseBounds`/`roomBounds` `MultiStructureBound`s (per-cell classification). |
 | `AbnormalCache` | `content/attachment/home/structure/AbnormalCache.java` | 3 `IntOpenHashSet` `air/primary/secondary` (offsets inside `houseBound`). `pop(count,FixStage)` priority `air→primary→secondary` gated per stage. `clear()` on snapshot-box change. |
 | `MultiStructureBound` | `content/attachment/home/core/MultiStructureBound.java` | List-of-`BoundingBox` bound: `isInside(pos)`, `resolve(pos/index)`, `union()`, `boxes()`. `StructureBound` is the single-box helper it delegates to. |
-| `StructureInterior` | `content/attachment/home/datamap/StructureInterior.java` | Config-side interior graph: `rooms()` (`InteriorRoom name+bound`) + `nodes()` (`InteriorNode posA/posB/roomA/roomB`), mapped to world coords from the piece's `StructurePlaceSettings`. Empty for custom homes. |
+| `StructureInterior` | `content/attachment/home/datamap/StructureInterior.java` | Config-side interior graph: `rooms()` (`InteriorRoom name+bound+owner`) + `nodes()` (`InteriorNode posA/posB/roomA/roomB`), mapped to world coords from the piece's `StructurePlaceSettings`. `findRoute` is pure indoor; `route` compares indoor edges against outdoor transfers between entry nodes. Empty for custom homes. |
 | `HomeBlockKind` | `content/attachment/home/core/HomeBlockKind.java` | `CONTAINER/CHAIR/SHELF/POT` — purpose of a cached position list, with per-kind validator and search radii (`rxz`, `ry`, `trial`) so `getBlockAround` replaces the old `getContainersAround`/`getChairsAround`. |
 | `CustomHomeHolder` | `content/attachment/home/custom/CustomHomeHolder.java` | `record(sl, chunk, key, att, data)` implements `IHomeHolder`. `of(sl, BlockPos anchor)` + `create(sl, BlockPos)` via `RoomVerifier`. `supportEntity→true`, `getInterior()→empty`. |
 | `CustomHomeData` | `content/attachment/home/custom/CustomHomeData.java` | `@SerialField BlockPos rootPos`, `@SerialField RoomData room`. `getTotalBound/isInRoom/getRandomPosInRoom|Bound` from `RoomData.bound`. `tick` noop. |
@@ -166,11 +166,14 @@ if (cache==null) {
 // Bounds (StructureHomeData):
 //   getRoomBounds(config)  = interior.rooms().bounds   if interior declared
 //                          else config.rooms() mapped to world, else piece box
+//   getRooms(config)       = world-mapped rooms with owner; legacy rooms become anonymous public rooms
 //   getHouseBounds(config) = config.house() mapped to world, else piece box
 //   getHouseBound(config)  = getHouseBounds(config).union()  (snapshot domain)
 //   getTotalBound()        = start.getBoundingBox().inflatedBy(-12) (debug outer)
 //   isOutside(level,pos) = canSeeSky || outsideBlock tag (preset) / canSeeSky only (custom)
 ```
+
+Destination sampling (`getRandomPosInRoom`) skips rooms private to another character; routing (`StructureInterior.route`) ignores ownership, so pass-by stays allowed. See [interior_rework.md](interior_rework.md).
 
 Repair: `AbnormalCache.pop(count, stage)` priority `air→primary→secondary` gated by `FixStage` (PATH only air, PRIMARY stops after primary, SECONDARY after secondary, ALL all). Each offset → `BlockFix(pos, state)`; `fix()` handles `ICustomFixBlock.onFix`, `DoorBlock` halves, skips `YoukaiBedBlock`; bulk `doFix` `COMMAND_PLACE_ONCE 128` or looping `COMMAND_PLACE_STEP 64` when no player nearby.
 

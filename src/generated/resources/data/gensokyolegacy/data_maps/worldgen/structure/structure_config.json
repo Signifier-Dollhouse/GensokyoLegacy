@@ -222,7 +222,8 @@
               8,
               14
             ],
-            "name": "wing_upper"
+            "name": "wing_upper",
+            "owner": "gensokyolegacy:alice_margatroid"
           },
           {
             "bound": [
@@ -518,7 +519,8 @@
               8,
               21
             ],
-            "name": "west_upper_bedroom"
+            "name": "west_upper_bedroom",
+            "owner": "gensokyolegacy:kirisame_marisa"
           },
           {
             "bound": [

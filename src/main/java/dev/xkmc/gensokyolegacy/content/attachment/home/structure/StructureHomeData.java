@@ -98,6 +98,19 @@ public class StructureHomeData implements IBlockSearchCache {
 	}
 
 	/**
+	 * World-mapped rooms with ownership; legacy room boxes become anonymous public rooms.
+	 */
+	public List<InteriorRoom> getRooms(StructureConfig config) {
+		var interior = getInterior(config);
+		if (!interior.isEmpty()) return interior.rooms();
+		var boxes = mapRoomBoxes(config.rooms());
+		if (boxes == null) return List.of();
+		List<InteriorRoom> ans = new ArrayList<>(boxes.size());
+		for (var box : boxes) ans.add(new InteriorRoom("room_" + ans.size(), box));
+		return ans;
+	}
+
+	/**
 	 * World-mapped interior: room boxes via corner mapping, node positions via single-point mapping.
 	 * Empty when the config has no interior data or the piece is not a template/jigsaw piece.
 	 */
@@ -119,7 +132,7 @@ public class StructureHomeData implements IBlockSearchCache {
 	private static StructureInterior mapInterior(StructureInterior local, StructurePlaceSettings settings, BlockPos origin) {
 		List<InteriorRoom> rooms = new ArrayList<>(local.rooms().size());
 		for (var room : local.rooms()) {
-			rooms.add(new InteriorRoom(room.name(), worldBox(room.bound(), settings, origin)));
+			rooms.add(new InteriorRoom(room.name(), worldBox(room.bound(), settings, origin), room.owner()));
 		}
 		List<InteriorNode> nodes = new ArrayList<>(local.nodes().size());
 		for (var node : local.nodes()) {
@@ -132,28 +145,33 @@ public class StructureHomeData implements IBlockSearchCache {
 
 	@Nullable
 	private MultiStructureBound mapBoxes(List<BoundingBox> locals) {
-		if (!locals.isEmpty()) {
-			if (piece instanceof TemplateStructurePiece template) {
-				// map precalculated template-local boxes to world;
-				// no scan here, just rotation/mirror/offset coordinate mapping
-				var settings = template.placeSettings();
-				var origin = template.templatePosition();
-				List<BoundingBox> ans = new ArrayList<>(locals.size());
-				for (var local : locals) {
-					ans.add(worldBox(local, settings, origin));
-				}
-				return MultiStructureBound.of(ans);
-			} else if (piece instanceof PoolElementStructurePiece pool) {
-				// jigsaw pieces are placed with rotation only (mirror NONE,
-				// see SinglePoolElement); origin is the template position
-				var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
-				var origin = pool.getPosition();
-				List<BoundingBox> ans = new ArrayList<>(locals.size());
-				for (var local : locals) {
-					ans.add(worldBox(local, settings, origin));
-				}
-				return MultiStructureBound.of(ans);
+		var ans = mapRoomBoxes(locals);
+		return ans == null ? null : MultiStructureBound.of(ans);
+	}
+
+	@Nullable
+	private List<BoundingBox> mapRoomBoxes(List<BoundingBox> locals) {
+		if (locals.isEmpty()) return null;
+		if (piece instanceof TemplateStructurePiece template) {
+			// map precalculated template-local boxes to world;
+			// no scan here, just rotation/mirror/offset coordinate mapping
+			var settings = template.placeSettings();
+			var origin = template.templatePosition();
+			List<BoundingBox> ans = new ArrayList<>(locals.size());
+			for (var local : locals) {
+				ans.add(worldBox(local, settings, origin));
 			}
+			return ans;
+		} else if (piece instanceof PoolElementStructurePiece pool) {
+			// jigsaw pieces are placed with rotation only (mirror NONE,
+			// see SinglePoolElement); origin is the template position
+			var settings = new StructurePlaceSettings().setRotation(pool.getRotation());
+			var origin = pool.getPosition();
+			List<BoundingBox> ans = new ArrayList<>(locals.size());
+			for (var local : locals) {
+				ans.add(worldBox(local, settings, origin));
+			}
+			return ans;
 		}
 		return null;
 	}

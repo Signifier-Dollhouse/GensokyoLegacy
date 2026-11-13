@@ -13,6 +13,7 @@ from structview import load_blocks
 from indoor import state_of
 
 CONFIG = 'src/generated/resources/data/gensokyolegacy/data_maps/worldgen/structure/structure_config.json'
+BED_DATA = 'src/generated/resources/data/gensokyolegacy/data_maps/block/bed_data.json'
 
 # rooms that must stay reachable from the house, so a structure that is not
 # wired at all (or has no interior) is not held to the graph checks
@@ -71,11 +72,11 @@ def main(structure_id, template):
     print('    raster cells: %d' % len(hcells))
 
     interior = cfg.get('interior') or {}
-    rooms = [(r['name'], r['bound']) for r in interior.get('rooms', [])]
+    rooms = [(r['name'], r['bound'], r.get('owner')) for r in interior.get('rooms', [])]
     nodes = interior.get('nodes', [])
     print('  interior rooms: %d' % len(rooms))
     sets = []
-    for name, b in rooms:
+    for name, b, owner in rooms:
         c = cells(b)
         sets.append(c)
         leaked = [p for p in c if st.get(p, '.') == '-' and p in out]
@@ -83,9 +84,11 @@ def main(structure_id, template):
         bad = leaked or outside
         if bad:
             ok = False
-        print('    %-12s %-26s %5d cells  air %5d  %s'
+        tag = '' if not owner else '  private to %s' % owner
+        print('    %-12s %-26s %5d cells  air %5d  %s%s'
               % (name, str(b), len(c), sum(1 for p in c if st.get(p, '.') == '-'),
-                 'OK' if not bad else 'BAD leaked=%d outside-house=%d' % (len(leaked), len(outside))))
+                 'OK' if not bad else 'BAD leaked=%d outside-house=%d' % (len(leaked), len(outside)),
+                 tag))
 
     print('  disjointness:')
     for i in range(len(sets)):
@@ -110,23 +113,40 @@ def main(structure_id, template):
                 continue
             adj[ra].add(rb)
             adj[rb].add(ra)
-        seen = set()
-        stack = [next(iter(adj))] if adj else []
-        while stack:
-            cur = stack.pop()
-            if cur in seen:
-                continue
-            seen.add(cur)
-            stack.extend(adj[cur] - seen)
-        for i, (name, _) in enumerate(rooms):
-            if i not in adj:
+        incident = set(adj)
+        entry_rooms = set()
+        for n in nodes:
+            if n['roomB'] < 0:
+                incident.add(n['roomA'])
+                entry_rooms.add(n['roomA'])
+        for i, (name, _, _) in enumerate(rooms):
+            if i not in incident:
                 ok = False
                 print('    BAD %s carries no node at all' % name)
-            elif i not in seen:
+        # outdoor transfers join components, so each component only needs one entry;
+        # a component with none can never be entered or left
+        seen = set()
+        comps = []
+        for i in range(len(rooms)):
+            if i in seen:
+                continue
+            comp = set()
+            stack = [i]
+            while stack:
+                cur = stack.pop()
+                if cur in seen:
+                    continue
+                seen.add(cur)
+                comp.add(cur)
+                stack.extend(adj[cur] - seen)
+            comps.append(comp)
+        for comp in comps:
+            if not (comp & entry_rooms):
                 ok = False
-                print('    BAD %s is unreachable from the rest of the graph' % name)
+                print('    BAD component %s has no entry node'
+                      % ', '.join(sorted(rooms[i][0] for i in comp)))
         if ok:
-            print('    all %d rooms wired and mutually reachable' % len(rooms))
+            print('    all %d rooms wired, each component has an entry' % len(rooms))
         for n in nodes:
             a, b = n['roomA'], n['roomB']
             if b < 0:
@@ -140,7 +160,7 @@ def main(structure_id, template):
                 print('    note: %s <-> %s declared but the boxes share no face'
                       % (rooms[a][0], rooms[b][0]))
 
-        byname = {name: i for i, (name, _) in enumerate(rooms)}
+        byname = {name: i for i, (name, _, _) in enumerate(rooms)}
         print('  forbidden edges (touching but must stay unwired):')
         for x, y in FORBIDDEN_EDGES:
             if x not in byname or y not in byname:
@@ -152,6 +172,34 @@ def main(structure_id, template):
                 print('    BAD %s <-> %s is wired' % (x, y))
             else:
                 print('    OK  %s <-> %s unwired' % (x, y))
+
+        print('  private rooms:')
+        try:
+            beds = json.load(open(BED_DATA))['values']
+        except OSError:
+            beds = {}
+        bed_cells = defaultdict(list)
+        for pos, state in grid.items():
+            block = state.split('[')[0]
+            if block in beds:
+                bed_cells[beds[block]['type']].append(pos)
+        entities = set(cfg.get('entities', []))
+        for i, (name, _, owner) in enumerate(rooms):
+            if not owner:
+                continue
+            if owner not in entities:
+                ok = False
+                print('    BAD %s is private to %s, which is not a resident' % (name, owner))
+                continue
+            # a bed is occupied from the cell above the bed block
+            wrong = [p for p in bed_cells.get(owner, [])
+                     if (p[0], p[1] + 1, p[2]) not in sets[i]]
+            if wrong:
+                ok = False
+                print('    BAD %s is private to %s but her bed at %s is outside it'
+                      % (name, owner, ', '.join(str(p) for p in wrong)))
+            else:
+                print('    OK  %s private to %s' % (name, owner))
 
     print('  nodes:')
     for n in nodes:
