@@ -58,6 +58,11 @@ public class StructureMirrorStick extends Item {
 		ItemStack stack = context.getItemInHand();
 		StructureMirrorData data = GLItems.STRUCTURE_MIRROR.get(stack);
 		if (data == null || data.isEmpty()) return acquire(level, sp, stack, context.getClickedPos());
+		// Bedrock outside every bound is the save button; inside a bound it is part of the piece.
+		if (level.getBlockState(context.getClickedPos()).is(Blocks.BEDROCK)
+				&& data.pieceAt(context.getClickedPos()) < 0) {
+			return saveAll(level, sp, data);
+		}
 		return attach(level, sp, stack, data, context.getClickedPos());
 	}
 
@@ -79,7 +84,7 @@ public class StructureMirrorStick extends Item {
 		var found = StructureMirrorHelper.findPiece(level, pos);
 		if (found == null) return fail(sp, GLLang.ItemDebug.MIRROR_NO_STRUCTURE.get());
 		BoundingBox bound = found.bound();
-		Entry root = new Entry(bound, found.block(), -1, null);
+		Entry root = new Entry(bound, found.block(), -1, null, null);
 		stack.set(GLItems.STRUCTURE_MIRROR, new StructureMirrorData(List.of(root)));
 		sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_ROOT.get(found.name().toString()));
 		GensokyoLegacy.LOGGER.info("Structure mirror: root {} at {} bound {}..{}",
@@ -105,37 +110,43 @@ public class StructureMirrorStick extends Item {
 			return fail(sp, GLLang.ItemDebug.MIRROR_CORNER.get(outside.size()));
 		}
 		Direction direction = outside.getFirst();
-		BlockPos childJig = pos.relative(direction);
+		// The pair goes into the air just off the clicked face, so no piece block is replaced.
+		BlockPos parentJig = pos.relative(direction);
+		BlockPos childJig = parentJig.relative(direction);
 		var child = StructureMirrorHelper.findPiece(level, childJig);
 		if (child == null) {
 			return fail(sp, GLLang.ItemDebug.MIRROR_NO_CHILD.get(childJig.toShortString()));
 		}
-		if (data.recorded(child.block()) >= 0 || data.pieceAt(childJig) >= 0) {
+		if (data.recorded(child.block()) >= 0 || data.pieceAt(childJig) >= 0 || data.pieceAt(parentJig) >= 0) {
 			return fail(sp, GLLang.ItemDebug.MIRROR_ALREADY.get());
 		}
 		ResourceLocation parentName = StructureMirrorHelper.nameAt(level, parent.block());
 		if (parentName == null) {
 			return fail(sp, GLLang.ItemDebug.MIRROR_NO_PARENT_NAME.get(parent.block().toShortString()));
 		}
-		InteractionResult blocked = checkFree(level, sp, pos, childJig);
+		InteractionResult blocked = checkFree(level, sp, parentJig, childJig);
 		if (blocked != null) return blocked;
-		if (!StructureMirrorHelper.applyPair(level, pos, childJig, parentName, child.name())) {
+		if (!StructureMirrorHelper.applyPair(level, parentJig, childJig, parentName, child.name())) {
 			return fail(sp, GLLang.ItemDebug.MIRROR_PLACE_FAILED.get());
 		}
-		stack.set(GLItems.STRUCTURE_MIRROR, data.addChild(parentIndex, child.bound(), child.block(), childJig));
+		stack.set(GLItems.STRUCTURE_MIRROR, data.addChild(parentIndex, child.bound(), child.block(), parentJig, childJig));
 		sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_LINKED.get(parentName.toString(), child.name().toString()));
 		GensokyoLegacy.LOGGER.info("Structure mirror: linked {} (parent) -> {} (child), jigsaws {} -> {}",
-				parentName, child.name(), pos.toShortString(), childJig.toShortString());
+				parentName, child.name(), parentJig.toShortString(), childJig.toShortString());
 		return InteractionResult.SUCCESS;
 	}
 
 	private static InteractionResult checkFree(ServerLevel level, ServerPlayer sp, BlockPos parentJig, BlockPos childJig) {
 		for (BlockPos pos : List.of(parentJig, childJig)) {
-			if (level.getBlockState(pos).is(Blocks.JIGSAW)) {
+			BlockState state = level.getBlockState(pos);
+			if (state.is(Blocks.JIGSAW)) {
 				return fail(sp, GLLang.ItemDebug.MIRROR_JIGSAW.get(pos.toShortString()));
 			}
-			if (level.getBlockState(pos).is(Blocks.STRUCTURE_BLOCK)) {
+			if (state.is(Blocks.STRUCTURE_BLOCK)) {
 				return fail(sp, GLLang.ItemDebug.MIRROR_STRUCTURE_BLOCK.get(pos.toShortString()));
+			}
+			if (!state.isAir()) {
+				return fail(sp, GLLang.ItemDebug.MIRROR_NOT_AIR.get(pos.toShortString()));
 			}
 		}
 		return null;
@@ -170,6 +181,36 @@ public class StructureMirrorStick extends Item {
 		for (String line : report.log()) sp.sendSystemMessage(Component.literal(line));
 		GensokyoLegacy.LOGGER.info("Structure mirror repair: {} entries, {} valid, {} fixed, {} failed\n{}",
 				report.total(), report.valid(), report.fixed(), report.failed(), String.join("\n", report.log()));
+	}
+
+	/**
+	 * Saves every recorded piece through its structure block.
+	 */
+	private static InteractionResult saveAll(ServerLevel level, ServerPlayer sp, StructureMirrorData data) {
+		int saved = 0;
+		List<String> failed = new ArrayList<>();
+		for (int i = 0; i < data.entries().size(); i++) {
+			Entry entry = data.entries().get(i);
+			if (StructureMirrorHelper.save(level, entry.block())) {
+				saved++;
+			} else {
+				ResourceLocation name = StructureMirrorHelper.nameAt(level, entry.block());
+				failed.add("#" + i + " " + (name == null ? entry.block().toShortString() : name));
+			}
+		}
+		int total = data.entries().size();
+		if (failed.isEmpty()) {
+			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_SAVE_OK.get(saved));
+		} else {
+			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_SAVE_SUMMARY.get(saved, total)
+					.withStyle(ChatFormatting.GOLD));
+			for (String line : failed) {
+				sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_SAVE_FAILED.get(line).withStyle(ChatFormatting.RED));
+			}
+		}
+		GensokyoLegacy.LOGGER.info("Structure mirror save: {} of {} pieces saved{}", saved, total,
+				failed.isEmpty() ? "" : ", failed: " + String.join(", ", failed));
+		return InteractionResult.SUCCESS;
 	}
 
 	/**
@@ -219,6 +260,7 @@ public class StructureMirrorStick extends Item {
 		lines.add(GLLang.ItemDebug.MIRROR_LINK_HINT.get());
 		lines.add(GLLang.ItemDebug.MIRROR_DELETE_HINT.get());
 		lines.add(GLLang.ItemDebug.MIRROR_AIR_HINT.get());
+		lines.add(GLLang.ItemDebug.MIRROR_SAVE_HINT.get());
 		StructureMirrorData data = GLItems.STRUCTURE_MIRROR.get(stack);
 		if (data != null && !data.isEmpty()) {
 			lines.add(GLLang.ItemDebug.MIRROR_PIECES.get(data.entries().size()));

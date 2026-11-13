@@ -80,12 +80,26 @@ public final class StructureMirrorHelper {
 
 	@Nullable
 	public static ResourceLocation nameAt(ServerLevel level, BlockPos structureBlock) {
+		StructureBlockEntity structure = structureAt(level, structureBlock);
+		if (structure == null) return null;
+		return structure.getMode() == StructureMode.SAVE ? name(structure) : null;
+	}
+
+	@Nullable
+	public static StructureBlockEntity structureAt(ServerLevel level, BlockPos structureBlock) {
 		LevelChunk chunk = level.getChunkSource().getChunkNow(
 				SectionPos.blockToSectionCoord(structureBlock.getX()),
 				SectionPos.blockToSectionCoord(structureBlock.getZ()));
 		if (chunk == null) return null;
-		if (!(chunk.getBlockEntity(structureBlock) instanceof StructureBlockEntity structure)) return null;
-		return structure.getMode() == StructureMode.SAVE ? name(structure) : null;
+		return chunk.getBlockEntity(structureBlock) instanceof StructureBlockEntity structure ? structure : null;
+	}
+
+	/**
+	 * Saves one recorded piece through its structure block, as the structure block's save button would.
+	 */
+	public static boolean save(ServerLevel level, BlockPos structureBlock) {
+		StructureBlockEntity structure = structureAt(level, structureBlock);
+		return structure != null && structure.getMode() == StructureMode.SAVE && structure.saveStructure();
 	}
 
 	@Nullable
@@ -277,29 +291,13 @@ public final class StructureMirrorHelper {
 		}
 	}
 
+	/**
+	 * The piece name only: the bound and connector positions would drown the tree shape.
+	 */
 	private static String line(ServerLevel level, StructureMirrorData data, int index) {
 		Entry entry = data.entries().get(index);
 		ResourceLocation name = nameAt(level, entry.block());
-		StringBuilder ans = new StringBuilder();
-		ans.append('#').append(index).append(' ')
-				.append(name == null ? "<unloaded>" : name)
-				.append(" bound ").append(box(entry.bound()))
-				.append(" structure_block ").append(entry.block().toShortString());
-		if (entry.parent() < 0) {
-			ans.append(" root");
-		} else {
-			ans.append(" parent #").append(entry.parent())
-					.append(" child_jigsaw ").append(entry.childJigsaw() == null
-							? "<none>" : entry.childJigsaw().toShortString())
-					.append(" parent_jigsaw ").append(
-							data.parentJigsaw(index) == null ? "<none>" : data.parentJigsaw(index).toShortString());
-		}
-		return ans.toString();
-	}
-
-	private static String box(BoundingBox bound) {
-		return "(" + bound.minX() + "," + bound.minY() + "," + bound.minZ() + ")-("
-				+ bound.maxX() + "," + bound.maxY() + "," + bound.maxZ() + ")";
+		return name == null ? "<unloaded #" + index + ">" : name.toString();
 	}
 
 }

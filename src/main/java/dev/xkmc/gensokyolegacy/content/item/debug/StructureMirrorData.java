@@ -3,7 +3,6 @@ package dev.xkmc.gensokyolegacy.content.item.debug;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,31 +85,12 @@ public record StructureMirrorData(List<Entry> entries) {
 	}
 
 	/**
-	 * Direction from this entry's child jigsaw toward the parent jigsaw, or null when it cannot be
-	 * derived uniquely.
+	 * Parent-side jigsaw stored on the child entry, or null.
 	 */
-	@Nullable
-	public Direction parentDirection(int index) {
-		if (index < 0 || index >= entries.size()) return null;
-		var entry = entries.get(index);
-		if (entry.parent() < 0 || entry.parent() >= entries.size() || entry.childJigsaw() == null) return null;
-		var parent = entries.get(entry.parent());
-		Direction found = null;
-		for (Direction dir : Direction.values()) {
-			if (!parent.contains(entry.childJigsaw().relative(dir))) continue;
-			if (found != null) return null;
-			found = dir;
-		}
-		return found;
-	}
-
 	@Nullable
 	public BlockPos parentJigsaw(int index) {
 		if (index < 0 || index >= entries.size()) return null;
-		var entry = entries.get(index);
-		Direction dir = parentDirection(index);
-		if (entry.childJigsaw() == null || dir == null) return null;
-		return entry.childJigsaw().relative(dir);
+		return entries.get(index).parentJigsaw();
 	}
 
 	/**
@@ -122,7 +102,7 @@ public record StructureMirrorData(List<Entry> entries) {
 			var entry = entries.get(i);
 			if (entry.parent() < 0 || entry.childJigsaw() == null) continue;
 			boolean match = entry.childJigsaw().equals(pos);
-			if (!match) match = pos.equals(parentJigsaw(i));
+			if (!match && entry.parentJigsaw() != null) match = entry.parentJigsaw().equals(pos);
 			if (!match) continue;
 			if (found >= 0) return -2;
 			found = i;
@@ -130,9 +110,10 @@ public record StructureMirrorData(List<Entry> entries) {
 		return found;
 	}
 
-	public StructureMirrorData addChild(int parent, BoundingBox bound, BlockPos block, BlockPos childJigsaw) {
+	public StructureMirrorData addChild(int parent, BoundingBox bound, BlockPos block,
+	                                    BlockPos parentJigsaw, BlockPos childJigsaw) {
 		List<Entry> list = new ArrayList<>(entries);
-		list.add(new Entry(bound, block, parent, childJigsaw));
+		list.add(new Entry(bound, block, parent, parentJigsaw, childJigsaw));
 		return new StructureMirrorData(list);
 	}
 
@@ -147,20 +128,24 @@ public record StructureMirrorData(List<Entry> entries) {
 			var entry = entries.get(i);
 			int parent = entry.parent();
 			if (parent > index) parent--;
-			list.add(new Entry(entry.bound(), entry.block(), parent, entry.childJigsaw()));
+			list.add(new Entry(entry.bound(), entry.block(), parent, entry.parentJigsaw(), entry.childJigsaw()));
 		}
 		return new StructureMirrorData(list);
 	}
 
-	public record Entry(BoundingBox bound, BlockPos block, int parent, @Nullable BlockPos childJigsaw) {
+	public record Entry(BoundingBox bound, BlockPos block, int parent,
+	                    @Nullable BlockPos parentJigsaw, @Nullable BlockPos childJigsaw) {
 
 		public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
 				BoundingBox.CODEC.fieldOf("bound").forGetter(Entry::bound),
 				BlockPos.CODEC.fieldOf("structure_block").forGetter(Entry::block),
 				Codec.INT.fieldOf("parent").forGetter(Entry::parent),
+				BlockPos.CODEC.optionalFieldOf("parent_jigsaw")
+						.forGetter(e -> Optional.ofNullable(e.parentJigsaw())),
 				BlockPos.CODEC.optionalFieldOf("child_jigsaw")
 						.forGetter(e -> Optional.ofNullable(e.childJigsaw()))
-		).apply(i, (bound, block, parent, jigsaw) -> new Entry(bound, block, parent, jigsaw.orElse(null))));
+		).apply(i, (bound, block, parent, parentJigsaw, childJigsaw) ->
+				new Entry(bound, block, parent, parentJigsaw.orElse(null), childJigsaw.orElse(null))));
 
 		public boolean contains(BlockPos pos) {
 			return pos.getX() >= bound.minX() && pos.getX() <= bound.maxX()
