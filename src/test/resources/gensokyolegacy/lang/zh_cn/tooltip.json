@@ -239,6 +239,10 @@
 			"mode_storm": "风暴",
 			"need_power": "锚至少需要 %s 点灵力"
 		},
+		"treasure_tower": {
+			"need_power": "寻宝塔至少需要 %s 点灵力",
+			"tooltip": "长按右键一秒后松开，瞄准的石头及与其相连的同类石头会变为该宝石的矿石"
+		},
 		"ufo": {
 			"contains": "内含：%s",
 			"hold": "长按右键两秒以取回"

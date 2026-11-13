@@ -15,7 +15,7 @@ the two apart:
 
 | term in this doc | meaning | ledger entry | `StrayHost` |
 |---|---|---|---|
-| **wild stray doll** | `stray_doll`, a neutral ambient mob | none | no |
+| **wild stray doll** | `stray_doll`, a hostile pack mob | none | no |
 | **stray ghost** | `stray_ghost`, an unowned wild mob | none | no |
 | **owned ghost** | `ghost`, a player-bound support summon | one `SUMMONED` entry in the player's ledger | no |
 | **framework stray** | a cut doll (control.md §5.4) | detached entry in a `StrayHost` | yes |
@@ -27,7 +27,7 @@ state. The entity type `stray_ghost` is deliberately the wild one; it is not `is
 
 | entity type | class | base class | category | item form | ledger | spawn egg |
 |---|---|---|---|---|---|---|
-| `stray_doll` | `StrayDollEntity` | `StrayFlyingMob` | `MONSTER` | none | no | yes |
+| `stray_doll` | `StrayDollEntity` | `StrayFlyingMob` | `MONSTER` | none | no | yes, and natural in the magical forest |
 | `stray_ghost` | `StrayGhostEntity` | `StrayFlyingMob` | `MONSTER` | none | no | yes (testing/creative) |
 | `ghost` | `GhostEntity` | `BaseDollEntity` | `MISC` | none | player's `DollAttachment` | no |
 | — | `BoneFluteItem` | `Item` | — | — | — | — |
@@ -47,7 +47,7 @@ by taste:
 |---|---|---|
 | live without an owner | `tick()` calls `getHost()` and `discard()`s when it is null (BaseDollEntity:437-441); `onJoinLevelCheck()` does the same | the wild mob vanishes on its first tick |
 | persist in a chunk | `shouldBeSaved()` returns `strayHost != null && strayHost.data() != null` (BaseDollEntity:501-503) | a wild mob with no `StrayHost` is never written to disk |
-| wander and retaliate | the base registers only `FollowDollOwnerGoal` and `LookAtDollOwnerGoal` | there is no wander, look-around, or `HurtByTargetGoal` |
+| wander, hunt and follow a pack leader | the base registers only `FollowDollOwnerGoal` and `LookAtDollOwnerGoal` | there is no wander, look-around, target or pack goal |
 | be ownerless | `OwnableEntity` plumbing, `isAlliedTo`, formation, `getHost()` host lookup | every query has to pretend an owner exists |
 | be itemized | empty-hand `mobInteract` routes through the itemization gate | a wild mob would be poked or sucked into a ledger it does not belong to |
 | take damage | paired entries defer into `DollData.combat`; unpaired entries fall back to plain damage | works, but the paired half is meaningless |
@@ -84,8 +84,8 @@ the ghost is player-owned despite being a summon.
 
 ## 4. Wild stray doll
 
-`StrayDollEntity` is an ambient neutral mob. It is not convertible, not summonable, not an item, and
-not associated with any player.
+`StrayDollEntity` is a hostile wild mob that hunts players on sight. It is not convertible, not
+summonable, not an item, and not associated with any player.
 
 ### 4.1 Behaviour
 
@@ -94,10 +94,28 @@ not associated with any player.
   like the plain fairy (`PlainFairyEntity.hoverStep`). The vanilla `RandomStrollGoal` cannot be used
   here: its ground target is rejected by `FlyingPathNavigation.isStableDestination`, so the mob would
   stand still.
-- **React, never initiate** — `targetSelector.addGoal(1, new HurtByTargetGoal(this))` plus
-  `goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, true))`. There is deliberately **no**
-  `NearestAttackableTargetGoal`: the doll only fights what hit it first, which is what "neutral"
-  means here.
+- **Hunt on sight** — vanilla `NearestAttackableTargetGoal<Player>` acquires the nearest visible
+  player, filtered by the pack leash below, and `MeleeAttackGoal` closes in.
+- **Pack** — naturally spawned in groups of three to five. The shared `SpawnGroupData` counts the
+  members actually finalized; at the third, the first member is crowned: it gains the `mini_shield`
+  and writes its own UUID as its leader, while the third and any later members store that UUID and
+  follow it. A group cut to one or two members by the mob cap or failed spawn positions stays
+  entirely leaderless. The leader UUID is saved in NBT and synced to clients for the pack link.
+- **Joining** — a leaderless doll searches on its first tick, then every 100 ticks after a failed
+  search, adopting the nearest leader within 8 blocks. A successful find drops the cooldown, so the
+  follower joins immediately. A leaderless doll never crowns itself.
+- **Shield** — the leader's off-hand `mini_shield` blocks through the vanilla pipeline: `isBlocking()`
+  reads the ordinary equipment slot (not a doll loadout slot) and `hurtCurrentlyUsedShield` plays the
+  block sound. The shield has no durability, so it never wears out.
+- **Leash** — a follower only acquires or keeps a target while the target is within 24 blocks of its
+  leader; moving past that clears the target. A dead or unloaded leader resolves to null, which drops
+  both the follow goal and the leash, so the follower wanders and hunts independently.
+- **Revenge** — `HurtByTargetGoal(this, StrayDollEntity.class).setAlertOthers()`: hitting any member
+  alerts same-type members within follow range to the same attacker.
+- **Link** — `StrayDollLinkRenderer` draws a drooping pink thread from the leader's chest to each
+  follower's chest, using the same `RopeRenderer` band as the glove's player-to-doll links. The
+  client resolves the synced leader UUID against the loaded strays, so a dead, unloaded or orphaned
+  leader simply leaves the follower unlinked.
 - **Look alive** — `LookAtPlayerGoal(this, Player.class, 8.0F)` and `RandomLookAroundGoal(this)`.
 - **Spear** — if it spawns in the `magical_forest` biome, a 50% roll puts a `doll_lance` in its main
   hand; the item drops on death like any equipment.
@@ -105,31 +123,39 @@ not associated with any player.
 - **Sound** — none (the dolls are silent); optional idle particles later.
 
 Attributes: `Monster.createMonsterAttributes()` as a convenient builder, then `MAX_HEALTH 20`,
-`ATTACK_DAMAGE 2`, `MOVEMENT_SPEED 0.25`, `FOLLOW_RANGE 16`, `FLYING_SPEED 0.3`. Low damage because
-it is an ambient mob, not a threat.
+`ATTACK_DAMAGE 2`, `MOVEMENT_SPEED 0.25`, `FOLLOW_RANGE 16`, `FLYING_SPEED 0.3`.
 
 ### 4.2 Registration and persistence
 
 - Entity type `stray_doll`, `MobCategory.MONSTER`, `.sized(0.4F, 0.9F).clientTrackingRange(10)`.
+- `.spawnPlacement(ON_GROUND, MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::hostileGround, REPLACE)` —
+  vanilla's hostile rule: not peaceful, dark enough (`Monster.isDarkEnoughToSpawn`) and a valid mob
+  spawn block.
+- A `neoforge:add_spawns` biome modifier on `magical_forest`, weight 10, `minCount 3`, `maxCount 5`.
+  The group size is what produces the pack; the leader is crowned inside it only once three members
+  actually spawn, not by a second roll.
 - `.spawnEgg(primary, secondary).build()` — the first spawn egg in the mod. Registrate's
   `EntityBuilder.spawnEgg` is deprecated upstream but is the builder route here; it creates a
   NeoForge `DeferredSpawnEggItem` and registers it. It returns an `ItemBuilder`, so `.build()` is
   required to get back to the entity builder and continue the chain. The egg lands in vanilla's
-  spawn-egg tab automatically.
-- `.loot(EntityLootGen::noLoot)` — no drop. Dropping a doll item would create an unintended
-  acquisition path; if a drop is wanted later it should be its own decision.
+  spawn-egg tab automatically. An egg-spawned doll is a one-member group, so it starts leaderless
+  and may join a nearby leader.
+- `.loot(EntityLootGen::noLoot)` — no loot table. The lance drops like any equipment; the leader's
+  shield has its off-hand drop chance zeroed, so it is a pack trait rather than loot.
 - `.tag(GLTagGen.CARRYON_BLACKLIST)` — carriers must not pick it up.
-- **No natural spawn.** No `spawnPlacement`, no biome modifier, no spawn-rule hook. The egg is the
-  only source for now, exactly as the brief asks.
-- Persistence: leave the vanilla mob default (an egg-spawned mob can despawn when the player leaves).
-  It is decorative; a player who wants to keep one can name it. If it should never despawn, call
-  `setPersistenceRequired()` in `finalizeSpawn` instead.
+- Persistence: leave the vanilla mob default (a natural or egg-spawned mob can despawn when the
+  player leaves). A player who wants to keep one can name it.
 
 ### 4.3 Rendering
 
 Use its own `geo/stray_doll.geo.json`, `animations/stray_doll.animation.json` and
 `textures/geo/stray_doll.png` with a `StrayDollRenderer`/`StrayDollModel`. The model plays
 `DStoy_idle`/`DStoy_fly` from its own controller. It does not implement `DollRig` (§3).
+
+The pack link is a level-stage pass, not an entity layer: `StrayDollLinkRenderer` collects the loaded
+strays into a UUID map each frame and feeds every follower's leader-to-follower span to
+`RopeRenderer`. That keeps the link visible when either end is culled and matches the glove links'
+droop and lighting.
 
 ## 5. Stray ghost
 
@@ -141,7 +167,7 @@ Use its own `geo/stray_doll.geo.json`, `animations/stray_doll.animation.json` an
   `LookAtPlayerGoal` and `RandomLookAroundGoal`.
 - **Passive** — no target goals at all: no `HurtByTargetGoal`, no `MeleeAttackGoal`, no
   player-targeting goal. The wild ghost never fights back, which is what makes the flute a calm
-  choice rather than a chase. The wild doll stays neutral and retaliates.
+  choice rather than a chase. The wild doll is hostile and hunts on sight.
 - **Persistent** — call `setPersistenceRequired()` whenever a stray is created (spawn egg, flute
   release, command). Strays are rare and must not despawn while the player fetches a flute.
 - **No loot**, no ledger, no item form. Killing one loses its variant.
@@ -498,7 +524,7 @@ is already in an inconsistent state and the reconciliation pass will handle it.
 
 | constant | name | class | category | extras |
 |---|---|---|---|---|
-| `STRAY_DOLL` | `stray_doll` | `StrayDollEntity` | `MONSTER` | attributes, spawn egg, no loot, carry-on tag, renderer |
+| `STRAY_DOLL` | `stray_doll` | `StrayDollEntity` | `MONSTER` | attributes, natural spawn, spawn egg, no loot, carry-on tag, renderer |
 | `STRAY_GHOST` | `stray_ghost` | `StrayGhostEntity` | `CREATURE` | attributes, spawn egg, no loot, carry-on tag, renderer, `ON_GROUND` spawn placement on lit animals-spawnable ground |
 | `GHOST` | `ghost` | `GhostEntity` | `MISC` | `BaseDollEntity` attributes, no spawn egg, no loot table (MISC entities cannot have one), carry-on tag, renderer |
 
@@ -537,18 +563,23 @@ creative use now that the barrens spawn exists (§11).
 - `./gradlew runData` for item models, loot tables (`noLoot`), lang and tags; commit the generated
   output.
 - `./gradlew compileJava`.
-- Manual checks: egg spawns both wild types; both wander and hover about one block over the floor;
-  wild doll retaliates only after being hit; wild ghost never retaliates; flute adopts/releases;
-  variant survives logout/death; a released ghost is
-  persistent; curios removes one harmful effect per 3-second pulse, longest first; foodie doubles eat
-  speed and converts hunger to saturation above 16; lively gives Haste II/Speed II/Lively I; the cap
-  refuses a ninth summon; a ghost is absent from the roster and the loadout editor.
+- Manual checks: egg spawns both wild types and starts leaderless; the magical forest spawns packs of
+  three to five with one mini-shielded leader that blocks hits from the front; a cap-shortened pair
+  stays leaderless and adopts a leader within 8 blocks, retrying after 100 ticks; followers stay
+  near the leader, stop chasing past 24 blocks, and turn independent when the leader dies; hitting
+  one alerts the pack; both wild types wander and hover about one block over the floor; wild ghost
+  never retaliates; flute adopts/releases; variant survives logout/death; a released ghost is
+  persistent; curios removes one harmful effect per 3-second pulse, longest first; foodie doubles
+  eat speed and converts hunger to saturation above 16; lively gives Haste II/Speed II/Lively I;
+  the cap refuses a ninth summon; a ghost is absent from the roster and the loadout editor.
 
 ## 11. Edge cases
 
 - **Two entity types, one variant enum** — the flute copies the variant across the type swap; do not
   try to keep the same entity and change its type.
 - **A stray with a full ledger** — refuse before discarding the stray; show `TOO_MANY`.
+- **Short pack** — fewer than three spawned members stays leaderless. A lone doll must not crown
+  itself; it only adopts a leader that already exists within 8 blocks, retrying every 100 ticks.
 - **A ghost owned by another player** — refuse; `isOwner` is the check, creative mode does not bypass
   it (releasing someone else's ghost is destructive).
 - **A ghost that lost its entry** — refuse, do not spawn a stray; the reconciliation pass owns that

@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTicker;
 import dev.xkmc.gensokyolegacy.content.attachment.party.food.FoodResultCache;
 import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClient;
 import dev.xkmc.gensokyolegacy.content.cooldown.CooldownClock;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTowerManager;
+import dev.xkmc.gensokyolegacy.content.item.treasure.network.TreasureTowerToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestLootToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootReader;
@@ -20,11 +22,14 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+
+import java.util.ArrayList;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLMetaEventHandlers {
@@ -32,16 +37,26 @@ public class GLMetaEventHandlers {
 	@SubscribeEvent
 	public static void reload(OnDatapackSyncEvent event) {
 		var sp = event.getPlayer();
+		var server = event.getPlayerList().getServer();
 		if (sp == null) {
 			ServerCharacterDialogManager.clearCache();
 			FoodResultCache.invalidate();
-		} else {
-			var server = sp.getServer();
-			if (server != null) {
-				GensokyoLegacy.HANDLER.toClientPlayer(new PartyGiftToClient(PartyGiftReader.all(server)), sp);
-				GensokyoLegacy.HANDLER.toClientPlayer(new QuestLootToClient(LootReader.questRewards(server)), sp);
-			}
 		}
+		if (server == null) return;
+		if (sp != null) {
+			GensokyoLegacy.HANDLER.toClientPlayer(new PartyGiftToClient(PartyGiftReader.all(server)), sp);
+			GensokyoLegacy.HANDLER.toClientPlayer(new QuestLootToClient(LootReader.questRewards(server)), sp);
+		}
+		// the tower's recipes derive from tags and worldgen, so every client gets the fresh copy
+		var recipes = new ArrayList<>(TreasureTowerManager.get(server).recipes());
+		event.getRelevantPlayers().forEach(player ->
+				GensokyoLegacy.HANDLER.toClientPlayer(new TreasureTowerToClient(recipes), player));
+	}
+
+	@SubscribeEvent
+	public static void onTagsUpdated(TagsUpdatedEvent event) {
+		if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD)
+			TreasureTowerManager.clear();
 	}
 
 	@SubscribeEvent

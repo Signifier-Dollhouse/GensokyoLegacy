@@ -7,6 +7,7 @@
 - fix structure search lag
 - fix doll damage won't aggravate target
 - fix doll being recolored by other player
+- fix broom bug in multiplayer with high latency
 
 1.0.6
 - Add ability for fancy fan

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.registrate.block;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.nature.*;
@@ -50,6 +51,7 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
+import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +65,7 @@ public class GLNaturalBlocks {
 
 	public static final SimpleEntry<CreativeModeTab> TAB;
 
-	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER;
+	public static final BlockEntry<SimpleBushBlock> STAR_FLOWER, RED_SPIDER_LILY;
 	public static final BlockEntry<GoldenLotusBlock> GOLDEN_LOTUS;
 	public static final BlockEntry<SimpleBushBlock> TOWER_GRASS_SMALL, TOWER_GRASS_LARGE;
 	public static final BlockEntry<SimpleBushBlock> SPOOKY_BUSH;
@@ -83,6 +85,7 @@ public class GLNaturalBlocks {
 	public static final WoodSet MAPLE_WOOD, LOCUST_WOOD;
 	public static final BlockEntry<Block> LOCUST_PLANKS;
 	public static final BlockEntry<RotatedPillarBlock> STRIPPED_LOCUST_LOG, STRIPPED_LOCUST_WOOD;
+	public static final BlockEntry<WallBlock> LOCUST_WALL;
 
 	public static final TreeSet BLUE_FUR_SET, ORANGE_MAPLE_SET, RED_MAPLE_SET, YELLOW_MAPLE_SET,
 			PINK_CHERRY_SET, PURPLE_CHERRY_SET, LOCUST_SET;
@@ -126,6 +129,17 @@ public class GLNaturalBlocks {
 				.tag(ItemTags.SMALL_FLOWERS)
 				.build()
 				.tag(BlockTags.SMALL_FLOWERS)
+				.register();
+
+		RED_SPIDER_LILY = reg.block("red_spider_lily", p -> new SimpleBushBlock(p, Block.box(3, 0, 3, 13, 14, 13)))
+				.initialProperties(() -> Blocks.POPPY)
+				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cross(ctx.getName(),
+						pvd.modLoc("block/nature/" + ctx.getName())).renderType("cutout")))
+				.tag(BlockTags.SMALL_FLOWERS)
+				.item().model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("block/nature/" + ctx.getName())))
+				.tag(ItemTags.SMALL_FLOWERS)
+				.dataMap(NeoForgeDataMaps.COMPOSTABLES, new Compostable(0.65f))
+				.build()
 				.register();
 
 		// 地涌金莲: random-tick growth through three sizes, the last one a double plant
@@ -337,6 +351,7 @@ public class GLNaturalBlocks {
 
 		// 槐: the only tree with a hollow trunk, and the only one with planks and a stripped trunk of its own
 		var locustProp = BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE);
+		var strippedLocustTexture = GensokyoLegacy.loc("block/wood/stripped_locust_log_side");
 		LOCUST_PLANKS = reg.block("locust_planks", Block::new)
 				.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_PURPLE))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
@@ -347,8 +362,7 @@ public class GLNaturalBlocks {
 		STRIPPED_LOCUST_LOG = reg.block("stripped_locust_log", RotatedPillarBlock::new)
 				.properties(p -> locustProp)
 				.blockstate((ctx, pvd) -> GLBlockDatagenHelper.genColumnState(ctx, pvd,
-						pvd.modLoc("block/wood/stripped_locust_log_side"),
-						pvd.modLoc("block/wood/locust_log_top")))
+						strippedLocustTexture, pvd.modLoc("block/wood/locust_log_top")))
 				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 				.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 				.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
@@ -357,15 +371,25 @@ public class GLNaturalBlocks {
 				.register();
 		STRIPPED_LOCUST_WOOD = reg.block("stripped_locust_wood", RotatedPillarBlock::new)
 				.properties(p -> locustProp)
-				.blockstate((ctx, pvd) -> {
-					var side = pvd.modLoc("block/wood/stripped_locust_log_side");
-					GLBlockDatagenHelper.genColumnState(ctx, pvd, side, side);
-				})
+				.blockstate((ctx, pvd) ->
+						GLBlockDatagenHelper.genColumnState(ctx, pvd, strippedLocustTexture, strippedLocustTexture))
 				.tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
 				.item().tag(ItemTags.LOGS_THAT_BURN, ItemTags.LOGS).build()
 				.recipe((ctx, pvd) -> GLRecipeGen.unlock(pvd, ShapelessRecipeBuilder.shapeless(
 								RecipeCategory.BUILDING_BLOCKS, LOCUST_PLANKS.get(), 4)::unlockedBy, ctx.get().asItem())
 						.requires(ctx.get()).save(pvd, GensokyoLegacy.loc("stripped_locust_wood_to_locust_planks")))
+				.register();
+		LOCUST_WALL = reg.block("locust_wall", WallBlock::new)
+				.initialProperties(() -> Blocks.ACACIA_LOG)
+				.properties(p -> p.mapColor(MapColor.COLOR_PURPLE).forceSolidOn())
+				.blockstate((ctx, pvd) -> pvd.wallBlock(ctx.get(), strippedLocustTexture))
+				.tag(BlockTags.WALLS, BlockTags.MINEABLE_WITH_AXE)
+				.item().model((ctx, pvd) -> pvd.wallInventory(ctx.getName(), strippedLocustTexture))
+				.tag(ItemTags.WALLS).tab(GLDecoBlocks.TAB.key())
+				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150))
+				.build()
+				.recipe((ctx, pvd) ->
+						RegistrateRecipeProvider.wall(pvd, RecipeCategory.BUILDING_BLOCKS, ctx.get(), STRIPPED_LOCUST_LOG.get()))
 				.register();
 		LOCUST_WOOD = new WoodSet(reg, "locust", LOCUST_PLANKS, STRIPPED_LOCUST_LOG, STRIPPED_LOCUST_WOOD,
 				locustProp, "locust_hollow_log");

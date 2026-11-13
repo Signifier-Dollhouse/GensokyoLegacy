@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.command;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -20,6 +23,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitScheduler;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitTable;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.item.treasure.OreRecipe;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTowerManager;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -46,6 +51,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -54,10 +60,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLCommands {
@@ -294,7 +304,14 @@ public class GLCommands {
 								.then(Commands.literal("end")
 										.executes(GLCommands::executePartyEnd))
 								.then(Commands.literal("info")
-										.executes(GLCommands::executePartyInfo)))));
+										.executes(GLCommands::executePartyInfo))))
+				.then(Commands.literal("treasure_tower")
+						.then(Commands.literal("stats")
+								.executes(GLCommands::executeTreasureTowerStats))
+						.then(Commands.literal("dump")
+								.executes(ctx -> executeTreasureTowerDump(ctx, false))
+								.then(Commands.literal("json")
+										.executes(ctx -> executeTreasureTowerDump(ctx, true))))));
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> literal(String str) {
@@ -478,6 +495,68 @@ public class GLCommands {
 		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
 		return 1;
+	}
+
+	// --- treasure tower ---
+
+	private static int executeTreasureTowerStats(CommandContext<CommandSourceStack> ctx) {
+		var src = ctx.getSource();
+		var data = TreasureTowerManager.get(src.getServer());
+		int tags = data.recipes().stream().mapToInt(e -> e.tags().size()).sum();
+		int stones = data.recipes().stream().mapToInt(e -> e.stones().size()).sum();
+		src.sendSuccess(() -> Component.literal("Treasure tower: " + data.recipes().size()
+				+ " recipes, " + tags + " tag ids, " + stones + " loose blocks"), false);
+		src.sendSuccess(() -> Component.literal("Last build: "
+				+ String.format("%.2f", TreasureTowerManager.lastBuildNanos() / 1e6) + " ms"), false);
+		return data.recipes().size();
+	}
+
+	private static int executeTreasureTowerDump(CommandContext<CommandSourceStack> ctx, boolean json) {
+		var src = ctx.getSource();
+		var data = TreasureTowerManager.get(src.getServer());
+		if (!json) {
+			for (var recipe : data.recipes())
+				src.sendSuccess(() -> Component.literal(BuiltInRegistries.ITEM.getKey(recipe.gem())
+						+ " -> " + BuiltInRegistries.BLOCK.getKey(recipe.ore()) + " " + describe(recipe)), false);
+			return data.recipes().size();
+		}
+		var root = new JsonArray();
+		for (var recipe : data.recipes()) {
+			var obj = new JsonObject();
+			obj.addProperty("gem", BuiltInRegistries.ITEM.getKey(recipe.gem()).toString());
+			obj.addProperty("ore", BuiltInRegistries.BLOCK.getKey(recipe.ore()).toString());
+			var tags = new JsonObject();
+			for (var id : recipe.tags()) {
+				var members = new JsonArray();
+				BuiltInRegistries.BLOCK.getTag(TagKey.create(Registries.BLOCK, id)).ifPresent(set ->
+						set.forEach(e -> members.add(BuiltInRegistries.BLOCK.getKey(e.value()).toString())));
+				tags.add("#" + id, members);
+			}
+			obj.add("tags", tags);
+			var stones = new JsonArray();
+			for (var block : recipe.stones())
+				stones.add(BuiltInRegistries.BLOCK.getKey(block).toString());
+			obj.add("stones", stones);
+			root.add(obj);
+		}
+		var path = Path.of("out", "treasure_tower.json");
+		try {
+			Files.createDirectories(path.getParent());
+			Files.writeString(path, new GsonBuilder().setPrettyPrinting().create().toJson(root));
+		} catch (IOException e) {
+			src.sendFailure(Component.literal("Could not write " + path + ": " + e));
+			return 0;
+		}
+		src.sendSuccess(() -> Component.literal("Wrote " + data.recipes().size() + " entries to " + path), false);
+		return data.recipes().size();
+	}
+
+	private static String describe(OreRecipe recipe) {
+		var tags = recipe.tags().stream().map(id -> "#" + id).collect(Collectors.joining(", "));
+		var stones = recipe.stones().stream()
+				.map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
+				.collect(Collectors.joining(", "));
+		return tags + (tags.isEmpty() || stones.isEmpty() ? "" : " ") + stones;
 	}
 
 	/**

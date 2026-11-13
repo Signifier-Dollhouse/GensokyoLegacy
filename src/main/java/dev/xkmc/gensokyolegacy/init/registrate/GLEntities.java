@@ -219,6 +219,9 @@ public class GLEntities {
 					.attributes(StrayDollEntity::createAttributes)
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.loot(EntityLootGen::noLoot)
+					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::hostileGround,
+							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.spawnEgg(0xE6D5B8, 0x8B6B4A).build()
 					.renderer(() -> StrayDollRenderer::new)
 					.register();

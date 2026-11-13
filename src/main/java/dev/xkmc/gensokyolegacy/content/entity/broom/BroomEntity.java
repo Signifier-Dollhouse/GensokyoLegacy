@@ -29,8 +29,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * A rideable magic broom: a free-flight vehicle steered by its rider. The rider's yaw and
  * pitch are mirrored onto the entity every tick, so looking around aims the broom and nothing
  * else rotates it; the vanilla movement keys cover the flight axes. The entity is only a
- * stand-in for the item, discarded the tick a rider stops holding one ({@link BroomItem} is
- * what creates it).
+ * stand-in for the item, discarded on the server the tick a rider stops holding one
+ * ({@link BroomItem} is what creates it).
  */
 public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 
@@ -80,9 +80,17 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	private static final double COAST_FWD = 0.95;
 	private static final double COAST_SIDE = 0.7;
 
+	/**
+	 * Ticks the rider must be seated before the client may ask to dismount: a held button
+	 * keeps sending uses until the mount reaches the client.
+	 */
+	private static final int READY_TICKS = 10;
+
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("broom_idle");
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+	private int riddenTicks;
 
 	public BroomEntity(EntityType<?> type, Level level) {
 		super(type, level);
@@ -93,9 +101,12 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 		baseTick();
 		Player rider = getRider();
 		if (rider == null || !holdsBroom(rider)) {
-			discard();
+			// the client may tick the broom before the passenger packet lands; only the
+			// server has the authoritative rider, so only it may remove the entity
+			if (!level().isClientSide) discard();
 			return;
 		}
+		if (riddenTicks < READY_TICKS) riddenTicks++;
 		// A rider is not falling: vanilla bills fall damage off downward distance gained
 		// without ground, and this drops at MAX_RISE a tick, so it is zeroed rather than clamped.
 		rider.resetFallDistance();
@@ -203,6 +214,14 @@ public class BroomEntity extends SimplifiedEntity implements GeoEntity {
 	@Nullable
 	public Player getRider() {
 		return getFirstPassenger() instanceof Player player ? player : null;
+	}
+
+	/**
+	 * Whether the rider has been seated long enough for a dismount request: the presses from
+	 * the summoning click must not get the player off the broom they just got on.
+	 */
+	public boolean readyForUse() {
+		return riddenTicks >= READY_TICKS;
 	}
 
 	/**
