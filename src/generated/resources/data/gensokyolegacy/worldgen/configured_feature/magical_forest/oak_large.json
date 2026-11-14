@@ -59,7 +59,7 @@
     "root_depth": 5,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/tree/oak_large_1",
+        "data": "gensokyolegacy:biome/tree/oak_large_1",
         "weight": 1
       }
     ]

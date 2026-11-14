@@ -113,7 +113,7 @@ public class TreeFeatures {
 			public ConfiguredFeature<?, ?> build(BlockStateProvider log, BlockStateProvider leaves) {
 				var templates = SimpleWeightedRandomList.<ResourceLocation>builder();
 				for (var id : ids) {
-					templates.add(GensokyoLegacy.loc("magical_forest/tree/" + id), 1);
+					templates.add(GensokyoLegacy.loc("biome/tree/" + id), 1);
 				}
 				var blocks = replacements.get();
 				var processors = blocks.isEmpty() ? TemplateFeatureConfig.NO_PROCESSORS

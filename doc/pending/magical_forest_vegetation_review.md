@@ -101,7 +101,7 @@
 
 ### 3.5 ⏳ 模板约定只在导出时校验
 
-锚点 = 底面中心且必须是原木、水平伸展 ≤ 15、不含空气——这些由 `export_templates.validate()` 保证；手工放进 `structure/magical_forest/` 的 NBT 不会被检查，reach > 15 会在世界生成时报 `Detected setBlock in a far chunk` 并少块。建议 `TemplateFeature` 首次取到模板时校验一次尺寸并 `LOGGER.warn`（和现在的 `MISSING` 集合同一位置）。
+锚点 = 底面中心且必须是原木、水平伸展 ≤ 15、不含空气——这些由 `export_templates.validate()` 保证；手工放进 `structure/biome/` 的 NBT 不会被检查，reach > 15 会在世界生成时报 `Detected setBlock in a far chunk` 并少块。建议 `TemplateFeature` 首次取到模板时校验一次尺寸并 `LOGGER.warn`（和现在的 `MISSING` 集合同一位置）。
 
 ### 3.6 ⏳ Python 工具的方块分类靠字符串启发式
 

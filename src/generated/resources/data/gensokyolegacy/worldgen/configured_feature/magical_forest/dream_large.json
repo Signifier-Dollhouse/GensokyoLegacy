@@ -7,7 +7,7 @@
     "root_depth": 4,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_large_1",
+        "data": "gensokyolegacy:biome/mushroom/dream_large_1",
         "weight": 1
       }
     ]

@@ -59,19 +59,19 @@
     "root_depth": 6,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/tree/oak_giant_1",
+        "data": "gensokyolegacy:biome/tree/oak_giant_1",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/oak_giant_2",
+        "data": "gensokyolegacy:biome/tree/oak_giant_2",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/oak_giant_3",
+        "data": "gensokyolegacy:biome/tree/oak_giant_3",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/oak_giant_4",
+        "data": "gensokyolegacy:biome/tree/oak_giant_4",
         "weight": 1
       }
     ]

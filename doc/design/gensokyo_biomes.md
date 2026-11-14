@@ -552,7 +552,7 @@ first neighbour update, so the feature writes both halves itself.
 
 The barrens' tomb is not a patch at all. It is a hand-built NBT plot placed by `gensokyolegacy:template_structure`, the
 structure-side twin of the magical forest's `template` feature: same terrain checks and random rotation, but the blocks
-are placed as authored instead of being blended into vegetation. The three `myouren_temple/tomb_0*` templates carry a
+are placed as authored instead of being blended into vegetation. The three `biome/graveyard/tomb_0*` templates carry a
 grave, its lanterns and the offerings left on it; the plot needs flat dirt (`max_slope` 0) and clears the plants it
 stands on rather than being refused by them.
 
