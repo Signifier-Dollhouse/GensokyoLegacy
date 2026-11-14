@@ -5,6 +5,7 @@ import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +37,7 @@ public class GLStructureTagGen {
 	public static final TagKey<Structure> MARISA_HOUSE_STRUCTURE = structureTag("marisa_house");
 	public static final TagKey<Structure> MORICHIKA_SHOP_STRUCTURE = structureTag("morichika_shop");
 	public static final TagKey<Structure> ALICE_HOUSE_STRUCTURE = structureTag("alice_house");
+	public static final TagKey<Structure> MYOUREN_TEMPLE_STRUCTURE = structureTag("myouren_temple");
 
 	/**
 	 * Every character home at once, so a lookup answers "which of them is closest" (what the catch-all flower in
@@ -54,6 +56,8 @@ public class GLStructureTagGen {
 	public static final TagKey<Block> MORICHIKA_FIX = blockTag("structure_fix/morichika_shop/would_fix");
 	public static final TagKey<Block> ALICE_PRIMARY = blockTag("structure_fix/alice_house/primary");
 	public static final TagKey<Block> ALICE_FIX = blockTag("structure_fix/alice_house/would_fix");
+	public static final TagKey<Block> MYOUREN_PRIMARY = blockTag("structure_fix/myouren_temple/primary");
+	public static final TagKey<Block> MYOUREN_FIX = blockTag("structure_fix/myouren_temple/would_fix");
 
 	public static TagKey<Structure> structureTag(String name) {
 		return TagKey.create(Registries.STRUCTURE, GensokyoLegacy.loc(name));
@@ -69,12 +73,14 @@ public class GLStructureTagGen {
 		pvd.addTag(MARISA_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.MARISA_HOUSE));
 		pvd.addTag(MORICHIKA_SHOP_STRUCTURE).add(structureKey(GLStructureGen.MORICHIKA_SHOP));
 		pvd.addTag(ALICE_HOUSE_STRUCTURE).add(structureKey(GLStructureGen.ALICE_HOUSE));
+		pvd.addTag(MYOUREN_TEMPLE_STRUCTURE).add(structureKey(GLStructureGen.MYOUREN_TEMPLE));
 		pvd.addTag(CHARACTER_HOMES)
 				.addTag(CIRNO_NEST_STRUCTURE)
 				.addTag(HAKUREI_SHRINE_STRUCTURE)
 				.addTag(MARISA_HOUSE_STRUCTURE)
 				.addTag(MORICHIKA_SHOP_STRUCTURE)
-				.addTag(ALICE_HOUSE_STRUCTURE);
+				.addTag(ALICE_HOUSE_STRUCTURE)
+				.addTag(MYOUREN_TEMPLE_STRUCTURE);
 	}
 
 	private static ResourceKey<Structure> structureKey(ResourceLocation id) {
@@ -237,6 +243,86 @@ public class GLStructureTagGen {
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("ice_brick_stairs"));
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
 		pvd.addTag(CIRNO_FIX).addOptional(GensokyoLegacy.loc("spruce_chair"));
+
+		// Myouren Temple in the barrens: white Myouren brick, cyan tile roofs, locust timber, the pond
+		// and the walls that ring the grounds
+		pvd.addTag(MYOUREN_PRIMARY).add(
+				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
+				Blocks.STRIPPED_OAK_LOG, Blocks.CHERRY_LOG,
+				Blocks.SPRUCE_PLANKS, Blocks.DARK_OAK_PLANKS, Blocks.OAK_PLANKS, Blocks.BAMBOO_MOSAIC,
+				Blocks.SPRUCE_SLAB, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE_GATE,
+				Blocks.SPRUCE_TRAPDOOR,
+				Blocks.SMOOTH_QUARTZ, Blocks.SMOOTH_QUARTZ_SLAB, Blocks.QUARTZ_STAIRS, Blocks.QUARTZ_SLAB,
+				Blocks.CALCITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE_SLAB,
+				Blocks.STONE, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS,
+				Blocks.STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.STONE_STAIRS, Blocks.STONE_SLAB,
+				Blocks.COBBLESTONE, Blocks.COBBLESTONE_STAIRS, Blocks.COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE,
+				Blocks.ANDESITE, Blocks.ANDESITE_WALL, Blocks.ANDESITE_SLAB,
+				Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_ANDESITE_STAIRS,
+				Blocks.SMOOTH_STONE, Blocks.SMOOTH_STONE_SLAB,
+				Blocks.OXIDIZED_CUT_COPPER, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER_STAIRS,
+				Blocks.DEEPSLATE, Blocks.COBBLED_DEEPSLATE, Blocks.MOSS_BLOCK,
+				Blocks.GRASS_BLOCK, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL, Blocks.ROOTED_DIRT,
+				Blocks.GRAVEL, Blocks.DIRT_PATH
+		);
+		pvd.addTag(MYOUREN_PRIMARY)
+				.add(GLNaturalBlocks.LOCUST_WOOD.log.get())
+				.add(GLNaturalBlocks.LOCUST_WOOD.wood.get())
+				.add(GLNaturalBlocks.LOCUST_WOOD.hollowLog.get())
+				.add(GLNaturalBlocks.STRIPPED_LOCUST_LOG.get())
+				.add(GLNaturalBlocks.STRIPPED_LOCUST_WOOD.get())
+				.add(GLNaturalBlocks.LOCUST_PLANKS.get())
+				.add(GLNaturalBlocks.LOCUST_WALL.get())
+				.add(GLNaturalBlocks.LOCUST_SET.leaves.get())
+				.add(GLNaturalBlocks.PINK_CHERRY_SET.leaves.get())
+				.add(GLDecoBlocks.MYOUREN_FENCE.get());
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("cyan_tiles"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("cyan_tiles_slab"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("cyan_tiles_stairs"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("myouren_bricks"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("myouren_brick_slab"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("myouren_brick_stairs"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("myouren_brick_vertical_slab"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("dark_oak_plank_wall"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("spruce_plank_wall"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("oak_plank_wall"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("spruce_sliding_door"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("paper_window_pane"));
+		pvd.addTag(MYOUREN_PRIMARY).addOptional(GensokyoLegacy.loc("locust_plaque"));
+
+		pvd.addTag(MYOUREN_FIX).add(
+				Blocks.CHEST, Blocks.BARREL, Blocks.FURNACE, Blocks.SMOKER, Blocks.BOOKSHELF,
+				Blocks.BELL, Blocks.LANTERN, Blocks.CANDLE, Blocks.NOTE_BLOCK, Blocks.FLOWER_POT,
+				Blocks.POTTED_AZALEA, Blocks.POTTED_LILY_OF_THE_VALLEY
+		);
+		pvd.addTag(MYOUREN_FIX).add(
+				GLFurniture.CRATE.get(), GLFurniture.BOOK_PILE.get(), GLFurniture.BOOK_STACK.get(),
+				GLFurniture.DOOR_CABINET.get(), GLFurniture.DRAWER_CABINET.get(),
+				GLFurniture.MYOUREN_DONATION_BOX.get(), GLFurniture.STONE_LANTERN.get(),
+				GLFurniture.RED_LANTERN.get(), GLFurniture.WHITE_LANTERN.get(),
+				GLFurniture.GREEN_FRAME_LANTERN.get(), GLFurniture.FLAGPOLE.get(),
+				GLFurniture.MYOUREN_FLAG.get(), GLFurniture.JIZO.get(),
+				GLFurniture.JIZO_MYOUREN.get(), GLFurniture.JIZO_STRAW_HAT.get(),
+				GLFurniture.TEA_TABLE.get(), GLFurniture.CARTON.get()
+		);
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("tatami_block"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("spruce_chair"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("dark_oak_large_chair"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("cushion"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("blue_cushion"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("white_cushion"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("yellow_cushion"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("golden_lotus"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("large_water_lily"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("small_water_lily"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("red_spider_lily"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("flame_cattail"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("pink_cherry_fallen_leaves"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("mixed_fallen_leaves"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("spooky_bush"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("tower_grass_small"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("tower_grass_large"));
 	}
 
 }

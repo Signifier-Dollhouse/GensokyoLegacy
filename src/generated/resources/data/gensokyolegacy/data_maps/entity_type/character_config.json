@@ -39,8 +39,8 @@
       "discardTime": 6000,
       "noPlayerVanishTime": 30,
       "respawnTime": 12000,
-      "structure": "gensokyolegacy:empty",
-      "wanderRadius": 12
+      "structure": "gensokyolegacy:myouren_temple",
+      "wanderRadius": 16
     }
   }
 }

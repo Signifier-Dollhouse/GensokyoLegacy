@@ -1,0 +1,105 @@
+{
+  "values": [
+    "minecraft:chest",
+    "minecraft:barrel",
+    "minecraft:furnace",
+    "minecraft:smoker",
+    "minecraft:bookshelf",
+    "minecraft:bell",
+    "minecraft:lantern",
+    "minecraft:candle",
+    "minecraft:note_block",
+    "minecraft:flower_pot",
+    "minecraft:potted_azalea_bush",
+    "minecraft:potted_lily_of_the_valley",
+    "gensokyolegacy:crate",
+    "gensokyolegacy:book_pile",
+    "gensokyolegacy:book_stack",
+    "gensokyolegacy:door_cabinet",
+    "gensokyolegacy:drawer_cabinet",
+    "gensokyolegacy:myouren_donation_box",
+    "gensokyolegacy:stone_lantern",
+    "gensokyolegacy:red_lantern",
+    "gensokyolegacy:white_lantern",
+    "gensokyolegacy:green_frame_lantern",
+    "gensokyolegacy:flagpole",
+    "gensokyolegacy:myouren_flag",
+    "gensokyolegacy:jizo",
+    "gensokyolegacy:jizo_myouren",
+    "gensokyolegacy:jizo_straw_hat",
+    "gensokyolegacy:tea_table",
+    "gensokyolegacy:carton_default",
+    {
+      "id": "gensokyolegacy:tatami_block",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_large_table",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_chair",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_large_chair",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:cushion",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:blue_cushion",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:white_cushion",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:yellow_cushion",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:golden_lotus",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:large_water_lily",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:small_water_lily",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:red_spider_lily",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:flame_cattail",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:pink_cherry_fallen_leaves",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:mixed_fallen_leaves",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spooky_bush",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:tower_grass_small",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:tower_grass_large",
+      "required": false
+    }
+  ]
+}

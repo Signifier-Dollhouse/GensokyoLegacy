@@ -1,0 +1,15 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "gensokyolegacy:myouren_temple/room_2",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "gensokyolegacy:myouren_temple/room_2",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

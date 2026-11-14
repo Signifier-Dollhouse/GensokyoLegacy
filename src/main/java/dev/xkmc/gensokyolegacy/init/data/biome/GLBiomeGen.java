@@ -52,6 +52,7 @@ public class GLBiomeGen {
 	public static final TagKey<Biome> MARISA_HOUSE = biomeTag("has_structure/marisa_house");
 	public static final TagKey<Biome> MORICHIKA_SHOP = biomeTag("has_structure/morichika_shop");
 	public static final TagKey<Biome> ALICE_HOUSE = biomeTag("has_structure/alice_house");
+	public static final TagKey<Biome> MYOUREN_TEMPLE = biomeTag("has_structure/myouren_temple");
 	public static final TagKey<Biome> PLAIN_FAIRY_SPAWN = biomeTag("has_spawn/plain_fairy");
 
 	/** Our own copies of the overworld's biome categories, same names in our own namespace.
@@ -110,6 +111,9 @@ public class GLBiomeGen {
 				.add(MagicalForestBiomeGen.KEY);
 		pvd.addTag(ALICE_HOUSE)
 				.add(MagicalForestBiomeGen.KEY);
+		// the temple is the barrens' one structure, so the tag holds exactly the barrens
+		pvd.addTag(MYOUREN_TEMPLE)
+				.add(MyourenTempleBarrensBiomeGen.KEY);
 		// the one place that reads both pairs. The modifier is not scoped to a dimension, so it has to reach the
 		// vanilla overworld's forests and plains as well as Gensokyo's — nesting the shared tags costs nothing here,
 		// because reading a tag is not a claim about it, and it is the only way the overworld keeps its fairies.
