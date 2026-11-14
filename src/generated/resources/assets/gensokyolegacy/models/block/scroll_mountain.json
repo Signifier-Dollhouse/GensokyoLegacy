@@ -1,8 +1,0 @@
-{
-  "parent": "gensokyolegacy:custom/deco/scroll",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "all": "gensokyolegacy:block/deco/scroll_mountain",
-    "particle": "gensokyolegacy:block/deco/scroll_mountain"
-  }
-}

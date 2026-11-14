@@ -2,6 +2,6 @@
   "parent": "gensokyolegacy:custom/deco/scroll_item",
   "render_type": "minecraft:cutout",
   "textures": {
-    "all": "gensokyolegacy:block/deco/scroll_mountain"
+    "all": "gensokyolegacy:block/deco/scroll_bishamonten"
   }
 }

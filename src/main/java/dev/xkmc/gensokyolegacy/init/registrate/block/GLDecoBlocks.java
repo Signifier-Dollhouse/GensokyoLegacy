@@ -71,7 +71,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> CUSHION;
 	public static final BlockEntry<DelegateBlock> SCARLET_CHAIR;
 	public static final BlockEntry<DelegateBlock> LOCUST_PLAQUE;
-	public static final BlockEntry<DelegateBlock> SCROLL_EMPTY, SCROLL_CLOUD, SCROLL_MOUNTAIN,
+	public static final BlockEntry<DelegateBlock> SCROLL_EMPTY, SCROLL_CLOUD, SCROLL_BISHAMONTEN,
 			SCROLL_SUN, SCROLL_TEMPLE, SCROLL_TEXT;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FENCE;
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
@@ -340,7 +340,7 @@ public class GLDecoBlocks {
 		{
 			SCROLL_EMPTY = registerScroll(reg, "scroll_empty", "Empty Scroll");
 			SCROLL_CLOUD = registerScroll(reg, "scroll_cloud", "Cloud Scroll");
-			SCROLL_MOUNTAIN = registerScroll(reg, "scroll_mountain", "Mountain Scroll");
+			SCROLL_BISHAMONTEN = registerScroll(reg, "scroll_bishamonten", "Bishamonten Scroll");
 			SCROLL_SUN = registerScroll(reg, "scroll_sun", "Sun Scroll");
 			SCROLL_TEMPLE = registerScroll(reg, "scroll_temple", "Temple Scroll");
 			SCROLL_TEXT = registerScroll(reg, "scroll_text", "Text Scroll");

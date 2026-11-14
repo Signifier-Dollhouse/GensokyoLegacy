@@ -240,13 +240,13 @@
     "gensokyolegacy:red_lantern": {
       "burn_time": 300
     },
+    "gensokyolegacy:scroll_bishamonten": {
+      "burn_time": 100
+    },
     "gensokyolegacy:scroll_cloud": {
       "burn_time": 100
     },
     "gensokyolegacy:scroll_empty": {
-      "burn_time": 100
-    },
-    "gensokyolegacy:scroll_mountain": {
       "burn_time": 100
     },
     "gensokyolegacy:scroll_sun": {

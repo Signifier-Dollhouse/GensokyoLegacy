@@ -13,18 +13,18 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "block": "gensokyolegacy:scroll_mountain",
+              "block": "gensokyolegacy:scroll_bishamonten",
               "condition": "minecraft:block_state_property",
               "properties": {
                 "half": "bottom"
               }
             }
           ],
-          "name": "gensokyolegacy:scroll_mountain"
+          "name": "gensokyolegacy:scroll_bishamonten"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "gensokyolegacy:blocks/scroll_mountain"
+  "random_sequence": "gensokyolegacy:blocks/scroll_bishamonten"
 }
