@@ -82,7 +82,7 @@ spawn table copied in beside them.
 |---|---|---|
 | `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, a quarter of the purple cherry, the rest the oak and birch that grew here before — see §2.2 |
 | `plain_of_the_past` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
-| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them |
+| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them, kept clear of the temple's wall ring |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga`, **minus `trees_taiga`** | half maple, half oak and birch: the grove is the reason the valley reads as untrodden rather than as cold — see §2.2 |

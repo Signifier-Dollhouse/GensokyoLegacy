@@ -9,6 +9,11 @@
       "type": "minecraft:in_square"
     },
     {
+      "type": "gensokyolegacy:avoid_structures",
+      "margin": 11,
+      "structures": "gensokyolegacy:myouren_temple"
+    },
+    {
       "type": "minecraft:heightmap",
       "heightmap": "MOTION_BLOCKING_NO_LEAVES"
     },

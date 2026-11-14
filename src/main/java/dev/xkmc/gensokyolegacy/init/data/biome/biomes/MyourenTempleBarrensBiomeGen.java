@@ -4,11 +4,15 @@ import dev.xkmc.gensokyolegacy.content.block.nature.GoldenLotusBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.CavePlacements;
@@ -44,6 +48,9 @@ import java.util.List;
 public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	public static final ResourceKey<Biome> KEY = biome("myouren_temple_barrens");
+
+	/** The lake's half-width plus its rim: the pool must stay clear of the temple's wall ring. */
+	private static final int LAKE_CLEARANCE = 11;
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> BARRENS_SCRUB = cf("barrens_scrub");
 	private static final ResourceKey<PlacedFeature> BARRENS_SCRUB_PF = pf("barrens_scrub");
@@ -126,8 +133,15 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
 		reg.placed(LAKE_PF, reg.feature(LAKE), RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(),
+				avoid(reg, LAKE_CLEARANCE),
 				HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES),
 				SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
+	}
+
+	private static AvoidStructuresFilter avoid(Registrar reg, int clearance) {
+		var temple = reg.ctx().lookup(Registries.STRUCTURE)
+				.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GLStructureGen.MYOUREN_TEMPLE));
+		return new AvoidStructuresFilter(HolderSet.direct(temple), clearance);
 	}
 
 }
