@@ -60,7 +60,8 @@ public class GLFurniture {
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
 	public static final BlockEntry<LanternBlock> GREEN_FRAME_LANTERN;
-	public static final BlockEntry<SimpleDecoBlock> PAPER_LANTERN, CENSER;
+	public static final BlockEntry<SimpleDecoBlock> PAPER_LANTERN;
+	public static final BlockEntry<DelegateBlock> CENSER;
 	public static final BlockEntry<FlagpoleBlock> FLAGPOLE;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FLAG;
 
@@ -257,7 +258,7 @@ public class GLFurniture {
 			GREEN_FRAME_LANTERN = registerLantern(reg, "green_frame_lantern", MapColor.COLOR_GREEN, false);
 		}
 
-		// 纸灯笼与香炉:单格摆件,先用第一张贴图,余下变体留着备用
+		// 纸灯笼与香炉:单格摆件
 		{
 			PAPER_LANTERN = reg.block("paper_lantern", p -> new SimpleDecoBlock(p,
 							Block.box(2, 0, 2, 14, 16, 14)))
@@ -274,16 +275,15 @@ public class GLFurniture {
 					.build()
 					.register();
 
-			CENSER = reg.block("censer", p -> new SimpleDecoBlock(p,
-							Block.box(3, 0, 3, 13, 7, 13)))
-					.properties(p -> p.mapColor(MapColor.COLOR_BROWN).strength(1.5F).sound(SoundType.STONE).noOcclusion())
-					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
-							pvd.models().getBuilder("block/utensil/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/censer")))
-									.texture("all", pvd.modLoc("block/utensil/censer_0"))
-									.renderType("cutout")))
+			CENSER = reg.block("censer", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new CenserBlock()))
+					.properties(p -> p.mapColor(MapColor.COLOR_BROWN).strength(1.5F).sound(SoundType.STONE)
+							.noOcclusion().randomTicks())
+					.blockstate(CenserBlock::buildStates)
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					.item().tab(GLDecoBlocks.TAB.key())
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(),
+							pvd.modLoc("block/utensil/" + ctx.getName())))
+					.tab(GLDecoBlocks.TAB.key())
 					.build()
 					.register();
 		}
