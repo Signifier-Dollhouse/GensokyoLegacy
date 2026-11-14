@@ -52,6 +52,9 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	/** The lake's half-width plus its rim: the pool must stay clear of the temple's wall ring. */
 	private static final int LAKE_CLEARANCE = 11;
 
+	/** The widest locust template is 13 blocks across, so its crown reaches six blocks from the trunk. */
+	private static final int LOCUST_CLEARANCE = 6;
+
 	private static final ResourceKey<ConfiguredFeature<?, ?>> BARRENS_SCRUB = cf("barrens_scrub");
 	private static final ResourceKey<PlacedFeature> BARRENS_SCRUB_PF = pf("barrens_scrub");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> TOMB = cf("barrens_tomb");
@@ -127,7 +130,8 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	@Override
 	protected void placed(Registrar reg) {
-		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
+		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2),
+				avoid(reg, LOCUST_CLEARANCE));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(8));
 		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS),RarityFilter.onAverageOnceEvery(8));
 		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
