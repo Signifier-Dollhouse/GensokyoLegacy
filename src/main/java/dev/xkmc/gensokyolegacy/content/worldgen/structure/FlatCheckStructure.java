@@ -232,7 +232,9 @@ public class FlatCheckStructure extends Structure {
 		List<PoolElementStructurePiece> pieces = new ArrayList<>();
 		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
 			if (p instanceof PoolElementStructurePiece pool) {
-				pieces.add(pool);
+				TerrainAdjustment adjustment = this.terrain.beardAdjustment(pool);
+				pieces.add(adjustment == null ? pool
+						: GLBeardedPiece.of(ctx.structureTemplateManager(), pool, LiquidSettings.IGNORE_WATERLOGGING, adjustment));
 			}
 		}
 		if (pieces.isEmpty()) {
@@ -274,6 +276,18 @@ public class FlatCheckStructure extends Structure {
 	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
 						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
 		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	/**
+	 * The Beardifier drops structures whose adaptation is NONE before it reads any piece, so a sparse-beard rule
+	 * advertises BEARD_THIN here while each piece still reports its own adjustment. The configured JSON value stays
+	 * NONE: only the gate keeps a beard.
+	 */
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		TerrainAdjustment configured = super.terrainAdaptation();
+		return configured == TerrainAdjustment.NONE && this.terrain.needsBeardifier()
+				? TerrainAdjustment.BEARD_THIN : configured;
 	}
 
 	private static int freeHeight(GenerationContext ctx, int x, int z) {
