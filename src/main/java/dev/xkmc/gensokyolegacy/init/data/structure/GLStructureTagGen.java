@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
@@ -249,19 +250,25 @@ public class GLStructureTagGen {
 		pvd.addTag(MYOUREN_PRIMARY).add(
 				Blocks.STRIPPED_DARK_OAK_LOG, Blocks.STRIPPED_SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_WOOD,
 				Blocks.STRIPPED_OAK_LOG, Blocks.CHERRY_LOG,
-				Blocks.SPRUCE_PLANKS, Blocks.DARK_OAK_PLANKS, Blocks.OAK_PLANKS, Blocks.BAMBOO_MOSAIC,
+				Blocks.SPRUCE_PLANKS, Blocks.DARK_OAK_PLANKS, Blocks.OAK_PLANKS,
+				Blocks.ACACIA_PLANKS, Blocks.ACACIA_DOOR, Blocks.ACACIA_TRAPDOOR,
 				Blocks.SPRUCE_SLAB, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE_GATE,
-				Blocks.SPRUCE_TRAPDOOR,
+				Blocks.SPRUCE_TRAPDOOR, Blocks.OAK_SLAB, Blocks.OAK_STAIRS, Blocks.OAK_TRAPDOOR,
 				Blocks.SMOOTH_QUARTZ, Blocks.SMOOTH_QUARTZ_SLAB, Blocks.QUARTZ_STAIRS, Blocks.QUARTZ_SLAB,
 				Blocks.CALCITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE_SLAB,
 				Blocks.STONE, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS,
+				Blocks.CHISELED_STONE_BRICKS,
 				Blocks.STONE_BRICK_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.STONE_STAIRS, Blocks.STONE_SLAB,
+				Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BRICK_WALL,
 				Blocks.COBBLESTONE, Blocks.COBBLESTONE_STAIRS, Blocks.COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE,
-				Blocks.ANDESITE, Blocks.ANDESITE_WALL, Blocks.ANDESITE_SLAB,
+				Blocks.ANDESITE, Blocks.ANDESITE_STAIRS, Blocks.ANDESITE_WALL, Blocks.ANDESITE_SLAB,
 				Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_ANDESITE_STAIRS,
 				Blocks.SMOOTH_STONE, Blocks.SMOOTH_STONE_SLAB,
 				Blocks.OXIDIZED_CUT_COPPER, Blocks.OXIDIZED_CUT_COPPER_SLAB, Blocks.OXIDIZED_CUT_COPPER_STAIRS,
-				Blocks.DEEPSLATE, Blocks.COBBLED_DEEPSLATE, Blocks.MOSS_BLOCK,
+				Blocks.DEEPSLATE, Blocks.DEEPSLATE_BRICKS, Blocks.COBBLED_DEEPSLATE, Blocks.MOSS_BLOCK,
+				Blocks.RED_SANDSTONE_STAIRS, Blocks.RED_SANDSTONE_WALL,
+				Blocks.SMOOTH_RED_SANDSTONE_SLAB, Blocks.SMOOTH_RED_SANDSTONE_STAIRS,
+				Blocks.RED_TERRACOTTA, Blocks.RED_WOOL, Blocks.RED_CONCRETE_POWDER,
 				Blocks.GRASS_BLOCK, Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.PODZOL, Blocks.ROOTED_DIRT,
 				Blocks.GRAVEL, Blocks.DIRT_PATH
 		);
@@ -292,21 +299,31 @@ public class GLStructureTagGen {
 
 		pvd.addTag(MYOUREN_FIX).add(
 				Blocks.CHEST, Blocks.BARREL, Blocks.FURNACE, Blocks.SMOKER, Blocks.BOOKSHELF,
-				Blocks.BELL, Blocks.LANTERN, Blocks.CANDLE, Blocks.NOTE_BLOCK, Blocks.FLOWER_POT,
-				Blocks.POTTED_AZALEA, Blocks.POTTED_LILY_OF_THE_VALLEY
+				Blocks.BELL, Blocks.LANTERN, Blocks.CANDLE, Blocks.NOTE_BLOCK,
+				Blocks.POTTED_AZALEA, Blocks.POTTED_LILY_OF_THE_VALLEY,
+				Blocks.BLACK_WALL_BANNER, Blocks.OAK_WALL_SIGN, Blocks.DARK_OAK_WALL_SIGN,
+				Blocks.CHAIN, Blocks.SHROOMLIGHT, Blocks.TORCH, Blocks.SKELETON_SKULL, Blocks.STONE_BUTTON,
+				GLBlocks.Beds.BYAKUREN.get(), GLBlocks.Beds.KYOUKO.get(), GLBlocks.Beds.ICHIRIN.get(),
+				GLBlocks.Beds.NAZRIN.get(), GLBlocks.Beds.SHOU.get(), GLBlocks.Beds.MINAMITSU.get()
 		);
 		pvd.addTag(MYOUREN_FIX).add(
 				GLFurniture.CRATE.get(), GLFurniture.BOOK_PILE.get(), GLFurniture.BOOK_STACK.get(),
 				GLFurniture.DOOR_CABINET.get(), GLFurniture.DRAWER_CABINET.get(),
 				GLFurniture.MYOUREN_DONATION_BOX.get(), GLFurniture.STONE_LANTERN.get(),
 				GLFurniture.RED_LANTERN.get(), GLFurniture.WHITE_LANTERN.get(),
-				GLFurniture.GREEN_FRAME_LANTERN.get(), GLFurniture.FLAGPOLE.get(),
+				GLFurniture.GREEN_FRAME_LANTERN.get(), GLFurniture.PAPER_LANTERN.get(),
+				GLFurniture.CENSER.get(), GLFurniture.FLAGPOLE.get(),
 				GLFurniture.MYOUREN_FLAG.get(), GLFurniture.JIZO.get(),
 				GLFurniture.JIZO_MYOUREN.get(), GLFurniture.JIZO_STRAW_HAT.get(),
-				GLFurniture.TEA_TABLE.get(), GLFurniture.CARTON.get()
+				GLFurniture.TEA_TABLE.get(), GLFurniture.CARTON.get(),
+				GLBlocks.TREASURE_BASKET.get(),
+				GLDecoBlocks.SCROLL_CLOUD.get(), GLDecoBlocks.SCROLL_BISHAMONTEN.get(),
+				GLDecoBlocks.SCROLL_SUN.get(), GLDecoBlocks.SCROLL_TEXT.get(),
+				GLDecoBlocks.SCROLL_PILE.get(), GLDecoBlocks.GREEN_SCROLL_PILE.get()
 		);
 		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("tatami_block"));
 		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("spruce_large_table"));
+		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("oak_chair"));
 		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("spruce_chair"));
 		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("dark_oak_large_chair"));
 		pvd.addTag(MYOUREN_FIX).addOptional(GensokyoLegacy.loc("cushion"));
