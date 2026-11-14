@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.event;
 import dev.xkmc.gensokyolegacy.content.attachment.area.AreaEffectRenderer;
 import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
+import dev.xkmc.gensokyolegacy.content.client.debug.InteriorWandOutlineRenderer;
 import dev.xkmc.gensokyolegacy.content.client.debug.StructureMirrorOutlineRenderer;
 import dev.xkmc.gensokyolegacy.content.client.party.PartyAreaRenderer;
 import dev.xkmc.gensokyolegacy.content.client.structure.StructureOutlineRenderer;
@@ -80,6 +81,7 @@ public class GLClientEventHandlers {
 			DowserRenderer.renderOutline(event.getPoseStack(), event.getCamera().getPosition());
 			PartyAreaRenderer.renderOutline(event.getPoseStack(), event.getCamera().getPosition());
 			StructureMirrorOutlineRenderer.render(event.getPoseStack(), event.getCamera().getPosition());
+			InteriorWandOutlineRenderer.render(event.getPoseStack(), event.getCamera().getPosition());
 		}
 		// no tick handler: the renderer holds no state of its own, it reads the held
 		// wand's component every frame
