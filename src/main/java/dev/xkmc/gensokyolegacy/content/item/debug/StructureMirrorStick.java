@@ -44,7 +44,7 @@ public class StructureMirrorStick extends Item {
 		ItemStack stack = player.getItemInHand(hand);
 		if (level instanceof ServerLevel server && player instanceof ServerPlayer sp) {
 			StructureMirrorData data = GLItems.STRUCTURE_MIRROR.get(stack);
-			if (player.isShiftKeyDown()) repair(server, sp, data);
+			if (player.isShiftKeyDown()) repair(server, sp, stack, data);
 			else print(server, sp, data);
 		}
 		return InteractionResultHolder.success(stack);
@@ -84,7 +84,7 @@ public class StructureMirrorStick extends Item {
 		var found = StructureMirrorHelper.findPiece(level, pos);
 		if (found == null) return fail(sp, GLLang.ItemDebug.MIRROR_NO_STRUCTURE.get());
 		BoundingBox bound = found.bound();
-		Entry root = new Entry(bound, found.block(), -1, null, null);
+		Entry root = new Entry(bound, found.block(), -1, null, null, found.name());
 		stack.set(GLItems.STRUCTURE_MIRROR, new StructureMirrorData(List.of(root)));
 		sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_ROOT.get(found.name().toString()));
 		GensokyoLegacy.LOGGER.info("Structure mirror: root {} at {} bound {}..{}",
@@ -129,7 +129,8 @@ public class StructureMirrorStick extends Item {
 		if (!StructureMirrorHelper.applyPair(level, parentJig, childJig, parentName, child.name())) {
 			return fail(sp, GLLang.ItemDebug.MIRROR_PLACE_FAILED.get());
 		}
-		stack.set(GLItems.STRUCTURE_MIRROR, data.addChild(parentIndex, child.bound(), child.block(), parentJig, childJig));
+		stack.set(GLItems.STRUCTURE_MIRROR, data.withName(parentIndex, parentName)
+				.addChild(parentIndex, child.bound(), child.block(), parentJig, childJig, child.name()));
 		sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_LINKED.get(parentName.toString(), child.name().toString()));
 		GensokyoLegacy.LOGGER.info("Structure mirror: linked {} (parent) -> {} (child), jigsaws {} -> {}",
 				parentName, child.name(), parentJig.toShortString(), childJig.toShortString());
@@ -165,13 +166,22 @@ public class StructureMirrorStick extends Item {
 				data.entries().size(), String.join("\n", lines));
 	}
 
-	private static void repair(ServerLevel level, ServerPlayer sp, StructureMirrorData data) {
+	private static void repair(ServerLevel level, ServerPlayer sp, ItemStack stack, StructureMirrorData data) {
 		if (data == null || data.isEmpty()) {
 			fail(sp, GLLang.ItemDebug.MIRROR_NO_DATA.get());
 			return;
 		}
 		var report = StructureMirrorHelper.repair(level, data);
-		if (report.failed() == 0 && report.fixed() == 0) {
+		stack.set(GLItems.STRUCTURE_MIRROR, report.data());
+		for (var rename : report.renames()) {
+			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_RENAMED.get(rename.index(),
+					rename.from().toString(), rename.to().toString()).withStyle(ChatFormatting.GREEN));
+		}
+		for (String duplicate : report.duplicates()) {
+			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_DUPLICATE.get(duplicate).withStyle(ChatFormatting.RED));
+		}
+		if (report.failed() == 0 && report.fixed() == 0
+				&& report.renames().isEmpty() && report.duplicates().isEmpty()) {
 			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_REPAIR_OK.get(report.total()));
 		} else {
 			sp.sendSystemMessage(GLLang.ItemDebug.MIRROR_REPAIR_SUMMARY.get(
@@ -179,8 +189,15 @@ public class StructureMirrorStick extends Item {
 					.withStyle(report.failed() > 0 ? ChatFormatting.GOLD : ChatFormatting.GREEN));
 		}
 		for (String line : report.log()) sp.sendSystemMessage(Component.literal(line));
-		GensokyoLegacy.LOGGER.info("Structure mirror repair: {} entries, {} valid, {} fixed, {} failed\n{}",
-				report.total(), report.valid(), report.fixed(), report.failed(), String.join("\n", report.log()));
+		List<String> renamed = new ArrayList<>();
+		for (var rename : report.renames()) {
+			renamed.add("#" + rename.index() + " " + rename.from() + " -> " + rename.to());
+		}
+		GensokyoLegacy.LOGGER.info("Structure mirror repair: {} entries, {} valid, {} fixed, {} failed"
+						+ ", renamed [{}], duplicates [{}]\n{}",
+				report.total(), report.valid(), report.fixed(), report.failed(),
+				String.join(", ", renamed), String.join("; ", report.duplicates()),
+				String.join("\n", report.log()));
 	}
 
 	/**

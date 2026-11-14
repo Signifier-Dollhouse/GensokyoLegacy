@@ -833,6 +833,8 @@
   "gensokyolegacy.debug.mirror_tree_empty": "结构镜像树为空",
   "gensokyolegacy.debug.mirror_repair_ok": "全部 %s 对拼图块均有效",
   "gensokyolegacy.debug.mirror_repair_summary": "拼图块对：共 %s 对，%s 对有效，%s 对已修复，%s 对失败",
+  "gensokyolegacy.debug.mirror_renamed": "结构部件 #%s 已由 %s 更名为 %s",
+  "gensokyolegacy.debug.mirror_duplicate": "结构名称重复：%s",
   "gensokyolegacy.debug.mirror_save_ok": "已保存全部 %s 个部件",
   "gensokyolegacy.debug.mirror_save_summary": "已保存 %s / %s 个部件",
   "gensokyolegacy.debug.mirror_save_failed": "无法保存 %s",

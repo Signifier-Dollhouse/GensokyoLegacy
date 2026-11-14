@@ -24,7 +24,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * World access, connector naming, placement, validation and repair for the structure mirror stick. Never
@@ -220,47 +222,102 @@ public final class StructureMirrorHelper {
 		return Direction.fromDelta(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ());
 	}
 
-	public record RepairReport(int total, int valid, int fixed, int failed, List<String> log) {
+	public record Rename(int index, ResourceLocation from, ResourceLocation to) {
+	}
+
+	public record RepairReport(int total, int valid, int fixed, int failed,
+	                           List<Rename> renames, List<String> duplicates,
+	                           List<String> log, StructureMirrorData data) {
 	}
 
 	/**
-	 * Validates every recorded pair and re-places the invalid ones.
+	 * Validates every recorded pair, re-places the invalid ones, and rewrites every connector of a
+	 * renamed piece from its new name.
 	 */
 	public static RepairReport repair(ServerLevel level, StructureMirrorData data) {
 		List<String> log = new ArrayList<>();
 		int total = 0, valid = 0, fixed = 0, failed = 0;
-		for (int i = 0; i < data.entries().size(); i++) {
+		int n = data.entries().size();
+		List<ResourceLocation> current = new ArrayList<>(n);
+		List<Entry> updated = new ArrayList<>(n);
+		BlockPos[] parentJigs = new BlockPos[n];
+		List<Rename> renames = new ArrayList<>();
+		boolean[] renamed = new boolean[n];
+		for (int i = 0; i < n; i++) {
+			Entry entry = data.entries().get(i);
+			ResourceLocation name = nameAt(level, entry.block());
+			current.add(name);
+			if (name != null && entry.name() != null && !entry.name().equals(name)) {
+				renames.add(new Rename(i, entry.name(), name));
+				renamed[i] = true;
+			}
+			BlockPos parentJig = data.parentJigsaw(i);
+			parentJigs[i] = parentJig;
+			Entry next = name == null || name.equals(entry.name()) ? entry : entry.withName(name);
+			if (parentJig != null && entry.parentJigsaw() == null) next = next.withParentJigsaw(parentJig);
+			updated.add(next);
+		}
+		List<String> duplicates = duplicates(current);
+		for (int i = 0; i < n; i++) {
 			Entry entry = data.entries().get(i);
 			if (entry.parent() < 0) continue;
 			total++;
 			String tag = "entry #" + i + " (parent #" + entry.parent() + ")";
 			BlockPos childJig = entry.childJigsaw();
-			BlockPos parentJig = data.parentJigsaw(i);
-			if (childJig == null || parentJig == null || entry.parent() >= data.entries().size()) {
-				log.add(tag + ": failed (cannot derive the parent connector)");
+			BlockPos parentJig = parentJigs[i];
+			if (entry.parent() >= n) {
+				log.add(tag + ": failed (parent index is out of range)");
 				failed++;
 				continue;
 			}
-			ResourceLocation parentName = nameAt(level, data.entries().get(entry.parent()).block());
-			ResourceLocation childName = nameAt(level, entry.block());
+			if (childJig == null || parentJig == null) {
+				log.add(tag + ": failed (connector position missing)");
+				failed++;
+				continue;
+			}
+			ResourceLocation parentName = current.get(entry.parent());
+			ResourceLocation childName = current.get(i);
 			if (parentName == null || childName == null) {
 				log.add(tag + ": failed (structure block missing, unloaded or unnamed)");
 				failed++;
 				continue;
 			}
 			String problem = problem(level, parentJig, childJig, parentName, childName);
-			if (problem == null) {
+			if (problem == null && !renamed[i] && !renamed[entry.parent()]) {
 				log.add(tag + ": ok");
 				valid++;
 			} else if (applyPair(level, parentJig, childJig, parentName, childName)) {
-				log.add(tag + ": fixed (" + problem + ")");
+				log.add(problem == null ? tag + ": fixed (renamed piece)" : tag + ": fixed (" + problem + ")");
 				fixed++;
 			} else {
-				log.add(tag + ": failed (" + problem + ")");
+				log.add(tag + ": failed (" + (problem == null ? "renamed piece" : problem) + ")");
 				failed++;
 			}
 		}
-		return new RepairReport(total, valid, fixed, failed, log);
+		return new RepairReport(total, valid, fixed, failed, renames, duplicates, log,
+				new StructureMirrorData(updated));
+	}
+
+	/**
+	 * Names carried by more than one recorded piece, with their entry indices.
+	 */
+	private static List<String> duplicates(List<ResourceLocation> names) {
+		Map<ResourceLocation, List<Integer>> byName = new LinkedHashMap<>();
+		for (int i = 0; i < names.size(); i++) {
+			ResourceLocation name = names.get(i);
+			if (name != null) byName.computeIfAbsent(name, k -> new ArrayList<>()).add(i);
+		}
+		List<String> ans = new ArrayList<>();
+		for (var entry : byName.entrySet()) {
+			if (entry.getValue().size() < 2) continue;
+			StringBuilder line = new StringBuilder(entry.getKey().toString()).append(" on pieces ");
+			for (int i = 0; i < entry.getValue().size(); i++) {
+				if (i > 0) line.append(", ");
+				line.append('#').append(entry.getValue().get(i));
+			}
+			ans.add(line.toString());
+		}
+		return ans;
 	}
 
 	/**

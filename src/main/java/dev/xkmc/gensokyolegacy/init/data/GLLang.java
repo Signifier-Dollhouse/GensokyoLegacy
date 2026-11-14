@@ -474,6 +474,8 @@ public final class GLLang {
 		MIRROR_TREE_EMPTY("Structure mirror tree is empty", 0, ChatFormatting.GRAY),
 		MIRROR_REPAIR_OK("All %s jigsaw pairs are valid", 1),
 		MIRROR_REPAIR_SUMMARY("Jigsaw pairs: %s total, %s valid, %s fixed, %s failed", 4),
+		MIRROR_RENAMED("Structure piece #%s renamed %s -> %s", 3, ChatFormatting.GREEN),
+		MIRROR_DUPLICATE("Duplicate structure name: %s", 1, ChatFormatting.RED),
 		MIRROR_SAVE_OK("Saved all %s pieces", 1, ChatFormatting.GREEN),
 		MIRROR_SAVE_SUMMARY("Saved %s of %s pieces", 2),
 		MIRROR_SAVE_FAILED("Could not save %s", 1),
