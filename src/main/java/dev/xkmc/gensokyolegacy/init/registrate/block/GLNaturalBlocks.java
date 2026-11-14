@@ -352,6 +352,7 @@ public class GLNaturalBlocks {
 		// 槐: the only tree with a hollow trunk, and the only one with planks and a stripped trunk of its own
 		var locustProp = BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG).mapColor(MapColor.COLOR_PURPLE);
 		var strippedLocustTexture = GensokyoLegacy.loc("block/wood/stripped_locust_log_side");
+		var locustWallTexture = GensokyoLegacy.loc("block/wood/locust_wall");
 		LOCUST_PLANKS = reg.block("locust_planks", Block::new)
 				.properties(p -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(MapColor.COLOR_PURPLE))
 				.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(), pvd.models().cubeAll(ctx.getName(),
@@ -382,9 +383,9 @@ public class GLNaturalBlocks {
 		LOCUST_WALL = reg.block("locust_wall", WallBlock::new)
 				.initialProperties(() -> Blocks.ACACIA_LOG)
 				.properties(p -> p.mapColor(MapColor.COLOR_PURPLE).forceSolidOn())
-				.blockstate((ctx, pvd) -> pvd.wallBlock(ctx.get(), strippedLocustTexture))
+				.blockstate((ctx, pvd) -> pvd.wallBlock(ctx.get(), locustWallTexture))
 				.tag(BlockTags.WALLS, BlockTags.MINEABLE_WITH_AXE)
-				.item().model((ctx, pvd) -> pvd.wallInventory(ctx.getName(), strippedLocustTexture))
+				.item().model((ctx, pvd) -> pvd.wallInventory(ctx.getName(), locustWallTexture))
 				.tag(ItemTags.WALLS).tab(GLDecoBlocks.TAB.key())
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(150))
 				.build()

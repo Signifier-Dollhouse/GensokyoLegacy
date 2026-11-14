@@ -60,6 +60,8 @@ public class GLFurniture {
 
 	public static final BlockEntry<LanternBlock> RED_LANTERN, WHITE_LANTERN, LETTERED_RED_LANTERN, LETTERED_WHITE_LANTERN;
 	public static final BlockEntry<LanternBlock> GREEN_FRAME_LANTERN;
+	public static final BlockEntry<SimpleDecoBlock> PAPER_LANTERN;
+	public static final BlockEntry<DelegateBlock> CENSER;
 	public static final BlockEntry<FlagpoleBlock> FLAGPOLE;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FLAG;
 
@@ -254,6 +256,36 @@ public class GLFurniture {
 			LETTERED_RED_LANTERN = registerLantern(reg, "lettered_red_lantern", MapColor.COLOR_RED, true);
 			LETTERED_WHITE_LANTERN = registerLantern(reg, "lettered_white_lantern", MapColor.SNOW, true);
 			GREEN_FRAME_LANTERN = registerLantern(reg, "green_frame_lantern", MapColor.COLOR_GREEN, false);
+		}
+
+		// 纸灯笼与香炉:单格摆件
+		{
+			PAPER_LANTERN = reg.block("paper_lantern", p -> new SimpleDecoBlock(p,
+							Block.box(2, 0, 2, 14, 16, 14)))
+					.properties(p -> p.mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.WOOD)
+							.noOcclusion().lightLevel(s -> 15))
+					.blockstate((ctx, pvd) -> pvd.simpleBlock(ctx.get(),
+							pvd.models().getBuilder("block/furniture/" + ctx.getName())
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/furniture/paper_lantern")))
+									.texture("all", pvd.modLoc("block/furniture/paper_lantern"))
+									.renderType("cutout")))
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.item().tab(GLDecoBlocks.TAB.key())
+					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100))
+					.build()
+					.register();
+
+			CENSER = reg.block("censer", p -> DelegateBlock.newBaseBlock(p,
+							BlockTemplates.HORIZONTAL, new CenserBlock()))
+					.properties(p -> p.mapColor(MapColor.COLOR_BROWN).strength(1.5F).sound(SoundType.STONE)
+							.noOcclusion().randomTicks())
+					.blockstate(CenserBlock::buildStates)
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(),
+							pvd.modLoc("block/utensil/" + ctx.getName())))
+					.tab(GLDecoBlocks.TAB.key())
+					.build()
+					.register();
 		}
 
 		{
