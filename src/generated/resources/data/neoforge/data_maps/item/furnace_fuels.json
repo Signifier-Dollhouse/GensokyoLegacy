@@ -132,6 +132,9 @@
     "gensokyolegacy:green_frame_lantern": {
       "burn_time": 300
     },
+    "gensokyolegacy:green_scroll_pile": {
+      "burn_time": 100
+    },
     "gensokyolegacy:jungle_chair": {
       "burn_time": 300
     },
@@ -247,6 +250,9 @@
       "burn_time": 100
     },
     "gensokyolegacy:scroll_empty": {
+      "burn_time": 100
+    },
+    "gensokyolegacy:scroll_pile": {
       "burn_time": 100
     },
     "gensokyolegacy:scroll_sun": {

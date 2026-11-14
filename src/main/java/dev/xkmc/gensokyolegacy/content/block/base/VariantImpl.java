@@ -16,12 +16,16 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public record VariantImpl(int max, IntegerProperty variant) implements
+public record VariantImpl(int max, IntegerProperty variant, boolean randomPlacement) implements
 		CreateBlockStateBlockMethod, DefaultStateBlockMethod, PlacementBlockMethod,
 		UseWithoutItemBlockMethod {
 
 	public VariantImpl(int max) {
-		this(max, IntegerProperty.create("variant", 0, max));
+		this(max, true);
+	}
+
+	public VariantImpl(int max, boolean randomPlacement) {
+		this(max, IntegerProperty.create("variant", 0, max), randomPlacement);
 	}
 
 	@Override
@@ -44,6 +48,7 @@ public record VariantImpl(int max, IntegerProperty variant) implements
 
 	@Override
 	public BlockState getStateForPlacement(BlockState state, BlockPlaceContext ctx) {
+		if (!randomPlacement) return state;
 		long seed = state.getBlock().defaultBlockState().getSeed(ctx.getClickedPos());
 		return state.setValue(variant, RandomSource.create(seed).nextInt(max + 1));
 	}

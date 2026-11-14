@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/scroll_pile",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "0": "gensokyolegacy:block/deco/green_scroll_pile_0",
+    "particle": "gensokyolegacy:block/deco/green_scroll_pile_0"
+  }
+}

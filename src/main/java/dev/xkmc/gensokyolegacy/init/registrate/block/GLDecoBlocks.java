@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.init.registrate.block;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
@@ -13,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.misc.MyourenFenceBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.ScrollBlock;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.ScrollPile;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.TatamiBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronBarsBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.WroughtIronPillarBlock;
@@ -73,6 +75,7 @@ public class GLDecoBlocks {
 	public static final BlockEntry<DelegateBlock> LOCUST_PLAQUE;
 	public static final BlockEntry<DelegateBlock> SCROLL_EMPTY, SCROLL_CLOUD, SCROLL_BISHAMONTEN,
 			SCROLL_SUN, SCROLL_TEMPLE, SCROLL_TEXT;
+	public static final BlockEntry<DelegateBlock> SCROLL_PILE, GREEN_SCROLL_PILE;
 	public static final BlockEntry<DelegateBlock> MYOUREN_FENCE;
 	public static final BlockEntry<WroughtIronBarsBlock> WROUGHT_IRON_BARS;
 	public static final BlockEntry<WroughtIronPillarBlock> WROUGHT_IRON_PILLAR;
@@ -346,6 +349,12 @@ public class GLDecoBlocks {
 			SCROLL_TEXT = registerScroll(reg, "scroll_text", "Text Scroll");
 		}
 
+		// 卷轴堆:散落在地上的卷轴,右键在四个数量之间切换
+		{
+			SCROLL_PILE = registerScrollPile(reg, "scroll_pile", "Scroll Pile");
+			GREEN_SCROLL_PILE = registerScrollPile(reg, "green_scroll_pile", "Green Scroll Pile");
+		}
+
 		// 红魔馆木椅: oak stool draped with red wool, fuel follows the recipe
 		SCARLET_CHAIR = reg.block("wooden_large_chair_scarlet_devil_mansion", p -> ISeatableBlock.of(p, 12 / 16f, BlockTemplates.HORIZONTAL,
 						new DoubleBlockImpl(), new LargeChairBlock(), new CoverableImpl(), new SeatableImpl()))
@@ -446,6 +455,19 @@ public class GLDecoBlocks {
 				.item().model((ctx, pvd) -> ScrollBlock.genItemModel(pvd, ctx.getName()))
 				.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
 				.loot(ScrollBlock::genLoot)
+				.register();
+	}
+
+	private static BlockEntry<DelegateBlock> registerScrollPile(L2Registrate reg, String id, String name) {
+		return reg.block(id, ScrollPile::create)
+				.properties(p -> p.mapColor(MapColor.SAND).strength(0F).sound(SoundType.WOOD)
+						.noOcclusion().offsetType(BlockBehaviour.OffsetType.XZ)
+						.pushReaction(PushReaction.DESTROY).dynamicShape())
+				.lang(name)
+				.blockstate(ScrollPile::buildStates)
+				.tag(BlockTags.MINEABLE_WITH_AXE)
+				.item().dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(100)).build()
+				.loot(RegistrateBlockLootTables::dropSelf)
 				.register();
 	}
 
