@@ -23,7 +23,7 @@ Related: [home_index.md](home_index.md), [youkai_character.md](youkai_character.
 | `BedRefData` | `content/attachment/index/BedRefData.java:24` | `@SerialClass` per-entity-type state: `UUID entityId`, `BlockPos bedPos`, `lastEntityTickedTime`, `lostEntityTick`. `blockTick`/`entityTick`/`onEntityDie`/`removeEntity`/`onDebugClick`/`getDebugPacket`. |
 | `HomeModule` | `content/entity/behavior/module/HomeModule.java` | `@SerialClass AbstractYoukaiModule` `@SerialField StructureKey home`. `tickServer() → BedRefData.entityTick` else discard; `onKilled()`. |
 | `StructStructure` | `init/data/structure/helper/StructStructure.java` | Datagen descriptor `id, biomesTag, spacing, separation, StructureConfig.Builder, List<StructBed>, visitors, StructBuilding, structureSet`. |
-| `StructBuilding` | `init/data/structure/helper/` | Sealed `StructFlatBuilding` (processors, spawns, flat-check params) / `StructFlatJigsawBuilding` (maxDepth, `Part` list, spawns) → `GLSinglePiece extends SinglePoolElement`. |
+| `StructBuilding` | `init/data/structure/helper/` | Sealed `StructFlatBuilding` (processors, spawns, terrain predicate) / `StructFlatJigsawBuilding` (maxDepth, `Part` list, spawns, terrain predicate) → `GLSinglePiece extends SinglePoolElement`. |
 | `GLStructureGen` | `init/data/structure/GLStructureGen.java:19` | Bootstraps `PROCESSOR_LIST/TEMPLATE_POOL/STRUCTURE/STRUCTURE_SET` via `L2Registrate DataProviderInitializer`; fills 3 `DataMapReg` in `dataMap()`. `initStructures()` defines `marisa_house` / `hakurei_shrine` / `morichika_shop` / `alice_house`; Marisa/Morichika/Alice share the `magical_forest_houses` set, the shrine has its own. |
 
 ## 2. Relationships

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -24,7 +25,7 @@ import java.util.Map;
 public record StructFlatBuilding(
 		List<StructureProcessor> processors,
 		Map<MobCategory, StructureSpawnOverride> spawns,
-		int heightTolerance,
+		TerrainPredicate terrain,
 		int maxDistanceFromCenter,
 		int safetyRadius
 ) implements StructBuilding {
@@ -52,7 +53,7 @@ public record StructFlatBuilding(
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
 				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
-				pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
+				pool, 1, false, maxDistanceFromCenter(), terrain(),
 				StructBuilding.setRef(set), safetyRadius(), set.setIndex(), set.setCount()
 		));
 	}
