@@ -46,8 +46,8 @@ import java.util.OptionalLong;
  * caverns under the ground, and the aquifer's barrier is resampled (§12). The allowed biomes are mod copies, so
  * vanilla structures never generate here.
  *
- * @see "doc/design/gensokyo_dimension.md"
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_dimension.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class GensokyoDimension {
 
@@ -80,7 +80,7 @@ public class GensokyoDimension {
 	 * two cannot be redirected by {@link FlatTerrainFunctions}; the router is rebuilt field by field instead. Erosion
 	 * and continentalness do sit behind keys, so those two are redirected in place.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §7
+	 * @see "doc/design/biome/gensokyo_dimension.md" §7
 	 */
 	public static final ResourceKey<NormalNoise.NoiseParameters> N_CONTINENTS_SMALL = nn("continentalness_small");
 	public static final ResourceKey<NormalNoise.NoiseParameters> N_TEMPERATURE_SMALL = nn("temperature_small");
@@ -126,7 +126,7 @@ public class GensokyoDimension {
 	 * drop, it only lifts the summit: mean y70 at 1.70, y64 at 1.82, y140 at 0.60. All measured with
 	 * {@code tools/cave_bands.py}, which reports that mean and the drop.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §9
+	 * @see "doc/design/biome/gensokyo_dimension.md" §9
 	 */
 	private static final float SURFACE_DEPTH = 0.1f;
 	private static final float CAVE_DEPTH = 0.3f;
@@ -161,7 +161,7 @@ public class GensokyoDimension {
 	 * squeezes, bounding it at {@code 0.309} — which is what makes the gate, rather than the ceiling, the thing
 	 * that keeps the surface shut.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §8
+	 * @see "doc/design/biome/gensokyo_dimension.md" §8
 	 */
 	private static final double CAVE_GATE_GAIN = 3.0;
 	private static final double CAVE_GATE_FLOOR = 0.25;
@@ -183,7 +183,7 @@ public class GensokyoDimension {
 	 * With the gate out of the way the volume is just {@code bias / gain = 0.060}, the field's own 13% quantile, so
 	 * the two constants are one number written twice.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §8
+	 * @see "doc/design/biome/gensokyo_dimension.md" §8
 	 */
 	private static final double CAVE_GAIN = 20.0;
 	private static final double CAVE_BIAS = 1.20;
@@ -231,7 +231,7 @@ public class GensokyoDimension {
 	 * all three readings share one distribution (p1 −0.724, p10 −0.415, median 0.000, p90 +0.415, p99 +0.725, on
 	 * 300k samples) and the volume below is the only thing that moves it.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §12
+	 * @see "doc/design/biome/gensokyo_dimension.md" §12
 	 */
 	private static final double BARRIER_XZ = 0.25;
 	private static final double BARRIER_Y = 0.125;
@@ -242,7 +242,7 @@ public class GensokyoDimension {
 	 * cavern's volume that carries fluid from 27.0% to 17.9% at a cave density of {@code -0.20}, which was still
 	 * reading as an overflow; {@code +0.20} takes it to 10.9%, and {@code +0.30} to 6.0%.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §12
+	 * @see "doc/design/biome/gensokyo_dimension.md" §12
 	 */
 	private static final double BARRIER_BIAS = 0.20;
 
@@ -265,7 +265,7 @@ public class GensokyoDimension {
 	 * stops mattering on its own: the same three branches read against {@code d3 - 0.4} and {@code d3 - 0.8} there, so
 	 * it takes a much higher reading to flood the ground and the surface band is left alone.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §12
+	 * @see "doc/design/biome/gensokyo_dimension.md" §12
 	 */
 	private static final double FLUIDEDNESS_BIAS = 0.08;
 
@@ -278,7 +278,7 @@ public class GensokyoDimension {
 	 * erosion instead, so one region carries both.
 	 * <p>
 	 * {@code -0.437} is the one free value: it is the quantile giving the beach its 4% share of the map, measured on the
-	 * same 1024 x 1024 chunk sample as {@code doc/design/gensokyo_dimension.md} §4.
+	 * same 1024 x 1024 chunk sample as {@code doc/design/biome/gensokyo_dimension.md} §4.
 	 */
 	private static final float[] REGION_EDGES = {-0.53f, -0.437f, 0.108f, 0.329f, 0.595f};
 
@@ -296,14 +296,14 @@ public class GensokyoDimension {
 	 * the temperature axis, so the two grounds are not a coarse superstructure over the four climate boxes — all eight
 	 * cells of the plain cut on one footprint.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §4
+	 * @see "doc/design/biome/gensokyo_dimension.md" §4
 	 */
 	private static final Band LOW_EROSION = new Band(-1.0f, -0.01f);
 	private static final Band HIGH_EROSION = new Band(0.01f, 1.0f);
 
 	// region order follows REGION_EDGES: water, shore, plain, mountain, settlement, summit. The first two and the last
 	// take the whole plane in one cell, and the settlement band splits on humidity alone, into the town and the cliff
-	// beside it; the plain and the mountain tile the plane the way the biome guide lists them — hot humid, cold humid,
+	// beside it; the plain and the mountain tile the plane the way the biome plan lists them — hot humid, cold humid,
 	// hot dry, cold dry — four cells each, save that the plain takes eight: the lower ground on LOW_EROSION and the
 	// upper ground on HIGH_EROSION. List order is what a column in the gap between them falls back to.
 	private static final List<List<Cell>> SURFACE = List.of(
@@ -375,14 +375,14 @@ public class GensokyoDimension {
 
 	/**
 	 * The overworld surface tree with the fixed biomes' materials in front of it, in the priority order of
-	 * {@code gensokyolegacy_fixed_biomes_guide.md} §6: the lake bed, then the summit, then the shore's waterline,
+	 * {@code doc/design/biome/gensokyo_biomes.md} §4: the lake bed, then the summit, then the shore's waterline,
 	 * then the four underground palettes, and vanilla's tree last as the shared default and fallback.
 	 * <p>
 	 * Every fixed-biome branch is a filter rather than a palette: each of its rules carries its own floor, water-level
 	 * and slope condition and returns null where none of them hold, so the position falls through to the next entry
 	 * and reaches the overworld tree. That is what keeps them from shadowing the shared grass and dirt, and it is why
 	 * they can be three separate entries instead of one branch per biome. The settlement has no branch at all: its
-	 * paths are a placed feature, per the guide, and its topsoil is the dimension's.
+	 * paths are a placed feature, per the plan, and its topsoil is the dimension's.
 	 * <p>
 	 * The four underground branches are the opposite shape. They key on the biome alone and claim the whole column,
 	 * floor included, so they have to be complete — an unfinished palette would swallow the deepslate the overworld
@@ -461,7 +461,7 @@ public class GensokyoDimension {
 	 * block there is the generator's default block, so air and fluid are invisible to every rule below as well — see
 	 * {@link #DF_LARGE_CAVES}, which is what keeps the halls out of the floor.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §10
+	 * @see "doc/design/biome/gensokyo_dimension.md" §10
 	 */
 	private static RuleSource bedrockFloor() {
 		return SurfaceRules.ifTrue(
@@ -561,7 +561,7 @@ public class GensokyoDimension {
 	 * {@code dead} repeats {@code floor} so {@link DensityFunctions#rangeChoice} skips the field over exactly the
 	 * stretch where the gate reads zero, which is the whole surface band and the bedrock floor.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §8
+	 * @see "doc/design/biome/gensokyo_dimension.md" §8
 	 */
 	private static DensityFunction largeCaves(HolderGetter<DensityFunction> densities, DensityFunction depth) {
 		var gate = DensityFunctions.add(DensityFunctions.mul(DensityFunctions.constant(CAVE_GATE_GAIN), depth),
@@ -617,7 +617,7 @@ public class GensokyoDimension {
 	 * however high continentalness climbs.
 	 * <p>
 	 * The fine field has a different distribution, so these shares are now the *previous* ones, not the current ones —
-	 * see {@code doc/design/gensokyo_dimension.md} §7. Re-solve with {@code tools/terrain.py} before trusting them.
+	 * see {@code doc/design/biome/gensokyo_dimension.md} §7. Re-solve with {@code tools/terrain.py} before trusting them.
 	 */
 	private static CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> offsetSpline(
 			Holder<DensityFunction> continentalness) {
@@ -666,7 +666,7 @@ public class GensokyoDimension {
 	 * re-sample the spline, which is ~7700 continentalness samples per chunk against the cached 50, and it only buys a
 	 * third of that error back. Stepped edges are the cheaper side of the trade.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §7
+	 * @see "doc/design/biome/gensokyo_dimension.md" §7
 	 */
 	private static DensityFunction blended(DensityFunction min, DensityFunction max) {
 		return DensityFunctions.flatCache(DensityFunctions.cache2d(

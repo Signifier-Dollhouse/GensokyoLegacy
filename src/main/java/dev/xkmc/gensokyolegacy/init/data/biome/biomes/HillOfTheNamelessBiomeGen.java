@@ -16,13 +16,13 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The cold dry cell of the upper ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the hill of the
+ * The cold dry cell of the upper ground in {@code doc/design/biome/gensokyo_biomes.md}: the hill of the
  * nameless, a flowered meadow with the mountain's own rock under it.
  * <p>
  * Grass at meadow brightness, foliage well under it: the hill is open, so the only canopy it has is its own trees, and
  * a shadowed one is what makes it the hill of the nameless rather than a field of daisies.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class HillOfTheNamelessBiomeGen extends AbstractBiomeGen {
 

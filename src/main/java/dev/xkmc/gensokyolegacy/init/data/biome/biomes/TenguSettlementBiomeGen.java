@@ -17,13 +17,13 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import java.util.List;
 
 /**
- * The band above the mountain in {@code doc/design/gensokyolegacy_fixed_biomes_guide.md}: the tengu settlement, forest
+ * The band above the mountain in {@code doc/design/biome/gensokyo_biomes.md}: the tengu settlement, forest
  * ground with the foothills' moss and its own gravel paths.
  * <p>
  * A maple grove rather than a birch one: the settlement sits in the same maple belt as the valley below it, and the
  * paths and the moss are what tell it apart from the open valley floor.
  *
- * @see "doc/design/gensokyo_biomes.md" §7
+ * @see "doc/design/biome/gensokyo_biomes.md" §7
  */
 public class TenguSettlementBiomeGen extends AbstractBiomeGen {
 

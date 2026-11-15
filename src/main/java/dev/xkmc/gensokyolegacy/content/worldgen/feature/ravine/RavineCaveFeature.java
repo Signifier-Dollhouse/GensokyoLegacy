@@ -38,7 +38,7 @@ import java.util.*;
  * treatment — the plates and their pools — carried into the rock rather than left on the surface.
  *
  * @see RavineCaveConfig
- * @see "doc/design/genbu_ravine_cave.md"
+ * @see "doc/design/biome/genbu_ravine_cave.md"
  */
 public class RavineCaveFeature extends Feature<RavineCaveConfig> {
 

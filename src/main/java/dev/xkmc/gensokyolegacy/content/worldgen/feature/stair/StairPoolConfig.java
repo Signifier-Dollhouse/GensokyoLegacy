@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
  * surface is read from.
  *
  * @see StairPoolFeature
- * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
  */
 public record StairPoolConfig(BlockState stair, BlockState fill, int reach, Heightmap.Types heightmap)
 		implements FeatureConfiguration {

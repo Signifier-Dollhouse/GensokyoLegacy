@@ -20,14 +20,14 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import java.util.List;
 
 /**
- * The drowned set of {@code doc/design/gensokyolegacy_fixed_biomes_guide.md}: a broad open lake, and the band it owns
+ * The drowned set of {@code doc/design/biome/gensokyo_biomes.md}: a broad open lake, and the band it owns
  * is the one below the waterline.
  * <p>
  * Squid and salmon, no drowned mobs, because there is nothing here to drown in. {@code minecraft:trees_water} is the
  * one feature this biome does not take from a base: mangrove and dark oak water trees are a swamp signal, and the
- * guide asks for a lake that does not read as one.
+ * plan asks for a lake that does not read as one.
  *
- * @see "doc/design/gensokyo_biomes.md" §7
+ * @see "doc/design/biome/gensokyo_biomes.md" §7
  */
 public class MistyLakeBiomeGen extends AbstractBiomeGen {
 

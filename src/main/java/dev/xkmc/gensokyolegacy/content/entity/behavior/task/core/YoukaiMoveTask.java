@@ -170,7 +170,7 @@ public class YoukaiMoveTask<E extends YoukaiEntity> extends Behavior<E> {
 	 * exit and then walks out directly. Routes may cross the outdoors between scattered buildings.
 	 * Returns the final target whenever staging does not apply.
 	 *
-	 * @see "doc/design/structure/interior_rework.md"
+	 * @see "doc/design/structure/interior.md"
 	 */
 	private static BlockPos stageViaInterior(YoukaiEntity entity, BlockPos finalPos) {
 		if (!(entity instanceof SmartYoukaiEntity smart)) return finalPos;

@@ -355,24 +355,43 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 
 ---
 
-## 11. 里程碑
+## 11. 状态、评审与已知问题
 
-| 阶段 | 内容 | 验收 |
-|---|---|---|
-| M0 ✅ | 存档解析、模板分割与清单、叶片腐烂分析、API/字节码可行性验证 | 本文档 + 标注图 |
-| M1 ✅ | 导出脚本 + manifest + 32 个手工模板 NBT + 3 个程序化巨橡 + 预览图 | 读回校验通过；游戏内 `/place template` 逐个过目（待做） |
-| M2 ✅ 代码 | `TemplateFeature` + `TemplateBlendProcessor`；群系接线 | 编译、`runData` 通过。**待游戏内验证**：单群系世界飞一圈；坡地无悬空根；日志无 far chunk 警告 |
-| M3 ✅ 代码 | `JitteredGrid` + `GridExclusion` + `NoiseBand` + `AvoidStructures` | 网格算法已与 Python 移植对拍一致、布局模拟通过。**待游戏内验证**：房子周围有空地；四种林相可辨 |
-| M4 ✅ 代码 | 地被重做（`NO_LEAVES` 高度图、`CanopyFilter`、落叶、`post_features`） | **待游戏内验证**：树冠下不秃 |
-| M5 | 垂挂物修剪、树苗/催熟复用、补充模板、调参 | 用本次的渲染脚本对生成结果出俯视图，量化郁闭度（目标 75–85%）与巨木最近邻间距 |
+M1–M4 已并入代码，M5 的树苗 / 催熟复用也已实现（§8）；尚未在真实世界里生成验证过一次，验证步骤见下。
 
----
+2026-09-22 的代码评审已修复：`AvoidStructuresFilter` 越过生成区域读区块；`tree()` 里多余的
+`SurfaceWaterDepthFilter`；生成顺序改为显式 `ORDER`；`cover()` 显式接收 `count`；间距和净空归纳为命名常量与
+`Footprint`；`CanopyFilter` 拆开混合运算；`TemplateBlendProcessor` 的下标前提写进 Javadoc；
+`gen_giant_oak.finish()` 拆分；删除未使用常量。其余建议按影响记录如下：
 
-### 代码评审
+- **树冠下枝干和伞盖正下方的地被不生成**（低）。`MOTION_BLOCKING_NO_LEAVES` 只排除树叶，原木和蘑菇伞盖仍算
+  阻挡，巨橡水平枝约 8% 树冠投影、大蘑菇 5×5–7×7。要补可让 `CanopyFilter` / `FLOOR` 改用穿过树干与蘑菇方块的
+  向下扫描（`TemplateFeature.findGround` 已有同样逻辑）。
+- **没有自动化测试**（中）。目前只有 `simulate_layout.py` 对拍 `GridLayer.point`；放置逻辑靠人工。建议 GameTest
+  对每个模板跑 8 个朝向，断言原点在 `#template_trunk`、附着物有支撑、无悬空原木。
+- **`TemplateFeature.place()` 约 45 行、`simulate_layout.main()` 约 120 行**（低）。前者线性可读，加树苗入口前可拆
+  `resolveBase()` / `placeTemplate()`；后者是开发工具，可拆 `plan_layout()` / `render()` / `report()`。
+- **Java 与模拟器的参数是两份手工同步的常量**（中）。可让模拟器直接读 placed feature JSON 里的
+  `jittered_grid` / `grid_exclusion` / `count`，Python 只保留林相比例。
+- **地被的 configured feature 分在两个类**（低）。草 / 花 / 小蘑菇 patch 和圆盘仍在 `VegetationFeatureGen`，
+  placed feature 在 `MagicalForestFeatures`；若后者已是唯一入口，可一并搬过去。
+- **结构 id 是字符串**（低）。`STRUCTURES` 与 `GLStructureGen` 各写一遍；加公开 `ResourceKey<Structure>` 常量后共用。
+- **方块分类散在两个类**（低）。`TemplateBlendProcessor.isSoft / isPassable` 被 `TemplateFeature` 借用；可抽
+  `TemplateBlocks`。
+- **模板约定只在导出时校验**（低）。锚点、水平伸展 ≤ 15、不含空气由 `export_templates.validate()` 保证，手工放进
+  `structure/biome/` 的 NBT 不检查；`TemplateFeature` 首次取模板时可校验一次并 `LOGGER.warn`。
+- **Python 工具的方块分类靠字符串启发式**（低）。`nbtio.NON_FULL`、`analyze_world.kind_of` 用子串匹配；只影响
+  开发统计，新增方块时要留意。
+- **蓝杉树苗仍长成程序化小树**（低，M5）。世界里已经没有这种 4–6 格云杉形小树，树苗可改指向手工模板 feature。
+- **性能未实测**（低）。巨木每棵约 1100–1900 次读写，密度约 0.23 棵/区块；`GridExclusionFilter` 每候选点扫
+  `(2d / cell + 2)² × 层数` 个格子，每区块几十次；建议进游戏后用 spark 与黑森林 / 丛林对比。
+- **`runData` 会改写 `trade/marisa/offer_hyphae.json` 的末尾换行**（仓库原有问题，与本功能无关），提交前需
+  `git checkout` 该文件。
 
-2026-09-22 对本分支全部代码做了一次可读性 / 可维护性评审，结论与修改清单见 [`doc/pending/magical_forest_vegetation_review.md`](../pending/magical_forest_vegetation_review.md)。
+尚未决定：蓝杉树苗是否改长手工模板树；蘑菇催熟是否用手工模板（M5）；原版红 / 棕巨型蘑菇目前仍在中型蘑菇里各占
+8% 作点缀；中树层现在全是蓝杉（没有中型橡树模板），如需平衡树种，可以像巨橡那样程序化生成 2–3 个中型橡树。
 
-### 游戏内验证清单
+### 游戏内验证
 
 1. 超平坦创造世界里逐个放：`/place feature gensokyolegacy:magical_forest/oak_giant`（还有 `blue_fir_giant`、`oak_large`、`blue_fir_large`、`blue_fir_medium`、`azalea_bush`、`mushroom_large`、`mushroom_medium_template`、`mushroom_small`）。看：树干是否落在脚下那一格、8 个朝向下藤蔓和耳菇是否都贴着树、树下地表圆盘和地毯/落叶是否出现。
 2. 在坡地上同样放一次：上坡侧的根应埋进土里，下坡侧的根应向下延伸到地面，没有悬空的原木。
@@ -393,5 +412,3 @@ tools/template_export/               导出器、巨橡生成器、预览、布�
 7. **矮草加密、扫帚草减量**（进游戏看过后的决定）。按每区块的放置尝试次数（patch 数 × 32）计：矮草 ≈110 → ≈240，扫帚草 96 → 32，蕨菜（bracken）保持 32，蕨 ≈180 不变。改法：扫帚草 patch 的权重 6:2 → 1:1、每区块 4 → 2 个；原版矮草 patch 每区块 2 → 6 个。
 
 8. **去掉程序化的云杉形蓝杉小树**（`TreeType.BLUE_FIR` 用 `SpruceFoliagePlacer`，是群系里最后一种程序化生成的树；用户称之为"云杉木"）。它原本是 L4 层每区块 2 次的幼树；为保持密度，杜鹃丛由每区块 2 次改为 4 次（幼树 3–5 格宽、杜鹃 5 格宽，占地相当）。该 configured feature 保留给蓝杉树苗生长用。
-
-尚未决定：要不要让蓝杉树苗长成手工模板树（现在树苗仍长成 4–6 格的程序化小树，而世界里已经没有这种树）、蘑菇催熟用手工模板（M5）；原版红/棕巨型蘑菇目前仍在中型蘑菇里各占 8% 作点缀。中树层现在全是蓝杉（没有中型橡树模板），如需平衡树种，可以像巨橡那样程序化生成 2–3 个中型橡树。

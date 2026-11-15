@@ -31,7 +31,7 @@ import java.util.UUID;
  * ranges, wall rules and predicates. One client tick drives it, rather than an {@code Item#inventoryTick}
  * every glove would otherwise override identically.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public final class GloveTargetCache {
 

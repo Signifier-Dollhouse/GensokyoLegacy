@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * @param dislike     said when she turns it down
  * @param threshold   gift return progress that buys a gift back; 0 or less means she never pays one
  * @param returnTable one roll of this table is what she hands over, or null for no table
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public record GiftDialogData(Holder<Dialog> like, Holder<Dialog> neutral, Holder<Dialog> dislike,
 							 int threshold, ResourceLocation returnTable) {

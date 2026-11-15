@@ -4,7 +4,7 @@ package dev.xkmc.gensokyolegacy.content.item.anchor;
  * What one anchor click does. The item picks it from the mode and the click; a thrown projectile
  * reads it for the rest of its life, while the rain uses it only for the cost gate.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public enum AnchorThrow {
 	DESTROY(16, 0),

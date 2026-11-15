@@ -38,7 +38,7 @@ import net.minecraft.world.item.ItemStack;
  * Every accepted gift also banks its favor toward {@link CharacterData#giftReturn}, which is what she
  * eventually pays back; see {@link GiftDialogData}.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 @SerialClass
 public class GiftModule extends AbstractYoukaiModule {

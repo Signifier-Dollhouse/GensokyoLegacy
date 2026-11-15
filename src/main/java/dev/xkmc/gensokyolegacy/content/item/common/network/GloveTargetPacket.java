@@ -14,7 +14,7 @@ import java.util.UUID;
  * Sent on every client cache refresh while the glove is held; the server stores the UUID as a hint and
  * re-validates it on every use ({@code GloveTargetAttachment}).
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public record GloveTargetPacket(Item glove, UUID target) implements SerialPacketBase<GloveTargetPacket> {
 

@@ -39,7 +39,7 @@ import java.util.List;
  * <p>
  * All of it is server-side; the client only reports the use and swings, so the cooldown is re-checked here.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class DaggerGloveItem extends Item implements GloveTargeting {
 

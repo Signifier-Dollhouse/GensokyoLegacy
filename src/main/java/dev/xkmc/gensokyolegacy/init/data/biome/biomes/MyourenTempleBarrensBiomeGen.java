@@ -34,7 +34,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold dry cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the scrubby barrens
+ * The cold dry cell of the lower ground in {@code doc/design/biome/gensokyo_biomes.md}: the scrubby barrens
  * the temple sits in, with a little extra gold in it.
  * <p>
  * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, and one of
@@ -43,7 +43,7 @@ import java.util.List;
  * The pools are the one thing the dry waste has that the badlands base does not: a temple keeps its water, and the
  * lilies in it are the mod's own.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 

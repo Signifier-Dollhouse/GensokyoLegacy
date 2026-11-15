@@ -727,7 +727,9 @@ The anchors are ordinary storm anchors: they shed their trail on the way down, b
 damage on impact, and are tracked by `SpellContainer` like the left-click throw. The rain is the
 reason the storm budget matters most — 32 anchors is 32 bursts.
 
-## 7. Registration checklist
+## 7. Registration
+
+The registrations below are the current wiring, not a to-do list:
 
 * `GLItems`: `MINAMITSU_ANCHOR` (`AnchorItem`, `stacksTo(1)`), the hidden `ANCHOR_WET` twin (§3),
   the hidden `DROPLET` storm danmaku (§6.3), `ANCHOR_MODE` (§3.1), `ICON` (§3), `ANCHOR_LINK` (§3.3),
@@ -831,10 +833,9 @@ effects beyond what the tags grant.
 * **Storm anchors over a base** — the falling trail does not bypass walls, so it stops on terrain;
   the burst is what reaches through a doorway.
 
-## 9. Implementation order
+## 9. Implementation notes
 
-Steps 1–6 were done in one pass and the build and `runData` are green; step 7 is the playtest. Kept as
-a record of why the split landed in that order:
+The split landed in this order because each step left the build green; step 7 is the playtest:
 
 1. Extract `AnchorStorm` from `AnchorProjectile` and point the current entity at it — no behaviour
    change, build green.
@@ -851,7 +852,7 @@ a record of why the split landed in that order:
 8. The held-stack link (§3.3): merged `ItemInHandRendererMixin`, `AnchorItem.inventoryTick` clears it;
    the hook keeps no link code, so a stack moved mid-throw still frees itself.
 
-## 10. Test plan
+## 10. Verification
 
 1. Destroy: an *empty* left click throws; a block hit does not break anything and the hook simply
    returns; an entity hit deals damage; the hook stops flush against the face, keeps the throw

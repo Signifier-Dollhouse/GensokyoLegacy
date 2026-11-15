@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
  * The golden lotus, whose largest size is a double plant. Its halves are {@code part}, not {@code half}, so
  * {@code double_block} cannot place it.
  *
- * @see "doc/design/gensokyo_biomes.md" §2.3
+ * @see "doc/design/biome/gensokyo_biomes.md" §2.3
  */
 public class GoldenLotusFeature extends SimpleBlockFeature {
 

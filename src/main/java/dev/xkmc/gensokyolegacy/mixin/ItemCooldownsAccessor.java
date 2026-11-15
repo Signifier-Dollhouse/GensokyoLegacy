@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  * Vanilla stores every cooldown as an absolute end time read against this counter, which
  * advances once per player tick, so the whole clock is what a faster cooldown means.
  *
- * @see "doc/design/cooldown.md"
+ * @see "doc/design/item/cooldown.md"
  */
 @Mixin(ItemCooldowns.class)
 public interface ItemCooldownsAccessor {

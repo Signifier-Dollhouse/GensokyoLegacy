@@ -1,1 +1,0 @@
-- remove terrain predicate debug tool after myouren temple gen fully working and tested

@@ -100,7 +100,7 @@ in `GIFT_FAIRY`, with a fan at half (`COLLECTION 0.5`). Cirno is the one excepti
 
 A fairy's *gift* module is separate from her *feeding* one (`FairyFeedModule`), which is what a cake or
 a cookie is worth. A frozen frog is not food she recognises, so it only ever reaches
-`GiftModule.interact()`. See [want_bubble.md](want_bubble.md).
+`GiftModule.interact()`. See [want_bubble.md](../youkai/want_bubble.md).
 
 ## A gift the player can also eat
 
@@ -118,7 +118,7 @@ never mistakes a bottle for a meal and a player on a full stomach can still drin
 (`MobEffects.DIG_SPEED`) that is haste on a mob and looting on an item.
 
 `fancy_fan` is a gift that does something: it is a fan, and right-clicking it blows a gust over
-everything in the cone in front of you. See [fancy_fan.md](fancy_fan.md).
+everything in the cone in front of you. See [fancy_fan.md](../item/fancy_fan.md).
 
 ## Selling gifts on a shelf
 
@@ -268,4 +268,4 @@ rather than leaving them having paid and owed the next one as well.
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip
 - `content/block/deco/shelf/MorichikaOfferData.java` -- the shelf price / stock band
 - `content/entity/behavior/task/home/YoukaiRestockShelfTask.java` -- picks the offer and rolls its price
-- `content/attachment/character/ReputationConstants.java` -- `GIFT_SOFT_CAP`, what the favor is spent on ([reputation.md](structure/reputation.md))
+- `content/attachment/character/ReputationConstants.java` -- `GIFT_SOFT_CAP`, what the favor is spent on ([reputation.md](reputation.md))

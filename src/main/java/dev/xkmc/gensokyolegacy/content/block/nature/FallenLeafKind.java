@@ -13,7 +13,7 @@ import java.util.Map;
  * The species a carpet of fallen leaves belongs to. The kind is read off the registry name of the block, so
  * {@code <id>_leaves} and {@code <id>_fallen_leaves} are the same species.
  *
- * @see "doc/design/fallen_leaves.md"
+ * @see "doc/design/biome/fallen_leaves.md"
  */
 public enum FallenLeafKind {
 

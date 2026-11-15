@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
  * One unbound storm anchor: flies straight to a fixed reach, sheds a falling danmaku every tick,
  * bursts on impact and vanishes. Every storm throw is this entity.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 @SerialClass
 public class AnchorBulletEntity extends ItemBulletEntity {

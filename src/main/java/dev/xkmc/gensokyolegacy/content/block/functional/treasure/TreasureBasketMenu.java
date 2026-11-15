@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  * through {@link TreasureBasketItemHandler}; the client uses a dummy handler that the menu sync
  * fills in slot by slot.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 public class TreasureBasketMenu extends AbstractContainerMenu {
 

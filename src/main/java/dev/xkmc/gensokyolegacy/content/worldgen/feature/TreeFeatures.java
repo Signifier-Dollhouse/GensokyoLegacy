@@ -41,7 +41,7 @@ public class TreeFeatures {
 	/**
 	 * The trunk and crown of a {@link TreeType}. Every tree here is grown from its sapling and by nothing else.
 	 *
-	 * @see "doc/design/magical_forest_vegetation.md"
+	 * @see "doc/design/biome/magical_forest_vegetation.md"
 	 */
 	public interface TreeShape {
 

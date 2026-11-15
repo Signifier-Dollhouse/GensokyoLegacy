@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * The client copy of the recipe list, filled by {@link dev.xkmc.gensokyolegacy.content.item.treasure.network.TreasureTowerToClient}.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public final class TreasureTowerClient {
 

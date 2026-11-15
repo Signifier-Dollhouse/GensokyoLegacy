@@ -22,7 +22,7 @@ import java.util.List;
  * The plain acceptance is optional: a character with no line of her own reuses her like line, which is
  * what the gift path did before the third reaction existed.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public class GiftQDGen extends QuestDialogData {
 

@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
  * One fairy-dust cast: a transient server ticker that spins a mote around the flower while the ring-by-ring
  * structure search runs off-thread.
  *
- * @see "doc/design/fairy_dust.md"
+ * @see "doc/design/structure/fairy_dust.md"
  */
 public final class FairyDustSearch {
 

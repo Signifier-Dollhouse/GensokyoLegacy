@@ -61,7 +61,7 @@ import java.util.Map;
  * biome that takes vanilla's {@code addDefaultOres} chain rather than writing its steps out, which is why it uses
  * {@link #raw} instead of {@link #layers} and spells its step order out in {@link #ORDER}.
  *
- * @see "doc/design/magical_forest_vegetation.md"
+ * @see "doc/design/biome/magical_forest_vegetation.md"
  */
 public class MagicalForestBiomeGen extends AbstractBiomeGen {
 

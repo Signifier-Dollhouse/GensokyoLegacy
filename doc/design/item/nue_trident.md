@@ -193,7 +193,9 @@ the fight; a player holding a stack of blocks in the offhand still keeps those u
 was empty. Swapping the stack also cancels whatever use was in progress (`player.stopUsingItem()`),
 which is the point of the weapon.
 
-## 6. Registration checklist
+## 6. Registration
+
+The registrations below are the current wiring:
 
 * `GLItems`: `NUE_TRIDENT` (`NueTridentItem`, `stacksTo(1)`, `rarity(RARE)`), `UFO` (`UfoItem`,
   `stacksTo(1)`, generated model), `UFO_CONTENT`.
@@ -240,7 +242,7 @@ Out of scope until asked: recipe/loot/offer acquisition, dispenser behaviour, TL
 * Creative: the throw costs nothing anyway, but the UFO conversion still applies — it is the
   trident's whole identity, not a survival-only rule.
 
-## 8. Test plan
+## 8. Verification
 
 1. Hold right-click past ten ticks and release: the copy flies, the stack stays, the cooldown is
    10 ticks. Release before ten ticks: nothing is thrown.

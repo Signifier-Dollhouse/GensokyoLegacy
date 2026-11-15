@@ -3,7 +3,7 @@
 Sprinkling fairy dust on a flower points at a character's home. The search is a ring-by-ring walk over the
 structure grid, run on a background thread while a mote circles the flower, so the tick loop never waits for it.
 
-Related: [structure/placement.md](structure/placement.md), [cooldown.md](cooldown.md).
+Related: [placement.md](placement.md), [cooldown.md](../item/cooldown.md).
 
 ## 1. The cast
 
@@ -72,7 +72,7 @@ search. Casts from different players queue on that thread instead of competing w
 
 `FlatCheckStructure#locateRegion` is memoised by `StructureLocateCache` per `(structure, generator, seed, region)`,
 misses included, so a second cast over the same ground only pays for regions neither cast has seen. The cache is
-shared with `/gensokyo structure scan` (see [structure/placement.md](structure/placement.md) §5), bounded, and
+shared with `/gensokyo structure scan` (see [placement.md](placement.md) §5), bounded, and
 cleared on server stop.
 
 ## 7. Failure and refund

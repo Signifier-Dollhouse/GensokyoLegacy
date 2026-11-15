@@ -29,7 +29,7 @@ import java.util.Set;
  * at the reach the config gives.
  *
  * @see StairPoolConfig
- * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
  */
 public class StairPoolFeature extends Feature<StairPoolConfig> {
 

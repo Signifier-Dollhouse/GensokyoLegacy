@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
  * The block the dripleaves are scattered on, and the ground left under them.
  *
  * @see DripleafScatterFeature
- * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
  */
 public record DripleafScatterConfig(BlockState stone, BlockState ground) implements FeatureConfiguration {
 

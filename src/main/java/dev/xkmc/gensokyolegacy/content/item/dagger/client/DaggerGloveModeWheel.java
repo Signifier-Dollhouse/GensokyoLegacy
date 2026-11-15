@@ -19,7 +19,7 @@ import java.util.List;
  * The selector wheel for the {@link DaggerGloveItem}, mirroring {@code DollGloveModeWheel} (glove.md §3).
  * All three modes are listed unconditionally, so the content is the whole enum and the index its ordinal.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class DaggerGloveModeWheel implements PersistentWheel<DaggerGloveModeEntry> {
 

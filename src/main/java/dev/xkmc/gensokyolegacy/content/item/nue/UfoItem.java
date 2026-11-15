@@ -20,7 +20,7 @@ import java.util.List;
  * The wrapper a trident hit leaves behind: it holds one stolen stack and hands it back after a
  * two-second hold, with no deadline and no way to open it early.
  *
- * @see "doc/design/nue_trident.md"
+ * @see "doc/design/item/nue_trident.md"
  */
 public class UfoItem extends Item {
 

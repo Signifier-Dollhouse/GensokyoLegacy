@@ -14,7 +14,7 @@ import java.util.List;
  * One derived recipe: what a stone becomes when a gem is spent on it. Stone tags stay tags, so a
  * datapack that edits one changes what the tower accepts without a rebuild.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public record OreRecipe(Item gem, Block ore, ArrayList<ResourceLocation> tags, ArrayList<Block> stones) {
 

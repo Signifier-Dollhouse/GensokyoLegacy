@@ -43,7 +43,7 @@ import java.util.List;
  * One carpet of fallen leaves under a tree: a thin layer of leaves on the ground or on still water, which
  * packs into a dense carpet when right-clicked with itself.
  *
- * @see "doc/design/fallen_leaves.md"
+ * @see "doc/design/biome/fallen_leaves.md"
  */
 public class FallenLeavesBlock extends SimpleBushBlock {
 

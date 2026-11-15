@@ -10,7 +10,7 @@ import java.util.*;
  * template-local. See {@code StructureHomeData} for the world-mapped counterpart; empty when
  * the structure has no interior data.
  *
- * @see "doc/design/structure/interior_rework.md"
+ * @see "doc/design/structure/interior.md"
  */
 public record StructureInterior(
 		ArrayList<InteriorRoom> rooms,

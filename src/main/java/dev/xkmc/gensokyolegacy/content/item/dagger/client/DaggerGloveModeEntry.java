@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
  * One mode on the {@link DaggerGloveModeWheel}, drawn as a glove stack carrying that mode's icon. The
  * held textures are identical copies of one glove, so these icons tell the modes apart (§6b).
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public record DaggerGloveModeEntry(DaggerGloveMode mode) implements WheelAdaptor.Entry {
 

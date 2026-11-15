@@ -20,13 +20,13 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold dry cell of the underground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the animal realm, a
+ * The cold dry cell of the underground in {@code doc/design/biome/gensokyo_biomes.md}: the animal realm, a
  * cavern warren with a lava pool in the lowest room of each cave system.
  * <p>
  * Warped forest, the one nether biome that is mostly growth: the densest thing the nether has, which is what a realm
  * full of animals wants to be buried in.
  *
- * @see "doc/design/gensokyo_biomes.md" §2.1
+ * @see "doc/design/biome/gensokyo_biomes.md" §2.1
  */
 public class AnimalRealmBiomeGen extends AbstractBiomeGen {
 

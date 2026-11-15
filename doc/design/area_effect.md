@@ -112,7 +112,7 @@ viewers. `AreaEffectRenderer.onRenderLevel` runs at `RenderLevelStageEvent.AFTER
 - offsets V by `speed * (gameTime + partialTick) / 20` on walls, flipping U on the negative X/Z sides
   so neighbouring walls read the same from inside.
 
-See `doc/design/barriers.md` §8 for the sealing pot's concrete visuals.
+See `doc/design/item/barriers.md` §8 for the sealing pot's concrete visuals.
 
 ## 4. Usage Guide
 
