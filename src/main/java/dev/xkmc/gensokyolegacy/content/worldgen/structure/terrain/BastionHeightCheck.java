@@ -17,8 +17,6 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Bastion rule: the anchor piece (the gate) sits on the terrain and may not deviate more than the tolerance;
@@ -76,16 +74,16 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 		int sea = fit.seaLevel();
 		int anchor = tree.findPiece(this.anchor);
 		if (anchor < 0) {
-			return FitResult.fail("anchor-missing");
+			return FitResult.fail();
 		}
 		if (!tree.isRigid(anchor) || !tree.isRigid(0) || tree.rigidRootOf(anchor) != tree.rigidRootOf(0)) {
-			return FitResult.fail("anchor-group");
+			return FitResult.fail();
 		}
 		int[] gate = fit.ring(tree.piece(anchor).getBoundingBox());
 		int min = TerrainFit.min(gate), max = TerrainFit.max(gate);
 		for (int h : gate) {
 			if (h <= sea) {
-				return FitResult.fail("anchor-sea");
+				return FitResult.fail();
 			}
 		}
 		// spawn is the anchor ring midpoint, so |h - spawn| <= t is exactly max - min <= 2 * t.
@@ -93,7 +91,7 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 		int delta = tree.shiftRigidGroupToGround(anchor, spawn);
 		for (int h : gate) {
 			if (Math.abs(h - spawn) > tolerance) {
-				return FitResult.fail("anchor[%d-%d]".formatted(min, max));
+				return FitResult.fail();
 			}
 		}
 		for (int i = 0; i < tree.size(); i++) {
@@ -101,63 +99,15 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 			BoundingBox b = tree.piece(i).getBoundingBox();
 			int h = fit.height((b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
 			if (h <= sea) {
-				return FitResult.fail("rigid-sea-%d".formatted(i));
+				return FitResult.fail();
 			}
 			int g = tree.groundOf(i);
 			// Floating is free (the fill closes the gap); only burial fails, with the same sampling slack.
 			if (h >= g + tolerance) {
-				return FitResult.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
+				return FitResult.fail();
 			}
 		}
 		return FitResult.pass(delta);
-	}
-
-	@Override
-	public List<String> describe(TerrainFit fit) {
-		PieceTree tree = fit.tree();
-		List<String> out = new ArrayList<>();
-		out.add("pieces=%d rigidGroups=%d flexGroups=%d".formatted(
-				tree.size(), tree.rigidGroupCount(), tree.flexGroupCount()));
-		int anchor = tree.findPiece(this.anchor);
-		out.add("anchor %s -> #%d".formatted(this.anchor, anchor));
-		if (anchor < 0) {
-			for (int i = 0; i < tree.size(); i++) {
-				out.add("  #%d %s".formatted(i, PieceTree.templateId(tree.piece(i).getElement())));
-			}
-			return out;
-		}
-		BoundingBox box = tree.piece(anchor).getBoundingBox();
-		int x0 = box.minX(), x1 = box.maxX(), z0 = box.minZ(), z1 = box.maxZ();
-		int cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
-		int[][] pts = {{x0, z0}, {x0, z1}, {x1, z0}, {x1, z1}, {cx, z0}, {cx, z1}, {x0, cz}, {x1, cz}, {cx, cz}};
-		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-		for (int[] q : pts) {
-			int h = fit.height(q[0], q[1]);
-			min = Math.min(min, h);
-			max = Math.max(max, h);
-			out.add("  gate (%d,%d) h=%d".formatted(q[0], q[1], h));
-		}
-		int plane = tree.groundOf(anchor);
-		int spawn = (min + max) / 2;
-		out.add("gate min=%d max=%d spread=%d limit=%d spawn=%d plane=%d".formatted(
-				min, max, max - min, 2 * tolerance, spawn, plane));
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			BoundingBox b = tree.piece(i).getBoundingBox();
-			int h = fit.height((b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			int g = tree.groundOf(i);
-			String verdict;
-			if (h <= fit.seaLevel()) {
-				verdict = "FAIL-sea";
-			} else if (i == anchor) {
-				verdict = Math.abs(h - spawn) > tolerance ? "FAIL-symmetric" : "ok";
-			} else {
-				verdict = h >= g + tolerance ? "FAIL-buried" : "ok";
-			}
-			out.add("#%d %s h=%d g=%d gap=%d limit=%d %s".formatted(i,
-					PieceTree.templateId(tree.piece(i).getElement()), h, g, h - g, tolerance, verdict));
-		}
-		return out;
 	}
 
 	/**

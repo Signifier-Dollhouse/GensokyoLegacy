@@ -50,18 +50,18 @@ public record JigsawCheck(
 		int safetyRadius
 ) {
 
-	public record Prefilter(boolean pass, int y, String reason) {
+	public record Prefilter(boolean pass, int y) {
 
 	}
 
-	public record Validated(boolean pass, Structure.GenerationStub stub, String reason) {
+	public record Validated(boolean pass, Structure.GenerationStub stub) {
 
-		static Validated fail(String reason) {
-			return new Validated(false, null, reason);
+		static Validated fail() {
+			return new Validated(false, null);
 		}
 
 		static Validated pass(Structure.GenerationStub stub) {
-			return new Validated(true, stub, "pass");
+			return new Validated(true, stub);
 		}
 
 	}
@@ -72,15 +72,15 @@ public record JigsawCheck(
 	public Prefilter prefilter(Structure.GenerationContext ctx, ChunkPos chunkpos) {
 		int y = TerrainFit.height(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
 		if (y <= ctx.chunkGenerator().getSeaLevel()) {
-			return new Prefilter(false, y, "sea");
+			return new Prefilter(false, y);
 		}
 		var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
 				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(y),
 				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
 		if (!biomes.contains(biome)) {
-			return new Prefilter(false, y, "biome");
+			return new Prefilter(false, y);
 		}
-		return new Prefilter(true, y, "pass");
+		return new Prefilter(true, y);
 	}
 
 	/**
@@ -89,20 +89,12 @@ public record JigsawCheck(
 	 * predicate's foundation runs later in {@link TerrainPredicate#afterPlace}.
 	 */
 	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY) {
-		return validateLayout(ctx, chunkpos, provY, null);
-	}
-
-	/**
-	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but a non-null {@code trace} collects the
-	 * predicate's numbers when the fit fails.
-	 */
-	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
 		if (!this.terrain.triesAllRotations()) {
-			return validateLayout(ctx, chunkpos, provY, trace, -1);
+			return validateLayout(ctx, chunkpos, provY, -1);
 		}
 		Validated firstFail = null;
 		for (Rotation rotation : Rotation.getShuffled(seededRandom(ctx.seed(), chunkpos))) {
-			Validated v = validateLayout(ctx, chunkpos, provY, firstFail == null ? trace : null, rotation.ordinal());
+			Validated v = validateLayout(ctx, chunkpos, provY, rotation.ordinal());
 			if (v.pass()) {
 				return v;
 			}
@@ -114,11 +106,10 @@ public record JigsawCheck(
 	}
 
 	/**
-	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int, List)}, but {@code rotation >= 0} forces the
+	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but {@code rotation >= 0} forces the
 	 * start rotation instead of the one drawn from {@code ctx.random()}.
 	 */
-	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY,
-									 List<String> trace, int rotation) {
+	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, int rotation) {
 		if (rotation >= 0) {
 			ctx = ctxForRotation(ctx, rotation);
 		}
@@ -128,7 +119,7 @@ public record JigsawCheck(
 				useExpansionHack, Optional.empty(), maxDistanceFromCenter,
 				PoolAliasLookup.EMPTY, DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING);
 		if (layout.isEmpty()) {
-			return Validated.fail("no-layout");
+			return Validated.fail();
 		}
 		List<PoolElementStructurePiece> pieces = new ArrayList<>();
 		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
@@ -139,7 +130,7 @@ public record JigsawCheck(
 			}
 		}
 		if (pieces.isEmpty()) {
-			return Validated.fail("no-layout");
+			return Validated.fail();
 		}
 		PieceTree tree = PieceTree.build(pieces);
 		// Total-bound biome check: 4 union-box corners + 4 edge centers.
@@ -153,17 +144,13 @@ public record JigsawCheck(
 			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
 					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
 			if (!biomes.contains(biome)) {
-				return Validated.fail("biome");
+				return Validated.fail();
 			}
 		}
 		TerrainFit fit = new TerrainFit(ctx, tree, sea);
 		FitResult result = this.terrain.fit(fit);
 		if (!result.pass()) {
-			if (trace != null) {
-				trace.add("fit: " + result.reason());
-				trace.addAll(this.terrain.describe(fit));
-			}
-			return Validated.fail(result.reason());
+			return Validated.fail();
 		}
 		BlockPos pos = layout.get().position().offset(0, result.delta(), 0);
 		return Validated.pass(new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece)));

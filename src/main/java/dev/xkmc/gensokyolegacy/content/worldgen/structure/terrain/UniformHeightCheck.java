@@ -8,9 +8,6 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -43,11 +40,11 @@ public record UniformHeightCheck(int tolerance) implements TerrainPredicate {
 		int min = TerrainFit.min(root), max = TerrainFit.max(root);
 		for (int h : root) {
 			if (h <= sea) {
-				return FitResult.fail("sea");
+				return FitResult.fail();
 			}
 		}
 		if (max - min > 2 * tolerance) {
-			return FitResult.fail("height[%d-%d]".formatted(min, max));
+			return FitResult.fail();
 		}
 		int spawn = (max + min) / 2;
 		int delta = tree.shiftRigidGroupToGround(0, spawn);
@@ -56,11 +53,11 @@ public record UniformHeightCheck(int tolerance) implements TerrainPredicate {
 			BoundingBox b = tree.piece(i).getBoundingBox();
 			int h = fit.height((b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
 			if (h <= sea) {
-				return FitResult.fail("rigid-sea-%d".formatted(i));
+				return FitResult.fail();
 			}
 			int g = tree.groundOf(i);
 			if (Math.abs(h - g) > tolerance) {
-				return FitResult.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
+				return FitResult.fail();
 			}
 		}
 		for (Set<Integer> grounds : tree.flexJointGrounds()) {
@@ -68,36 +65,10 @@ public record UniformHeightCheck(int tolerance) implements TerrainPredicate {
 			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
 			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
 			if (hi - lo > tolerance) {
-				return FitResult.fail("joint[%d-%d]".formatted(lo, hi));
+				return FitResult.fail();
 			}
 		}
 		return FitResult.pass(delta);
-	}
-
-	@Override
-	public List<String> describe(TerrainFit fit) {
-		PieceTree tree = fit.tree();
-		List<String> out = new ArrayList<>();
-		out.add("pieces=%d rigidGroups=%d flexGroups=%d".formatted(
-				tree.size(), tree.rigidGroupCount(), tree.flexGroupCount()));
-		int[] root = fit.ring(tree.piece(0).getBoundingBox());
-		out.add("root ring=%s min=%d max=%d spread=%d limit=%d".formatted(Arrays.toString(root),
-				TerrainFit.min(root), TerrainFit.max(root), TerrainFit.max(root) - TerrainFit.min(root), 2 * tolerance));
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			BoundingBox b = tree.piece(i).getBoundingBox();
-			int h = fit.height((b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			int g = tree.groundOf(i);
-			String verdict = h <= fit.seaLevel() ? "FAIL-sea" : Math.abs(h - g) > tolerance ? "FAIL" : "ok";
-			out.add("#%d h=%d g=%d d=%d limit=%d %s".formatted(i, h, g, h - g, tolerance, verdict));
-		}
-		for (Set<Integer> grounds : tree.flexJointGrounds()) {
-			if (grounds.size() < 2) continue;
-			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
-			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
-			out.add("joint %s spread=%d limit=%d".formatted(grounds, hi - lo, tolerance));
-		}
-		return out;
 	}
 
 }

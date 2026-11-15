@@ -98,8 +98,8 @@ are read.
 
 `LocatableStructure` is implemented by the primaries and the secondaries, the two tiers that own a region pick: a
 secondary reports its region only when the picked primary left that region empty (and the secondary pick names it). The
-tiny tier has no region pick, so a scan cannot name it; `/gensokyo structure scan`, `/gensokyo structure diagnose` and
-fairy dust all reject it with "Structure has no region pick to locate".
+tiny tier has no region pick, so a scan cannot name it; `/gensokyo structure scan` and fairy dust both reject it with
+"Structure has no region pick to locate".
 
 - `all` (the default) walks the whole `(2r+1)^2` square and prints every start nearest-first.
 - `first` walks rings outward and stops at the first ring that has a start, nearest-first within that ring.

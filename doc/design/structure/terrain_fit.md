@@ -25,9 +25,9 @@ So the rule becomes a field of the structure instead of code, with two implement
 
 | Class | File | Role |
 |---|---|---|
-| `TerrainPredicate` | `content/worldgen/structure/terrain/TerrainPredicate.java` | Interface: `MapCodec<? extends TerrainPredicate> codec()`, `FitResult fit(TerrainFit)`, a diagnostic `describe(TerrainFit)`, a default no-op `afterPlace(level, chunk, pieces)` for the foundation pass, and a `triesAllRotations` default (false) for rules that want the four start rotations tried. Owns the `Codec<TerrainPredicate>` dispatch (`ResourceLocation` type key, resolved lazily), so datagen needs no registry. |
+| `TerrainPredicate` | `content/worldgen/structure/terrain/TerrainPredicate.java` | Interface: `MapCodec<? extends TerrainPredicate> codec()`, `FitResult fit(TerrainFit)`, a default no-op `afterPlace(level, chunk, pieces)` for the foundation pass, and a `triesAllRotations` default (false) for rules that want the four start rotations tried. Owns the `Codec<TerrainPredicate>` dispatch (`ResourceLocation` type key, resolved lazily), so datagen needs no registry. |
 | `TerrainFit` | `content/worldgen/structure/terrain/TerrainFit.java` | Record `(GenerationContext ctx, PieceTree tree, int seaLevel)` plus `height(x, z)` (`getFirstFreeHeight(WORLD_SURFACE_WG)`) and the 9-point `ring(BoundingBox)` sampler (4 corners, 4 edge centres, centre). |
-| `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, String reason, int delta)`: the vertical shift applied to the layout, or the failure reason. |
+| `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, int delta)`: the verdict and the vertical shift applied to the layout. |
 | `UniformHeightCheck` | `content/worldgen/structure/terrain/UniformHeightCheck.java` | The old rule, verbatim. `height_tolerance` is now its own field. |
 | `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
 | `GLBeardedPiece` | `content/worldgen/structure/GLBeardedPiece.java` | `PoolElementStructurePiece` with a per-piece `PieceBeardifierModifier` adjustment, persisted under its own `StructurePieceType` so it survives a start reload. |
@@ -73,8 +73,8 @@ findGenerationPoint
 ```
 
 `validateLayout` no longer knows heights: it builds the tree, runs the biome gate, then calls
-`this.terrain.fit(new TerrainFit(ctx, tree, seaLevel))`. A failing `FitResult` is returned as the
-candidate's failure reason; a passing one supplies the applied `delta`, added to the stub position. The structures
+`this.terrain.fit(new TerrainFit(ctx, tree, seaLevel))`. A failing `FitResult` rejects the candidate;
+a passing one supplies the applied `delta`, added to the stub position. The structures
 forward `afterPlace` to the same predicate, and advertise the predicate's `needsBeardifier()` through
 `terrainAdaptation`.
 
@@ -104,8 +104,7 @@ Fills nothing. Used by the houses and the shrine (`t = 5`).
 1. Find the piece whose template id is `anchor`, read from `SinglePoolElement#template` (exposed by the
    access transformer; `GLSinglePiece` is datagen-only and decodes as plain `SinglePoolElement`, so
    matching on that subclass never fires). It must be rigid and in the start piece's rigid group,
-   otherwise the candidate fails (`anchor-missing`, `anchor-group`) — shifting a detached group would tear
-   the assembly apart.
+   otherwise the candidate fails — shifting a detached group would tear the assembly apart.
 2. 9-point ring of the **anchor**, not of the root footprint: above sea, `spawn = (min + max) / 2`, shift the
    anchor's rigid group by `spawn - ground(anchor)`. `delta` is that shift.
 3. The anchor keeps the **symmetric** rule: every ring sample `|h - spawn| <= t`. Since `spawn` is the ring
@@ -250,34 +249,7 @@ when the rule reports `needsBeardifier()`; the codec omits a `none` value, so My
 `terrain_adaptation` field while the other five keep `beard_thin`. The generated files must be committed
 with the code.
 
-## 8. Diagnostics
-
-`Validated.reason` keeps the stage prefixes `stageOf` reads. New reasons:
-
-| reason | stage |
-|---|---|
-| `anchor-missing`, `anchor-group` | 2 (layout) |
-| `anchor-sea`, `sea` | 3 (root) |
-| `anchor[lo-hi]` | 4 (rigid) |
-| `rigid-%d[h-vs-g]`, `rigid-sea-%d` | 4 (rigid) |
-| `joint[lo-hi]` | 5 (uniform only) |
-
-`TerrainPredicate#describe` prints the numbers behind a failing fit — one line per ring sample and per
-rigid piece — and defaults to nothing, so only the rule that has numbers to show implements it.
-`JigsawCheck#validateLayout` hands the trace back to the caller, and `FlatCheckStructure#diagnoseRegion` mirrors
-`findGenerationPoint` without placing, one line per candidate; `LocatableStructure#diagnoseAt` (default method) picks
-the region from a chunk. In game:
-
-```
-/gensokyo structure diagnose <structure> [<regionX> <regionZ>]
-```
-
-prints the candidate verdicts, then the first candidate that reached the fit with its full trace (anchor
-resolution, gate ring heights, plane, and every rigid piece's `h` / `g` / gap / verdict) to chat and the
-log. A wrong anchor id shows up there as `anchor ... -> #-1` plus the template id of every piece, which is
-how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
-
-## 9. Decisions
+## 8. Decisions
 
 - **Floating unbounded, burial bounded.** The check rejects terrain only when it rises above
   `ground + t`; a piece may hang over a valley at any depth and the fill builds the foundation down to
@@ -289,7 +261,7 @@ how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
   re-evaluates the earlier candidates of its region; the fill instead reads the world once per chunk.
 - **Anchor matched by template id, not element class.** Datagen's `GLSinglePiece` serialises as
   `minecraft:single_pool_element`, so a loaded pool holds plain `SinglePoolElement`; an `instanceof
-  GLSinglePiece` test is always false and every candidate fails `anchor-missing`. `PieceTree#templateId`
+  GLSinglePiece` test is always false and every candidate fails the anchor lookup. `PieceTree#templateId`
   reads the protected `template` field instead (access transformer), which works for both classes.
 - **Gate-only beard, via `PieceBeardifierModifier`.** The rule, not the structure JSON, owns which pieces
   blend into the terrain. The structure advertises `BEARD_THIN` only because the Beardifier filters
@@ -306,5 +278,3 @@ how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
 - **Structure-level `height_tolerance` retired.** It had no reader outside the rule, and two predicates
   with different knobs should not share one field name in the structure JSON. Structures live in the
   jar, not in world data, so no released save depends on the old field.
-- **The terrain-predicate debug tool is temporary.** Remove it once Myouren Temple generation is fully working and
-  has been tested in a live world.

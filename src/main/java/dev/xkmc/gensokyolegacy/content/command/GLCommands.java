@@ -51,15 +51,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -139,7 +134,7 @@ public class GLCommands {
 	};
 
 	/**
-	 * Locatable structures only: the primaries and secondaries {@code /gensokyo structure diagnose} can explain.
+	 * Locatable structures only: the primaries and secondaries {@code /gensokyo structure scan} can find.
 	 */
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_FLAT_STRUCTURES = (ctx, builder) -> {
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
@@ -332,13 +327,6 @@ public class GLCommands {
 								.then(Commands.literal("info")
 										.executes(GLCommands::executePartyInfo))))
 				.then(Commands.literal("structure")
-						.then(Commands.literal("diagnose")
-								.then(Commands.argument("structure", ResourceLocationArgument.id())
-										.suggests(SUGGEST_FLAT_STRUCTURES)
-										.executes(GLCommands::executeStructureDiagnose)
-										.then(Commands.argument("regionX", IntegerArgumentType.integer())
-												.then(Commands.argument("regionZ", IntegerArgumentType.integer())
-														.executes(GLCommands::executeStructureDiagnoseRegion)))))
 						.then(Commands.literal("scan")
 								.then(Commands.argument("structure", ResourceLocationArgument.id())
 										.suggests(SUGGEST_FLAT_STRUCTURES)
@@ -391,44 +379,7 @@ public class GLCommands {
 		return offer.unwrapKey().orElseThrow().location();
 	}
 
-	// --- structure diagnostic ---
-
-	/**
-	 * Explains why the region around the player does or does not host this structure: one line per candidate,
-	 * plus the first layout failure's full terrain numbers.
-	 */
-	private static int executeStructureDiagnose(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		return diagnoseStructure(ctx, null, null);
-	}
-
-	private static int executeStructureDiagnoseRegion(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		return diagnoseStructure(ctx, IntegerArgumentType.getInteger(ctx, "regionX"),
-				IntegerArgumentType.getInteger(ctx, "regionZ"));
-	}
-
-	private static int diagnoseStructure(CommandContext<CommandSourceStack> ctx, @Nullable Integer regionX,
-										 @Nullable Integer regionZ) throws CommandSyntaxException {
-		CommandSourceStack src = ctx.getSource();
-		ResourceLocation id = ResourceLocationArgument.getId(ctx, "structure");
-		var holder = src.registryAccess().registryOrThrow(Registries.STRUCTURE)
-				.getHolder(ResourceKey.create(Registries.STRUCTURE, id));
-		if (holder.isEmpty()) throw ERROR_UNKNOWN_STRUCTURE.create();
-		if (!(holder.get().value() instanceof LocatableStructure loc)) throw ERROR_NOT_LOCATABLE.create();
-		ServerLevel level = src.getLevel();
-		ChunkGenerator generator = level.getChunkSource().getGenerator();
-		RandomState randomState = level.getChunkSource().randomState();
-		StructureTemplateManager templates = level.getStructureManager();
-		LocatableStructure.Diagnosis report = regionX == null || regionZ == null
-				? loc.diagnoseAt(level.getSeed(), new ChunkPos(BlockPos.containing(src.getPosition())),
-				level.registryAccess(), generator, randomState, templates, level)
-				: loc.diagnoseRegion(level.getSeed(), regionX, regionZ, level.registryAccess(),
-				generator, randomState, templates, level);
-		for (String line : report.lines()) {
-			src.sendSuccess(() -> Component.literal(line), false);
-			GensokyoLegacy.LOGGER.info("[structure] {}", line);
-		}
-		return report.passes() > 0 ? 1 : 0;
-	}
+	// --- structure scan ---
 
 	/**
 	 * Every start of one flat-check structure within {@code radius} region rings of the source, measured in the
