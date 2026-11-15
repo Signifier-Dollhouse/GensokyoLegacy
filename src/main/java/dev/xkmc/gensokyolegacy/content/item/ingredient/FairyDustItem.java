@@ -91,7 +91,8 @@ public class FairyDustItem extends Item {
 		return InteractionResult.SUCCESS;
 	}
 
-	/** The home a flower points at: every flower in {@link BlockTags#FLOWERS} resolves to one of
+	/**
+	 * The home a flower points at: every flower in {@link BlockTags#FLOWERS} resolves to one of
 	 * our four, and anything unnamed goes to {@link GLStructureTagGen#CHARACTER_HOMES} so the
 	 * nearest of the four wins.
 	 */
@@ -99,6 +100,7 @@ public class FairyDustItem extends Item {
 		if (state.is(Blocks.PINK_PETALS) || state.is(Blocks.POPPY)) return GLStructureTagGen.HAKUREI_SHRINE_STRUCTURE;
 		if (state.is(Blocks.DANDELION) || state.is(Blocks.OXEYE_DAISY)) return GLStructureTagGen.MARISA_HOUSE_STRUCTURE;
 		if (state.is(Blocks.CORNFLOWER)) return GLStructureTagGen.MORICHIKA_SHOP_STRUCTURE;
+		if (state.is(Blocks.AZURE_BLUET)) return GLStructureTagGen.MYOUREN_TEMPLE_STRUCTURE;
 		if (state.is(Blocks.RED_TULIP) || state.is(Blocks.ORANGE_TULIP)
 				|| state.is(Blocks.WHITE_TULIP) || state.is(Blocks.PINK_TULIP))
 			return GLStructureTagGen.ALICE_HOUSE_STRUCTURE;
