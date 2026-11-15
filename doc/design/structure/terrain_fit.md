@@ -1,7 +1,7 @@
 # Flat-check terrain fitness — `TerrainPredicate`
 
 How a `FlatCheckStructure` decides that a speculative jigsaw layout fits the terrain under it, and how
-Myouren Temple gets a looser rule with a dirt foundation instead of the flat-ground rule.
+Myouren Temple gets a looser rule with a cobblestone foundation instead of the flat-ground rule.
 
 Related: [placement.md](placement.md), [structure_bed_entity.md](structure_bed_entity.md).
 
@@ -29,7 +29,7 @@ So the rule becomes a field of the structure instead of code, with two implement
 | `TerrainFit` | `content/worldgen/structure/terrain/TerrainFit.java` | Record `(GenerationContext ctx, PieceTree tree, int seaLevel)` plus `height(x, z)` (`getFirstFreeHeight(WORLD_SURFACE_WG)`) and the 9-point `ring(BoundingBox)` sampler (4 corners, 4 edge centres, centre). |
 | `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, String reason, int delta)`: the vertical shift applied to the layout, or the failure reason. |
 | `UniformHeightCheck` | `content/worldgen/structure/terrain/UniformHeightCheck.java` | The old rule, verbatim. `height_tolerance` is now its own field. |
-| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` dirt fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
+| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
 | `GLBeardedPiece` | `content/worldgen/structure/GLBeardedPiece.java` | `PoolElementStructurePiece` with a per-piece `PieceBeardifierModifier` adjustment, persisted under its own `StructurePieceType` so it survives a start reload. |
 
 `FlatCheckStructure` replaces its `height_tolerance` field with `TerrainPredicate terrain`:
@@ -43,11 +43,12 @@ So the rule becomes a field of the structure instead of code, with two implement
   "type": "gensokyolegacy:bastion_height",
   "anchor": "gensokyolegacy:myouren_temple/gate",
   "height_tolerance": 4,
-  "fill": "minecraft:dirt"
+  "fill": {"Name": "minecraft:cobblestone"}
 }
 ```
 
-`fill` is a `BlockState` and defaults to dirt, so a bastion that fills with dirt need not name it; `height_tolerance`
+`fill` is a `BlockState` and defaults to dirt, so a bastion that fills with dirt need not name it; Myouren
+names cobblestone. `height_tolerance`
 also has a default (4) and is omitted when equal to it. The type key is a `ResourceLocation`; the type table is
 resolved in `codecFor`, so a new predicate is one class and one branch, with no registry bootstrap and no
 datagen ordering constraint.
@@ -145,7 +146,7 @@ cost is three layout builds only on candidates that already passed the prefilter
 `UniformHeightCheck` keeps the drawn rotation: its symmetric rule is not direction-dependent, and the root
 footprint it samples is centred on the start.
 
-## 5. Dirt foundation
+## 5. Foundation fill
 
 ### 5.1 Where
 
@@ -180,7 +181,7 @@ Per chunk, for each column of the chunk box:
    meets the surface stops on its first non-air block without disturbing anything below.
 
 Per-piece `bbox.minY` would be wrong as the top plane: a roof, a tree canopy or a pond wall hangs above
-the ground plane, and filling to its underside builds a dirt column up through the temple. The anchor's
+the ground plane, and filling to its underside builds a fill column up through the temple. The anchor's
 `groundOf` is the one y every piece in the group agrees on, and the guard does the local distinction.
 
 ### 5.4 Beard
@@ -200,7 +201,7 @@ the beard is per piece:
   `PoolElementStructurePiece` would load with the structure default and lose the per-piece override.
 
 With every piece opting out except the gate, the Beardifier leaves the space under the halls air and
-`afterPlace` fills it with dirt. It also stops adding junction beards for Myouren, because the
+`afterPlace` fills it with cobblestone. It also stops adding junction beards for Myouren, because the
 `PieceBeardifierModifier` branch does not collect `JigsawJunction`s; that is the wanted behaviour for a
 foundation. The trade-off is that a non-gate piece gets no beard carve either, so terrain may still stand
 up to `tolerance - 1` blocks high at a piece centre; the fit in §4.2 is the only guard against burial.
@@ -235,11 +236,12 @@ Consequences for the design:
 | structure | predicate |
 |---|---|
 | `cirno_nest`, `marisa_house`, `morichika_shop`, `hakurei_shrine`, `alice_house` | `new UniformHeightCheck(5)` |
-| `myouren_temple` | `new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4, Blocks.DIRT.defaultBlockState())` |
+| `myouren_temple` | `new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4, Blocks.COBBLESTONE.defaultBlockState())` |
 
 `runData` rewrites the six `worldgen/structure/*.json`: `height_tolerance` moves inside `terrain`, and
-`myouren_temple` gains the `terrain` object with its `anchor` (`height_tolerance` and `fill` equal their
-defaults, so they are not written out). `StructFlatJigsawBuilding` writes `terrain_adaptation: none`
+`myouren_temple` gains the `terrain` object with its `anchor` (`height_tolerance` equals its default, so it
+is not written out; `fill` is cobblestone, not the default, so it is). `StructFlatJigsawBuilding` writes
+`terrain_adaptation: none`
 when the rule reports `needsBeardifier()`; the codec omits a `none` value, so Myouren's JSON has no
 `terrain_adaptation` field while the other five keep `beard_thin`. The generated files must be committed
 with the code.
@@ -287,7 +289,7 @@ how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
 - **Gate-only beard, via `PieceBeardifierModifier`.** The rule, not the structure JSON, owns which pieces
   blend into the terrain. The structure advertises `BEARD_THIN` only because the Beardifier filters
   `NONE` structures before it can read a piece, and every piece except the anchor reports `NONE`. This
-  keeps the dirt foundation air-only without a custom Beardifier or a mixin.
+  keeps the foundation air-only without a custom Beardifier or a mixin.
 - **`afterPlace`, not a foundation `StructurePiece`.** The same hook the woodland mansion uses for its
   cobblestone: no foundation piece, no plate NBT, and nothing extra for the `Beardifier` to read. It runs
   after the chunk's pieces, so the guard sees the placed building. `GLBeardedPiece` exists for the beard

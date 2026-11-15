@@ -1,3 +1,1 @@
 - remove terrain predicate debug tool after myouren temple gen fully working and tested
-- custom beardifier for bastion check type to make gate still beard-thin while other pieces still remove terrain above ground, just not add terrain below.
-- 
