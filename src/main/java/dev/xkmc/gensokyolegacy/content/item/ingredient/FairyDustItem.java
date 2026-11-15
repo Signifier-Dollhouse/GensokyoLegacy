@@ -21,12 +21,12 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Fairy dust sprinkled on a flower draws a ray of dust towards a character's home, and is spent.
  * <p>
- * Which home is decided by the flower: cherry blossom or poppy for the Hakurei shrine, dandelion or
- * daisy for Marisa, any tulip for Alice, cornflower for Morichika, and any other vanilla flower for
- * whichever home is closest — a ring-by-ring search over the {@link GLStructureTagGen} tags that
- * runs off-thread while a mote circles the flower ({@link FairyDustSearch}). Nothing of the right
- * kind within reach: the mote scatters and the dust is dropped back where it was sprinkled, which
- * reads as "there is nothing here".
+ * Which home is decided by the flower: pink petals or poppy for the Hakurei shrine, dandelion or
+ * oxeye daisy for Marisa, azure bluet for the Myouren temple, cornflower for Morichika, any tulip
+ * for Alice, and any other vanilla flower for whichever home is closest — a ring-by-ring search
+ * over the {@link GLStructureTagGen} tags that runs off-thread while a mote circles the flower
+ * ({@link FairyDustSearch}). Nothing of the right kind within reach: the mote scatters and the
+ * dust is dropped back where it was sprinkled, which reads as "there is nothing here".
  *
  * @see "doc/design/fairy_dust.md"
  */
@@ -93,8 +93,8 @@ public class FairyDustItem extends Item {
 
 	/**
 	 * The home a flower points at: every flower in {@link BlockTags#FLOWERS} resolves to one of
-	 * our four, and anything unnamed goes to {@link GLStructureTagGen#CHARACTER_HOMES} so the
-	 * nearest of the four wins.
+	 * our five, and anything unnamed goes to {@link GLStructureTagGen#CHARACTER_HOMES} so the
+	 * nearest home wins.
 	 */
 	private static TagKey<Structure> targetTag(BlockState state) {
 		if (state.is(Blocks.PINK_PETALS) || state.is(Blocks.POPPY)) return GLStructureTagGen.HAKUREI_SHRINE_STRUCTURE;

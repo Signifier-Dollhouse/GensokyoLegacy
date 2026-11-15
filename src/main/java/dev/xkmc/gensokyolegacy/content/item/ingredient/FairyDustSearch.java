@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.item.ingredient;
 
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.LevelBounds;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.l2core.events.SchedulerHandler;
 import net.minecraft.core.BlockPos;
@@ -94,7 +95,7 @@ public final class FairyDustSearch {
 		this.generator = level.getChunkSource().getGenerator();
 		this.randomState = level.getChunkSource().randomState();
 		this.templates = level.getStructureManager();
-		this.height = new Height(level.getMinBuildHeight(), level.getHeight());
+		this.height = LevelBounds.of(level);
 		this.structures = structures;
 		this.center = new ChunkPos(origin);
 		this.refund = refund;
@@ -217,23 +218,6 @@ public final class FairyDustSearch {
 		double dx = a.getX() - b.getX();
 		double dz = a.getZ() - b.getZ();
 		return dx * dx + dz * dz;
-	}
-
-	/**
-	 * Snapshot of the level's vertical bounds, so the worker never touches the {@link ServerLevel}.
-	 */
-	private record Height(int minY, int height) implements LevelHeightAccessor {
-
-		@Override
-		public int getMinBuildHeight() {
-			return minY;
-		}
-
-		@Override
-		public int getHeight() {
-			return height;
-		}
-
 	}
 
 }
