@@ -43,9 +43,9 @@ Entity ↔ `DollData` identity is the entity's **own game uuid**, minted fresh o
 | [summon.md](summon.md) | the `SUMMON` nature — the no-item/no-recall/no-loadout gates, per-kind lifetimes, intrinsic (one default move) bindings | API implemented; the ghost is the first kind ([stray.md](stray.md)) |
 | [gadget.md](gadget.md) | `ITEM_GADGET` — owned, itemizable and recallable but loadout-free and inert; the item's own entity kind, and the Sekibanki head | implemented |
 | [stray.md](stray.md) | wild stray doll + stray ghost (own entity types / spawn eggs), the owned support ghost and its variants, the foodie effect, and the bone flute conversion | implemented; natural spawn and recipe deferred |
-| [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering TODO | implemented |
-| [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | framework implemented (glove pending) |
-| [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | planned |
+| [loadout.md](loadout.md) | the four held item slots (main hand / off hand / cloth / core), synced entity data, loadout editor menu, item rendering | implemented |
+| [control.md](control.md) | doll actions (ticket, single execution), the four action types, heal-mark targets, iterative command sequences | implemented |
+| [glove.md](glove.md) | the Seven-Colored Doll Glove: modes, itemselector wheel, network, registration | implemented |
 | [checklist.md](checklist.md) | registration & datagen checklist, files to create / modify, edge cases | — |
 
 Suggested reading order: **pairing → entity → item → controller** (the core pairing model), then **loadout → control → glove** (doll behavior and control), then **host → summon → stray** (non-player hosts, the non-doll case, and the wild/owned ghost).

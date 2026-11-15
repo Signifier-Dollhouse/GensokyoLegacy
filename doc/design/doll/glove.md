@@ -68,7 +68,7 @@ The cache is **shared**, not the doll glove's alone: `GloveTargeting` (`content/
 - Textures — copy `temp/七色人偶手套.png` to `assets/gensokyolegacy/textures/item/doll_glove/doll_glove.png`; copy `temp/<mode>.png` to `assets/gensokyolegacy/textures/item/doll_glove/glove_<mode>.png` (§3b).
 - Mixins — target-glow mixin declared in `gensokyolegacy.mixins.json`.
 
-## 6. Files to create
+## 6. Files
 
 - `content/item/glove/DollGloveItem.java`
 - `content/item/glove/mode/DollGloveMode.java`

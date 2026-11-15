@@ -10,7 +10,7 @@ import java.util.List;
  * Snapshot of the pot contents handed to recipe matching. {@code isComplete} is false while probing
  * whether one more item could still fit into a recipe, true for the final match.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 public record AlchemyInv(FluidStack fluid, List<ItemStack> list, boolean isComplete) implements RecipeInput {
 

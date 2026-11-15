@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
  * wheel pick and a scroll pick cannot disagree. Only the mode wheels use this; the umbrella's accessory
  * wheels stay on their own packet.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public record SelectorSelectPacket(int index) implements SerialPacketBase<SelectorSelectPacket> {
 

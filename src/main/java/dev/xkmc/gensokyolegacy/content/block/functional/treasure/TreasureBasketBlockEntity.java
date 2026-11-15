@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * Gives the treasure basket a block entity so the container capability and the menu have a
  * handle. Contents stay in {@link TreasureBasketEffectData}; this only proxies to it.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 @SerialClass
 public class TreasureBasketBlockEntity extends BaseBlockEntity implements MenuProvider {

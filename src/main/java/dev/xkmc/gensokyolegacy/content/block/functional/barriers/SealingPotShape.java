@@ -15,7 +15,7 @@ import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 /**
  * Pot silhouette, kept as its own method so other blocks can reuse it.
  *
- * @see "doc/design/barriers.md"
+ * @see "doc/design/item/barriers.md"
  */
 public class SealingPotShape implements ShapeBlockMethod {
 

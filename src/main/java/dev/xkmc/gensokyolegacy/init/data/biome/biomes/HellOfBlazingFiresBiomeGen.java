@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The hot dry cell of the underground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the hell of blazing
+ * The hot dry cell of the underground in {@code doc/design/biome/gensokyo_biomes.md}: the hell of blazing
  * fires, a hall of basalt with lava in the floor.
  * <p>
  * Basalt deltas. The column runs are the find here: vanilla lays them on the nether's open floor, and in a cave they
@@ -26,7 +26,7 @@ import java.util.List;
  * columns with nothing to fill them. spring_delta comes with them and is the one nether spring that does: the delta's
  * lava is what the biome is named for, and the surface rule only gives it magma block, which glows but does not flow.
  *
- * @see "doc/design/gensokyo_biomes.md" §2.2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2.2
  */
 public class HellOfBlazingFiresBiomeGen extends AbstractBiomeGen {
 

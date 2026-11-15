@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.home.structure;
 
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.*;
+import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorRoom;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
 import dev.xkmc.gensokyolegacy.content.attachment.index.StructureKey;
@@ -64,13 +65,38 @@ public record StructureHomeHolder(
 	@Nullable
 	public Vec3 getRandomPosInRoom(YoukaiEntity e) {
 		if (!data.checkInit(this)) return null;
-		return HomeSearchUtil.getRandomPos(data.getRoomBounds(config), e, ans -> !config.isOutside(e.level(), ans));
+		return HomeSearchUtil.getRandomPos(roomBoundsFor(e), e, ans -> !config.isOutside(e.level(), ans));
+	}
+
+	/**
+	 * Volume-weighted sampler over the rooms this entity may pick: private rooms only for their
+	 * owner, everything else for anyone. Routing is unaffected, so pass-by stays allowed.
+	 */
+	private MultiStructureBound roomBoundsFor(YoukaiEntity e) {
+		List<BoundingBox> allowed = new ArrayList<>();
+		for (var room : data.getRooms(config)) {
+			if (room.owner() == null || room.owner() == e.getType())
+				allowed.add(room.bound());
+		}
+		// degenerate data (all rooms private to others): keep the old union behaviour
+		return allowed.isEmpty() ? data.getRoomBounds(config) : MultiStructureBound.of(allowed);
 	}
 
 	@Nullable
 	public Vec3 getRandomPosInBound(YoukaiEntity e) {
 		if (!data.checkInit(this)) return null;
-		return HomeSearchUtil.getRandomPos(data.getTotalBound(), e, ans -> true);
+		var rooms = data.getRooms(config);
+		EntityType<?> type = e.getType();
+		return HomeSearchUtil.getRandomPos(data.getTotalBound(), e,
+				ans -> !inForeignRoom(rooms, type, ans));
+	}
+
+	private static boolean inForeignRoom(List<InteriorRoom> rooms, EntityType<?> type, BlockPos pos) {
+		for (var room : rooms) {
+			if (room.owner() == null || room.owner() == type) continue;
+			if (room.bound().isInside(pos)) return true;
+		}
+		return false;
 	}
 
 	@Nullable

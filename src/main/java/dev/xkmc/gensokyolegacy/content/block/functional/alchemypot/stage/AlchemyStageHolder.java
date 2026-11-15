@@ -15,7 +15,7 @@ import java.util.List;
  * Picks the best matching stage recipe for the pot contents and reports the items it has not
  * consumed yet, so the renderer can bob them and clear can drop them.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 public class AlchemyStageHolder {
 

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * {@link IItemHandlerModifiable} facade over the basket's effect data. The data is looked up on
  * every call, so the handler stays valid while the basket chunk is unloaded.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 public class TreasureBasketItemHandler implements IItemHandlerModifiable {
 

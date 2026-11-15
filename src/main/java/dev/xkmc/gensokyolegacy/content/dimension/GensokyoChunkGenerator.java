@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * The picker is a field the parent fills from a private static factory, so it is replaced rather than overridden:
  * see {@link #gensokyo$fluidPicker()} and the access transformer.
  *
- * @see "doc/design/gensokyo_dimension.md" §11
+ * @see "doc/design/biome/gensokyo_dimension.md" §11
  */
 public class GensokyoChunkGenerator extends NoiseBasedChunkGenerator {
 
@@ -42,7 +42,7 @@ public class GensokyoChunkGenerator extends NoiseBasedChunkGenerator {
 	 * bottom of the world looks like. The cave carver's own {@code lava_level} is a separate thing and is left
 	 * where vanilla has it.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §11
+	 * @see "doc/design/biome/gensokyo_dimension.md" §11
 	 */
 	private static final int LAVA_LEVEL = -46;
 
@@ -67,7 +67,7 @@ public class GensokyoChunkGenerator extends NoiseBasedChunkGenerator {
 	 * The picker this generator builds its aquifers with. Kept so the accessor above and the field assignment below
 	 * read as one thing: the parent's is discarded, and this is what replaces it.
 	 *
-	 * @see "doc/design/gensokyo_dimension.md" §11
+	 * @see "doc/design/biome/gensokyo_dimension.md" §11
 	 */
 	public Supplier<Aquifer.FluidPicker> gensokyo$fluidPicker() {
 		return fluidPicker;

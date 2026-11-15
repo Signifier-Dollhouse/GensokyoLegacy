@@ -19,7 +19,7 @@ import java.util.Arrays;
  * waterline. See {@code LakeConfig.Mode}.
  *
  * @see LakeConfig
- * @see "doc/design/gensokyo_biomes.md" §2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2
  */
 public class LakeMaker {
 

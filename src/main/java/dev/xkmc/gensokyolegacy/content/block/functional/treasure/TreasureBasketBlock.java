@@ -30,7 +30,7 @@ import java.util.List;
  * Behavior of the treasure basket: owns one area effect that catches expiring items, and refuses
  * placement in a chunk another basket already covers.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 public class TreasureBasketBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod,
 		UseWithoutItemBlockMethod {

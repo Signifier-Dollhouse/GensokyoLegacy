@@ -4,16 +4,21 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.*;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -28,8 +33,10 @@ import java.util.Optional;
  * copied here, so the two sides cannot disagree. setCount/setIndex must never change once released.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/secondary.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
-public class FlatCheckStructure extends Structure {
+public class FlatCheckStructure extends Structure implements LocatableStructure {
 
 	public static final MapCodec<FlatCheckStructure> CODEC = RecordCodecBuilder.<FlatCheckStructure>mapCodec((i) -> i.group(
 			settingsCodec(i),
@@ -37,7 +44,7 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
+			TerrainPredicate.CODEC.fieldOf("terrain").forGetter((e) -> e.terrain),
 			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set),
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
@@ -54,11 +61,10 @@ public class FlatCheckStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int flatTolerance;
+	private final TerrainPredicate terrain;
 	private final int safetyRadius;
 	private final int setIndex;
 	private final int setCount;
-	private final RegionMemo memo = new RegionMemo();
 
 	private static DataResult<FlatCheckStructure> verifyRange(FlatCheckStructure s) {
 		byte b0;
@@ -84,7 +90,8 @@ public class FlatCheckStructure extends Structure {
 		return DataResult.success(s);
 	}
 
-	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
+	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth,
+							  boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							  Holder<StructureSet> set, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
@@ -92,7 +99,7 @@ public class FlatCheckStructure extends Structure {
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.flatTolerance = flatTolerance;
+		this.terrain = terrain;
 		this.safetyRadius = safetyRadius;
 		this.setIndex = setIndex;
 		this.setCount = setCount;
@@ -158,32 +165,31 @@ public class FlatCheckStructure extends Structure {
 	 * @see "doc/design/structure/secondary.md"
 	 */
 	int firstPassInRegion(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
-		Integer cached = memo.get(ctx.chunkGenerator(), ctx.seed(), rx, rz);
-		if (cached != null) {
-			return cached;
+		return RegionMemo.verdict(this, ctx.chunkGenerator(), ctx.seed(), rx, rz,
+				() -> computeFirstPass(ctx, placement, rx, rz));
+	}
+
+	private int computeFirstPass(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
+		if (pickForRegion(ctx.seed(), rx, rz, placement.salt(), this.setCount) != this.setIndex) {
+			return -1;
 		}
-		int ans = -1;
-		if (pickForRegion(ctx.seed(), rx, rz, placement.salt(), this.setCount) == this.setIndex) {
-			int spacing = placement.spacing();
-			List<ChunkPos> cands = placement.getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
-			JigsawCheck check = check();
-			for (int i = 0; i < cands.size(); i++) {
-				ChunkPos c = cands.get(i);
-				if (check.checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, placement).isPresent()) {
-					ans = i;
-					break;
-				}
+		int spacing = placement.spacing();
+		List<ChunkPos> cands = placement.getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
+		JigsawCheck check = check();
+		for (int i = 0; i < cands.size(); i++) {
+			ChunkPos c = cands.get(i);
+			if (check.checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, placement).isPresent()) {
+				return i;
 			}
 		}
-		memo.put(ctx.chunkGenerator(), ctx.seed(), rx, rz, ans);
-		return ans;
+		return -1;
 	}
 
 	/**
 	 * Shared eligibility of the template this structure points at.
 	 */
 	private JigsawCheck check() {
-		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, flatTolerance,
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, terrain,
 				biomes(), safetyRadius);
 	}
 
@@ -202,6 +208,57 @@ public class FlatCheckStructure extends Structure {
 	@Override
 	public StructureType<?> type() {
 		return GLWorldGen.FLAT.get();
+	}
+
+	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		return JigsawCheck.adaptation(this.terrain, super.terrainAdaptation());
+	}
+
+	/**
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
+	 */
+	@Override
+	public int spacing() {
+		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
+	}
+
+	/**
+	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
+	 * the least-index candidate that passes {@link JigsawCheck#checkCandidate} wins, so this agrees with worldgen and
+	 * reads no chunks. Cached per region by {@link RegionMemo}.
+	 */
+	@Override
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) {
+			return Optional.empty();
+		}
+		MultiSpreadPlacement placement = resolved.get();
+		int spacing = placement.spacing();
+		List<ChunkPos> cands = placement.getPotentialChunks(seed, regionX * spacing, regionZ * spacing);
+		if (cands.isEmpty()) {
+			return Optional.empty();
+		}
+		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
+				cands.getFirst(), heightAccessor, biomes());
+		int idx = this.firstPassInRegion(ctx, placement, regionX, regionZ);
+		if (idx < 0) {
+			return Optional.empty();
+		}
+		ChunkPos chunk = cands.get(idx);
+		return Optional.of(new Located(chunk, placement.getLocatePos(chunk), regionX, regionZ));
 	}
 
 	/**
@@ -224,14 +281,24 @@ public class FlatCheckStructure extends Structure {
 	public record RegionReport(List<String> lines, RegionStats stats) {
 	}
 
+	@Override
+	public Diagnosis diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+									ChunkGenerator generator, RandomState randomState,
+									StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		RegionReport report = diagnoseRegion(seed, regionX, regionZ, registries, generator, randomState, templates,
+				heightAccessor, true);
+		return new Diagnosis(report.lines(), report.stats().pass());
+	}
+
 	/**
 	 * Dev diagnostic: lists every attempted position in one region with its verdict (suppressed / place-fail /
 	 * margin-fail / pass(checks)) plus the cumulative funnel line, placing nothing. Mirrors {@link
-	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried.
+	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried. With {@code detailed},
+	 * the first candidate to reach the terrain fit also prints the predicate's own numbers.
 	 */
 	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 									   ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-									   LevelHeightAccessor heightAccessor) {
+									   LevelHeightAccessor heightAccessor, boolean detailed) {
 		List<String> lines = new ArrayList<>();
 		Optional<MultiSpreadPlacement> resolved = this.placement();
 		if (resolved.isEmpty()) {
@@ -267,10 +334,13 @@ public class FlatCheckStructure extends Structure {
 		}
 		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
 		int firstPass = -1;
+		boolean detailUsed = false;
+		JigsawCheck check = check();
 		for (int i = 0; i < cands.size(); i++) {
 			ChunkPos me = cands.get(i);
 			String verdict;
 			int stage;
+			List<String> trace = null;
 			if (firstPass >= 0) {
 				verdict = "suppressed-by-#" + firstPass;
 				stage = -1;
@@ -278,18 +348,20 @@ public class FlatCheckStructure extends Structure {
 				tried++;
 				GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed, me,
 						heightAccessor, biomes());
-				var prefilter = this.check().prefilter(ctx, me);
+				var prefilter = check.prefilter(ctx, me);
 				if (!prefilter.pass()) {
 					verdict = "place-" + prefilter.reason();
 					stage = 0;
 				} else {
 					pre++;
-					if (!this.check().marginSafe(ctx, me, placement)) {
+					if (!check.marginSafe(ctx, me, placement)) {
 						verdict = "margin-fail";
 						stage = 1;
 					} else {
 						mar++;
-						var v = this.check().validateLayout(ctx, me, prefilter.y());
+						if (detailed && !detailUsed) trace = new ArrayList<>();
+						var v = check.validateLayout(ctx, me, prefilter.y(), trace);
+						if (trace != null && !trace.isEmpty()) detailUsed = true;
 						if (!v.pass()) {
 							verdict = "place-" + v.reason();
 							stage = stageOf(v.reason());
@@ -306,6 +378,9 @@ public class FlatCheckStructure extends Structure {
 			if (stage >= 4) roo++;
 			if (stage >= 5) det++;
 			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
+			if (trace != null) {
+				for (String line : trace) lines.add("      " + line);
+			}
 		}
 		lines.add("  funnel tried=%d prefilter=%d margin=%d biome=%d root=%d detailed=%d pass=%d".formatted(
 				tried, pre, mar, bio, roo, det, pas));
@@ -318,8 +393,8 @@ public class FlatCheckStructure extends Structure {
 	 */
 	private static int stageOf(String reason) {
 		if (reason.startsWith("joint[")) return 5;
-		if (reason.startsWith("rigid-")) return 4;
-		if (reason.equals("sea") || reason.startsWith("height[")) return 3;
+		if (reason.startsWith("rigid-") || reason.startsWith("anchor[")) return 4;
+		if (reason.equals("sea") || reason.equals("anchor-sea") || reason.startsWith("height[")) return 3;
 		return 2;
 	}
 

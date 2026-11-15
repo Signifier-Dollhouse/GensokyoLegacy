@@ -4,11 +4,15 @@ import dev.xkmc.gensokyolegacy.content.block.nature.GoldenLotusBlock;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.TreeFeatures.TreeType;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.lake.LakeConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateFeatureConfig;
+import dev.xkmc.gensokyolegacy.content.worldgen.placement.AvoidStructuresFilter;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.AbstractBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GensokyoBiomeFeatures;
+import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.CavePlacements;
@@ -30,7 +34,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold dry cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the scrubby barrens
+ * The cold dry cell of the lower ground in {@code doc/design/biome/gensokyo_biomes.md}: the scrubby barrens
  * the temple sits in, with a little extra gold in it.
  * <p>
  * What the badlands base has no room for, it takes back itself: six locust a chunk over the dry waste, and one of
@@ -39,11 +43,17 @@ import java.util.List;
  * The pools are the one thing the dry waste has that the badlands base does not: a temple keeps its water, and the
  * lilies in it are the mod's own.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	public static final ResourceKey<Biome> KEY = biome("myouren_temple_barrens");
+
+	/** The lake's half-width plus its rim: the pool must stay clear of the temple's wall ring. */
+	private static final int LAKE_CLEARANCE = 11;
+
+	/** The widest locust template is 13 blocks across, so its crown reaches six blocks from the trunk. */
+	private static final int LOCUST_CLEARANCE = 6;
 
 	private static final ResourceKey<ConfiguredFeature<?, ?>> BARRENS_SCRUB = cf("barrens_scrub");
 	private static final ResourceKey<PlacedFeature> BARRENS_SCRUB_PF = pf("barrens_scrub");
@@ -104,7 +114,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		// three hand-built tomb plots: a grave, its lanterns and the offerings left on it
 		var tombs = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (int i = 1; i <= 3; i++) {
-			tombs.add(GensokyoLegacy.loc("myouren_temple/tomb_0" + i), 1);
+			tombs.add(GensokyoLegacy.loc("biome/graveyard/tomb_0" + i), 1);
 		}
 		FeatureUtils.register(ctx, TOMB, GLWorldGen.TEMPLATE_STRUCTURE.get(), new TemplateFeatureConfig(
 				tombs.build(), TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT, 2, 0, 0, 0, List.of()));
@@ -120,14 +130,22 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 
 	@Override
 	protected void placed(Registrar reg) {
-		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2));
+		reg.trees(LOCUST_TREES_PF, reg.feature(TreeType.LOCUST.cfKey), CountPlacement.of(2),
+				avoid(reg, LOCUST_CLEARANCE));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(8));
 		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS),RarityFilter.onAverageOnceEvery(8));
 		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
 		reg.placed(LAKE_PF, reg.feature(LAKE), RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(),
+				avoid(reg, LAKE_CLEARANCE),
 				HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES),
 				SurfaceWaterDepthFilter.forMaxDepth(0), BiomeFilter.biome());
+	}
+
+	private static AvoidStructuresFilter avoid(Registrar reg, int clearance) {
+		var temple = reg.ctx().lookup(Registries.STRUCTURE)
+				.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GLStructureGen.MYOUREN_TEMPLE));
+		return new AvoidStructuresFilter(HolderSet.direct(temple), clearance);
 	}
 
 }

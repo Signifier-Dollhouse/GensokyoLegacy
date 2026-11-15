@@ -24,7 +24,7 @@ import java.util.List;
  * Expiring items in a treasure basket's chunks go into the nearest basket that still has room,
  * instead of despawning, and age faster while a basket covers their chunk.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class TreasureBasketEventHandlers {

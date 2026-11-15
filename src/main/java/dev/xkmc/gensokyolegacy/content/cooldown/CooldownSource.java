@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
  * A source is asked once per player tick, so it should read state that is already there rather
  * than compute anything expensive. What it returns is a clock speed, not a duration.
  *
- * @see "doc/design/cooldown.md"
+ * @see "doc/design/item/cooldown.md"
  */
 public interface CooldownSource {
 

@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FallbackStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -30,7 +31,7 @@ public record StructFallbackBuilding(
 		int maxDepth,
 		List<StructFlatJigsawBuilding.Part> parts,
 		Map<MobCategory, StructureSpawnOverride> spawns,
-		int heightTolerance,
+		TerrainPredicate terrain,
 		int maxDistanceFromCenter
 ) implements StructBuilding {
 
@@ -68,8 +69,9 @@ public record StructFallbackBuilding(
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().getFirst().id())));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FallbackStructure(
-				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
-				pool, maxDepth(), false, maxDistanceFromCenter(), heightTolerance(),
+				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION,
+						terrain().needsBeardifier() ? TerrainAdjustment.NONE : TerrainAdjustment.BEARD_THIN),
+				pool, maxDepth(), false, maxDistanceFromCenter(), terrain(),
 				StructBuilding.setRef(set)
 		));
 	}

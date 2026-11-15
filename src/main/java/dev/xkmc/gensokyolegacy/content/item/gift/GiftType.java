@@ -9,7 +9,7 @@ import java.util.Locale;
  * Category of a gift. Characters have per-category preferences (see {@link GiftPreference}), so the same
  * category is worth different favor to different characters.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public enum GiftType {
 	TOY("Toy"),

@@ -148,7 +148,7 @@ A dialog is **written where it is used**. `dialog(...)` / `dialogKey(...)` retur
 `Holder.Direct`, so the whole conversation lands inline in the starter, quest or trade
 file that opens it, and the `dialog/` registry holds only what has to be named from
 outside a dialog tree — the three gift reactions, which the `gift_dialog` data map
-addresses by id (`namedDialogKey`, `doc/design/gift.md` *What she says about it*).
+addresses by id (`namedDialogKey`, `doc/design/structure/gift.md` *What she says about it*).
 Nothing resolves a dialog path at runtime, and deleting an inline dialog is editing
 its host file rather than deleting a file.
 
@@ -173,7 +173,7 @@ A starter marked `override: true` is not in this roll at all.
 `ServerCharacterDialogManager.pickOverrideChat` resolves it first, and
 `FirstDialogSession.open` enters its dialog instead of drawing the topic
 list, for anything that has to happen before the player chooses a topic — a
-gift owed back, which is `doc/design/gift.md` *Paying a gift back*. An
+gift owed back, which is `doc/design/structure/gift.md` *Paying a gift back*. An
 override carries no weight and has no starter line of its own, which is why
 `text` is optional on `DialogStarter`.
 

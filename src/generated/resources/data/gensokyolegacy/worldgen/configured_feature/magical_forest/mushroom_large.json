@@ -42,27 +42,27 @@
     "root_depth": 4,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_1",
+        "data": "gensokyolegacy:biome/mushroom/ghost_fire_large_1",
         "weight": 2
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_2",
+        "data": "gensokyolegacy:biome/mushroom/ghost_fire_large_2",
         "weight": 2
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_large_3",
+        "data": "gensokyolegacy:biome/mushroom/ghost_fire_large_3",
         "weight": 2
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_large_1",
+        "data": "gensokyolegacy:biome/mushroom/demonic_miasma_large_1",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/demonic_miasma_large_2",
+        "data": "gensokyolegacy:biome/mushroom/demonic_miasma_large_2",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_large_1",
+        "data": "gensokyolegacy:biome/mushroom/dream_large_1",
         "weight": 2
       }
     ]

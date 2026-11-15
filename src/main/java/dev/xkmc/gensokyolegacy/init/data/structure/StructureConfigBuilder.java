@@ -4,8 +4,11 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorNode;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.InteriorRoom;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureInterior;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +58,7 @@ public class StructureConfigBuilder {
 		var rooms = new ArrayList<>(List.of(
 				new InteriorRoom("west_ground_west", new BoundingBox(3, 2, 14, 9, 6, 22)),
 				new InteriorRoom("west_ground_east", new BoundingBox(10, 2, 14, 17, 6, 22)),
-				new InteriorRoom("west_upper_bedroom", new BoundingBox(3, 7, 15, 14, 8, 21)),
+				room("west_upper_bedroom", new BoundingBox(3, 7, 15, 14, 8, 21), GLEntities.MARISA.get()),
 				new InteriorRoom("upper_hall", new BoundingBox(15, 7, 15, 25, 8, 21)),
 				new InteriorRoom("east_ground", new BoundingBox(18, 2, 9, 26, 6, 21)),
 				new InteriorRoom("east_upper_platform", new BoundingBox(19, 7, 9, 25, 8, 14))
@@ -124,8 +127,9 @@ public class StructureConfigBuilder {
 	}
 
 	/**
-	 * Every room must be wired: {@code findRoute} follows declared nodes only, so an unwired room is unreachable.
-	 * corridor_up is the exception - wired to the wing, not the tower, so the balcony is no exit onto the drop.
+	 * Every room must carry at least one node: a room with no node cannot be entered or left. Rooms in other
+	 * components are reached through outdoor transfers between entry nodes. corridor_up is the exception -
+	 * wired to the wing, not the tower, so the balcony is no exit onto the drop.
 	 * The stair node stages clear of the run at (19,1,15) and (15,5,15); stair_hall meets landing at y4/y5.
 	 */
 	private static StructureInterior aliceInterior() {
@@ -135,7 +139,7 @@ public class StructureConfigBuilder {
 				new InteriorRoom("hall_ground", new BoundingBox(12, 1, 6, 21, 4, 14)),
 				new InteriorRoom("stair_hall", new BoundingBox(13, 1, 15, 21, 4, 16)),
 				new InteriorRoom("east_room", new BoundingBox(22, 1, 6, 26, 4, 16)),
-				new InteriorRoom("wing_upper", new BoundingBox(12, 5, 7, 26, 8, 14)),
+				room("wing_upper", new BoundingBox(12, 5, 7, 26, 8, 14), GLEntities.ALICE.get()),
 				new InteriorRoom("landing", new BoundingBox(13, 5, 15, 21, 8, 16)),
 				new InteriorRoom("cabinet_nook", new BoundingBox(23, 5, 15, 25, 8, 15)),
 				new InteriorRoom("corridor_up", new BoundingBox(10, 5, 10, 11, 8, 12))
@@ -153,6 +157,51 @@ public class StructureConfigBuilder {
 				new InteriorNode(new BlockPos(26, 6, 8), new BlockPos(26, 6, 8), 5, -1)
 		));
 		return new StructureInterior(rooms, nodes);
+	}
+
+	/**
+	 * Myouren Temple is 29 jigsaw parts spanning x -26..62, y -2..24, z -45..51; the interior is the main
+	 * hall plus the five bedroom blocks, copied from the exported root.json. Minamitsu's room is hers alone;
+	 * house boxes cover the root main hall and each bedroom part in root-local coordinates.
+	 */
+	public static StructureConfig.Builder myouren() {
+		return StructureConfig.builder()
+				.interior(myourenInterior())
+				.house(List.of(
+						new BoundingBox(4, 2, 8, 32, 17, 36),
+						new BoundingBox(-14, 0, -19, -7, 10, -7),
+						new BoundingBox(42, 0, -19, 49, 9, -1),
+						new BoundingBox(-26, 0, 7, -13, 13, 34),
+						new BoundingBox(49, 0, 7, 62, 9, 22),
+						new BoundingBox(11, 0, 41, 36, 15, 51)
+				))
+				.primary(GLStructureTagGen.MYOUREN_PRIMARY)
+				.wouldFix(GLStructureTagGen.MYOUREN_FIX);
+	}
+
+	private static StructureInterior myourenInterior() {
+		var rooms = new ArrayList<>(List.of(
+				new InteriorRoom("room_0", new BoundingBox(5, 3, 10, 30, 13, 35)),
+				new InteriorRoom("room_1", new BoundingBox(13, 4, 44, 23, 7, 48)),
+				new InteriorRoom("room_2", new BoundingBox(-22, 3, 22, -17, 8, 32)),
+				new InteriorRoom("room_3", new BoundingBox(-22, 4, 11, -17, 8, 20)),
+				new InteriorRoom("room_4", new BoundingBox(-11, 0, -17, -9, 5, -9)),
+				new InteriorRoom("room_5", new BoundingBox(45, 0, -17, 47, 5, -9)),
+				room("room_6", new BoundingBox(53, 3, 11, 58, 8, 20), GLEntities.MINAMITSU.get())
+		));
+		var nodes = new ArrayList<>(List.of(
+				new InteriorNode(new BlockPos(45, 2, -14), new BlockPos(45, 2, -14), 5, -1),
+				new InteriorNode(new BlockPos(-9, 2, -13), new BlockPos(-9, 2, -13), 4, -1),
+				new InteriorNode(new BlockPos(-16, 4, 16), new BlockPos(-16, 4, 16), 3, -1),
+				new InteriorNode(new BlockPos(-16, 4, 24), new BlockPos(-16, 4, 24), 2, -1),
+				new InteriorNode(new BlockPos(18, 4, 10), new BlockPos(18, 4, 10), 0, -1),
+				new InteriorNode(new BlockPos(52, 4, 15), new BlockPos(52, 4, 15), 6, -1)
+		));
+		return new StructureInterior(rooms, nodes);
+	}
+
+	private static InteriorRoom room(String name, BoundingBox box, @Nullable EntityType<?> owner) {
+		return new InteriorRoom(name, box, owner);
 	}
 
 }

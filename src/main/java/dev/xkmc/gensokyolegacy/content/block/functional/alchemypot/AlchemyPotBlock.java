@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * Interaction front end: buckets first, then single items. Shape is a full cube even though the pot
  * has a cavity, because the model supplies the silhouette.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 public class AlchemyPotBlock implements ShapeBlockMethod, UseItemOnBlockMethod, UseWithoutItemBlockMethod {
 

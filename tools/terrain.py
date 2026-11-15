@@ -1188,7 +1188,7 @@ WATER_DEEP = (0, 16, 80)
 
 # the climate grid's own cuts, one per axis, and the eight regions they tile the parameter
 # space into. Gensokyo splits temperature, vegetation and erosion once each at 0, which is what
-# gives the plain its eight cells (`doc/design/gensokyo_dimension.md` §4). Hardcoded the way
+# gives the plain its eight cells (`doc/design/biome/gensokyo_dimension.md` §4). Hardcoded the way
 # `cave_bands.py` hardcodes its bounds, so retuning the grid means retuning these.
 CLIMATE_CUTS = (0.0, 0.0, 0.0)
 

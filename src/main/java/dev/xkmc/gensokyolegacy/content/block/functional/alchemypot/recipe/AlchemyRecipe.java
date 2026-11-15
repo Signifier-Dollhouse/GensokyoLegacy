@@ -26,7 +26,7 @@ import java.util.Optional;
 /**
  * Timed alchemy reaction: fluid plus items in, fluid and/or items out, both staying in the pot.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 @SerialClass
 public abstract class AlchemyRecipe<T extends AlchemyRecipe<T>> extends BaseRecipe<T, AlchemyRecipe<?>, AlchemyInv> implements TimedRecipe {

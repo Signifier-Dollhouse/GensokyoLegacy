@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * so what she returns is drawn from the same stock she would leave behind as a guest — one rung down,
  * to price a gift that took many gifts to earn rather than one that took a whole visit.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public class GiftReturn {
 

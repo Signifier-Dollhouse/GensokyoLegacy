@@ -18,8 +18,8 @@ import java.util.List;
  * its glow lichen. It was deep dark once, which is where the sculk in the halls came from — nothing here asks for it.
  * No freeze either: the biome is only ever below a surface, so the top-layer step has nothing to act on.
  *
- * @see "doc/design/gensokyo_biomes.md" §5
- * @see "doc/design/gensokyo_dimension.md" §9
+ * @see "doc/design/biome/gensokyo_biomes.md" §5
+ * @see "doc/design/biome/gensokyo_dimension.md" §9
  */
 public class MountainInteriorBiomeGen extends AbstractBiomeGen {
 

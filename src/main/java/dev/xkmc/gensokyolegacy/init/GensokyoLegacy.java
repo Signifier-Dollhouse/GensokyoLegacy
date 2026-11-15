@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
@@ -135,6 +136,7 @@ public class GensokyoLegacy {
 			DollGloveSelectionListener.register();
 			DaggerGloveSelectionListener.register();
 			YuyukoFanSelectionListener.register();
+			InteriorWandSelectionListener.register();
 			AnchorSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 

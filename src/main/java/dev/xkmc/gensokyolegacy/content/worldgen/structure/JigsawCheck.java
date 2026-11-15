@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.FitResult;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainFit;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -8,13 +11,16 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -25,38 +31,37 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * Speculative jigsaw eligibility of one template: cheap prefilter, layout build and the biome, root-height, rigid and
- * joint checks. {@link FlatCheckStructure}, {@link SecondaryStructure} and {@link FallbackStructure} differ only in
- * parameters and in how a candidate is selected, so all run this.
+ * Speculative jigsaw eligibility of one template: cheap prefilter, layout build, biome gate and the terrain fit.
+ * {@link FlatCheckStructure}, {@link SecondaryStructure} and {@link FallbackStructure} differ only in parameters and
+ * in how a candidate is selected, so all run this.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
 public record JigsawCheck(
 		Holder<StructureTemplatePool> startPool,
 		int maxDepth,
 		boolean useExpansionHack,
 		int maxDistanceFromCenter,
-		int tolerance,
+		TerrainPredicate terrain,
 		HolderSet<Biome> biomes,
 		int safetyRadius
 ) {
-
-	public static int freeHeight(Structure.GenerationContext ctx, int x, int z) {
-		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG,
-				ctx.heightAccessor(), ctx.randomState());
-	}
 
 	public record Prefilter(boolean pass, int y, String reason) {
 
 	}
 
-	public record Validated(boolean pass, int spawnY, Structure.GenerationStub stub, String reason) {
+	public record Validated(boolean pass, Structure.GenerationStub stub, String reason) {
 
 		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason);
+			return new Validated(false, null, reason);
+		}
+
+		static Validated pass(Structure.GenerationStub stub) {
+			return new Validated(true, stub, "pass");
 		}
 
 	}
@@ -65,7 +70,7 @@ public record JigsawCheck(
 	 * Cheap middle-column sea/biome gate, run before the speculative layout.
 	 */
 	public Prefilter prefilter(Structure.GenerationContext ctx, ChunkPos chunkpos) {
-		int y = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
+		int y = TerrainFit.height(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
 		if (y <= ctx.chunkGenerator().getSeaLevel()) {
 			return new Prefilter(false, y, "sea");
 		}
@@ -79,11 +84,44 @@ public record JigsawCheck(
 	}
 
 	/**
-	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ; the root rigid group is shifted to the
-	 * footprint average afterwards) and runs the biome, root-footprint, rigid and joint checks. On success returns a
-	 * stub serving the already-shifted pieces.
+	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ), runs the biome gate, then lets
+	 * {@link #terrain} place the layout on the terrain. On success returns a stub serving the shifted pieces; the
+	 * predicate's foundation runs later in {@link TerrainPredicate#afterPlace}.
 	 */
 	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY) {
+		return validateLayout(ctx, chunkpos, provY, null);
+	}
+
+	/**
+	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but a non-null {@code trace} collects the
+	 * predicate's numbers when the fit fails.
+	 */
+	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
+		if (!this.terrain.triesAllRotations()) {
+			return validateLayout(ctx, chunkpos, provY, trace, -1);
+		}
+		Validated firstFail = null;
+		for (Rotation rotation : Rotation.getShuffled(seededRandom(ctx.seed(), chunkpos))) {
+			Validated v = validateLayout(ctx, chunkpos, provY, firstFail == null ? trace : null, rotation.ordinal());
+			if (v.pass()) {
+				return v;
+			}
+			if (firstFail == null) {
+				firstFail = v;
+			}
+		}
+		return firstFail;
+	}
+
+	/**
+	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int, List)}, but {@code rotation >= 0} forces the
+	 * start rotation instead of the one drawn from {@code ctx.random()}.
+	 */
+	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY,
+									 List<String> trace, int rotation) {
+		if (rotation >= 0) {
+			ctx = ctxForRotation(ctx, rotation);
+		}
 		int sea = ctx.chunkGenerator().getSeaLevel();
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<Structure.GenerationStub> layout = JigsawPlacement.addPieces(ctx, startPool, Optional.empty(), maxDepth, start,
@@ -93,9 +131,11 @@ public record JigsawCheck(
 			return Validated.fail("no-layout");
 		}
 		List<PoolElementStructurePiece> pieces = new ArrayList<>();
-		for (var p : layout.get().getPiecesBuilder().build().pieces()) {
+		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
 			if (p instanceof PoolElementStructurePiece pool) {
-				pieces.add(pool);
+				TerrainAdjustment adjustment = this.terrain.beardAdjustment(pool);
+				pieces.add(adjustment == null ? pool
+						: GLBeardedPiece.of(ctx.structureTemplateManager(), pool, LiquidSettings.IGNORE_WATERLOGGING, adjustment));
 			}
 		}
 		if (pieces.isEmpty()) {
@@ -103,65 +143,30 @@ public record JigsawCheck(
 		}
 		PieceTree tree = PieceTree.build(pieces);
 		// Total-bound biome check: 4 union-box corners + 4 edge centers.
-		var union = tree.unionBox();
+		BoundingBox union = tree.unionBox();
 		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
 		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
 		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
 				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
 		for (int[] q : biomePts) {
-			int h = freeHeight(ctx, q[0], q[1]);
+			int h = TerrainFit.height(ctx, q[0], q[1]);
 			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
 					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
 			if (!biomes.contains(biome)) {
 				return Validated.fail("biome");
 			}
 		}
-		// Root footprint check: corners + edge centers + center of start box.
-		var rootBox = pieces.getFirst().getBoundingBox();
-		int rx0 = rootBox.minX(), rz0 = rootBox.minZ(), rx1 = rootBox.maxX(), rz1 = rootBox.maxZ();
-		int rcx = (rx0 + rx1) / 2, rcz = (rz0 + rz1) / 2;
-		int[][] rootPts = {{rx0, rz0}, {rx0, rz1}, {rx1, rz0}, {rx1, rz1},
-				{rcx, rz0}, {rcx, rz1}, {rx0, rcz}, {rx1, rcz}, {rcx, rcz}};
-		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-		for (int[] q : rootPts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			if (h <= sea) {
-				return Validated.fail("sea");
+		TerrainFit fit = new TerrainFit(ctx, tree, sea);
+		FitResult result = this.terrain.fit(fit);
+		if (!result.pass()) {
+			if (trace != null) {
+				trace.add("fit: " + result.reason());
+				trace.addAll(this.terrain.describe(fit));
 			}
-			if (h < min) min = h;
-			if (h > max) max = h;
+			return Validated.fail(result.reason());
 		}
-		if (max - min > 2 * tolerance) {
-			return Validated.fail("height[%d-%d]".formatted(min, max));
-		}
-		int spawn = (max + min) / 2;
-		// Shift the start rigid group (assumes a rigid start piece) so its ground sits on the footprint average.
-		int delta = tree.shiftStartGroupToGround(spawn);
-		// Rigid check: center terrain within tolerance of placed ground.
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			var b = tree.piece(i).getBoundingBox();
-			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			if (h <= sea) {
-				return Validated.fail("rigid-sea-%d".formatted(i));
-			}
-			int g = tree.groundOf(i);
-			if (Math.abs(h - g) > tolerance) {
-				return Validated.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
-			}
-		}
-		// Joint check: per connected non-rigid subgraph, adjacent rigid group grounds must lie within tolerance.
-		for (Set<Integer> grounds : tree.flexJointGrounds()) {
-			if (grounds.size() < 2) continue;
-			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
-			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
-			if (hi - lo > tolerance) {
-				return Validated.fail("joint[%d-%d]".formatted(lo, hi));
-			}
-		}
-		BlockPos pos = layout.get().position().offset(0, delta, 0);
-		Structure.GenerationStub stub = new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass");
+		BlockPos pos = layout.get().position().offset(0, result.delta(), 0);
+		return Validated.pass(new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece)));
 	}
 
 	/**
@@ -236,6 +241,16 @@ public record JigsawCheck(
 	}
 
 	/**
+	 * The Beardifier drops structures whose adaptation is NONE before it reads any piece, so a sparse-beard rule
+	 * advertises BEARD_THIN here while each piece still reports its own adjustment. The configured JSON value stays
+	 * NONE: only the gate keeps a beard.
+	 */
+	public static TerrainAdjustment adaptation(TerrainPredicate terrain, TerrainAdjustment configured) {
+		return configured == TerrainAdjustment.NONE && terrain.needsBeardifier()
+				? TerrainAdjustment.BEARD_THIN : configured;
+	}
+
+	/**
 	 * Context for another chunk, seeded as vanilla seeds the one it hands to {@code findGenerationPoint}.
 	 */
 	public static Structure.GenerationContext ctxFor(Structure.GenerationContext ctx, ChunkPos pos,
@@ -252,6 +267,48 @@ public record JigsawCheck(
 		random.setLargeFeatureSeed(seed, pos.x, pos.z);
 		return new Structure.GenerationContext(registries, generator, generator.getBiomeSource(), randomState,
 				templates, random, seed, pos, heightAccessor, biomes::contains);
+	}
+
+	/**
+	 * The candidate's own seeded random, used for the rotation shuffle so the layout stream stays untouched.
+	 */
+	private static WorldgenRandom seededRandom(long seed, ChunkPos pos) {
+		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+		random.setLargeFeatureSeed(seed, pos.x, pos.z);
+		return random;
+	}
+
+	private static Structure.GenerationContext ctxForRotation(Structure.GenerationContext ctx, int rotation) {
+		return new Structure.GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(),
+				ctx.randomState(), ctx.structureTemplateManager(), new RotationRandom(rotation, ctx.seed(), ctx.chunkPos()),
+				ctx.seed(), ctx.chunkPos(), ctx.heightAccessor(), ctx.validBiome());
+	}
+
+	/**
+	 * Returns {@code rotation} from the first {@code nextInt(4)} and delegates everything else, so the rest of the
+	 * layout sees the same random stream the drawn rotation would have consumed.
+	 */
+	private static final class RotationRandom extends WorldgenRandom {
+
+		private final int rotation;
+		private boolean forced;
+
+		RotationRandom(int rotation, long seed, ChunkPos pos) {
+			super(new LegacyRandomSource(0L));
+			this.rotation = rotation;
+			this.setLargeFeatureSeed(seed, pos.x, pos.z);
+		}
+
+		@Override
+		public int nextInt(int bound) {
+			if (!this.forced && bound == Rotation.values().length) {
+				this.forced = true;
+				super.nextInt(bound);
+				return this.rotation;
+			}
+			return super.nextInt(bound);
+		}
+
 	}
 
 }

@@ -11,7 +11,7 @@ import net.minecraft.world.item.DyeColor;
  * The water droplet the storm anchor sheds and bursts into, drawn from its own texture instead of
  * the shared ball palette, and leaning along its flight while staying camera-facing.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class DropletDanmakuItem extends DanmakuItem {
 

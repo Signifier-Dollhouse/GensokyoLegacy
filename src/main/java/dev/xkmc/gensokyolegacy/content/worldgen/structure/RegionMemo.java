@@ -1,58 +1,63 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.Structure;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
- * Process-local cache of pure per-region verdicts of one structure instance: the candidate index where the tier starts,
- * or {@code -1}. Eviction only costs a recompute, so it is cleared on server stop and on datapack reload.
+ * Process-local cache of the pure per-region verdict of one structure: the candidate index where it starts in that
+ * region, or {@code -1} for a region it leaves empty. Misses are cached too, since a miss is the common case and costs
+ * the same worldgen walk. Used by every tier, so a lower tier reads a higher tier's verdict once instead of rescanning.
  *
- * @see "doc/design/structure/secondary.md"
+ * @see "doc/design/structure/placement.md"
  */
 public final class RegionMemo {
 
-	private static final int CAP = 4096;
-	private static final Set<RegionMemo> LIVE =
-			Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
-
-	private final Map<Key, Integer> verdicts = new ConcurrentHashMap<>();
-
-	public RegionMemo() {
-		LIVE.add(this);
-	}
-
 	/**
-	 * The cached verdict, or {@code null} when the region was never scanned. {@code -1} is a real verdict.
+	 * Bounds the map across a long session; a full clear is cheap next to a worldgen walk, and entries are only
+	 * re-earned by searching.
 	 */
-	Integer get(ChunkGenerator generator, long seed, int rx, int rz) {
-		return verdicts.get(new Key(generator, seed, rx, rz));
-	}
+	private static final int CAP = 100_000;
 
-	void put(ChunkGenerator generator, long seed, int rx, int rz, int verdict) {
-		if (verdicts.size() >= CAP) {
-			verdicts.clear();
-		}
-		verdicts.put(new Key(generator, seed, rx, rz), verdict);
+	private static final Map<Key, Integer> VERDICTS = new ConcurrentHashMap<>();
+
+	private RegionMemo() {
 	}
 
 	/**
-	 * Drops every live memo, so a new world or a reloaded datapack cannot read a verdict of another generator or a
+	 * The cached index for {@code (structure, generator, seed, region)}, computing it on a miss. Two threads may
+	 * compute the same region at once; the later write wins and both callers get the same value.
+	 */
+	static int verdict(Structure structure, ChunkGenerator generator, long seed, int regionX, int regionZ,
+					   Supplier<Integer> compute) {
+		Key key = new Key(structure, generator, seed, regionX, regionZ);
+		Integer hit = VERDICTS.get(key);
+		if (hit != null) {
+			return hit;
+		}
+		int value = compute.get();
+		if (VERDICTS.size() >= CAP) {
+			VERDICTS.clear();
+		}
+		VERDICTS.put(key, value);
+		return value;
+	}
+
+	/**
+	 * Drops every verdict, so a new world or a reloaded datapack cannot read a verdict of another generator or a
 	 * structure instance that no longer exists.
 	 */
 	public static void clearAll() {
-		synchronized (LIVE) {
-			for (RegionMemo memo : LIVE) {
-				memo.verdicts.clear();
-			}
-		}
+		VERDICTS.clear();
 	}
 
-	private record Key(ChunkGenerator generator, long seed, int rx, int rz) {
+	/**
+	 * The generator is part of the key by identity: the same structure can be placed in two dimensions.
+	 */
+	private record Key(Structure structure, ChunkGenerator generator, long seed, int regionX, int regionZ) {
 
 	}
 

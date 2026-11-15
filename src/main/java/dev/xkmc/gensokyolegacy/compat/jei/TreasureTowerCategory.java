@@ -29,7 +29,7 @@ import java.util.List;
  * One derived recipe: a gem spent on any of the stones in the middle slot turns it into the ore on
  * the right. The stones come from the ore's rule test, expanded here for the page only.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public class TreasureTowerCategory extends BaseRecipeCategory<OreRecipe, TreasureTowerCategory> {
 

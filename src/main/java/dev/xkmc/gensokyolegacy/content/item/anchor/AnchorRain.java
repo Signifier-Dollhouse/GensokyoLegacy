@@ -25,7 +25,7 @@ import java.util.List;
  * The storm mode's charged right click: anchors fall on every enemy that can see the player or is
  * hunting them, padded with random points around the player when there are too few targets.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public final class AnchorRain {
 

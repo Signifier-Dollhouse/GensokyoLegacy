@@ -130,16 +130,17 @@ candidate because a secondary is small and easy to fit.
 
 ### 4.3 The cache
 
-- One `RegionMemo` per structure instance, holding one `int` per `(ChunkGenerator, seed, rx, rz)` (`-1` = no start).
+- One static, process-wide `RegionMemo`, holding one `int` per `(Structure, ChunkGenerator, seed, rx, rz)` (`-1` = no
+  start). The structure is part of the key by identity, so the three tiers share one map and a secondary still reads the
+  primary's verdict without the primary's cache being visible to it as "my own".
 - `ConcurrentHashMap`; read with `get`, write with `put`, never `computeIfAbsent`: a scan may build up to `attempts`
   speculative jigsaw layouts and must not hold a bin lock while doing it. Two threads may compute the same region
   concurrently; the function is pure, so the last write is identical.
-- Bound the map (clear at a few thousand entries). Eviction only costs a recompute.
-- **Clear on server stop.** Every `RegionMemo` registers itself in a static weak set; `ServerStoppedEvent` calls
-  `RegionMemo.clearAll()`, which clears every live memo. The weak set means a memo whose structure instance was dropped
-  by a datapack reload can be collected without a hook. Add the same `clearAll()` to the existing
-  `OnDatapackSyncEvent` (`player == null`) branch of `GLMetaEventHandlers`, next to the other server caches, so a
-  reload cannot leave entries keyed to instances that no longer exist.
+- Bound the map (clear at 100 000 entries). Eviction only costs a recompute.
+- **Clear on server stop.** `ServerStoppedEvent` and the `OnDatapackSyncEvent` (`player == null`) branch of
+  `GLMetaEventHandlers` both call `RegionMemo.clearAll()`, so a reload or a world switch cannot read an entry keyed to a
+  generator or a structure instance that no longer exists. Nothing else has to be registered: the map is static, not
+  per-instance.
 - A world switch or a new world with the same seed recomputes the same verdicts.
 
 ### 4.4 Cost
@@ -194,8 +195,8 @@ cross-border primary - secondary tie-break is evaluated only by the secondary (`
 neighbour's memoised primary start. When the secondary is strictly closer to its region centre, both starts keep and the
 pair may sit within the radius; the primary cannot defer. Every other cross-tier pair is handled by the tiny's radius.
 
-`marginSafe` (today `FlatCheckStructure#checkMarginSafe`, moved into `JigsawCheck` by §8) compares chunk distance to the
-region centre and tests only the prefilter, so it assumes the two members' prefilters agree at each other's chunk. Keep
+`marginSafe` (on `JigsawCheck`) compares chunk distance to the region centre and tests only the prefilter, so it assumes
+the two members' prefilters agree at each other's chunk. Keep
 a secondary's biome tag equal to the primaries' in the same set (they are all in the set's biomes by construction);
 with different tags a cross-border pair could both survive. This is the same caveat the primaries already have.
 
@@ -226,27 +227,28 @@ and links here for the change.
 ### New
 
 - `content/worldgen/structure/SecondaryStructure.java`
-  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `height_tolerance`,
+  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `terrain`,
     `set`, `set_index`, `set_count`; no `safety_radius`;
   - `findGenerationPoint` per §5, `resolve()` per §2, `startInRegion` per §4.2 and `neighbourPrimaryFree` per §6;
   - `SECONDARY_PICK_MIX`, and a `verifyRange` guard copied from `FlatCheckStructure`
     (`max_distance_from_center + 12 <= 128`);
-  - the shared check through `JigsawCheck` (§8 "Changed").
+  - the shared check through `JigsawCheck` (§8 "Changed"), including `LocatableStructure` so `/gensokyo structure scan`,
+    `/gensokyo structure diagnose` and fairy dust can find a secondary start.
 - `content/worldgen/structure/RegionMemo.java`
-  - one `ConcurrentHashMap<RegionKey, Integer>` per instance,
-    `RegionKey(ChunkGenerator generator, long seed, int rx, int rz)`;
-  - `int get(...)` / `void put(...)` / `void clear()`, a static weak registry of live memos, and
-    `static void clearAll()` called from `ServerStoppedEvent` and from the datapack-sync branch of
-    `GLMetaEventHandlers`.
+  - one process-wide `ConcurrentHashMap<Key, Integer>`, `Key(Structure structure, ChunkGenerator generator, long seed,
+    int rx, int rz)`, bounded and `clearAll()`ed from `ServerStoppedEvent` and the datapack-sync branch of
+    `GLMetaEventHandlers`; the primary's `firstPassInRegion`, the secondary's `startInRegion` and
+    `locateRegion` all read it, so a secondary scan does not re-run the primary's layout per region.
 - `init/data/structure/helper/Role.java` (or a nested enum of `StructBuilding`): `PRIMARY`, `SECONDARY`, `TINY`.
 
 ### Changed
 
 - `JigsawCheck`: add `safetyRadius` and `marginSafe(ctx, pos, placement)` (moved from
-  `FlatCheckStructure#checkMarginSafe`), and make `checkCandidate` run prefilter -> margin -> layout. This is the single
-  copy of the flat check that primary and secondary share.
+  `FlatCheckStructure#checkMarginSafe`), make `checkCandidate` run prefilter -> margin -> layout, and make the layout
+  run the structure's `TerrainPredicate` (`fit`, all-rotation retries, the per-piece beard, `afterPlace`). This is the
+  single copy of the check that primary, secondary and tiny share.
 - `FlatCheckStructure`: `check()` passes its own radius; `checkCandidate` delegates to the shared check; add
-  `firstPassInRegion` backed by a `RegionMemo`; `passesCandidate`/`prefilterAt` go away with this change.
+  `firstPassInRegion` backed by a `RegionMemo`; `locateRegion` and `diagnoseRegion` read the shared check too.
   `diagnoseRegion` reads the shared check and can report `p`.
 - `FallbackStructure`: collect secondaries in `resolve()`, replace `nearFlat` with `nearStart`/`nearNeighbourStart`
   (§7), reorder the gates so the exact distance checks precede the tiny layout.

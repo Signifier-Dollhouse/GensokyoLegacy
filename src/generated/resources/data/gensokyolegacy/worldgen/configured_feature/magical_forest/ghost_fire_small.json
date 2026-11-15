@@ -7,11 +7,11 @@
     "root_depth": 2,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_small_1",
+        "data": "gensokyolegacy:biome/mushroom/ghost_fire_small_1",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/ghost_fire_small_2",
+        "data": "gensokyolegacy:biome/mushroom/ghost_fire_small_2",
         "weight": 1
       }
     ]

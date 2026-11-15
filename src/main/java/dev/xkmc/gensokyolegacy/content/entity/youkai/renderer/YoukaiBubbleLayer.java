@@ -33,7 +33,7 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
  * {@code +z} at the camera, one unit to a block - so a bubble off to one side is off to the side of the
  * screen rather than of the world.
  *
- * @see "doc/design/want_bubble.md"
+ * @see "doc/design/youkai/want_bubble.md"
  */
 public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends GeoRenderLayer<T> {
 

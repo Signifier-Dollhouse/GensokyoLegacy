@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/template_wall_post",
   "textures": {
-    "wall": "gensokyolegacy:block/wood/stripped_locust_log_side"
+    "wall": "gensokyolegacy:block/wood/locust_wall"
   }
 }

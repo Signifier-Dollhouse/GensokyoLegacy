@@ -10,6 +10,10 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 
 import java.util.Optional;
 
+/**
+ * Datagen-only single element with fixed liquid settings. It serialises as {@code minecraft:single_pool_element}, so
+ * a decoded pool replaces it with a plain {@link SinglePoolElement}.
+ */
 public class GLSinglePiece extends SinglePoolElement {
 
 	public GLSinglePiece(ResourceLocation template, Holder<StructureProcessorList> list, StructureTemplatePool.Projection proj) {

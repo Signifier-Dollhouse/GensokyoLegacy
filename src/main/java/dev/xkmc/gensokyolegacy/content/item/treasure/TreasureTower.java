@@ -39,7 +39,7 @@ import java.util.Set;
  * that gem's ore, one gem per block. Reusable: the pool and the gems are the price, the tower itself
  * never wears out.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public class TreasureTower extends SpiritualItem {
 

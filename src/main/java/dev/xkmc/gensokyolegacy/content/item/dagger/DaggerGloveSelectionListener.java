@@ -19,7 +19,7 @@ import java.util.Optional;
  * (glove.md §3); all three modes are always available and stored as enum ordinals, so there is no availability
  * filter and no client/server split.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class DaggerGloveSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 

@@ -1,7 +1,7 @@
 {
-  "parent": "gensokyolegacy:custom/utensil/sealing_pot",
+  "parent": "gensokyolegacy:custom/utensil/treasure_basket",
   "render_type": "minecraft:cutout",
   "textures": {
-    "all": "gensokyolegacy:block/utensil/sealing_pot"
+    "all": "gensokyolegacy:block/utensil/treasure_basket_0"
   }
 }

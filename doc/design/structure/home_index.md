@@ -16,7 +16,7 @@ Related: [structure_bed_entity.md](structure_bed_entity.md), [youkai_character.m
 | `IntegrityVerifier` | `content/attachment/home/structure/IntegrityVerifier.java` | Compares `level.getBlockState` vs `palette[raster[resolve(pos)]]`. Random `VERIFY_SCAN=500`/tick (only `VERIFY_FETCH=200` actually fetched via `resolve`). Categorises into `AbnormalCache`. Takes both the `houseBound` union (snapshot domain) and the `houseBounds`/`roomBounds` `MultiStructureBound`s (per-cell classification). |
 | `AbnormalCache` | `content/attachment/home/structure/AbnormalCache.java` | 3 `IntOpenHashSet` `air/primary/secondary` (offsets inside `houseBound`). `pop(count,FixStage)` priority `air→primary→secondary` gated per stage. `clear()` on snapshot-box change. |
 | `MultiStructureBound` | `content/attachment/home/core/MultiStructureBound.java` | List-of-`BoundingBox` bound: `isInside(pos)`, `resolve(pos/index)`, `union()`, `boxes()`. `StructureBound` is the single-box helper it delegates to. |
-| `StructureInterior` | `content/attachment/home/datamap/StructureInterior.java` | Config-side interior graph: `rooms()` (`InteriorRoom name+bound`) + `nodes()` (`InteriorNode posA/posB/roomA/roomB`), mapped to world coords from the piece's `StructurePlaceSettings`. Empty for custom homes. |
+| `StructureInterior` | `content/attachment/home/datamap/StructureInterior.java` | Config-side interior graph: `rooms()` (`InteriorRoom name+bound+owner`) + `nodes()` (`InteriorNode posA/posB/roomA/roomB`), mapped to world coords from the piece's `StructurePlaceSettings`. `findRoute` is pure indoor; `route` compares indoor edges against outdoor transfers between entry nodes. Empty for custom homes. |
 | `HomeBlockKind` | `content/attachment/home/core/HomeBlockKind.java` | `CONTAINER/CHAIR/SHELF/POT` — purpose of a cached position list, with per-kind validator and search radii (`rxz`, `ry`, `trial`) so `getBlockAround` replaces the old `getContainersAround`/`getChairsAround`. |
 | `CustomHomeHolder` | `content/attachment/home/custom/CustomHomeHolder.java` | `record(sl, chunk, key, att, data)` implements `IHomeHolder`. `of(sl, BlockPos anchor)` + `create(sl, BlockPos)` via `RoomVerifier`. `supportEntity→true`, `getInterior()→empty`. |
 | `CustomHomeData` | `content/attachment/home/custom/CustomHomeData.java` | `@SerialField BlockPos rootPos`, `@SerialField RoomData room`. `getTotalBound/isInRoom/getRandomPosInRoom|Bound` from `RoomData.bound`. `tick` noop. |
@@ -166,11 +166,14 @@ if (cache==null) {
 // Bounds (StructureHomeData):
 //   getRoomBounds(config)  = interior.rooms().bounds   if interior declared
 //                          else config.rooms() mapped to world, else piece box
+//   getRooms(config)       = world-mapped rooms with owner; legacy rooms become anonymous public rooms
 //   getHouseBounds(config) = config.house() mapped to world, else piece box
 //   getHouseBound(config)  = getHouseBounds(config).union()  (snapshot domain)
 //   getTotalBound()        = start.getBoundingBox().inflatedBy(-12) (debug outer)
 //   isOutside(level,pos) = canSeeSky || outsideBlock tag (preset) / canSeeSky only (custom)
 ```
+
+Destination sampling (`getRandomPosInRoom`) skips rooms private to another character; routing (`StructureInterior.route`) ignores ownership, so pass-by stays allowed. See [interior.md](interior.md).
 
 Repair: `AbnormalCache.pop(count, stage)` priority `air→primary→secondary` gated by `FixStage` (PATH only air, PRIMARY stops after primary, SECONDARY after secondary, ALL all). Each offset → `BlockFix(pos, state)`; `fix()` handles `ICustomFixBlock.onFix`, `DoorBlock` halves, skips `YoukaiBedBlock`; bulk `doFix` `COMMAND_PLACE_ONCE 128` or looping `COMMAND_PLACE_STEP 64` when no player nearby.
 
@@ -267,6 +270,14 @@ if (home instanceof IFixableHomeHolder fixable) {
 - Preset cache build spreads `SETUP_SCAN 256` blocks/tick over `houseBound` volume → multi-second spread for large houses; no main-thread hitch.
 - Integrity sample is statistical not exhaustive: `500` random picks/tick, only `200` fetched, half in `houseBound` half in `roomBound` via `MultiStructureBound.resolve`; TPS-safe but slow to detect full damage (need many ticks).
 - Custom homes have no verifier; `RoomVerifier` runs synchronously on wand use — large rooms (48³) involve ~2k columns × height scan + queue; acceptable for rare manual action but not per-tick.
-- `IHomeHolder.find` bails out when `!sl.isLoaded(pos)` and scans `3×3=9` chunk `getData` otherwise (bed HEAD once + hover poll 20t), so it never force-loads chunks; the cost is that a home in an unloaded chunk simply is not found.
-- `StructureAttachment` is per-chunk cap; invalid structures with no matching `DataMap` inject synthetic CIRNO config (TODO) — masks missing registration errors silently.
+- `IHomeHolder.find` bails out when `!sl.isLoaded(pos)` and scans `3×3=9` chunks otherwise (bed HEAD once + hover poll 20t). The guard covers the centre chunk only: the scan calls `getChunkAt(pos.offset(±16, 0, ±16))`, which force-loads an unloaded neighbour. A home in a genuinely unloaded chunk is not found, but the neighbours are loaded as a side effect.
+- `StructureAttachment` is per-chunk cap; invalid structures with no matching `DataMap` inject synthetic CIRNO config (`StructureHomeHolder.of`, `//TODO 结构自定义`) — this masks missing registration errors silently.
+
+### Known gaps
+
+- **Synthetic fallback masks missing registrations.** When `StructureConfig` has no entry for a discovered `Structure`, `StructureHomeHolder.of` synthesises a dummy config containing `CIRNO`. Replace it with a `null` return plus a warning, or validate at server start that every `structureManager` structure has a `StructureConfig`.
+- **`RoomVerifier.BlockData.updateShape` culling is a bounds heuristic.** Face culling is inferred from `shape.bounds` spans (`min == 0 && max == 1`) instead of querying the shape API, so thin walls, stairs and slabs misclassify and custom-home `isInside` drifts. Replace it with a per-face solidity check (`Block.isFaceFull(shape, dir)` / block-support shape) and cache the result in `BlockData.cull` as now.
+- **`RoomVerifier` keeps every visited column's `BlockData`.** The `Map<BlockPos, BlockData> data` cache lives for the whole run; a 48×48 room with a 15-block height scan is ~34k entries per verify. Clear it per accepted column, or check `MAX_SIZE` before BFS expansion.
+- **`IntegrityVerifier` and the tag model disagree.** `process` classifies abnormal blocks by block identity plus `blocksMotion()`, while `isOutside` / `isPrimary` / `wouldFix` use `StructureConfig` tags. Unify classification through the config tags and add one integration assertion over a controlled `setBlock` sequence.
+- **Dual persistence has no sweep.** `IndexStorage` (global) and `StructureAttachment` (chunk) both hold the same `StructureKey`; a chunk deleted without the global entry leaves a stale index entry. Ownership is: `IndexStorage` is source of truth for the entity id and bed position (HEAD), `StructureAttachment` for geometry. A loaded-chunk-only prune is optional — explicit deletion already cleans the common case — but never force a chunk load to run it.
 

@@ -25,7 +25,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
  * The pink cherry stands in for vanilla's one, at vanilla's own density. The purple one is the graveyard's tree and
  * grows in Muenzuka alone. The petals a vanilla grove drops are the mod's own fallen-leaf carpet instead.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class SakuraForestBiomeGen extends AbstractBiomeGen {
 

@@ -14,6 +14,7 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
 import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketShape;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
@@ -161,20 +162,18 @@ public class GLBlocks {
 					.build()
 					.register();
 
-			// 宝物篮：截留范围内超时消失的物品，暂用封魔壶的外观
+			// 宝物篮：截留范围内超时消失的物品
 			TREASURE_BASKET = GensokyoLegacy.REGISTRATE.block("treasure_basket",
-					p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new SealingPotShape(),
+					p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new TreasureBasketShape(),
 							new TreasureBasketBlock(), TreasureBasketBlock.BE))
-					.properties(p -> p.mapColor(MapColor.NONE).strength(2.0F).sound(SoundType.STONE).noOcclusion())
-					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+					.properties(p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_AXE)
 					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/sealing_pot")))
-									.texture("all", pvd.modLoc("block/utensil/sealing_pot"))
+									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/treasure_basket")))
+									.texture("all", pvd.modLoc("block/utensil/treasure_basket_0"))
 									.renderType("cutout")))
-					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
-							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
-					.build()
+					.item().build()
 					.register();
 			TREASURE_BASKET_BE = GensokyoLegacy.REGISTRATE.blockEntity("treasure_basket", TreasureBasketBlockEntity::new)
 					.validBlock(TREASURE_BASKET)

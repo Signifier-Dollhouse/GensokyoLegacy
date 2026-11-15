@@ -85,7 +85,7 @@ within a few blocks of the generated world.
 
 Run it after changing the offset spline, the biome grid, or anything else that moves
 the terrain. The peak reaching 220, 14% of the map under water and a quarter of it
-above y 80 are the numbers `doc/design/gensokyo_dimension.md` claims, and the map
+above y 80 are the numbers `doc/design/biome/gensokyo_dimension.md` claims, and the map
 shows them at a glance.
 
 ### Cave report
@@ -103,7 +103,7 @@ out/terrain/<dimension>_caves.txt
     open at the surface, the share with a void 40 blocks deep, and the depth of the
     roof over the shallowest cave
 
-It is the source of the numbers in `doc/design/gensokyo_dimension.md` §8. Pass
+It is the source of the numbers in `doc/design/biome/gensokyo_dimension.md` §8. Pass
 `--cheese`, since dropping `base_3d_noise` moves the surface the report measures from.
 
 ### Biome band graph
