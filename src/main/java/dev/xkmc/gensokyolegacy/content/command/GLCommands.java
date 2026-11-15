@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -105,6 +106,8 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("Unknown structure"));
 	private static final SimpleCommandExceptionType ERROR_NOT_FLAT_CHECK =
 			new SimpleCommandExceptionType(Component.literal("Structure is not a gensokyolegacy:flat_check structure"));
+	private static final SimpleCommandExceptionType ERROR_NOT_MULTI_SPREAD =
+			new SimpleCommandExceptionType(Component.literal("Structure set is not placed by gensokyolegacy:multi_spread"));
 
 	/**
 	 * How far {@code /gensokyo party} will look for the table being aimed at.
@@ -335,7 +338,12 @@ public class GLCommands {
 										.executes(GLCommands::executeStructureDiagnose)
 										.then(Commands.argument("regionX", IntegerArgumentType.integer())
 												.then(Commands.argument("regionZ", IntegerArgumentType.integer())
-														.executes(GLCommands::executeStructureDiagnoseRegion))))))
+														.executes(GLCommands::executeStructureDiagnoseRegion)))))
+						.then(Commands.literal("scan")
+								.then(Commands.argument("structure", ResourceLocationArgument.id())
+										.suggests(SUGGEST_FLAT_STRUCTURES)
+										.then(Commands.argument("radius", IntegerArgumentType.integer(1, 100))
+												.executes(GLCommands::executeStructureScan)))))
 				.then(Commands.literal("treasure_tower")
 						.then(Commands.literal("stats")
 								.executes(GLCommands::executeTreasureTowerStats))
@@ -416,6 +424,57 @@ public class GLCommands {
 			GensokyoLegacy.LOGGER.info("[structure] {}", line);
 		}
 		return report.stats().pass() > 0 ? 1 : 0;
+	}
+
+	/**
+	 * Every start of one flat-check structure within {@code radius} region rings of the source, measured in the
+	 * structure set's own spacing. A pure worldgen query, like {@code /locate}, but it reads no chunks.
+	 */
+	private static int executeStructureScan(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		CommandSourceStack src = ctx.getSource();
+		ResourceLocation id = ResourceLocationArgument.getId(ctx, "structure");
+		var holder = src.registryAccess().registryOrThrow(Registries.STRUCTURE)
+				.getHolder(ResourceKey.create(Registries.STRUCTURE, id));
+		if (holder.isEmpty()) throw ERROR_UNKNOWN_STRUCTURE.create();
+		if (!(holder.get().value() instanceof FlatCheckStructure flat)) throw ERROR_NOT_FLAT_CHECK.create();
+		if (flat.spacing() <= 0) throw ERROR_NOT_MULTI_SPREAD.create();
+		int radius = IntegerArgumentType.getInteger(ctx, "radius");
+		ServerLevel level = src.getLevel();
+		ChunkGenerator generator = level.getChunkSource().getGenerator();
+		RandomState randomState = level.getChunkSource().randomState();
+		StructureTemplateManager templates = level.getStructureManager();
+		BlockPos origin = BlockPos.containing(src.getPosition());
+		ChunkPos center = new ChunkPos(origin);
+		int spacing = flat.spacing();
+		int centerX = Math.floorDiv(center.x, spacing);
+		int centerZ = Math.floorDiv(center.z, spacing);
+		List<FlatCheckStructure.Located> hits = new ArrayList<>();
+		long start = System.nanoTime();
+		for (int dz = -radius; dz <= radius; dz++) {
+			for (int dx = -radius; dx <= radius; dx++) {
+				flat.locateRegion(level.getSeed(), centerX + dx, centerZ + dz, level.registryAccess(),
+						generator, randomState, templates, level).ifPresent(hits::add);
+			}
+		}
+		long elapsed = (System.nanoTime() - start) / 1_000_000;
+		hits.sort(Comparator.comparingDouble(hit -> horizontalDistSqr(origin, hit.pos())));
+		src.sendSuccess(() -> Component.literal("%s: %d start(s) within %d region rings (%d ms)"
+				.formatted(id, hits.size(), radius, elapsed)), false);
+		for (var hit : hits) {
+			String line = "region [%d, %d] chunk [%d, %d] at [%d, ~, %d] (%.0f blocks away)"
+					.formatted(hit.regionX(), hit.regionZ(), hit.chunk().x, hit.chunk().z,
+							hit.pos().getX(), hit.pos().getZ(),
+							Math.sqrt(horizontalDistSqr(origin, hit.pos())));
+			src.sendSuccess(() -> Component.literal(line), false);
+			GensokyoLegacy.LOGGER.info("[structure] {}", line);
+		}
+		return hits.size();
+	}
+
+	private static double horizontalDistSqr(BlockPos a, BlockPos b) {
+		double dx = a.getX() - b.getX();
+		double dz = a.getZ() - b.getZ();
+		return dx * dx + dz * dz;
 	}
 
 	private static CharDataHolder charHolder(ServerPlayer sp, EntityType<?> type) {

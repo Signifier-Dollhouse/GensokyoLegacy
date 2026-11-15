@@ -487,6 +487,43 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
+	 */
+	public int spacing() {
+		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
+	}
+
+	/**
+	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
+	 * the least-index candidate that passes {@link #checkCandidate} wins, so this agrees with worldgen and reads
+	 * no chunks.
+	 */
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) return Optional.empty();
+		MultiSpreadPlacement placement = resolved.get();
+		int spacing = placement.spacing();
+		int baseX = regionX * spacing;
+		int baseZ = regionZ * spacing;
+		if (!this.checkRegionPicked(seed, placement, new ChunkPos(baseX, baseZ))) return Optional.empty();
+		for (ChunkPos cand : placement.getPotentialChunks(seed, baseX, baseZ)) {
+			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, cand, heightAccessor);
+			if (this.checkCandidate(ctx, cand, placement).isPresent()) {
+				return Optional.of(new Located(cand, placement.getLocatePos(cand), regionX, regionZ));
+			}
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * A start returned by {@link #locateRegion}: its chunk, the position {@code /locate} would report, and its region.
+	 */
+	public record Located(ChunkPos chunk, BlockPos pos, int regionX, int regionZ) {
+	}
+
+	/**
 	 * Dev diagnostic: lists every attempted position in one region with its verdict (suppressed / place-fail /
 	 * margin-fail / pass(checks)) plus the cumulative funnel line, placing nothing. Mirrors {@link
 	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried. With {@code detailed},

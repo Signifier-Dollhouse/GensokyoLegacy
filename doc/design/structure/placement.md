@@ -83,3 +83,17 @@ salt 162382118 — its `abs(hash("gensokyolegacy:cirno_nest"))`.
 `set_index` / `set_count` decide which member of a set a region picks, and both live in the structure entry, so they still
 must never change once released. Datagen writes them together with `set` (`init/data/structure/`), so a member's index and
 its set's grid move in one step.
+
+## 5. Listing every start: `/gensokyo structure scan`
+
+`/gensokyo structure scan <structure> <radius>` lists every start of one flat-check structure within `radius` region
+rings of the command source (`1..100`, the same ring unit as `/locate`). For each region in the `(2r+1)^2` square it
+calls `FlatCheckStructure#locateRegion`, which walks the region's candidate stream in order and returns the least-index
+candidate passing `checkCandidate` — the same rule `findGenerationPoint` applies — so the output is the worldgen answer,
+not a guess, and no chunks or region files are read. Hits are printed nearest-first with region, chunk and block
+coordinates, plus the elapsed milliseconds, and logged under `[structure]`.
+
+The query describes what the current rules would place. A start already written into a generated chunk by an older
+worldgen can differ: `/locate` reads that stored start first, `scan` recomputes it. Cost is quadratic in the radius
+(about a minute at radius 20 on the dev world), and the jigsaw layout is only built for candidates that pass the
+height/biome prefilter. Like `/locate` it runs on the server thread, so large radii stall the tick loop.
