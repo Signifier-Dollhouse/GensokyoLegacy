@@ -9,7 +9,10 @@
   "step": "underground_decoration",
   "terrain": {
     "type": "gensokyolegacy:bastion_height",
-    "anchor": "gensokyolegacy:myouren_temple/gate"
+    "anchor": "gensokyolegacy:myouren_temple/gate",
+    "fill": {
+      "Name": "minecraft:cobblestone"
+    }
   },
   "use_expansion_hack": false
 }

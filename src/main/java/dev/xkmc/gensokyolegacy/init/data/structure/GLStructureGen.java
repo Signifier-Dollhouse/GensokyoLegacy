@@ -188,7 +188,7 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("wall_7", true, List.of()),
 								new StructFlatJigsawBuilding.Part("wall_8", true, List.of())
 						), Map.of(), new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4,
-								Blocks.DIRT.defaultBlockState()), 96, 8),
+								Blocks.COBBLESTONE.defaultBlockState()), 96, 8),
 						MYOUREN_TEMPLE
 				)
 		);
