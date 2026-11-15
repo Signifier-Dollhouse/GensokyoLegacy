@@ -27,6 +27,13 @@ public interface TerrainPredicate {
 	FitResult fit(TerrainFit fit);
 
 	/**
+	 * Whether placement should try all four start rotations instead of only the one drawn from the seed.
+	 */
+	default boolean triesAllRotations() {
+		return false;
+	}
+
+	/**
 	 * Diagnostic lines for {@link #fit}: call it first, then this reads the same tree for the numbers behind the
 	 * verdict.
 	 */

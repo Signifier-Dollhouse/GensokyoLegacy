@@ -43,6 +43,15 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 		return CODEC;
 	}
 
+	/**
+	 * The one-sided rule depends on which way the footprint faces: only the gate is anchored, and terrain rising
+	 * under any other wing fails the fit. The four rotations sample almost disjoint ground, so all four are tried.
+	 */
+	@Override
+	public boolean triesAllRotations() {
+		return true;
+	}
+
 	@Override
 	public FitResult fit(TerrainFit fit) {
 		PieceTree tree = fit.tree();

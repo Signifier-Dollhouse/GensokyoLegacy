@@ -17,6 +17,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
@@ -221,6 +222,30 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
+		if (!this.terrain.triesAllRotations()) {
+			return validateLayout(ctx, chunkpos, provY, trace, -1);
+		}
+		Validated firstFail = null;
+		for (Rotation rotation : Rotation.getShuffled(seededRandom(ctx.seed(), chunkpos))) {
+			Validated v = validateLayout(ctx, chunkpos, provY, firstFail == null ? trace : null, rotation.ordinal());
+			if (v.pass()) {
+				return v;
+			}
+			if (firstFail == null) {
+				firstFail = v;
+			}
+		}
+		return firstFail;
+	}
+
+	/**
+	 * As {@link #validateLayout(GenerationContext, ChunkPos, int, List)}, but {@code rotation >= 0} forces the
+	 * start rotation instead of the one drawn from {@code ctx.random()}.
+	 */
+	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace, int rotation) {
+		if (rotation >= 0) {
+			ctx = ctxForRotation(ctx, rotation);
+		}
 		int sea = ctx.chunkGenerator().getSeaLevel();
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
@@ -278,6 +303,48 @@ public class FlatCheckStructure extends Structure {
 
 	private static int freeHeight(GenerationContext ctx, int x, int z) {
 		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
+	}
+
+	/**
+	 * The candidate's own seeded random, used for the rotation shuffle so the layout stream stays untouched.
+	 */
+	private static WorldgenRandom seededRandom(long seed, ChunkPos pos) {
+		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+		random.setLargeFeatureSeed(seed, pos.x, pos.z);
+		return random;
+	}
+
+	private static GenerationContext ctxForRotation(GenerationContext ctx, int rotation) {
+		return new GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(), ctx.randomState(),
+				ctx.structureTemplateManager(), new RotationRandom(rotation, ctx.seed(), ctx.chunkPos()), ctx.seed(),
+				ctx.chunkPos(), ctx.heightAccessor(), ctx.validBiome());
+	}
+
+	/**
+	 * Returns {@code rotation} from the first {@code nextInt(4)} and delegates everything else, so the rest of the
+	 * layout sees the same random stream the drawn rotation would have consumed.
+	 */
+	private static final class RotationRandom extends WorldgenRandom {
+
+		private final int rotation;
+		private boolean forced;
+
+		RotationRandom(int rotation, long seed, ChunkPos pos) {
+			super(new LegacyRandomSource(0L));
+			this.rotation = rotation;
+			this.setLargeFeatureSeed(seed, pos.x, pos.z);
+		}
+
+		@Override
+		public int nextInt(int bound) {
+			if (!this.forced && bound == Rotation.values().length) {
+				this.forced = true;
+				super.nextInt(bound);
+				return this.rotation;
+			}
+			return super.nextInt(bound);
+		}
+
 	}
 
 	/**

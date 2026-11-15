@@ -25,7 +25,7 @@ So the rule becomes a field of the structure instead of code, with two implement
 
 | Class | File | Role |
 |---|---|---|
-| `TerrainPredicate` | `content/worldgen/structure/terrain/TerrainPredicate.java` | Interface: `MapCodec<? extends TerrainPredicate> codec()`, `FitResult fit(TerrainFit)`, a diagnostic `describe(TerrainFit)` and a default no-op `afterPlace(level, chunk, pieces)` for the foundation pass. Owns the `Codec<TerrainPredicate>` dispatch (`ResourceLocation` type key, resolved lazily), so datagen needs no registry. |
+| `TerrainPredicate` | `content/worldgen/structure/terrain/TerrainPredicate.java` | Interface: `MapCodec<? extends TerrainPredicate> codec()`, `FitResult fit(TerrainFit)`, a diagnostic `describe(TerrainFit)`, a default no-op `afterPlace(level, chunk, pieces)` for the foundation pass, and a `triesAllRotations` default (false) for rules that want the four start rotations tried. Owns the `Codec<TerrainPredicate>` dispatch (`ResourceLocation` type key, resolved lazily), so datagen needs no registry. |
 | `TerrainFit` | `content/worldgen/structure/terrain/TerrainFit.java` | Record `(GenerationContext ctx, PieceTree tree, int seaLevel)` plus `height(x, z)` (`getFirstFreeHeight(WORLD_SURFACE_WG)`) and the 9-point `ring(BoundingBox)` sampler (4 corners, 4 edge centres, centre). |
 | `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, String reason, int delta)`: the vertical shift applied to the layout, or the failure reason. |
 | `UniformHeightCheck` | `content/worldgen/structure/terrain/UniformHeightCheck.java` | The old rule, verbatim. `height_tolerance` is now its own field. |
@@ -71,6 +71,10 @@ findGenerationPoint
 `validateLayout` no longer knows heights: it builds the tree, runs the biome gate, then calls
 `this.terrain.fit(new TerrainFit(ctx, tree, seaLevel))`. A failing `FitResult` is returned as the
 candidate's failure reason; a passing one supplies the applied `delta`, added to the stub position.
+
+The layout is normally built once, with the start rotation drawn from the candidate's own random. A predicate
+with `triesAllRotations` set rebuilds it with each of the four rotations in a shuffled order and keeps the
+first fit (§4.3).
 
 The stub only serves the jigsaw pieces. The foundation is not a piece: after that chunk's pieces are
 placed, `StructureStart.placeInChunk` calls `Structure#afterPlace`, and `FlatCheckStructure` forwards it to
@@ -118,6 +122,27 @@ delegate to it with piece 0.
 The rule is one-sided on purpose. The gate anchors the assembly to the terrain; the rest may only rise
 out of it. Floating is not an error because the fill turns it into a foundation; burial would put
 terrain inside the temple, and no fill can undo that.
+
+### 4.3 Rotation retry
+
+`TerrainPredicate#triesAllRotations` is false by default and true for `BastionHeightCheck`. For such a rule
+`validateLayout` builds the layout with each of the four start rotations, in a shuffled order, and keeps the
+first fit:
+
+- the rule is direction-dependent: the gate is anchored, and a rise under any other wing fails, so a candidate
+  that fails facing one way can fit facing another;
+- the four fits almost never overlap (278 of the 282 fitting candidates measured for Myouren fit in exactly
+  one rotation), so trying all four is close to four independent chances;
+- the order is shuffled from the candidate's own seeded random, so it does not disturb the layout stream, and
+  the rare candidate that fits twice does not always take the lowest ordinal.
+
+Measured on the `myouren` seed over 12,288 regions (three 2048 x 2048 chunk samples), among candidates that
+reached the layout stage: fit 0.43% -> 1.75% (4.1x), and region placement 0.54% -> 1.96% (3.65x). The extra
+cost is three layout builds only on candidates that already passed the prefilter and the margin check
+(~1.3 per region, tens of milliseconds per region in total).
+
+`UniformHeightCheck` keeps the drawn rotation: its symmetric rule is not direction-dependent, and the root
+footprint it samples is centred on the start.
 
 ## 5. Dirt foundation
 
