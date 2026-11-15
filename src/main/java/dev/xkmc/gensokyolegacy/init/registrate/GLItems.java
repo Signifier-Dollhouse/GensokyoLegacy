@@ -546,9 +546,8 @@ public class GLItems {
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(8, 12, 1, 1))
 					.lang("Cat Bell").register();
 
-			// no art yet: the sealing pot's icon stands in until the tower gets one
 			TREASURE_TOWER = reg.item("treasure_tower", TreasureTower::new)
-					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/utensil/sealing_pot")))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Treasure Tower")
 					.tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)

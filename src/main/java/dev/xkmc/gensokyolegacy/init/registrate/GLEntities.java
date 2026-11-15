@@ -36,6 +36,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.AnchorHookRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.NoFadeBulletRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.TreasureTowerRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
@@ -84,6 +85,7 @@ public class GLEntities {
 	public static final EntityEntry<AnchorHookEntity> ANCHOR_HOOK;
 	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
 	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
+	public static final EntityEntry<TreasureTowerEntity> TREASURE_TOWER;
 
 
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
@@ -307,6 +309,13 @@ public class GLEntities {
 					.<NueTridentProjectile>entity("nue_trident", NueTridentProjectile::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> NoFadeBulletRenderer<NueTridentProjectile>::new)
+					.register();
+
+			// the tower leaves the hand and comes back; the server owns its position every tick
+			TREASURE_TOWER = GensokyoLegacy.REGISTRATE
+					.<TreasureTowerEntity>entity("treasure_tower", TreasureTowerEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(10).updateInterval(1))
+					.renderer(() -> TreasureTowerRenderer::new)
 					.register();
 		}
 
