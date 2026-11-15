@@ -2,9 +2,9 @@ package dev.xkmc.gensokyolegacy.content.entity.dolls;
 
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.FollowStrayLeaderGoal;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.goals.HoverStrollGoal;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.impl.DollRig;
 import dev.xkmc.gensokyolegacy.content.item.doll.DollShieldItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
-import dev.xkmc.gensokyolegacy.init.data.biome.biomes.MagicalForestBiomeGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -26,10 +26,13 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -39,8 +42,8 @@ import java.util.UUID;
 
 /**
  * The wild stray doll: a hostile mob that hunts players on sight. A natural spawn of at least three
- * becomes a pack: the first member is crowned when the third spawns, carries a shield, and the rest
- * follow it within its leash. Packs cut short stay leaderless and look for a nearby leader instead.
+ * becomes a pack: one member is crowned and the rest follow it within its leash. A lone doll searches
+ * for a nearby leader instead. Each doll carries a spear, a shield, or nothing.
  *
  * @see "doc/design/doll/stray.md"
  */
@@ -50,16 +53,28 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 
 	private static final EntityDataAccessor<Optional<UUID>> DATA_LEADER =
 			SynchedEntityData.defineId(StrayDollEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+	private static final EntityDataAccessor<Boolean> DATA_STUNNED =
+			SynchedEntityData.defineId(StrayDollEntity.class, EntityDataSerializers.BOOLEAN);
 
 	private static final int LEADER_LEASH = 24;
 	private static final double LEADER_LEASH_SQ = LEADER_LEASH * LEADER_LEASH;
 	private static final int LEADER_SEARCH_RANGE = 8;
 	private static final double LEADER_SEARCH_RANGE_SQ = LEADER_SEARCH_RANGE * LEADER_SEARCH_RANGE;
 	private static final int LEADER_SEARCH_COOLDOWN = 100;
-	private static final float LANCE_CHANCE = 0.5F;
+	private static final float SPEAR_CHANCE = 0.4F;
+	private static final float SHIELD_CHANCE = 0.4F;
+	/**
+	 * A strike blocked by a shield leaves the doll convulsing for five seconds.
+	 */
+	private static final int STUN_TICKS = 100;
+
+	private static final String ONE_SHOT_CONTROLLER = "one_shot";
 
 	private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("DStoy_idle");
 	private static final RawAnimation FLY = RawAnimation.begin().thenLoop("DStoy_fly");
+	private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("Dstoy_attack");
+	private static final RawAnimation SLAP = RawAnimation.begin().thenPlay("Dstoy_slapattack");
+	private static final RawAnimation STUNNED = RawAnimation.begin().thenLoop("Dstoy_wrong");
 
 	/**
 	 * Server-side resolve cache; the leader itself and an orphaned follower stay null. Clients use
@@ -70,6 +85,9 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 
 	/** Ticks left before a leaderless doll searches again; only counts down after a failed search. */
 	private int leaderSearchCooldown;
+
+	/** Server-side paralysis countdown; zero while the doll is free to act. */
+	private int stunTicks;
 
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -90,6 +108,7 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(DATA_LEADER, Optional.empty());
+		builder.define(DATA_STUNNED, false);
 	}
 
 	@Override
@@ -101,9 +120,14 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 		if (group.count == 2) {
 			becomeLeader();
 		}
-		if (level.getBiome(blockPosition()).is(MagicalForestBiomeGen.KEY) && getRandom().nextFloat() < LANCE_CHANCE)
-			setItemSlot(EquipmentSlot.MAINHAND, GLItems.DOLL_LANCE.asStack());
+		rollEquipment();
 		return group;
+	}
+
+	private void rollEquipment() {
+		float roll = getRandom().nextFloat();
+		if (roll < SPEAR_CHANCE) setItemSlot(EquipmentSlot.MAINHAND, GLItems.DOLL_LANCE.asStack());
+		else if (roll < SPEAR_CHANCE + SHIELD_CHANCE) setItemSlot(EquipmentSlot.OFFHAND, GLItems.MINI_SHIELD.asStack());
 	}
 
 	/**
@@ -147,8 +171,6 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 	private void becomeLeader() {
 		if (isLeader()) return;
 		setLeader(getUUID());
-		setItemSlot(EquipmentSlot.OFFHAND, GLItems.MINI_SHIELD.asStack());
-		setItemSlot(EquipmentSlot.MAINHAND, GLItems.DOLL_LANCE.asStack());
 	}
 
 	private void setLeader(@Nullable UUID leader) {
@@ -209,13 +231,14 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 	public void tick() {
 		super.tick();
 		if (level().isClientSide()) return;
+		if (stunTicks > 0 && --stunTicks == 0) recoverFromStun();
 		LivingEntity target = getTarget();
 		if (target != null && !targetAllowedByLeader(target)) setTarget(null);
 		tickLeaderSearch();
 	}
 
 	/**
-	 * The leader wears its mini shield in the vanilla off-hand slot rather than a doll loadout slot,
+	 * The doll wears its mini shield in the vanilla off-hand slot rather than a doll loadout slot,
 	 * so the block check reads that slot directly; facing and pierce gating stay in vanilla.
 	 */
 	@Override
@@ -229,11 +252,54 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 			playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F + getRandom().nextFloat() * 0.4F);
 	}
 
+	public boolean isStunned() {
+		return entityData.get(DATA_STUNNED);
+	}
+
+	/**
+	 * A blocked strike costs the doll five seconds: vanilla never reaches the hit, so the swing starts
+	 * anyway and the paralysis follows.
+	 */
+	@Override
+	protected void blockedByShield(LivingEntity defender) {
+		super.blockedByShield(defender);
+		if (level().isClientSide()) return;
+		stunTicks = STUN_TICKS;
+		entityData.set(DATA_STUNNED, true);
+		setNoAi(true);
+		getNavigation().stop();
+	}
+
+	/**
+	 * {@code NoAI} stops the goals but leaves the last strafe input in place, so a stunned doll drops
+	 * the input too and only keeps its hover.
+	 */
+	@Override
+	public void travel(Vec3 input) {
+		super.travel(isStunned() ? Vec3.ZERO : input);
+	}
+
+	private void recoverFromStun() {
+		entityData.set(DATA_STUNNED, false);
+		setNoAi(false);
+	}
+
+	@Override
+	public boolean doHurtTarget(Entity target) {
+		if (isStunned()) return false;
+		if (!level().isClientSide()) {
+			boolean spear = getMainHandItem().is(GLItems.DOLL_LANCE.get());
+			level().broadcastEntityEvent(this, spear ? DollRig.EVENT_ATTACK : DollRig.EVENT_SLAP);
+		}
+		return super.doHurtTarget(target);
+	}
+
 	@Override
 	public void addAdditionalSaveData(CompoundTag compound) {
 		super.addAdditionalSaveData(compound);
 		UUID leader = getLeaderUUID();
 		if (leader != null) compound.putUUID("Leader", leader);
+		if (stunTicks > 0) compound.putInt("StunTicks", stunTicks);
 	}
 
 	@Override
@@ -242,12 +308,39 @@ public class StrayDollEntity extends StrayFlyingMob implements GeoEntity {
 		UUID leader = compound.hasUUID("Leader") ? compound.getUUID("Leader") : null;
 		entityData.set(DATA_LEADER, Optional.ofNullable(leader));
 		cachedLeader = null;
+		stunTicks = compound.getInt("StunTicks");
+		entityData.set(DATA_STUNNED, stunTicks > 0);
+		setNoAi(stunTicks > 0);
 	}
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, "main", 3,
-				e -> e.setAndContinue(e.isMoving() ? FLY : IDLE)));
+		controllers.add(new AnimationController<>(this, "main", 3, this::mainAnim));
+		controllers.add(new AnimationController<>(this, ONE_SHOT_CONTROLLER, 3,
+				e -> e.getController().isPlayingTriggeredAnimation() ? PlayState.CONTINUE : PlayState.STOP)
+				.receiveTriggeredAnimations()
+				.triggerableAnim("attack", ATTACK)
+				.triggerableAnim("slap", SLAP));
+	}
+
+	private PlayState mainAnim(AnimationState<StrayDollEntity> event) {
+		if (isStunned()) return event.setAndContinue(STUNNED);
+		return event.setAndContinue(event.isMoving() ? FLY : IDLE);
+	}
+
+	@Override
+	public void handleEntityEvent(byte id) {
+		if (level().isClientSide()) {
+			if (id == DollRig.EVENT_ATTACK) {
+				triggerAnim(ONE_SHOT_CONTROLLER, "attack");
+				return;
+			}
+			if (id == DollRig.EVENT_SLAP) {
+				triggerAnim(ONE_SHOT_CONTROLLER, "slap");
+				return;
+			}
+		}
+		super.handleEntityEvent(id);
 	}
 
 	@Override

@@ -56,6 +56,11 @@
 					]
 				},
 				{
+					"name": "HeadLocator",
+					"parent": "Head",
+					"pivot": [0, 13.96, 3]
+				},
+				{
 					"name": "Eyes",
 					"parent": "Head",
 					"pivot": [0, 12.87, 0]
