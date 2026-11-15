@@ -1,6 +1,6 @@
 # Treasure Tower (`treasure_tower`) — Turning Stone into Ore
 
-A held item that leaves the hand as an entity: it flies to a spot two blocks ahead and one block up,
+A held item that leaves the hand as an entity: it flies to a spot four blocks ahead and two blocks up,
 beams the aimed stone, and flies back. The beam replaces that stone and everything connected to it
 with the ore of a gem the player is carrying. One gem is spent per block, the item is not. The
 recipe is not written down: it is derived from the datapack as **ore → gem** (smelting) and
@@ -179,7 +179,7 @@ also fills it, trading experience levels — the same loop the anchor and the fa
 
 The entity has three phases:
 
-- **OUT** — fly from the eye to `player.position() + horizontalLook * 2 + (0, 1, 0)` at 0.45 blocks
+- **OUT** — fly from the eye to `player.position() + horizontalLook * 4 + (0, 2, 0)` at 0.45 blocks
   per tick. The look vector is flattened so looking up or down does not make the tower climb or dive.
 - **CAST** — on arrival, BFS from the locked target through its six neighbours, keeping every block
   the chosen gem converts, and stop at the budget. The nearest N are converted, each to the ore its

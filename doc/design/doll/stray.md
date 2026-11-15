@@ -97,16 +97,19 @@ summonable, not an item, and not associated with any player.
 - **Hunt on sight** — vanilla `NearestAttackableTargetGoal<Player>` acquires the nearest visible
   player, filtered by the pack leash below, and `MeleeAttackGoal` closes in.
 - **Pack** — naturally spawned in groups of three to five. The shared `SpawnGroupData` counts the
-  members actually finalized; at the third, the first member is crowned: it gains the `mini_shield`
-  and writes its own UUID as its leader, while the third and any later members store that UUID and
-  follow it. A group cut to one or two members by the mob cap or failed spawn positions stays
-  entirely leaderless. The leader UUID is saved in NBT and synced to clients for the pack link.
+  members actually finalized; the second member crowns itself: it writes its own UUID as its leader,
+  while later members store that UUID and follow it. A member left alone by the mob cap or failed
+  spawn positions stays leaderless. The leader UUID is saved in NBT and synced to clients for the
+  pack link.
 - **Joining** — a leaderless doll searches on its first tick, then every 100 ticks after a failed
   search, adopting the nearest leader within 8 blocks. A successful find drops the cooldown, so the
   follower joins immediately. A leaderless doll never crowns itself.
-- **Shield** — the leader's off-hand `mini_shield` blocks through the vanilla pipeline: `isBlocking()`
-  reads the ordinary equipment slot (not a doll loadout slot) and `hurtCurrentlyUsedShield` plays the
-  block sound. The shield has no durability, so it never wears out.
+- **Shield** — a shield-armed doll blocks through the vanilla pipeline: `isBlocking()` reads the
+  ordinary equipment slot (not a doll loadout slot) and `hurtCurrentlyUsedShield` plays the block
+  sound. The shield has no durability, so it never wears out.
+- **Paralysis** — a strike that a shield blocks costs the doll five seconds: `blockedByShield` turns
+  on `NoAI` and a synced stunned flag, and the doll plays its `Dstoy_wrong` clip until the countdown
+  reaches zero. The timer is saved in NBT, so a chunk reload cannot strand it in `NoAI`.
 - **Leash** — a follower only acquires or keeps a target while the target is within 24 blocks of its
   leader; moving past that clears the target. A dead or unloaded leader resolves to null, which drops
   both the follow goal and the leash, so the follower wanders and hunts independently.
@@ -117,8 +120,9 @@ summonable, not an item, and not associated with any player.
   client resolves the synced leader UUID against the loaded strays, so a dead, unloaded or orphaned
   leader simply leaves the follower unlinked.
 - **Look alive** — `LookAtPlayerGoal(this, Player.class, 8.0F)` and `RandomLookAroundGoal(this)`.
-- **Spear** — if it spawns in the `magical_forest` biome, a 50% roll puts a `doll_lance` in its main
-  hand; the item drops on death like any equipment.
+- **Equipment** — every spawn rolls once: 40% a `doll_lance` in the main hand, 40% a `mini_shield` in
+  the off hand, 20% empty-handed. The roll does not depend on biome or pack rank, so a leader carries
+  no better gear than its followers. Equipment drops on death like any other.
 - **Spiritual reward** — a player kill credit receives `SpiritualEffect.addSpiritual(player, 100)`.
 - **Sound** — none (the dolls are silent); optional idle particles later.
 
@@ -132,16 +136,16 @@ Attributes: `Monster.createMonsterAttributes()` as a convenient builder, then `M
   vanilla's hostile rule: not peaceful, dark enough (`Monster.isDarkEnoughToSpawn`) and a valid mob
   spawn block.
 - A `neoforge:add_spawns` biome modifier on `magical_forest`, weight 10, `minCount 3`, `maxCount 5`.
-  The group size is what produces the pack; the leader is crowned inside it only once three members
-  actually spawn, not by a second roll.
+  The group size is what produces the pack; the leader is crowned inside it only once a second member
+  actually spawns, not by a second roll.
 - `.spawnEgg(primary, secondary).build()` — the first spawn egg in the mod. Registrate's
   `EntityBuilder.spawnEgg` is deprecated upstream but is the builder route here; it creates a
   NeoForge `DeferredSpawnEggItem` and registers it. It returns an `ItemBuilder`, so `.build()` is
   required to get back to the entity builder and continue the chain. The egg lands in vanilla's
   spawn-egg tab automatically. An egg-spawned doll is a one-member group, so it starts leaderless
   and may join a nearby leader.
-- `.loot(EntityLootGen::noLoot)` — no loot table. The lance drops like any equipment; the leader's
-  shield has its off-hand drop chance zeroed, so it is a pack trait rather than loot.
+- `.loot(EntityLootGen::noLoot)` — no loot table. The rolled spear or shield drops like any
+  equipment.
 - `.tag(GLTagGen.CARRYON_BLACKLIST)` — carriers must not pick it up.
 - Persistence: leave the vanilla mob default (a natural or egg-spawned mob can despawn when the
   player leaves). A player who wants to keep one can name it.
@@ -149,8 +153,10 @@ Attributes: `Monster.createMonsterAttributes()` as a convenient builder, then `M
 ### 4.3 Rendering
 
 Use its own `geo/stray_doll.geo.json`, `animations/stray_doll.animation.json` and
-`textures/geo/stray_doll.png` with a `StrayDollRenderer`/`StrayDollModel`. The model plays
-`DStoy_idle`/`DStoy_fly` from its own controller. It does not implement `DollRig` (§3).
+`textures/geo/stray_doll.png` with a `StrayDollRenderer`/`StrayDollModel`. A state controller plays
+`DStoy_idle`/`DStoy_fly`, or `Dstoy_wrong` while stunned; a one-shot controller plays `Dstoy_attack`
+with a spear and `Dstoy_slapattack` empty-handed, triggered by the doll's entity events. It does not
+implement `DollRig` (§3).
 
 The pack link is a level-stage pass, not an entity layer: `StrayDollLinkRenderer` collects the loaded
 strays into a UUID map each frame and feeds every follower's leader-to-follower span to
@@ -564,10 +570,12 @@ creative use now that the barrens spawn exists (§11).
   output.
 - `./gradlew compileJava`.
 - Manual checks: egg spawns both wild types and starts leaderless; the magical forest spawns packs of
-  three to five with one mini-shielded leader that blocks hits from the front; a cap-shortened pair
-  stays leaderless and adopts a leader within 8 blocks, retrying after 100 ticks; followers stay
-  near the leader, stop chasing past 24 blocks, and turn independent when the leader dies; hitting
-  one alerts the pack; both wild types wander and hover about one block over the floor; wild ghost
+  three to five with one leader, and each member rolls a spear, a shield or an empty hand regardless
+  of rank; a strike blocked by a shield stuns the stray for five seconds with `Dstoy_wrong`; a
+  cap-shortened pair still has a leader, while a single survivor adopts a leader within 8 blocks,
+  retrying after 100 ticks; followers stay near the leader, stop chasing past 24 blocks, and turn
+  independent when the leader dies; hitting one alerts the pack; both wild types wander and hover
+  about one block over the floor; wild ghost
   never retaliates; flute adopts/releases; variant survives logout/death; a released ghost is
   persistent; curios removes one harmful effect per 3-second pulse, longest first; foodie doubles
   eat speed and converts hunger to saturation above 16; lively gives Haste II/Speed II/Lively I;
@@ -578,8 +586,8 @@ creative use now that the barrens spawn exists (§11).
 - **Two entity types, one variant enum** — the flute copies the variant across the type swap; do not
   try to keep the same entity and change its type.
 - **A stray with a full ledger** — refuse before discarding the stray; show `TOO_MANY`.
-- **Short pack** — fewer than three spawned members stays leaderless. A lone doll must not crown
-  itself; it only adopts a leader that already exists within 8 blocks, retrying every 100 ticks.
+- **Short pack** — a single spawned member stays leaderless. A lone doll must not crown itself; it
+  only adopts a leader that already exists within 8 blocks, retrying every 100 ticks.
 - **A ghost owned by another player** — refuse; `isOwner` is the check, creative mode does not bypass
   it (releasing someone else's ghost is destructive).
 - **A ghost that lost its entry** — refuse, do not spawn a stray; the reconciliation pass owns that

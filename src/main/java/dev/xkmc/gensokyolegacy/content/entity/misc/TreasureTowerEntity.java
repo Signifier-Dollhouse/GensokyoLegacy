@@ -50,6 +50,8 @@ public class TreasureTowerEntity extends ThrowableItemProjectile {
 
 	private static final double FLY_SPEED = 0.45;
 	private static final double RETURN_SPEED = 0.6;
+	private static final double OUT_FORWARD = 4;
+	private static final double OUT_UP = 2;
 	private static final double MAX_OWNER_DIST = 32;
 	private static final int CAST_TIME = 10;
 	private static final double BEAM_STEP = 0.25;
@@ -79,7 +81,7 @@ public class TreasureTowerEntity extends ThrowableItemProjectile {
 	public static void launch(Level level, Player player, InteractionHand hand, ItemStack stack, BlockPos targetBlock) {
 		TreasureTowerEntity entity = new TreasureTowerEntity(level, player);
 		Vec3 look = flatLook(player);
-		entity.target = player.position().add(look.scale(2)).add(0, 1, 0);
+		entity.target = player.position().add(look.scale(OUT_FORWARD)).add(0, OUT_UP, 0);
 		entity.targetBlock = targetBlock;
 		entity.hand = hand;
 		entity.slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().selected : Inventory.SLOT_OFFHAND;
