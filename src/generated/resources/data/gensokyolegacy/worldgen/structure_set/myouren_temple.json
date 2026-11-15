@@ -9,6 +9,10 @@
     {
       "structure": "gensokyolegacy:myouren_temple",
       "weight": 1
+    },
+    {
+      "structure": "gensokyolegacy:small_graveyard",
+      "weight": 1
     }
   ]
 }

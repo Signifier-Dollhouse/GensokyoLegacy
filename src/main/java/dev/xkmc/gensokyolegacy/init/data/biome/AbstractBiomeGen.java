@@ -345,11 +345,17 @@ public abstract class AbstractBiomeGen {
 		 * the biome's trees are up it returns the crown and anything placed with it lands on the roof; the no-leaves
 		 * heightmap returns the floor instead, which is both where a standing deco belongs and the only height at
 		 * which the block underneath is the ground the biome's surface rule actually laid down.
+		 * Extra filters run on the spread position, before the heightmap picks a surface for it.
 		 */
 		public void floor(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
-						  PlacementModifier count) {
-			placed(key, feature, count, InSquarePlacement.spread(),
-					HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES), BiomeFilter.biome());
+						  PlacementModifier count, PlacementModifier... filters) {
+			List<PlacementModifier> list = new ArrayList<>();
+			list.add(count);
+			list.add(InSquarePlacement.spread());
+			list.addAll(List.of(filters));
+			list.add(HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES));
+			list.add(BiomeFilter.biome());
+			placed(key, feature, list);
 		}
 
 		/**
