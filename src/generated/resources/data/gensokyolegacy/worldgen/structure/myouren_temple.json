@@ -11,6 +11,5 @@
     "type": "gensokyolegacy:bastion_height",
     "anchor": "gensokyolegacy:myouren_temple/gate"
   },
-  "terrain_adaptation": "beard_thin",
   "use_expansion_hack": false
 }

@@ -5,8 +5,11 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -45,6 +48,24 @@ public interface TerrainPredicate {
 	 * Runs per chunk in {@code Structure#afterPlace}, after the jigsaw pieces of that chunk have been placed.
 	 */
 	default void afterPlace(WorldGenLevel level, BoundingBox chunk, PiecesContainer pieces) {
+	}
+
+	/**
+	 * Beard adjustment of one jigsaw piece, or {@code null} to keep the vanilla jigsaw piece. The piece becomes a
+	 * {@code GLBeardedPiece} so the choice survives a structure-start reload.
+	 */
+	@Nullable
+	default TerrainAdjustment beardAdjustment(PoolElementStructurePiece piece) {
+		return null;
+	}
+
+	/**
+	 * Whether the Beardifier must still visit this structure when its {@code terrain_adaptation} is NONE. The
+	 * structure then advertises BEARD_THIN to pass the Beardifier's structure-level filter, while every piece
+	 * still reports its own {@link #beardAdjustment}.
+	 */
+	default boolean needsBeardifier() {
+		return false;
 	}
 
 	// Resolved lazily: a public field of an implementor is not readable while this interface initializes.

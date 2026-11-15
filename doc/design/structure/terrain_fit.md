@@ -29,7 +29,8 @@ So the rule becomes a field of the structure instead of code, with two implement
 | `TerrainFit` | `content/worldgen/structure/terrain/TerrainFit.java` | Record `(GenerationContext ctx, PieceTree tree, int seaLevel)` plus `height(x, z)` (`getFirstFreeHeight(WORLD_SURFACE_WG)`) and the 9-point `ring(BoundingBox)` sampler (4 corners, 4 edge centres, centre). |
 | `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, String reason, int delta)`: the vertical shift applied to the layout, or the failure reason. |
 | `UniformHeightCheck` | `content/worldgen/structure/terrain/UniformHeightCheck.java` | The old rule, verbatim. `height_tolerance` is now its own field. |
-| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` dirt fill. |
+| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` dirt fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
+| `GLBeardedPiece` | `content/worldgen/structure/GLBeardedPiece.java` | `PoolElementStructurePiece` with a per-piece `PieceBeardifierModifier` adjustment, persisted under its own `StructurePieceType` so it survives a start reload. |
 
 `FlatCheckStructure` replaces its `height_tolerance` field with `TerrainPredicate terrain`:
 
@@ -182,13 +183,27 @@ Per-piece `bbox.minY` would be wrong as the top plane: a roof, a tree canopy or 
 the ground plane, and filling to its underside builds a dirt column up through the temple. The anchor's
 `groundOf` is the one y every piece in the group agrees on, and the guard does the local distinction.
 
-### 5.4 Beard and NBT
+### 5.4 Beard
 
-`afterPlace` is not a piece, so it never reaches the `Beardifier`; the structure's `BEARD_THIN` still
-raises terrain toward the rigid pieces, and the foundation only closes the remaining pockets. A
-foundation `StructurePiece` would have needed `PieceBeardifierModifier` with `TerrainAdjustment.NONE` to
-stop its 89 x 97 box from seeding a `BEARD_THIN` mound, plus NBT to persist the plates — `afterPlace`
-avoids both.
+The fill runs after terrain generation, and `BEARD_THIN` raises terrain under every rigid piece, which is
+exactly the gap the fill is meant to close. So Myouren's configured `terrain_adaptation` is `none`, and
+the beard is per piece:
+
+- `GLBeardedPiece` implements NeoForge's `PieceBeardifierModifier`;
+  `BastionHeightCheck#beardAdjustment` returns `BEARD_THIN` for the gate and `NONE` for every other
+  piece.
+- The vanilla `Beardifier` drops a structure whose `terrain_adaptation` is `none` before it reads any
+  piece, so `FlatCheckStructure#terrainAdaptation()` advertises `BEARD_THIN` when the rule says
+  `needsBeardifier()`. The configured value stays `none` (the codec omits the default); the
+  `adjustBoundingBox` inflation that comes with it is what the Beardifier needs at the footprint edge.
+- `GLBeardedPiece` is a registered `StructurePieceType` and writes its adjustment to NBT. A plain
+  `PoolElementStructurePiece` would load with the structure default and lose the per-piece override.
+
+With every piece opting out except the gate, the Beardifier leaves the space under the halls air and
+`afterPlace` fills it with dirt. It also stops adding junction beards for Myouren, because the
+`PieceBeardifierModifier` branch does not collect `JigsawJunction`s; that is the wanted behaviour for a
+foundation. The trade-off is that a non-gate piece gets no beard carve either, so terrain may still stand
+up to `tolerance - 1` blocks high at a piece centre; the fit in §4.2 is the only guard against burial.
 
 ## 6. Measured Myouren layout
 
@@ -224,7 +239,10 @@ Consequences for the design:
 
 `runData` rewrites the six `worldgen/structure/*.json`: `height_tolerance` moves inside `terrain`, and
 `myouren_temple` gains the `terrain` object with its `anchor` (`height_tolerance` and `fill` equal their
-defaults, so they are not written out). The generated files must be committed with the code.
+defaults, so they are not written out). `StructFlatJigsawBuilding` writes `terrain_adaptation: none`
+when the rule reports `needsBeardifier()`; the codec omits a `none` value, so Myouren's JSON has no
+`terrain_adaptation` field while the other five keep `beard_thin`. The generated files must be committed
+with the code.
 
 ## 8. Diagnostics
 
@@ -266,9 +284,14 @@ how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
   `minecraft:single_pool_element`, so a loaded pool holds plain `SinglePoolElement`; an `instanceof
   GLSinglePiece` test is always false and every candidate fails `anchor-missing`. `PieceTree#templateId`
   reads the protected `template` field instead (access transformer), which works for both classes.
-- **`afterPlace`, not a `StructurePiece`.** The same hook the woodland mansion uses for its cobblestone:
-  no piece registration, no NBT, and nothing for the `Beardifier` to mistake for a rigid. It runs after
-  the chunk's pieces, so the guard sees the placed building.
+- **Gate-only beard, via `PieceBeardifierModifier`.** The rule, not the structure JSON, owns which pieces
+  blend into the terrain. The structure advertises `BEARD_THIN` only because the Beardifier filters
+  `NONE` structures before it can read a piece, and every piece except the anchor reports `NONE`. This
+  keeps the dirt foundation air-only without a custom Beardifier or a mixin.
+- **`afterPlace`, not a foundation `StructurePiece`.** The same hook the woodland mansion uses for its
+  cobblestone: no foundation piece, no plate NBT, and nothing extra for the `Beardifier` to read. It runs
+  after the chunk's pieces, so the guard sees the placed building. `GLBeardedPiece` exists for the beard
+  override, not for the foundation.
 - **One anchor plane, not per-piece fill.** See §5.2.
 - **Guard at `groundY - 1`, not a piece-block test.** One block read per column separates "a floor
   stands on this column" from "open ground under an overhang" without walking templates; the piece-box

@@ -13,8 +13,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +52,22 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 	@Override
 	public boolean triesAllRotations() {
 		return true;
+	}
+
+	@Override
+	public boolean needsBeardifier() {
+		return true;
+	}
+
+	/**
+	 * Only the gate blends into the terrain; every other piece opts out, so the Beardifier leaves the gap under
+	 * the temple air-only for {@link #afterPlace} to fill.
+	 */
+	@Nullable
+	@Override
+	public TerrainAdjustment beardAdjustment(PoolElementStructurePiece piece) {
+		return anchor.equals(PieceTree.templateId(piece.getElement()))
+				? TerrainAdjustment.BEARD_THIN : TerrainAdjustment.NONE;
 	}
 
 	@Override
