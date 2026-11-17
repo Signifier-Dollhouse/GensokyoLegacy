@@ -1,3 +1,6 @@
+1.0.7.1
+- Fix character AI in forge 47.1.28+
+
 1.0.7
 - new biome: myouren temple barren
 - wild ghost, and tamed ghost

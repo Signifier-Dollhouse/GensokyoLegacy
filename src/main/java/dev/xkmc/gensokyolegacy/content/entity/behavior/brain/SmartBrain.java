@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraftforge.common.util.BrainBuilder;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -63,6 +64,43 @@ public class SmartBrain<E extends Mob> extends Brain<E> {
 		updateActivities(level, entity);
 		brain.doStartEachNonRunningBehavior(level, entity);
 		brain.doTickEachRunningBehavior(level, entity);
+	}
+
+	/**
+	 * Forge rebuilds every brain through this builder on construction and load; returning one that
+	 * builds a {@link SmartBrain} keeps the priority activities a plain {@link Brain} would drop.
+	 */
+	@Override
+	public BrainBuilder<E> createBuilder() {
+		return new Builder<>(this, super.createBuilder());
+	}
+
+	private static final class Builder<E extends Mob> extends BrainBuilder<E> {
+
+		private final List<Activity> priorityActivities;
+
+		private Builder(SmartBrain<E> source, BrainBuilder<E> from) {
+			super(source);
+			getMemoryTypes().addAll(from.getMemoryTypes());
+			getSensorTypes().addAll(from.getSensorTypes());
+			getAvailableBehaviorsByPriority().putAll(from.getAvailableBehaviorsByPriority());
+			setSchedule(from.getSchedule());
+			getActivityRequirements().putAll(from.getActivityRequirements());
+			getActivityMemoriesToEraseWhenStopped().putAll(from.getActivityMemoriesToEraseWhenStopped());
+			getCoreActivities().addAll(from.getCoreActivities());
+			setActiveActivites(from.getActiveActivites());
+			setDefaultActivity(from.getDefaultActivity());
+			priorityActivities = source.priorityActivities;
+		}
+
+		@Override
+		public Brain<E> makeBrain(Dynamic<?> dynamic) {
+			SmartBrain<E> ans = new Provider<E>(getMemoryTypes(), getSensorTypes()).makeBrain(dynamic);
+			ans.copyFromBuilder(this);
+			ans.setPriorityActivities(priorityActivities);
+			return ans;
+		}
+
 	}
 
 	private void updateActivities(ServerLevel level, E entity) {

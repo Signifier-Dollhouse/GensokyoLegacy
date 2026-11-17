@@ -126,6 +126,10 @@ SmartBrain.construct(board, dynamic)
 //     brain.setPriorityActivities(priorityList)
 //     brain.setSchedule(schedule)
 
+// Forge (LivingMakeBrainEvent, 47.1.28+) runs the returned brain through a BrainBuilder and
+// builds a fresh plain Brain, so SmartBrain.createBuilder() rebuilds a SmartBrain and re-applies
+// priorityActivities; without it every prioritized activity silently stops.
+
 // per-tick SmartBrain.tick():
 //   forgetOutdatedMemories
 //   tickSensors (NearbyPlayerSensor radius 32/32 every 5t, NearbyLiving 32/16 10/20t, YoukaiUpdateHomeSensor 80t → HOME)

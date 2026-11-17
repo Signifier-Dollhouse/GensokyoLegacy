@@ -12,7 +12,7 @@ merge of 1.21.1 work into the 1.20.1 branch needs.
 
 | | 1.21.1 source | 1.20.1 branch |
 |---|---|---|
-| loader | NeoForge 21.1.x | Forge 47.1.3 |
+| loader | NeoForge 21.1.x | Forge 47.1.28+ |
 | Java | 21 | 17 |
 | Gradle | 8.8 | 8.10 |
 | build plugin | `net.neoforged.moddev` 2.0.80 | ForgeGradle `[6.0,6.2)` |
