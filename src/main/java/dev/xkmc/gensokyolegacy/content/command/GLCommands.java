@@ -15,6 +15,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.index.IndexStorage;
+import dev.xkmc.gensokyolegacy.content.attachment.index.MissingTowerManager;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
@@ -51,6 +53,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -336,6 +339,18 @@ public class GLCommands {
 														.executes(GLCommands::executeStructureScanFirst))
 												.then(Commands.literal("all")
 														.executes(GLCommands::executeStructureScanAll))))))
+				.then(Commands.literal("missing_tower")
+						.then(Commands.literal("list")
+								.executes(GLCommands::executeMissingTowerList))
+						.then(Commands.literal("locate")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerLocate)))
+						.then(Commands.literal("reset")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerReset)))
+						.then(Commands.literal("spawn")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerSpawn))))
 				.then(Commands.literal("treasure_tower")
 						.then(Commands.literal("stats")
 								.executes(GLCommands::executeTreasureTowerStats))
@@ -557,6 +572,77 @@ public class GLCommands {
 		// needs what the party was actually worth, not what it was planned to be worth
 		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
+		return 1;
+	}
+
+	// --- missing tower ---
+
+	private static int executeMissingTowerList(CommandContext<CommandSourceStack> ctx) {
+		var src = ctx.getSource();
+		var towers = IndexStorage.get(src.getServer().overworld()).towers();
+		if (towers.isEmpty()) {
+			src.sendSuccess(() -> Component.literal("No missing towers"), false);
+			return 0;
+		}
+		for (var e : towers.entrySet()) {
+			var state = e.getValue();
+			var player = src.getServer().getPlayerList().getPlayer(e.getKey());
+			String name = player == null ? e.getKey().toString() : player.getGameProfile().getName();
+			src.sendSuccess(() -> Component.literal(name + ": " + state.quest()
+					+ (state.carried() ? " carried at " : " on the ground at ") + state.pos()
+					+ " in " + state.dim() + " (entity " + state.entity() + ")"), false);
+		}
+		return towers.size();
+	}
+
+	private static int executeMissingTowerLocate(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		var state = IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID());
+		if (state == null) {
+			ctx.getSource().sendFailure(Component.literal(
+					sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		boolean here = state.dim().equals(sp.level().dimension().location());
+		long dist = here ? (long) Math.sqrt(sp.blockPosition().distSqr(state.pos())) : -1;
+		String name = sp.getGameProfile().getName();
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				(state.carried() ? "carried by " : "on the ground for ") + name
+						+ " at " + state.pos() + " in " + state.dim()
+						+ (here ? ", " + dist + " blocks away" : ", another dimension")), false);
+		return 1;
+	}
+
+	private static int executeMissingTowerReset(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		if (IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID()) == null) {
+			ctx.getSource().sendFailure(Component.literal(
+					sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		MissingTowerManager.complete(sp);
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"Removed the missing tower of " + sp.getGameProfile().getName()), true);
+		return 1;
+	}
+
+	private static int executeMissingTowerSpawn(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		var src = ctx.getSource();
+		var state = IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID());
+		if (state == null) {
+			src.sendFailure(Component.literal(sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		ServerLevel level = src.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, state.dim()));
+		if (level == null) {
+			src.sendFailure(Component.literal("Dimension " + state.dim() + " is not loaded"));
+			return 0;
+		}
+		level.getChunk(state.pos());
+		MissingTowerManager.ensureEntity(level, sp.getUUID(), state);
+		src.sendSuccess(() -> Component.literal("Spawned the missing tower of "
+				+ sp.getGameProfile().getName() + " at " + state.pos() + " in " + state.dim()), true);
 		return 1;
 	}
 
@@ -1113,8 +1199,15 @@ public class GLCommands {
 		ResourceLocation id = questId(quest);
 		var data = GLMeta.QUEST.type().getOrCreate(sp).getData(id);
 		data.started = true;
+		YoukaiEntity ch = null;
+		for (var e : sp.level().getEntitiesOfClass(YoukaiEntity.class, sp.getBoundingBox().inflate(32))) {
+			if (e.getType() == quest.value().character()) {
+				ch = e;
+				break;
+			}
+		}
 		for (var e : quest.value().requirements().entrySet()) {
-			e.getValue().start(data, sp, e.getKey());
+			e.getValue().start(data, sp, ch, e.getKey());
 		}
 		GensokyoLegacy.HANDLER.toClientPlayer(new QuestStatusToClient(id, data, QuestStatusToClient.Reason.START), sp);
 	}

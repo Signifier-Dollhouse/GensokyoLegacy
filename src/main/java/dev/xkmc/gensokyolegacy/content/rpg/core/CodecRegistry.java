@@ -68,6 +68,7 @@ public class CodecRegistry {
 	public static final CdcVal<KoishiHatRequirement> KOISHI_HAT_REQ = REQUIREMENT.reg("koishi_hat", KoishiHatRequirement.CODEC);
 	public static final CdcVal<RollItemRequirement> ROLL_ITEM_REQ = REQUIREMENT.reg("roll_item", RollItemRequirement.CODEC);
 	public static final CdcVal<RaidVictoryRequirement> RAID_VICTORY_REQ = REQUIREMENT.reg("raid_victory", RaidVictoryRequirement.CODEC);
+	public static final CdcVal<MissingTowerRequirement> MISSING_TOWER_REQ = REQUIREMENT.reg("missing_tower", MissingTowerRequirement.CODEC);
 
 	public static final CdcVal<LootTableReward> LOOT_REWARD = REWARD.reg("loot_table", LootTableReward.CODEC);
 	public static final CdcVal<ExpReward> EXP_REWARD = REWARD.reg("exp", ExpReward.CODEC);

@@ -46,6 +46,11 @@
 			"item_submit_fail": "部分条件未满足",
 			"item_submit_pass": "所有条件均已满足"
 		},
+		"missing_tower": {
+			"pickup": "你托起了失落的寻宝塔",
+			"carried": "你已经带着一座宝塔了",
+			"not_started": "你没有理由拿走这座宝塔"
+		},
 		"trade": {
 			"ingredients": "材料：",
 			"option": "交易",

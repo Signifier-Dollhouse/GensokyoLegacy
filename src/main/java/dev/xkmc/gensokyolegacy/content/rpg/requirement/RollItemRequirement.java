@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.EmptyTrigger;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,7 @@ public record RollItemRequirement(
 	}
 
 	@Override
-	public void start(QuestData data, ServerPlayer sp, String key) {
+	public void start(QuestData data, ServerPlayer sp, @Nullable YoukaiEntity ch, String key) {
 		var loot = sp.serverLevel().getServer().reloadableRegistries()
 				.getLootTable(ResourceKey.create(Registries.LOOT_TABLE, table));
 		var params = new LootParams.Builder(sp.serverLevel())
