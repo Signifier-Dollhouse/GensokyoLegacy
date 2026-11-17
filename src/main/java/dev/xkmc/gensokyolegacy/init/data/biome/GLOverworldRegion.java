@@ -17,7 +17,18 @@ import terrablender.api.VanillaParameterOverlayBuilder;
 
 import java.util.function.Consumer;
 
+/**
+ * Overworld region for the magical forest.
+ *
+ * @see "doc/design/biome/overworld_region.md"
+ */
 public class GLOverworldRegion extends Region {
+
+	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0F, 1.0F);
+	// Depth reads 0 at the column surface, negative above it and one unit per 128 blocks below, so this
+	// covers the air and the shallow subsurface and leaves the caves to vanilla.
+	private static final Climate.Parameter DEPTH_RANGE = Climate.Parameter.span(-1.0F, 0.3F);
+	private static final float FALLBACK_OFFSET = 0.01F;
 
 	public GLOverworldRegion(int weight) {
 		super(new ResourceLocation(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
@@ -34,7 +45,7 @@ public class GLOverworldRegion extends Region {
 						ParameterUtils.Humidity.HUMID)
 				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
 				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
+				.depth(DEPTH_RANGE)
 				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
@@ -46,7 +57,7 @@ public class GLOverworldRegion extends Region {
 						ParameterUtils.Humidity.HUMID)
 				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
 				.erosion(ParameterUtils.Erosion.EROSION_2, ParameterUtils.Erosion.EROSION_3)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
+				.depth(DEPTH_RANGE)
 				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
@@ -56,12 +67,16 @@ public class GLOverworldRegion extends Region {
 				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.DRY, ParameterUtils.Humidity.ARID)
 				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
 				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
+				.depth(DEPTH_RANGE)
 				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
 						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
 				.build()
 				.forEach(point -> builder.add(point, MyourenTempleBarrensBiomeGen.KEY));
 		builder.build().forEach(mapper);
+		// Fitness adds offset^2 and the target's offset is always 0, so this leaf wins wherever the nearest
+		// declared point is farther than FALLBACK_OFFSET, and falls back to vanilla there.
+		mapper.accept(Pair.of(Climate.parameters(FULL_RANGE, FULL_RANGE, FULL_RANGE, FULL_RANGE,
+				FULL_RANGE, FULL_RANGE, FALLBACK_OFFSET), Region.DEFERRED_PLACEHOLDER));
 	}
 
 }
