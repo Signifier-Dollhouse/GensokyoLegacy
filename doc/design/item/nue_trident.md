@@ -158,9 +158,25 @@ One data component, registered in `GLItems` with the existing `DCReg`:
 | component | type | contents |
 |---|---|---|
 | `ufo_content` | `DCStack` (`DC.stack`) | the stolen stack, `ItemStack.EMPTY`-optional |
+| `ufo_loot` | `ResourceLocation` (`DC.loc`) | the loot table a gift UFO opens into |
 
-Nothing else is stored: the UFO has no clock. It is a wrapper, like a shulker box that holds one
-stack and opens on demand.
+A UFO carries at most one of the two: content hands the stored stack back, loot rolls one item out
+of the named table. Nothing else is stored: the UFO has no clock. It is a wrapper, like a shulker box
+that holds one stack and opens on demand.
+
+A **gift UFO** is the loot-table variant, with `ufo_loot` pointing at `gensokyolegacy:gift/ufo`:
+
+| item | weight |
+|---|---|
+| Heart of the Sea | 1 |
+| Diamond | 2 |
+| Netherite Scrap | 2 |
+| Golden Lotus | 2 |
+| Gold Ingot | 3 |
+
+It is the middle rung of Nue's party ladder (`GiftLootGen.nue`, party/send.md §*The ladders*), so
+what she leaves on the table is a draw rather than a drink. The return table is cut from the same
+rung, which makes her thank-you gift a UFO as well.
 
 ### 5.3 Opening it
 
@@ -170,18 +186,21 @@ stack and opens on demand.
 |---|---|
 | `getUseDuration(stack, entity)` | `40` — two seconds of holding |
 | `getUseAnimation(stack)` | `UseAnim.BRUSH` — the arm works at the item, with no extra prop |
-| `use(level, player, hand)` | `InteractionResultHolder.consume(stack)` when content is present, `PASS` when empty |
-| `finishUsingItem(stack, level, entity)` | return `content` — the game puts it back in the slot the UFO occupied |
+| `use(level, player, hand)` | `InteractionResultHolder.consume(stack)` when content or a loot table is present, `PASS` when neither is |
+| `finishUsingItem(stack, level, entity)` | return `content`, or one item rolled from the loot table — the game puts it in the slot the UFO occupied |
 
 * the content leaves only through a completed hold; releasing early (`releaseUsing`) does nothing,
   so a slip of the mouse cannot open it by accident;
 * `finishUsingItem` returning the stack means no `setItemInHand` juggling and no dropped copy: the
   UFO is replaced in place by exactly what it held, count included;
-* with empty content (a creative-given UFO) `use` is `PASS`, so it is a plain souvenir with no
-  behaviour.
+* the loot table is rolled server-side with the holder as `THIS_ENTITY` under `LootContextParamSets.GIFT`;
+  an empty or missing table leaves the UFO in hand;
+* with neither content nor loot (a creative-given UFO) `use` is `PASS`, so it is a plain souvenir
+  with no behaviour.
 
-The tooltip names the stored stack (`Contains <item name>`) and says to hold to open it. There is no
-expiry check anywhere, so a UFO left in a chest for a week still opens.
+The tooltip names the stored stack (`Contains <item name>`) and says to hold to open it, or says to
+hold to open when it carries a loot table. There is no expiry check anywhere, so a UFO left in a
+chest for a week still opens.
 
 The UFO is `stacksTo(1)` (the components differ per stack anyway) and stacks with nothing.
 
