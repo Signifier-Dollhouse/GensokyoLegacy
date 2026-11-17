@@ -283,8 +283,8 @@ public class GiftLootGen {
 	private static List<Tier> nue() {
 		return List.of(
 				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
-				tier(50, 1000, ufo(20)),
-				tier(1000, 0, gift(GLItems.NUE_TRIDENT, 10)));
+				tier(50, 500, ufo(20)),
+				tier(500, 0, gift(GLItems.NUE_TRIDENT, 10)));
 	}
 
 	/**
