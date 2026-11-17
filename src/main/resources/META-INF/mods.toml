@@ -84,7 +84,8 @@ ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "jei"
+# compat/jei uses the recipe extras text widget API, added in 15.20.0.100
 mandatory = false
-versionRange = "[15,)"
+versionRange = "[15.20.0.100,)"
 ordering = "AFTER"
 side = "BOTH"
