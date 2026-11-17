@@ -1486,7 +1486,8 @@ public final class GLLang {
 
 	public enum ItemUfo implements LangEntry {
 		CONTAINS("Contains %s", 1),
-		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY);
+		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY),
+		OPEN("Hold right-click for two seconds to open", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;

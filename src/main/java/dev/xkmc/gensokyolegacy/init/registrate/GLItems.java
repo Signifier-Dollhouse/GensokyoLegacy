@@ -211,6 +211,7 @@ public class GLItems {
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
+	public static final DCVal<ResourceLocation> UFO_LOOT = DC.loc("ufo_loot");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 	public static final DCVal<StructureMirrorData> STRUCTURE_MIRROR = DC.reg("structure_mirror",

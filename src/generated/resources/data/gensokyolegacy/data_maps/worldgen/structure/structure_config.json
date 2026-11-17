@@ -642,7 +642,8 @@
     },
     "gensokyolegacy:myouren_temple": {
       "entities": [
-        "gensokyolegacy:murasa_minamitsu"
+        "gensokyolegacy:murasa_minamitsu",
+        "gensokyolegacy:hijiri_byakuren"
       ],
       "house": [
         [
@@ -768,6 +769,20 @@
           },
           {
             "posA": [
+              18,
+              5,
+              46
+            ],
+            "posB": [
+              18,
+              5,
+              46
+            ],
+            "roomA": 1,
+            "roomB": -1
+          },
+          {
+            "posA": [
               52,
               4,
               15
@@ -802,7 +817,8 @@
               7,
               48
             ],
-            "name": "room_1"
+            "name": "room_1",
+            "owner": "gensokyolegacy:hijiri_byakuren"
           },
           {
             "bound": [
@@ -864,7 +880,13 @@
       },
       "primaryFix": "gensokyolegacy:structure_fix/myouren_temple/primary",
       "rooms": [],
-      "visitors": {},
+      "visitors": {
+        "gensokyolegacy:houjuu_nue": {
+          "chance": 0.5,
+          "maxStay": 6000,
+          "minStay": 6000
+        }
+      },
       "wouldFix": "gensokyolegacy:structure_fix/myouren_temple/would_fix"
     }
   }

@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
@@ -19,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
@@ -66,6 +70,8 @@ public class GLEntities {
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<YuyukoEntity> SAIGYOUJI_YUYUKO;
 	public static final EntityEntry<MinamitsuEntity> MINAMITSU;
+	public static final EntityEntry<ByakurenEntity> HIJIRI_BYAKUREN;
+	public static final EntityEntry<NueEntity> HOUJUU_NUE;
 
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 
@@ -94,10 +100,11 @@ public class GLEntities {
 	static {
 
 		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
-				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU;
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU, TASTE_NUE;
 
 		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
-				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_FAIRY;
+				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_NUE,
+				GIFT_FAIRY;
 
 		// taste
 		{
@@ -111,6 +118,7 @@ public class GLEntities {
 			TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
 			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 			TASTE_MINAMITSU = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_NUE = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 			// she only ever turns up for a lavish spread
@@ -179,6 +187,12 @@ public class GLEntities {
 					GiftType.TOOL, 0.0
 			));
 			GIFT_MINAMITSU = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.FOOD, 1.5,
+					GiftType.COLLECTION, 1.5,
+					GiftType.TOOL, 1.0
+			));
+			GIFT_NUE = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 2.0,
 					GiftType.FOOD, 1.5,
 					GiftType.COLLECTION, 1.5,
@@ -442,6 +456,26 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MINAMITSU)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MINAMITSU)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HIJIRI_BYAKUREN = GensokyoLegacy.REGISTRATE
+					.entity("hijiri_byakuren", ByakurenEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> ByakurenRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HOUJUU_NUE = GensokyoLegacy.REGISTRATE
+					.entity("houjuu_nue", NueEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> NueRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_NUE)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_NUE)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}

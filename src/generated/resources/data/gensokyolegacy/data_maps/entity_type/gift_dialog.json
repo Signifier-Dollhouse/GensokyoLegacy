@@ -21,6 +21,13 @@
       "returnTable": "gensokyolegacy:gift_return/hakurei_reimu",
       "threshold": 10
     },
+    "gensokyolegacy:houjuu_nue": {
+      "dislike": "gensokyolegacy:nue/gift/dislike",
+      "like": "gensokyolegacy:nue/gift/like",
+      "neutral": "gensokyolegacy:nue/gift/neutral",
+      "returnTable": "gensokyolegacy:gift_return/houjuu_nue",
+      "threshold": 10
+    },
     "gensokyolegacy:ibuki_suika": {
       "dislike": "gensokyolegacy:suika/gift/dislike",
       "like": "gensokyolegacy:suika/gift/like",
