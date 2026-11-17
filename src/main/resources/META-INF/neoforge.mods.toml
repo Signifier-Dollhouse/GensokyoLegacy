@@ -41,3 +41,10 @@ type = "required"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
+# compat/jei uses the recipe widget API (addRecipeArrowWidget) added in 19.51
+[[dependencies.${ mod_id }]]
+modId = "jei"
+type = "optional"
+versionRange = "[19.51,)"
+ordering = "NONE"
+side = "CLIENT"
