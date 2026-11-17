@@ -1,5 +1,9 @@
 package dev.xkmc.gensokyolegacy.content.entity.characters.byakuren;
 
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.AbstractYoukaiModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.HomeModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
+import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
@@ -13,6 +17,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -92,6 +97,11 @@ public class ByakurenEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 	@Override
 	public AnimatableInstanceCache getAnimatableInstanceCache() {
 		return geoCache;
+	}
+
+	@Override
+	protected List<AbstractYoukaiModule> createModules() {
+		return List.of(new HomeModule(this), new VisitModule(this), new TalkModule(this));
 	}
 
 }
