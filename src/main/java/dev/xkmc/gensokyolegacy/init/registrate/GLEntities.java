@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
@@ -19,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
@@ -65,6 +69,8 @@ public class GLEntities {
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<YuyukoEntity> SAIGYOUJI_YUYUKO;
 	public static final EntityEntry<MinamitsuEntity> MINAMITSU;
+	public static final EntityEntry<ByakurenEntity> HIJIRI_BYAKUREN;
+	public static final EntityEntry<NueEntity> HOUJUU_NUE;
 
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 
@@ -433,6 +439,24 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MINAMITSU)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MINAMITSU)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HIJIRI_BYAKUREN = GensokyoLegacy.REGISTRATE
+					.entity("hijiri_byakuren", ByakurenEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> ByakurenRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HOUJUU_NUE = GensokyoLegacy.REGISTRATE
+					.entity("houjuu_nue", NueEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> NueRenderer::new)
+					.loot(EntityLootGen::noLoot)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}

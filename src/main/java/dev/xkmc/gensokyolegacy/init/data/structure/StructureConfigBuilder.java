@@ -161,8 +161,8 @@ public class StructureConfigBuilder {
 
 	/**
 	 * Myouren Temple is 29 jigsaw parts spanning x -26..62, y -2..24, z -45..51; the interior is the main
-	 * hall plus the five bedroom blocks, copied from the exported root.json. Minamitsu's room is hers alone;
-	 * house boxes cover the root main hall and each bedroom part in root-local coordinates.
+	 * hall plus the five bedroom blocks, copied from the exported root.json. Minamitsu's and Byakuren's rooms
+	 * are theirs alone; house boxes cover the root main hall and each bedroom part in root-local coordinates.
 	 */
 	public static StructureConfig.Builder myouren() {
 		return StructureConfig.builder()
@@ -182,7 +182,7 @@ public class StructureConfigBuilder {
 	private static StructureInterior myourenInterior() {
 		var rooms = new ArrayList<>(List.of(
 				new InteriorRoom("room_0", new BoundingBox(5, 3, 10, 30, 13, 35)),
-				new InteriorRoom("room_1", new BoundingBox(13, 4, 44, 23, 7, 48)),
+				room("room_1", new BoundingBox(13, 4, 44, 23, 7, 48), GLEntities.HIJIRI_BYAKUREN.get()),
 				new InteriorRoom("room_2", new BoundingBox(-22, 3, 22, -17, 8, 32)),
 				new InteriorRoom("room_3", new BoundingBox(-22, 4, 11, -17, 8, 20)),
 				new InteriorRoom("room_4", new BoundingBox(-11, 0, -17, -9, 5, -9)),
@@ -195,6 +195,7 @@ public class StructureConfigBuilder {
 				new InteriorNode(new BlockPos(-16, 4, 16), new BlockPos(-16, 4, 16), 3, -1),
 				new InteriorNode(new BlockPos(-16, 4, 24), new BlockPos(-16, 4, 24), 2, -1),
 				new InteriorNode(new BlockPos(18, 4, 10), new BlockPos(18, 4, 10), 0, -1),
+				new InteriorNode(new BlockPos(18, 5, 46), new BlockPos(18, 5, 46), 1, -1),
 				new InteriorNode(new BlockPos(52, 4, 15), new BlockPos(52, 4, 15), 6, -1)
 		));
 		return new StructureInterior(rooms, nodes);
