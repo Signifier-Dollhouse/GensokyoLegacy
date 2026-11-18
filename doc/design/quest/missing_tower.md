@@ -211,11 +211,21 @@ on the giver rather than the player. The change is small and explicit:
 A null character means the quest was force-started with no giver at hand: the requirement then rolls
 around the player's level and position.
 
-Content (recommended wiring, change freely): a one-time Marisa quest `marisa/missing_tower`, unlocked
-after `marisa/hakkero` (by then she owns a proper tower), title "The Missing Tower". Reward: exp 150,
-reputation +15, loot `treasure_tower` ×1 and coins ×8. The quest is the intended way to obtain the
-tower, which currently has no crafting recipe. `StartQuestAction` already refuses guests, so the
-tower is always rolled around Marisa while she is at home.
+Content is shipped as Nazrin's daily `nazrin/lost_tower` (`NazrinQDGen`), with Shou as the one who
+lost the tower and Nazrin offering the player a share of the search: title "The Lost Tower",
+`QuestRecurrence(24000)`, reward exp 60 and reputation +50. The handover completes the quest
+(reputation is paid there), then she asks the player to pick one of three payments — a
+`treasure_tower` replica (an ordinary wooden tower she infused with a spark of Shou's power), a
+`dowser`, or four `coin_stack`s — each a `GiveItemAction` on its own option. The follow-up topic is a
+`ConditionalDialogOption` whose first branch is
+`MissingTowerNearCondition(quest, MissingTowerManager.MAX_RADIUS)`: her dowsers answer "it's close"
+or "not anywhere near here" from the same click, never a distance, and the condition reads the record
+rather than trusting the quest state. Above 50 reputation she also sells a spare dowser for 6 iron
+ingots (`trade/nazrin/process_dowser`). `StartQuestAction` already refuses guests, so the tower is
+always rolled around Nazrin while she is at home.
+
+The old plan — a one-time Marisa quest after `marisa/hakkero` — is still a valid way to introduce
+the tower to a player who does not visit the temple; it needs no new machinery.
 
 ---
 
@@ -276,6 +286,7 @@ New:
 | `content/entity/misc/MissingTowerEntity.java` | the view: follow, ground hover, interaction |
 | `content/entity/misc/render/MissingTowerRenderer.java` | spinning, bobbing tower item |
 | `content/rpg/requirement/MissingTowerRequirement.java` | start / canComplete / doComplete |
+| `content/rpg/condition/MissingTowerNearCondition.java` | is the player's tower near the giver |
 | `event/MissingTowerEventHandlers.java` | the level pass, the chunk-load hook and the login re-sync |
 
 Modified:
@@ -290,9 +301,9 @@ Modified:
 - `src/test/resources/gensokyolegacy/lang/zh_cn/*.json` — translations, then `organize.ResourceOrganizer`;
 - `doc/design/README.md` — the new `quest/` row.
 
-Content, not part of the core change: `init/data/rpg/MarisaQDGen.java` (the quest and its dialogs) and
-`doc/quest/marisa.md` (the shipped quest row). Once those exist, `runData` also generates the quest
-JSON, the loot table and the entity lang entries.
+Content, not part of the core change: `init/data/rpg/NazrinQDGen.java` (the quest, its dialogs and
+the dowser trade) and `doc/quest/nazrin.md` (the shipped quest row). Once those exist, `runData` also
+generates the quest JSON and the lang entries.
 
 ---
 

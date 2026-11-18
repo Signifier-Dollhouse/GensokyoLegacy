@@ -69,7 +69,8 @@ public class SimpleDialogSession extends DialogSession {
 		// the client only ever shows what was unlocked when this state was
 		// sent, but conditions can lapse before the click gets here
 		if (!option.match(player, character)) return;
-		var result = option.resolve(player.getRandom());
+		var result = option.resolve(player, character, player.getRandom());
+		if (result == null) return;
 		var context = new ActionContext(player, character, handle.getQuest());
 		for (var e : result.actions()) {
 			e.execute(context);
