@@ -30,6 +30,10 @@ public class GLEffects {
 			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xFF9AC0CD),
 			"Higher chance to get rare drops");
 
+	public static final LegacyHolder<MobEffect> HAKUREI_BLESSING = genEffect("hakurei_blessing",
+			() -> new EmptyEffect(MobEffectCategory.BENEFICIAL, 0xF3A2AA),
+			"Received for donating at the Hakurei donation box");
+
 	public static final LegacyHolder<MobEffect> MIASMA = genEffect("miasma",
 			MiasmaEffect::new,
 			"Armor halved, damage taken +50%, healing -30%. May gain negative effects when hurt.");

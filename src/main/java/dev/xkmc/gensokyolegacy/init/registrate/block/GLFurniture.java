@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxShape;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.HakureiDonationBox;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.*;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.ShelfBlockEntity;
@@ -79,7 +80,7 @@ public class GLFurniture {
 		{
 
 			// 赛钱箱
-			DONATION_BOX = registerDonationBox(reg, "donation_box", new DonationBoxShape());
+			DONATION_BOX = registerDonationBox(reg, "donation_box", new HakureiDonationBox());
 			MYOUREN_DONATION_BOX = registerDonationBox(reg, "myouren_donation_box", DonationBoxShape.myouren());
 
 			DONATION_BOX_BE = reg.blockEntity("donation_box", DonationBoxBlockEntity::new)
