@@ -4,7 +4,7 @@
 		"marisa": {
 			"chat": {
 				"greeting": "哟，你好~欢迎光顾雾雨魔法店！",
-				"trade": "今天有什么好货？",
+				"trade": "我想买东西",
 				"starter": {
 					"start": "店里平时客人多吗"
 				},
@@ -16,19 +16,18 @@
 					}
 				},
 				"option": {
-					"hi/end": "这样啊。"
-				}
+					"hi/end": "这样啊"
+				},
+				"visit_greeting": "嗨！你也来了啊。",
+				"party_greeting": "谢谢你请客，我要开动了~"
 			},
 			"shared": {
 				"option": {
 					"bye": "拜拜！",
 					"daily_group": "每日委托",
 					"daily_start": "有什么能帮忙的吗？",
-					"daily_accept": "我去办！",
-					"daily_reject": "晚点再说吧。",
-					"daily_follow": "能再说一遍要做什么吗？",
-					"daily_follow_end": "好，我去弄。",
-					"daily_thanks": "不用谢。"
+					"daily_reject": "晚点再说吧",
+					"daily_thanks": "不用谢"
 				}
 			},
 			"first_mushroom": {
@@ -39,22 +38,21 @@
 				"option": {
 					"start": "我看到店外贴了一些委托？",
 					"follow_up": "姑且先确认下，委托内容没有变化吧？",
-					"complete": "这个，你要的。",
-					"start/reject": "呃，听起来好麻烦。",
-					"start/accept": "好，我去采一些。",
-					"follow_up/end": "还没呢，还在找。",
-					"complete/reject": "抱歉，数量好像不太够。",
-					"complete/handover": "给你。",
-					"start/reject/end": "等有时间再说吧。",
+					"complete": "你要的我带来了",
+					"start/reject": "但是我拒绝",
+					"start/accept": "好，我去采一些",
+					"follow_up/end": "还没呢",
+					"follow_up/end/end": "再会",
+					"complete/handover": "（交付物品）",
+					"start/reject/end": "等有时间再说吧",
 					"start/accept/end": "好，等我回来。",
-					"complete/reject/end": "好。",
-					"complete/handover/end": "客气。"
+					"complete/handover/end": "客气"
 				},
 				"dialog": {
 					"marisa": {
 						"first_mushroom": {
 							"start": {
-								"dialog_1": "是新面孔！普通的魔法使——雾雨魔理沙，前来报到DAZE！我是魔法使雾雨魔理沙，普通的人类DAZE！话说，你就住这附近吧？这一带对我来说还很陌生——连森林的植被都变得不一样了。我正要开始魔法研究，缺点货真价实的样本。去帮我弄些红蘑菇和棕色蘑菇回来，怎么样？"
+								"dialog_1": "这一带对我来说还很陌生——连森林的植被都变得不一样了，我正要开始魔法研究，缺点货真价实的样本，去帮我弄些本地蘑菇回来，怎么样？"
 							},
 							"start/accept": {
 								"dialog_1": "你人真好！那——红蘑菇和棕色蘑菇各八个就行！"
@@ -66,16 +64,13 @@
 								"dialog_1": "我不是那种委托方啦，委托做的怎么样了啊？"
 							},
 							"follow_up/end": {
-								"dialog_1": "慢慢来——不过可别偷工减料啊！"
+								"dialog_1": "慢慢来，不着急的。"
 							},
 							"complete": {
-								"dialog_1": "哦哦，这些正合适！水分、质感，全都刚刚好。这下我的研究可算开张了！"
+								"dialog_1": "真的么？这下我可以开始研究了。"
 							},
 							"complete/handover": {
-								"dialog_1": "哇哦！太感谢了！"
-							},
-							"complete/reject": {
-								"dialog_1": "好的，不急。准备好了再来吧。"
+								"dialog_1": "这些刚刚好，太感谢了！"
 							}
 						}
 					}
@@ -89,39 +84,39 @@
 				"option": {
 					"start": "这次张贴的委托还是蘑菇？",
 					"follow_up": "我再确认下委托内容。",
-					"complete": "用了点方法总算搞定，这是你要的。",
-					"start/reject": "额...你自己试试？很近的。",
-					"start/accept": "真没办法，坐好咯。",
-					"follow_up/end": "还在弄。",
-					"complete/handover": "能帮上忙就好。",
-					"start/reject/end": "原来如此。",
-					"start/accept/end": "等我回来。",
-					"follow_up/end/end": "好好。",
-					"complete/handover/end": "等下，你还要吃你的研究成果么？"
+					"complete": "这是你要的",
+					"start/reject": "这东西没附魔很难弄啊",
+					"start/accept": "真没办法，我帮你弄吧",
+					"follow_up/end": "还在弄",
+					"complete/handover": "能帮上忙就好",
+					"start/reject/end": "还没弄附魔，你再等等吧",
+					"start/accept/end": "等我回来",
+					"follow_up/end/end": "没问题",
+					"complete/handover/end": "什么晚饭？"
 				},
 				"dialog": {
 					"marisa": {
 						"huge_mushroom": {
 							"start": {
-								"dialog_1": "提到这个，你见过这附近的蘑菇没有？都长得跟树一样了！这么大的蘑菇，我还是头一回见——真是不得了。我刚才想直接摘一块，结果它……啪地一下，全碎成小块了。肯定有办法完整采下来。你能给我弄些完整的巨型蘑菇方块吗？"
+								"dialog_1": "提到这个，你见过这附近的蘑菇没有？都长得跟树一样了！这么大的蘑菇，我还是头一回见，真是不得了。我刚才想直接摘一块，结果全碎成小块了，肯定有办法完整采下来，你能给我弄些完整的巨型蘑菇方块吗？"
 							},
 							"start/accept": {
-								"dialog_1": "这才是好助手！给我带完整的回来——菌盖、菌柄都行，哪种都可以，我坐好了！"
+								"dialog_1": "谢谢你！"
 							},
 							"start/reject": {
-								"dialog_1": "试过了！它们碎成一小块一小块的——对我来说一点用都没有，我要的是成块的，这是你的专长吧？"
+								"dialog_1": "这是你的专长吧？帮我下呗。"
 							},
 							"follow_up": {
 								"dialog_1": "我要巨型蘑菇的完整方块——弄到了吗？我有些迫不及待了！"
 							},
 							"follow_up/end": {
-								"dialog_1": "好好好——不过别给我带碎渣回来。我要的是完整的方块！"
+								"dialog_1": "等你好消息"
 							},
 							"complete": {
-								"dialog_1": "就是这个！感觉到了吗？里面可是塞满了魔力啊。"
+								"dialog_1": "就是这个，真是谢谢你了。"
 							},
 							"complete/handover": {
-								"dialog_1": "你可帮大忙了！这下我晚饭和研究都有着落了！"
+								"dialog_1": "这下我晚饭和研究都有着落了！"
 							}
 						}
 					}
@@ -134,28 +129,28 @@
 				},
 				"option": {
 					"start": "我看到新委托了，你对蘑菇的热爱已经延伸到下界了么？",
-					"follow_up": "确认一下委托内容。",
-					"complete": "我带回来了。",
-					"start/reject": "额，我现在还不敢去。",
-					"start/accept": "我熟悉那儿，这事我能办。",
-					"follow_up/end": "还没弄到",
-					"complete/handover": "毕竟，为了研究嘛。",
-					"start/reject/end": "好的。",
-					"start/accept/end": "等我好消息。",
-					"follow_up/end/end": "回见。",
-					"complete/handover/end": "您太客气了，我也是收了报酬的嘛。"
+					"follow_up": "确认一下委托内容",
+					"complete": "我带回来了",
+					"start/reject": "现在不是很有空",
+					"start/accept": "我熟悉那儿，这事我能办",
+					"follow_up/end": "还没有",
+					"complete/handover": "（交付物品）",
+					"start/reject/end": "好",
+					"start/accept/end": "等我好消息",
+					"follow_up/end/end": "回见",
+					"complete/handover/end": "您太客气了，我也是收了报酬的"
 				},
 				"dialog": {
 					"marisa": {
 						"nether_mushroom_prep": {
 							"start": {
-								"dialog_1": "听这里的大鼻子原住民说，那里的蘑菇完全是另一回事。那种地方我可没勇气亲自去——又是火又是熔岩，和旧地狱可不一样。不过你去过了吧？给我带点下界蘑菇回来！"
+								"dialog_1": "听这里的大鼻子居民说，那里的蘑菇完全是另一回事。那种地方我可没勇气亲自去——又是火又是熔岩，和旧地狱可不一样。不过你去过了吧？给我带点下界蘑菇回来！"
 							},
 							"start/accept": {
-								"dialog_1": "我就知道你靠得住，把那些蘑菇安全带回来吧！"
+								"dialog_1": "我就知道你靠得住，把蘑菇安全带回来吧！"
 							},
 							"start/reject": {
-								"dialog_1": "哈哈，说得也是。不过那才是真正好的研究素材啊！等你有胆量了再回来吧。"
+								"dialog_1": "那等你有空再说吧。"
 							},
 							"follow_up": {
 								"dialog_1": "我要的是下界蘑菇，找到了吗？听说它们在那边跟杂草一样多呢。"
@@ -181,39 +176,39 @@
 				"option": {
 					"start": "委托里说的发光蘑菇是什么",
 					"follow_up": "确认下委托内容。",
-					"complete": "把菌光体交给她。",
+					"complete": "东西我带回来了",
 					"start/reject": "上次怎么不让一块带回来...",
-					"start/accept": "委托我接了。",
-					"follow_up/end": "还没有呢。",
-					"complete/handover": "你喜欢就好。",
-					"start/reject/end": "我准备准备再说吧。",
-					"start/accept/end": "好。",
-					"follow_up/end/end": "没有那种传说啦。",
-					"complete/handover/end": "姑且说一下，发光的一般都是有毒的。"
+					"start/accept": "委托我接了",
+					"follow_up/end": "还没有呢",
+					"complete/handover": "（交付物品）",
+					"start/reject/end": "我准备准备再说吧",
+					"start/accept/end": "好",
+					"follow_up/end/end": "没有那种传说啦",
+					"complete/handover/end": "发光的一般都是有毒的吧"
 				},
 				"dialog": {
 					"marisa": {
 						"shroomlight": {
 							"start": {
-								"dialog_1": "据说，下界也有巨大的蘑菇——而且几丁质如同木头一样！里面有个发光的核心，对吧？我要那个东西，麻烦带回来几个。"
+								"dialog_1": "据说，下界也有巨大的蘑菇，里面有个发光的核心对吧？我要那个东西，麻烦带回来几个。"
 							},
 							"start/accept": {
-								"dialog_1": "这才对嘛！发光的核心，能拿多少拿多少！"
+								"dialog_1": "这才对嘛，是叫菌光体对吧，带八个回来吧。"
 							},
 							"start/reject": {
 								"dialog_1": "嘿嘿，上次不知道还有这种东西嘛，再麻烦你去一趟。"
 							},
 							"follow_up": {
-								"dialog_1": "发光的那些东西弄到了吗？我想看看它们到底是怎么亮起来的！"
+								"dialog_1": "菌光体弄到了吗？"
 							},
 							"follow_up/end": {
 								"dialog_1": "在下界注意安全——可别把自己也变成蘑菇了！"
 							},
 							"complete": {
-								"dialog_1": "哦哦哦，真漂亮！再看看这个菌柄里面的结构！魔力肯定就是沿着这里流动的。"
+								"dialog_1": "哦哦哦，真漂亮！看看这里面的脉络！魔力肯定就是沿着这里流动的。"
 							},
 							"complete/handover": {
-								"dialog_1": "喜欢？我爱死了！"
+								"dialog_1": "这东西能不能吃啊？"
 							}
 						}
 					}
@@ -226,34 +221,34 @@
 				},
 				"option": {
 					"start": "说起来，这里炼药竟然和那些女巫完全不一样，不应该是烈焰人和下界疣为基底么？",
-					"follow_up": "我确认下委托内容。",
-					"complete": "东西我弄到了。",
-					"start/reject": "我有别的事情忙啦。",
-					"start/accept": "好吧，我帮你。",
-					"follow_up/end": "其实我还没去呢，别急。",
+					"follow_up": "我确认下委托内容",
+					"complete": "东西我弄到了",
+					"start/reject": "我有别的事情忙",
+					"start/accept": "好吧，我帮你",
+					"follow_up/end": "我还没去呢",
 					"complete/handover": "各取所需嘛。",
-					"start/reject/end": "你真坚持啊。",
-					"start/accept/end": "好。",
-					"follow_up/end/end": "好，这就去。",
-					"complete/handover/end": "谢了。"
+					"start/reject/end": "你真坚持啊",
+					"start/accept/end": "好",
+					"follow_up/end/end": "好，我记着",
+					"complete/handover/end": "谢了"
 				},
 				"dialog": {
 					"marisa": {
 						"brewing": {
 							"start": {
-								"dialog_1": "流派不同咯，不过你说的我也比较感兴趣，这两样东西帮我弄一些回来，价钱好说！"
+								"dialog_1": "理解不同咯，不过你说的我也比较感兴趣，这两样东西帮我弄一些回来，价钱好说！"
 							},
 							"start/accept": {
 								"dialog_1": "等你好消息。"
 							},
 							"start/reject": {
-								"dialog_1": "那好吧，我很有耐心，等你有空再说咯？"
+								"dialog_1": "那好吧，等你有空再说咯？"
 							},
 							"follow_up": {
 								"dialog_1": "烈焰棒和下界疣——我都等不及要把酿造台点起来研究了！"
 							},
 							"follow_up/end": {
-								"dialog_1": "我承认我着急了，你快去吧。"
+								"dialog_1": "路上小心一些。"
 							},
 							"complete": {
 								"dialog_1": "烈焰棒和下界疣——这下终于能研究这套“酿造”的门道了，这次也谢谢你了！"
@@ -272,40 +267,40 @@
 				},
 				"option": {
 					"start": "这次总算不是蘑菇的委托了？",
-					"follow_up": "再确认下委托的内容。",
-					"complete": "终于啊，这个别管怎么来的，反正找到了。",
-					"start/reject": "太难找了，我不想接。",
-					"start/accept": "我试着找找看。",
-					"follow_up/end": "还没找到。",
-					"complete/handover": "不用专门拆开，可以直接咬开的。",
-					"start/reject/end": "看运气吧。",
-					"start/accept/end": "接不接其实都一样的吧，祝我运气好咯。",
-					"follow_up/end/end": "好，我再找找。",
-					"complete/handover/end": "我故意的。"
+					"follow_up": "真没那么容易找",
+					"complete": "终于啊，这个别管怎么来的，反正找到了",
+					"start/reject": "太难找了，之后再说吧",
+					"start/accept": "我试着找找看",
+					"follow_up/end": "还没",
+					"complete/handover": "祝你好运",
+					"start/reject/end": "看运气吧",
+					"start/accept/end": "接不接其实都一样的吧，不要抱太大期望哦",
+					"follow_up/end/end": "好，我再找找",
+					"complete/handover/end": "那太好了"
 				},
 				"dialog": {
 					"marisa": {
 						"golden_apple": {
 							"start": {
-								"dialog_1": "你见过那种华丽的金苹果吗——会发光的那种，这个世界已经没人知道怎么做了，不过我觉得我能研究出来！你要是能给我找一个当作样本，我能把整套原理逆向研究出来，然后把知识分享给你，怎么样？"
+								"dialog_1": "你见过那种华丽的金苹果吗——附魔的那种，这个世界已经没人知道怎么做了，不过我能研究出来！你要是能给我找一个当作样本，我研究出来就能复现，怎么样？"
 							},
 							"start/accept": {
-								"dialog_1": "不要有太大压力，这个委托没有期限呢。"
+								"dialog_1": "不要有太大压力，委托没有期限呢。"
 							},
 							"start/reject": {
-								"dialog_1": "稀有的东西才好玩！找找也不迟嘛。"
+								"dialog_1": "等你凑巧找到也可以考虑考虑嘛，那先算了。"
 							},
 							"follow_up": {
-								"dialog_1": "苹果有消息了吗？"
+								"dialog_1": "是说附魔金苹果么，找到了？"
 							},
 							"follow_up/end": {
 								"dialog_1": "据说地下有很多废弃的建筑，多翻宝箱就能遇到。"
 							},
 							"complete": {
-								"dialog_1": "看看这光——这是真正的失落技术，我要把它拆开，把里面秘密都搞清楚，然后自己造出来！"
+								"dialog_1": "看看这光——这是真正的失落技术，我要把里面秘密都搞清楚，然后自己造出来！"
 							},
 							"complete/handover": {
-								"dialog_1": "喂，保留仪式感懂不懂！"
+								"dialog_1": "等我好消息吧，以后能帮你做这个！"
 							}
 						}
 					}
@@ -317,45 +312,41 @@
 					"desc": "把迷你八卦炉·原型和修理所需的材料交给魔理沙。"
 				},
 				"option": {
-					"start": "话说，你那个原型机用得还顺手吗？",
-					"follow_up": "再确认下修理需要的材料。",
-					"complete": "材料和原型，都带来了。",
-					"start/reject": "我可不想把下界碎片交出去。",
+					"start": "（展示原型八卦炉）",
+					"follow_up": "再确认下修理需要的材料",
+					"complete": "材料和原型，都带来了",
+					"start/reject": "我觉得现在就挺好用的，之后再说吧",
 					"start/accept": "需要什么材料？",
-					"follow_up/end": "还在凑。",
-					"complete/reject": "抱歉，好像还没备齐。",
-					"complete/handover": "这下才是像样的八卦炉。",
-					"start/reject/end": "我再想想。",
-					"start/accept/end": "快去吧——就一个下界碎片，可别想糊弄我，我看得出来。",
-					"complete/reject/end": "好。",
-					"complete/handover/end": "说到底，这东西一只手就相当于一整间工坊。"
+					"follow_up/end": "好的",
+					"follow_up/end/end": "（离开）",
+					"complete/handover": "炉灶确实不外泄热量了",
+					"start/reject/end": "我再想想",
+					"start/accept/end": "好吧，我去拿一下东西",
+					"complete/handover/end": "有这东西我应该不需要熔炉了"
 				},
 				"dialog": {
 					"marisa": {
 						"hakkero": {
 							"start": {
-								"dialog_1": "就是这个！呐，我仔细看过你手上那个小原型了——老爷子是当古董在卖，但那个形制很有意思。一座什么都不用烧就能自己工作的熔炉，本来就不该做得出来，光是外壳就是个难题。要是有人肯坐下来把它真正做完，里面的确有魔力可挖。只要材料凑齐，我就能动手。"
+								"dialog_1": "这东西可真怀念——老爷子是当古董在卖，但那个形制很有意思，只要材料凑齐，我还能帮你改进一下，至少没那么烫手了。"
 							},
 							"start/accept": {
-								"dialog_1": "八红石负责电路，四金做触点，十六铁加固外壳，再加一片下界碎片把整个结构锚定住。别担心，你的原型不会吃亏——我交给你的东西可比原来那个好。"
+								"dialog_1": "八红石负责传导，四金做触点，十六铁加固外壳，再加一片下界碎片把整个结构锚定住。别担心，改完比原型强劲多了。"
 							},
 							"start/reject": {
-								"dialog_1": "只是一片，又不是一整块。何况你还能白得一台正经八卦炉——这可比揣在兜里的碎片值钱多了，信我。"
+								"dialog_1": "那你想升级的时候找我就行，我有经验。"
 							},
 							"follow_up": {
-								"dialog_1": "八红石、四金、十六铁、一片下界碎片——还有原型本身，别忘了，我没法对着复制品动手。"
+								"dialog_1": "八红石、四金、十六铁、一片下界碎片——还有原型本身，别忘了带了。"
 							},
 							"follow_up/end": {
-								"dialog_1": "慢慢来。没有你，原型也不会自己跑掉的。"
+								"dialog_1": "慢慢来，不着急。"
 							},
 							"complete": {
-								"dialog_1": "让我看看……红石走电路，金子负责传导，铁把它撑住——好了，下界碎片，这才是真正关键的部分。别动。……成了！感觉出区别了吗？运转时没那么烫，完成一件活计也不用花那么久了。老爷子拿回他那小古董吧。"
+								"dialog_1": "让我看看……红石、金还有铁——好了，下界碎片，这才是真正关键的部分……成了！感觉出区别了吗？运转时没那么烫，烧制也不用花那么久了。"
 							},
 							"complete/handover": {
-								"dialog_1": "约定达成，它是你的了。"
-							},
-							"complete/reject": {
-								"dialog_1": "不急，凑齐了再来。"
+								"dialog_1": "好了，它是你的了。"
 							}
 						}
 					}
@@ -367,32 +358,32 @@
 					"desc": "魔理沙听说了下界令人不安的传闻。去调查一下吧——小心行事。"
 				},
 				"option": {
-					"start": "什么委托怎么神秘兮兮的，到底什么事情了。",
+					"start": "什么委托怎么神秘兮兮的，到底什么事情了",
 					"follow_up": "好像，没发生什么事情？",
-					"complete": "我遇到你说的了，不过我解决咯。",
-					"follow_up/end": "这么凶险么，店长我不想去了突然。",
-					"complete/handover": "喏，给你看看战利品。",
-					"start/end": "真的假的，我去看看。",
-					"follow_up/end/end": "我会谨记的。",
-					"complete/handover/end": "那我就心安理得的收下咯。"
+					"complete": "我遇到了，并且全身而退，虽然最后也不知道是谁，但是从对方扔下的帽子来看似乎解决了",
+					"follow_up/end": "这真的不是流行的都市传说么",
+					"complete/handover": "喏，给你看看现场遗落的帽子",
+					"start/end": "听起来好危险啊，我会留意的",
+					"follow_up/end/end": "我会谨记的",
+					"complete/handover/end": "那我就心安理得的收下咯"
 				},
 				"dialog": {
 					"marisa": {
 						"koishi_hat": {
 							"start": {
-								"dialog_1": "最近下界那边传出来的消息，你听说了吗？回来的旅者一个个脸色煞白，都说有东西一路跟着他们回家——可谁也说不清那是什么。光是想想就让我发毛，ZE。不过你可比我勇多了。替我去下界探探情况，行不？还有……多加小心。"
+								"dialog_1": "最近下界那边传出来的消息，你听说了吗？回来的旅者一个个脸色煞白，都说有东西一路跟着他们——可谁也说不清那是什么。在去之前一定要带一块盾牌，目击者声称听到了奇怪的铃声，随后背部遭受了锐器打击，但仍没有见到凶手。你这么骁勇善战，替我去下界探探情况怎么样？"
 							},
 							"follow_up": {
-								"dialog_1": "如果没事情就最好了，不过在你去的期间，已经有旅者失踪了。"
+								"dialog_1": "如果没事情就最好了，如果听到铃声就要当心了。"
 							},
 							"follow_up/end": {
-								"dialog_1": "也好，在危机解决前避免在下界游荡为好。"
+								"dialog_1": "如果不是真的有人受伤，恐怕也不会真的去委托这边调查这件事了，小心为上。"
 							},
 							"complete": {
-								"dialog_1": "毫发无损？不愧是你，旅者们也不再念叨被跟踪的事了。"
+								"dialog_1": "不愧是你，我原本没想过这个委托能完成，只是当成告示在用的。"
 							},
 							"complete/handover": {
-								"dialog_1": "哈哈！又一个谜团尘埃落定，这是给你的。"
+								"dialog_1": "哈哈！原来是这样，这个帽子你就留着吧，我知道怎么回事了。"
 							}
 						}
 					}
@@ -404,23 +395,23 @@
 					"desc": "从灵梦那里给魔理沙带回治愈符纸。"
 				},
 				"option": {
-					"start": "委托符纸？",
+					"start": "怎么委托符纸这东西了？",
 					"follow_up": "要买什么来着？",
-					"complete": "诺，符纸。",
-					"start/reject": "额，你们关系不是挺好的么，怎么不自己去找她？",
-					"start/accept": "我去灵梦那儿拿。",
-					"follow_up/end": "我记得不便宜来着。",
-					"complete/handover": "你也没开口啊。",
-					"start/reject/end": "容我考虑下。",
-					"start/accept/end": "怎么会呢。",
-					"follow_up/end/end": "唉，搞半天，还要自己付。",
-					"complete/handover/end": "都到这份上了，不得不帮了哇。"
+					"complete": "买到符纸了",
+					"start/reject": "你们关系不是挺好的么，开口要不就好了？",
+					"start/accept": "行，这活我接了",
+					"follow_up/end": "我记得不便宜来着",
+					"complete/handover": "跑腿确实麻烦",
+					"start/reject/end": "等我做好准备吧",
+					"start/accept/end": "怎么会呢",
+					"follow_up/end/end": "唉，搞半天，还要自己垫着",
+					"complete/handover/end": "这个确实方便多了，那我收下了"
 				},
 				"dialog": {
 					"marisa": {
 						"talisman_request": {
 							"start": {
-								"dialog_1": "呐，你见过灵梦的御札吧？那些小纸片可厉害了！最近我做实验老把自己弄得灰头土脸，治疗还是太麻烦了。我想给自己备四张。灵梦有卖，记得带上金币。还有……别告诉她是给我用的。怎么样？"
+								"dialog_1": "呐，你见过灵梦的符纸了对吧？最近我做实验老把自己弄得灰头土脸，安全措施还是不够好，所以我想到这个了，帮我买几张吧。还有……别告诉她是给我用的，成不成？"
 							},
 							"start/accept": {
 								"dialog_1": "好嘞！四张治愈符纸，可别拿假货糊弄我哦！"
@@ -432,13 +423,13 @@
 								"dialog_1": "治愈符纸啦——灵梦在神社有卖——四张，给我好好记住啊喂。"
 							},
 							"follow_up/end": {
-								"dialog_1": "她定价可真狠，对吧？不过绝对值这个价，信我！"
+								"dialog_1": "她定价可真狠，对吧？买到后我补给你！"
 							},
 							"complete": {
-								"dialog_1": "对咯！御札一贴百痛消，没有你我还真不好开口呢。"
+								"dialog_1": "哈哈，没有你我还真不好开口呢，麻烦你了。"
 							},
 							"complete/handover": {
-								"dialog_1": "哎呀，别管这个了，我也有好东西给你——今天早上削的一把扫帚，还有我亲手做的星星魔杖。魔杖才是真宝贝——用它指着爱丽丝的人偶，那家伙就不用你动手了。帮我保守好秘密！"
+								"dialog_1": "我有好东西给你——今天早上削的一把扫帚，还有我做的星星魔杖，有了扫帚你完全不用担心跑腿的问题了吧~"
 							}
 						}
 					}
@@ -451,22 +442,25 @@
 				},
 				"option": {
 					"complete": "这些蘑菇怎么样？",
-					"complete/handover": "给你！"
+					"complete/handover": "给你",
+					"follow_up": "能再说下要什么蘑菇吗？",
+					"follow_up/end": "麻烦了",
+					"start/accept": "我去办"
 				},
 				"dialog": {
 					"marisa": {
 						"daily_mycelium": {
 							"start": {
-								"dialog_1": "早啊！我的库存又见底了。给我带一批森林的蘑菇回来吧——会发光的、梦幻的，反正你能找到什么就带什么。新鲜研究材料，快点送来！"
+								"dialog_1": "说起来我的库存又见底了，帮我带一批森林的蘑菇回来吧。"
 							},
 							"start/accept": {
-								"dialog_1": "这才是我需要的搭档！把好东西给我带回来！"
+								"dialog_1": "这才对嘛，这次需要的是这些。"
 							},
 							"start/reject": {
-								"dialog_1": "哎，别这样嘛！这个世界的特色蘑菇可是最棒的！"
+								"dialog_1": "唉，好吧。"
 							},
 							"follow_up": {
-								"dialog_1": "库存又见底了——发光的、梦幻的，能带什么就带什么。记得吗？"
+								"dialog_1": "给你看一下清单。"
 							},
 							"follow_up/end": {
 								"dialog_1": "别拖太久！"
@@ -475,7 +469,7 @@
 								"dialog_1": "哦，弄到了？让我看看！"
 							},
 							"complete/handover": {
-								"dialog_1": "哦，这些太完美了！谢啦！"
+								"dialog_1": "这些蘑菇品相不错！谢啦！"
 							}
 						}
 					}
@@ -487,29 +481,32 @@
 					"desc": "给魔理沙带回腐肉、蜘蛛眼和瘴气蘑菇。"
 				},
 				"option": {
-					"complete": "我拿到了。",
-					"complete/handover": "给。"
+					"complete": "我拿到了",
+					"complete/handover": "安然无恙（交付物品）",
+					"follow_up": "能再说一遍要做什么吗？",
+					"follow_up/end": "好，我记住了",
+					"start/accept": "我帮你吧"
 				},
 				"dialog": {
 					"marisa": {
 						"daily_witchcraft": {
 							"start": {
-								"dialog_1": "哟！我正做到一半，手头那些亡灵素材不够了。能不能帮我弄点腐肉、蜘蛛眼，再来几朵瘴气蘑菇？呃……为了研究。对，研究。"
+								"dialog_1": "我正做到一半，手头素材不够了，能不能帮我弄点怪物素材？"
 							},
 							"start/accept": {
-								"dialog_1": "谢啦，等你回来！"
+								"dialog_1": "谢啦，要求是这些东西，你过目一下。"
 							},
 							"start/reject": {
-								"dialog_1": "什么，嫌恶心？魔法研究可不能挑三拣四！拜托了！"
+								"dialog_1": "这下难办了哇，只好自己慢慢来了。"
 							},
 							"follow_up": {
-								"dialog_1": "腐肉、蜘蛛眼、瘴气蘑菇，别忘了。"
+								"dialog_1": "这是需要的素材。"
 							},
 							"follow_up/end": {
-								"dialog_1": "行，我先把酿造台热起来！"
+								"dialog_1": "我准备一下，等你回来。"
 							},
 							"complete": {
-								"dialog_1": "哦，弄到了？让我看看！"
+								"dialog_1": "辛苦了，没受伤吧？"
 							},
 							"complete/handover": {
 								"dialog_1": "正需要这些！谢啦！"
@@ -524,8 +521,11 @@
 					"desc": "给魔理沙带回菌光体和下界真菌。"
 				},
 				"option": {
-					"complete": "我拿到了！",
-					"complete/handover": "给。"
+					"complete": "我从下界回来了",
+					"complete/handover": "给",
+					"follow_up": "之前提到要去下界收集什么？",
+					"follow_up/end": "好，我去弄",
+					"start/accept": "我去采一些"
 				},
 				"dialog": {
 					"marisa": {
@@ -537,19 +537,19 @@
 								"dialog_1": "感谢~等你平安归来！"
 							},
 							"start/reject": {
-								"dialog_1": "什么？下界又没那么可怕！小心点熔岩就行了！"
+								"dialog_1": "那好吧。"
 							},
 							"follow_up": {
-								"dialog_1": "下界的真菌和菌光体，记住哦。"
+								"dialog_1": "下界真菌和菌光体，不要忘了。"
 							},
 							"follow_up/end": {
 								"dialog_1": "注意安全！"
 							},
 							"complete": {
-								"dialog_1": "哦，弄到了？我看看。"
+								"dialog_1": "哦？材料弄到了吗？"
 							},
 							"complete/handover": {
-								"dialog_1": "就是这个，谢啦！"
+								"dialog_1": "就是这个，给，这是你的辛苦费~"
 							}
 						}
 					}
@@ -562,7 +562,10 @@
 				},
 				"option": {
 					"complete": "我拿到了。",
-					"complete/handover": "给。"
+					"complete/handover": "给",
+					"follow_up": "能再说一遍要做什么吗？",
+					"follow_up/end": "好，我去弄",
+					"start/accept": "我来办吧"
 				},
 				"dialog": {
 					"marisa": {
@@ -574,7 +577,7 @@
 								"dialog_1": "等你好消息。"
 							},
 							"start/reject": {
-								"dialog_1": "哎，别丢下我不管啊！酿造可不会自己酿！"
+								"dialog_1": "好吧，我再等等咯。"
 							},
 							"follow_up": {
 								"dialog_1": "烈焰棒和下界疣，记住咯！"
@@ -598,24 +601,26 @@
 					"desc": "从灵梦那里给魔理沙带回治愈符纸。"
 				},
 				"option": {
-					"follow_up/end": "好，我去买。",
-					"complete": "我买回来了。",
-					"complete/handover": "给。"
+					"follow_up/end": "我去一趟",
+					"follow_up": "能再说一遍要什么符纸吗？",
+					"complete": "买回来了",
+					"complete/handover": "（交付物品）",
+					"start/accept": "我去办！"
 				},
 				"dialog": {
 					"marisa": {
 						"daily_talisman": {
 							"start": {
-								"dialog_1": "哟！符纸已经被我用光了，帮忙再跑一趟灵梦那儿，再帮我买几张治愈符纸回来，好不好？"
+								"dialog_1": "符纸已经被我用光了，帮忙再跑一趟灵梦那儿，帮我买几张符纸回来好不好？"
 							},
 							"start/accept": {
-								"dialog_1": "感谢！还是老样子，四张哦。"
+								"dialog_1": "感谢！这是委托的要求~"
 							},
 							"start/reject": {
 								"dialog_1": "怎么这样——"
 							},
 							"follow_up": {
-								"dialog_1": "治愈符纸，我做实验消耗可快了，符纸得先到位！"
+								"dialog_1": "喏，你看一下吧。"
 							},
 							"follow_up/end": {
 								"dialog_1": "好，等你回来！"
@@ -632,19 +637,19 @@
 			},
 			"chat_reimu": {
 				"starter": {
-					"start": "你有认识武力高强的朋友么？"
+					"start": "你有认识擅长战斗的朋友吗？"
 				},
 				"dialog": {
 					"marisa": {
 						"chat_reimu": {
-							"talk": "在樱花林能找到博丽神社，那里有我的老朋友，异变解决的专家。要是你要去危险的地方，她或许能给你些战斗中帮得上忙的东西。",
-							"where_ans": "她比较随和，不过也比较冷淡，她会帮助村庄退治灾厄——不过前提是别忘了赛钱。"
+							"talk": "在樱花林能找到博丽神社，那里有我的老朋友，擅长用术法解决各种麻烦。如果你要去危险的地方，她或许能给你些战斗中帮得上忙的东西。",
+							"where_ans": "她比较随和，我觉得只要不太出格就没什么问题。"
 						}
 					}
 				},
 				"option": {
 					"where": "去神社有什么要注意的么？",
-					"where/end": "有机会我就去看看。"
+					"where/end": "有机会我就去拜访下"
 				}
 			},
 			"chat_morichika": {
@@ -654,14 +659,14 @@
 				"dialog": {
 					"marisa": {
 						"chat_morichika": {
-							"talk": "说到工具巧了——我这些小玩意儿可不全是亲手做的。这片魔法森林里还有一家店，香霖堂，是我一位老相识开的。他买卖各种小玩意和工具，算个中古店吧——要是探险缺装备，他那儿或许有卖。",
-							"where_ans": "从护符到旧货什么都卖，多余的小玩意儿也能卖给他。"
+							"talk": "说到工具巧了——我这些小玩意儿可不全是亲手做的。这片魔法森林里还有一家店，香霖堂，是我一位老熟人开的。",
+							"where_ans": "他买卖各种小玩意和工具，算个中古店吧——要是探险缺道具，他那儿或许有卖。从护符到旧货什么都卖，也收购一些日常的物资。"
 						}
 					}
 				},
 				"option": {
-					"where": "他卖些什么？",
-					"where/end": "那改天一定要光顾下。"
+					"where": "都卖些什么？",
+					"where/end": "那改天一定要光顾下"
 				}
 			},
 			"chat_alice": {
@@ -671,14 +676,14 @@
 				"dialog": {
 					"marisa": {
 						"chat_alice": {
-							"talk": "在森林里还有座府邸，住着爱丽丝那家伙。跟我一样喜欢钻研魔法，不过她整天板着脸，我们两个经常较量。但是想要帮助，她实际上还是很热心肠的，你可以认识认识。",
-							"where_ans": "不是的，魔法使也各有专长，她擅长操纵人偶来应对大小事宜，如果你对人偶感兴趣，找她就对啦。"
+							"talk": "在森林里还有座府邸，住着爱丽丝那家伙。跟我一样喜欢钻研魔法，整天板着脸，我们两个经常较劲。但是想要帮助，她实际上还是很热心肠的，你可以认识认识。",
+							"where_ans": "并不是，魔法使也各有专长，她更擅长摆弄人偶，如果你对这些感兴趣，找她就对啦。"
 						}
 					}
 				},
 				"option": {
 					"where": "她和你一样精通药剂么？",
-					"where/end": "我还真有些好奇了。"
+					"where/end": "有些好奇了"
 				}
 			},
 			"gift": {
@@ -688,9 +693,22 @@
 					"return": "嘿！我也送你份礼物，你如果喜欢就最好啦。"
 				},
 				"option": {
-					"return/take": "这可真是惊喜，我很开心。"
+					"return/take": "这可真是惊喜"
 				}
-			}
+			},
+			"visit_kourindou/starter/wander": "这地方还不错",
+			"visit_kourindou/dialog/marisa/visit_kourindou/wander": "虽然有点挤，但我还挺喜欢的。不知怎么的，这里比我自己店里更能让脑子转起来。",
+			"visit_kourindou/dialog/marisa/visit_kourindou/stay_ans": "一个人一个风格啦——而且可能也只是走动走动感觉新鲜罢了。",
+			"visit_kourindou/option/stay": "不考虑装修下自己的店面？",
+			"visit_kourindou/option/stay/end": "这倒也是",
+			"visit_shrine/starter/donate": "平时真的有人来投香火钱么？",
+			"visit_shrine/starter/calm": "这里真安静啊",
+			"visit_shrine/dialog/marisa/visit_shrine/donate": "赛钱箱基本上一直都是空的——客人参拜投的钱可能还没有妖怪们聚酒往里面投的多。",
+			"visit_shrine/dialog/marisa/visit_shrine/leave_ans": "妖怪也是平衡的一部分呀，不是说见到妖怪就会退治，换句话说，即使是人类试图扰乱平衡也是被退治的对象。",
+			"visit_shrine/dialog/marisa/visit_shrine/calm": "确实太安静了，都快听到蘑菇生长的声音了！平日无事的神社基本都这样宁静，说不定会很适合养老呢。",
+			"visit_shrine/option/leave": "这里不是讨伐妖怪的地方吗？怎么还有妖怪来聚会的",
+			"visit_shrine/option/leave/end": "看来我的认识还是太片面了",
+			"visit_shrine/option/bye": "确实"
 		}
 	}
 }

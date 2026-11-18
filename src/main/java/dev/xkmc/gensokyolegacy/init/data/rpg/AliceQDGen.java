@@ -71,7 +71,7 @@ public class AliceQDGen extends QuestDialogData {
 		dailyRejectKey = text("option", "daily_reject", "That might be difficult.");
 		dailyFollowKey = text("option", "daily_follow", "[Daily] Sorry, I forgot what the list said.");
 		dailyFollowEndKey = text("option", "daily_follow_end", "Understood.");
-		dailyThanksKey = text("option", "daily_thanks", "The pleasure was mine.");
+		dailyThanksKey = text("option", "daily_thanks", "(Accept the reward)");
 
 		chats();
 		quests();
@@ -83,13 +83,14 @@ public class AliceQDGen extends QuestDialogData {
 		defaultDialog(GLEntities.ALICE.get(),
 				"Oh - a visitor. Do come in. Is there something you need?",
 				"...What a coincidence. You are a guest as well.",
+				"Thanks for having me. Did you make all of this yourself? Quite impressive.",
 				"I would like to trade for something.");
 		// home-bound: the reply below is about living out here, which is not what
 		// a guest standing on someone else's doorstep should say
 		starter("alice/chat", new DialogStarter(GLEntities.ALICE.get(), List.of(homeBound()),
-				starterText("start", "Do you live out here all by yourself?"),
-				dialog("hi", "All by myself? Not quite. I have the forest and my dolls for company, and my magic research besides - was there something you needed?", List.of("dialog_think"),
-						option("hi/end", "Not right now."))
+				starterText("start", "Is this mansion just for you?"),
+				dialog("hi", "All by myself? Not quite — I have my dolls for company, so the mansion is hardly lonely.", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_03", "dialog_talk_04"),
+						option("hi/end", "I see."))
 		));
 
 		visitChats();
@@ -99,11 +100,13 @@ public class AliceQDGen extends QuestDialogData {
 		prefix("alice/chat_star_wand");
 		chat("alice/chat_star_wand", GLEntities.ALICE.get(),
 				List.of(hasQuest(QUEST_SEVEN_COLORS)),
-				starterText("start", "What are a doll's methods of attack?"),
-				dialog("talk", "A doll is a delicate piece of magic equipment - it cannot do much on its own. The lance I gave you is the simplest thing I can put in a doll's hand: it charges in like a wasp, and it delivers. But if you would rather keep your distance, the doll has to have a wand in its hand.", List.of("dialog_talk_04"),
-						option("where", "How does one get hold of that wand?",
-								dialog("where_ans", "Another resident of the Magical Forest - the owner of the Kirisame Magic Shop makes the things. She does not advertise, but she always has stock.", List.of("dialog_talk_03"),
-										option("where/end", "Then I'll go and see her.")))),
+				starterText("start", "How do dolls attack?"),
+				dialog("talk", "A doll is a delicate piece of magic equipment - it cannot do much on its own. The lance I gave you is the simplest thing I can put in a doll's hand: it charges in like a wasp, and it delivers. But if you would rather keep your distance, the doll has to have a wand in its hand.", TALK_ANIMS,
+						option("where", "A wand?",
+								dialog("where_ans", "Another resident of the Magical Forest, the owner of the Kirisame Magic "
+										+ "Shop, has things like that — but you'll have to get on good terms with her "
+										+ "first.", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_03", "dialog_talk_04"),
+										option("where/end", "(Leave)")))),
 				CHAT_INFO);
 	}
 
@@ -118,23 +121,24 @@ public class AliceQDGen extends QuestDialogData {
 				starterText("call", "What a coincidence - you are here to see her as well?"),
 				dialog("call", "Good day. I came for some magical materials - are you here for the same?", List.of("dialog_greet"),
 						option("terms", "I heard she sells more than materials?",
-								dialog("terms_ans", "Yes. She does not do everything by herself - she hands out commissions, brews potions, and now and then turns up with tools of unclear provenance. That last part is better left unasked about.", List.of("dialog_talk_04"),
+								dialog("terms_ans", "Yes. She does not do everything by herself - she hands out commissions, brews potions, and now and then turns up with tools of unclear provenance. That last part is better left unasked about.", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_03", "dialog_talk_04"),
 										option("terms/end", "Thank you for the warning.")))),
 				CHAT_MISC);
 
 		chat("alice/visit_marisa_house_greet", GLEntities.ALICE.get(),
 				List.of(visitingAt(GLStructureGen.MARISA_HOUSE)),
-				starterText("greet", "This is all rather far from your mansion."),
-				dialog("greet", "It is. I am not often away - but materials still have to be restocked, and getting out for a while is not unpleasant.", List.of("dialog_agree"),
-						option("greet/end", "Do as you like. I have business of my own with her.")),
+				starterText("greet", "This is awfully far from where you live."),
+				dialog("greet", "It is. I rarely go out, but materials still need restocking now and then; a change of "
+						+ "scenery is nice for a while.", List.of("dialog_talk_02", "dialog_talk_03"),
+						option("greet/end", "Let's talk again some other time.")),
 				CHAT_MISC);
 	}
 
 	private void quests() {
 		prefix("alice/first_doll");
-		questAnims("start", "dialog_think", "dialog_think_02", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_decline");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_talk_03");
+		questAnims("start", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_04"), THINK_ANIMS_ALL, "dialog_agree");
+		questAnims("follow", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_03", "dialog_talk_04"), "dialog_decline");
+		questAnims("complete", "dialog_agree", "dialog_decline", TALK_ANIMS);
 		quest("alice/first_doll", new Quest(GLEntities.ALICE.get(), List.of(),
 				questTitle("Doll Materials"), questDesc("Bring Alice the materials every doll is made of."),
 				Optional.empty(),
@@ -147,23 +151,25 @@ public class AliceQDGen extends QuestDialogData {
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300),
 						loot("alice/first_doll", LootTable.lootTable()
 								.withPool(lootItem(GLItems.COIN.get(), 4)))),
-				start("Are these dolls really handmade?",
-						"Every one of them. The materials are simple, but the technique behind them is not. My stores are empty - bring me what I need and I will show you what a doll can do.",
-						"I'll gather the materials.", "These are the materials I need. With these I can make a doll.", "I'll be right back.",
-						"Do you not gather your own materials?", "If nobody helped me, I would go and get them myself.", "I have things to do."),
+				start("(Curiously examine the dolls)",
+						"Curious about my dolls? Doll-making is my specialty. You've helped me a great deal — "
+								+ "I could make one for you, but I'm short on materials right now. Bring me what I "
+								+ "need, and I'll show you what a doll can do.",
+						"Really? Then let me prepare the materials.", "These are the materials I need. Once they're gathered, I can start.", "All right.",
+						"Just a quick look, maybe later.", "Is that so? I must have misunderstood, then.", "(Leave)"),
 				follow("I would like to see the list again.",
-						"Let me show you the list again. One of the items is fairly common under the canopy.",
+						"Let me show you the list again. These materials are actually quite common in the "
+								+ "Magical Forest.",
 						"I see.", "Take your time. None of those materials are hard to come by.", null),
 				complete("I have everything you asked for.",
 						"Very well. Let me look at the materials.",
-						"Here you go.", "Thank you for your help. This is the payment we agreed on.", "Then I will take it.",
-						"Um, some of it still seems to be missing.", "No rush. Gather it all together and I will start.", "Understood.")
+						"Here you go.", "Thank you for your help. This is the payment we agreed on.", "Then I will take it.")
 		));
 
 		prefix("alice/seven_colors");
-		questAnims("start", "dialog_think", "dialog_think", "dialog_agree");
-		questAnims("follow", "dialog_think_02", "dialog_talk_04");
-		questAnims("complete", "dialog_agree", "dialog_talk_02", "dialog_talk_05");
+		questAnims("start", TALK_ANIMS, THINK_ANIMS_ALL, "dialog_agree");
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
+		questAnims("complete", List.of("dialog_agree", "dialog_think_02"), "dialog_talk_02", TALK_ANIMS);
 		quest("alice/seven_colors", new Quest(GLEntities.ALICE.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_DOLL)),
 				questTitle("Seven Colors"), questDesc("Bring Alice four of each of the seven dyes the Doll Glove is woven from."),
@@ -177,16 +183,15 @@ public class AliceQDGen extends QuestDialogData {
 				start("How are dolls controlled?",
 						"Controlling a doll is not easy to learn. But I have a project going now: getting people who know no magic to work a doll. It takes seven dyes, four of each - the colors tell the different commands apart. Will you help me?",
 						"Consider it done.", "Then it is settled. Four of each - read the requirements over carefully before you go.", "I'll be back.",
-						"I have more important things to do first.", "Very well. Do think it over.", "(Leave)"),
-				follow("I seem to have forgotten which colors they were.",
+						"(Shake head)", "Very well. Do think it over.", "(Leave)"),
+				follow("I forgot which colors they were.",
 						"Red, orange, yellow, light green, cyan, light blue, purple - four of each.",
 						"Noted.", "The forest is never short of colors. What it lacks is persistence.", "I'll go on collecting."),
-				complete("All seven colors, four of each.",
-						"I have brought the dyes.",
-						"These are the dyes you asked for.",
+				complete("The dyes are gathered.",
+						"Good, this is the last step. Hand me the materials — it will be done soon.",
+						"(Hand over the items)",
 						"Here: the glove, a doll to match it, and a lance. Go and try it out - I will ask you now and then how it feels in use.",
-						"Then I'll put them to good use.",
-						"These aren't what you asked for.", "Then I will wait. The exact shades matter - nothing else quite substitutes for them.", "Very well.")
+						"All right.")
 		));
 
 		dailyQuest();
@@ -194,7 +199,7 @@ public class AliceQDGen extends QuestDialogData {
 
 	private void dailyQuest() {
 		prefix("alice/daily_doll");
-		questAnims("daily", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_greet", "dialog_agree", "dialog_talk_03");
+		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_think", TALK_ANIMS, "dialog_agree", List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_03", "dialog_talk_04"));
 		// Three independent rolls out of the seven dyes: the same dye can come
 		// up twice, which keeps the daily from being a fixed shopping list.
 		var dyePool = LootPool.lootPool().setRolls(ConstantValue.exactly(3));
@@ -214,7 +219,7 @@ public class AliceQDGen extends QuestDialogData {
 				"Then I will write you a fresh list.",
 				null, "Good. I will leave it to you.",
 				"I have what you asked for.", "Thank you. Let me just check the materials.",
-				"Here.", "The quality is very good, I accept them. As payment, here is a doll and a custom-made cavalry lance - take good care of it.",
+				"(Hand over the items)", "The quality is very good, I accept them. As payment, here is a doll and a custom-made cavalry lance - take good care of it.",
 				"You're welcome.",
 				new TreeMap<>(Map.of(
 						"a-materials", new SubmitItemRequirement(List.of(
@@ -295,6 +300,14 @@ public class AliceQDGen extends QuestDialogData {
 				dialog("follow_up/dialog_1", intro, anims("follow", 0, THINK_ANIMS),
 						option("follow_up/end", opt, dialog("follow_up/end/dialog_1", optLine,
 								anims("follow", 1, List.of()), tail))));
+	}
+
+	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine, String completeEnd) {
+		return option("complete", button,
+				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
+						option("complete/handover", complete, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine, anims("complete", 2, List.of()),
+										option("complete/handover/end", completeEnd)))));
 	}
 
 	private SimpleDialogOption complete(String button, String intro, String complete, String completeLine, String completeEnd,

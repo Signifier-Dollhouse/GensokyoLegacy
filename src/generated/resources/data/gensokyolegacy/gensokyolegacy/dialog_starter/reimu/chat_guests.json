@@ -11,7 +11,8 @@
   ],
   "dialog": {
     "animations": [
-      "dialog_think"
+      "dialog_think",
+      "dialog_think_02"
     ],
     "options": [
       {

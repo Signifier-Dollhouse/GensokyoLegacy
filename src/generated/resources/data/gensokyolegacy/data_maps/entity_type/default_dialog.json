@@ -2,7 +2,7 @@
   "values": {
     "gensokyolegacy:alice_margatroid": {
       "greeting": "gensokyolegacy/alice/chat/greeting",
-      "partyGreeting": "",
+      "partyGreeting": "gensokyolegacy/alice/chat/party_greeting",
       "trade": "gensokyolegacy/alice/chat/trade",
       "visitGreeting": "gensokyolegacy/alice/chat/visit_greeting"
     },
@@ -14,7 +14,7 @@
     },
     "gensokyolegacy:hakurei_reimu": {
       "greeting": "gensokyolegacy/reimu/chat/greeting",
-      "partyGreeting": "",
+      "partyGreeting": "gensokyolegacy/reimu/chat/party_greeting",
       "trade": "gensokyolegacy/reimu/chat/trade",
       "visitGreeting": "gensokyolegacy/reimu/chat/visit_greeting"
     },
@@ -22,23 +22,23 @@
       "greeting": "gensokyolegacy/suika/chat/greeting",
       "partyGreeting": "gensokyolegacy/suika/chat/party_greeting",
       "trade": "",
-      "visitGreeting": ""
+      "visitGreeting": "gensokyolegacy/suika/chat/visit_greeting"
     },
     "gensokyolegacy:izayoi_sakuya": {
       "greeting": "gensokyolegacy/sakuya/chat/greeting",
-      "partyGreeting": "",
+      "partyGreeting": "gensokyolegacy/sakuya/chat/party_greeting",
       "trade": "gensokyolegacy/sakuya/chat/trade",
       "visitGreeting": "gensokyolegacy/sakuya/chat/visit_greeting"
     },
     "gensokyolegacy:kirisame_marisa": {
       "greeting": "gensokyolegacy/marisa/chat/greeting",
-      "partyGreeting": "",
+      "partyGreeting": "gensokyolegacy/marisa/chat/party_greeting",
       "trade": "gensokyolegacy/marisa/chat/trade",
       "visitGreeting": "gensokyolegacy/marisa/chat/visit_greeting"
     },
     "gensokyolegacy:morichika_rinnosuke": {
       "greeting": "gensokyolegacy/morichika/chat/greeting",
-      "partyGreeting": "",
+      "partyGreeting": "gensokyolegacy/morichika/chat/party_greeting",
       "trade": "gensokyolegacy/morichika/chat/trade",
       "visitGreeting": "gensokyolegacy/morichika/chat/visit_greeting"
     },

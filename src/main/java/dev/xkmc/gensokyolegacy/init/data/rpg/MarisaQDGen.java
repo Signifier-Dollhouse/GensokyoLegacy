@@ -72,10 +72,7 @@ public class MarisaQDGen extends QuestDialogData {
 	private final String byeKey;
 	private final String dailyGroupKey;
 	private final String dailyStartKey;
-	private final String dailyAcceptKey;
 	private final String dailyRejectKey;
-	private final String dailyFollowKey;
-	private final String dailyFollowEndKey;
 	private final String dailyThanksKey;
 
 	public MarisaQDGen() {
@@ -83,20 +80,18 @@ public class MarisaQDGen extends QuestDialogData {
 		byeKey = text("option", "bye", "Bye!");
 		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
 		dailyStartKey = text("option", "daily_start", "What can I help?");
-		dailyAcceptKey = text("option", "daily_accept", "I'll do it!");
 		dailyRejectKey = text("option", "daily_reject", "Maybe later.");
-		dailyFollowKey = text("option", "daily_follow", "Could you go over the task again?");
-		dailyFollowEndKey = text("option", "daily_follow_end", "Alright, I'll get on it.");
 		dailyThanksKey = text("option", "daily_thanks", "You're welcome!");
 
 		prefix("marisa/chat");
 		defaultDialog(GLEntities.MARISA.get(),
 				"Yo, hey~ welcome to the Kirisame Magic Shop!",
-				"Yo, hey~ hey, you too!",
-				"What are you offering today?");
+				"Hey! You made it too.",
+				"Thanks for the treat - time to dig in~",
+				"I want to buy something.");
 		starter("marisa/chat", new DialogStarter(GLEntities.MARISA.get(), List.of(homeBound()),
 				starterText("start", "Business usually busy around here?"),
-				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.", List.of("dialog_confused"),
+				dialog("hi", "Used to get plenty, but everything around here changed big-time lately — no idea where my customers went.", TALK_ANIMS,
 						option("hi/end", "I see."))
 		));
 
@@ -116,7 +111,8 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/visit_kourindou_wander", GLEntities.MARISA.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("wander", "Not a bad place."),
-				dialog("wander", "Not bad, not bad! Kinda cramped, but honestly? I like it. There's more room to think in here than in my own shop, somehow.", List.of("dialog_talk_01"),
+				dialog("wander", "Kinda cramped, but I like it. Somehow this place gets my brain going better than my own "
+						+ "shop.", TALK_ANIMS,
 						option("stay", "Not thinking of redecorating your own shop?",
 								dialog("stay_ans", "Everyone has their own taste - and maybe I only come out here for the novelty of walking around.", List.of("dialog_decline"),
 										option("stay/end", "True enough.")))),
@@ -125,11 +121,14 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/visit_shrine");
 		chat("marisa/visit_shrine_donate", GLEntities.MARISA.get(),
 				List.of(visitingAt(GLStructureGen.HAKUREI_SHRINE)),
-				starterText("donate", "Is the offering box really as empty as it looks?"),
-				dialog("donate", "Oh, it's always empty — that's the whole problem. I come by sometimes to see if anyone's dropped anything in, and to check the money isn't leaking out, but plainly nobody comes at all.", List.of("dialog_think_02"),
-						option("leave", "Should I put something in it?",
-								dialog("leave_ans", "Really? She'd never say thank you — she'd just float a little higher. She's that blunt.", List.of("dialog_agree"),
-										option("leave/end", "Well, making a friend happy is not a bad thing.")))),
+				starterText("donate", "Does anyone actually put money in the offering box?"),
+				dialog("donate", "The offering box is basically always empty — the coins visitors donate probably don't even "
+						+ "match what the youkai toss in when they gather to drink.", List.of("dialog_think_02"),
+						option("leave", "Isn't this a place for exterminating youkai? Why do youkai come here to party?",
+								dialog("leave_ans", "Youkai are part of the balance too — it's not like I exterminate every "
+										+ "youkai I see. In other words, even humans who try to upset the balance "
+										+ "become targets.", List.of("dialog_agree"),
+										option("leave/end", "Seems my understanding was too one-sided.")))),
 				CHAT_MISC);
 
 		chat("marisa/visit_shrine_calm", GLEntities.MARISA.get(),
@@ -144,20 +143,26 @@ public class MarisaQDGen extends QuestDialogData {
 		prefix("marisa/chat_reimu");
 		chat("marisa/chat_reimu", GLEntities.MARISA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_HAKUREI_SHRINE), new SelfReputationCondition(50)),
-				starterText("start", "Do you know anyone who is strong in a fight?"),
-				dialog("talk", "You'll find the Hakurei Shrine out in the cherry grove — an old friend of mine's there, a real incident-resolving expert. If you're heading into danger, she may provide something to aid you in a fight.", List.of("dialog_think"),
+				starterText("start", "Do you know anyone skilled in a fight?"),
+				dialog("talk", "You'll find the Hakurei Shrine in the cherry grove — an old friend of mine is there, good "
+						+ "with spells for all sorts of trouble. If you're heading somewhere dangerous, she may give "
+						+ "you something useful in a fight.", List.of("dialog_think"),
 						option("where", "Anything I should know before visiting?",
-								dialog("where_ans", "She's easygoing, though a little aloof. She does help the village drive off calamities - on the condition that you don't forget the donation.", List.of("dialog_talk_03"),
-										option("where/end", "I'll drop by when I get the chance.")))),
+								dialog("where_ans", "She's easygoing; I think as long as you don't go too far, there won't be a "
+										+ "problem.", TALK_ANIMS,
+										option("where/end", "I'll pay a visit when I get the chance.")))),
 				CHAT_INFO);
 
 		prefix("marisa/chat_morichika");
 		chat("marisa/chat_morichika", GLEntities.MARISA.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MORICHIKA_SHOP), new SelfReputationCondition(50)),
 				starterText("start", "I wish I had tools to aid exploration…"),
-				dialog("talk", "Funny you mention tools — not all of my trinkets are handmade. There's another shop in this Magical Forest, Kourindou, run by an old acquaintance of mine. He deals all kinds of curios and tools, kinda a secondhand shop — if you need gear for exploring, he may sell you something useful.", List.of("dialog_talk_05"),
+				dialog("talk", "Funny you mention tools — not all my trinkets are handmade. There's another shop in the "
+						+ "Magical Forest, Kourindou, run by an old acquaintance of mine.", TALK_ANIMS,
 						option("where", "What does he sell?",
-								dialog("where_ans", "Sells everything from charms to junk — and he'll buy your spare curios too.", List.of("dialog_talk_04"),
+								dialog("where_ans", "He buys and sells all sorts of trinkets and tools — call it a secondhand "
+										+ "shop. If you need gear for exploring, he may have something. Everything from "
+										+ "charms to junk, and he buys everyday supplies too.", TALK_ANIMS,
 										option("where/end", "I'll have to pay it a visit sometime.")))),
 				CHAT_INFO);
 
@@ -167,18 +172,21 @@ public class MarisaQDGen extends QuestDialogData {
 		chat("marisa/chat_alice", GLEntities.MARISA.get(),
 				List.of(missingAdv(GLAdvGen.ENTER_ALICE_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Are there any other magic users in this forest?"),
-				dialog("talk", "There's a mansion out in the forest, home to Alice. She studies magic like I do, except she wears a scowl all day - the two of us spar a lot. But when you actually want help she's very warm-hearted, so get to know her.", List.of("dialog_talk_02"),
+				dialog("talk", "There's a mansion in the forest, home to Alice. She studies magic like me, but wears a scowl "
+						+ "all day; the two of us are always butting heads. But when you actually need help, she's "
+						+ "warm-hearted — you should get to know her.", List.of("dialog_talk_02"),
 						option("where", "Is she as good at potions as you are?",
-								dialog("where_ans", "No - every magic user has their own speciality. She handles all manner of things by working dolls, so if dolls interest you, she's the one to see.", List.of("dialog_decline"),
+								dialog("where_ans", "Not exactly — magic users have their own specialties. She's better with "
+										+ "dolls; if that interests you, she's the one to see.", List.of("dialog_decline"),
 										option("where/end", "Now I'm curious.")))),
 				CHAT_INFO);
 	}
 
 	private void quests() {
 		prefix("marisa/first_mushroom");
-		questAnims("start", "dialog_greet", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_talk_02", "dialog_greet");
-		questAnims("complete", "dialog_talk_05", "dialog_think", "dialog_agree");
+		questAnims("start", List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), "dialog_decline", "dialog_agree");
+		questAnims("follow", TALK_ANIMS, List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"));
+		questAnims("complete", TALK_ANIMS, "dialog_think", "dialog_agree");
 		quest("marisa/first_mushroom", new Quest(GLEntities.MARISA.get(), List.of(),
 				questTitle("First Mushrooms"), questDesc("Bring Marisa red and brown mushrooms from the surface."),
 				Optional.empty(),
@@ -191,22 +199,23 @@ public class MarisaQDGen extends QuestDialogData {
 						loot("marisa/first_mushroom", LootTable.lootTable()
 								.withPool(lootItem(GLItems.COIN.get(), 4)))),
 				start("I saw some requests posted outside your shop?",
-						"A new face! Marisa Kirisame, the ordinary magician, reportin' for duty, ze! I'm Marisa Kirisame the magician — just an ordinary human, ze! Say, you live around here, right? This area's still real strange to me — even the forest plants look different. I'm just getting my magic research started and I'm short on honest-to-goodness samples. How about fetching me some red and brown mushrooms?",
+						"This area's still real strange to me — even the forest plants look different. I'm "
+								+ "just getting my magic research started and I'm short on honest-to-goodness samples. "
+								+ "How about fetching me some local mushrooms?",
 						"Sure, I'll gather some.", "You're a lifesaver! — Eight red and eight brown mushrooms'll do. Bring me the good stuff!", "Okay, wait for me to get back.",
-						"Ehh, sounds like a hassle.", "Aw, c'mon~ Mushrooms are the foundation of every potion recipe — you'd be helping real magic research here!", "Maybe when I have time."),
+						"But I refuse.", "Aw, c'mon~ Mushrooms are the foundation of every potion recipe — you'd be helping real magic research here!", "Maybe when I have time."),
 				follow("Just double-checking — the request hasn't changed, right?",
 						"Hey, I'm not that kind of client — so how's the job going?",
-						"Not yet, still looking.", "Take your time — just don't skimp on me, now!", null),
-				complete("Here — what you asked for.",
-						"Ohoho, these are perfect! Just the right moisture and bite. This'll jump-start my research something fierce!",
-						"Here you go.", "Wahoo! Thanks a ton!", "Don't mention it.",
-						"Sorry, looks like I don't have enough.", "Sure, no rush. Come back when you're ready.", "Okay.")
+						"Not yet.", "Take your time, no rush.", "See you."),
+				complete("I brought what you asked for.",
+						"Really? Then I can start my research.",
+						"(Hand over the items)", "These are just right — thanks a ton!", "Don't mention it.")
 		));
 
 		prefix("marisa/huge_mushroom");
-		questAnims("start", "dialog_think", "dialog_talk_05", "dialog_agree");
-		questAnims("follow", "dialog_talk_04", "dialog_agree");
-		questAnims("complete", "dialog_talk_05", null, "dialog_agree");
+		questAnims("start", THINK_ANIMS_ALL, TALK_ANIMS, "dialog_agree");
+		questAnims("follow", TALK_ANIMS, "dialog_agree");
+		questAnims("complete", TALK_ANIMS, null, "dialog_agree");
 		quest("marisa/huge_mushroom", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_MUSHROOM)),
 				questTitle("Giant Mushrooms"), questDesc("Bring Marisa huge mushroom blocks."),
@@ -218,21 +227,24 @@ public class MarisaQDGen extends QuestDialogData {
 						loot("marisa/huge_mushroom", LootTable.lootTable()
 								.withPool(lootItem(GLItems.COIN.get(), 6)))),
 				start("This posted request — mushrooms again?",
-						"Speaking of which — have ya seen the mushrooms around here? They're practically trees! I've never seen anything this huge — real whoppers. I tried pluckin' one, but it just shattered into little bits in my hands. There's gotta be a proper way to harvest the solid blocks. Think ya can bring me some whole giant mushroom blocks?",
-						"I'll bring you fresh blocks.", "Now that's a good assistant! Bring 'em back intact — caps and stems, either kind is fine. I'll be sitting tight!", "Wait for me to get back.",
-						"Uh... why don't you try yourself? It's close by.", "Tried it! They shatter into tiny bits — useless to me. I need 'em in whole blocks — that's your specialty, right?", "I see."),
+						"Speaking of which — have ya seen the mushrooms around here? They're practically "
+								+ "trees! Never seen anything this huge, real whoppers. I tried pluckin' one and it "
+								+ "just shattered into little bits. There's gotta be a proper way to harvest the whole "
+								+ "thing. Think ya can bring me some whole giant mushroom blocks?",
+						"Can't be helped — I'll get them for you.", "Thanks!", "Wait for me to get back.",
+						"This stuff is hard to get without enchantments.", "That's your specialty, right? Give me a hand.", "I don't have the enchantment yet, wait a bit longer."),
 				follow("Let me double-check the request.",
 						"I need whole blocks of those giant mushrooms — got any yet? I can hardly wait!",
-						"Still working on it.", "Okay, okay — just don't bring me crumbs. I want whole blocks!", "Okay, okay."),
-				complete("Took some doing, but I got it — here you go.",
-						"THESE! Feel that? They're packed full of magic!",
-						"Glad I could help.", "You're a lifesaver! Now I've got dinner and research!", "Wait — you're gonna eat your research results?")
+						"Still working on it.", "Waiting for your good news.", "No problem."),
+				complete("This is what you asked for.",
+						"This is it — thanks a lot.",
+						"Glad I could help.", "Now I've got dinner and research sorted!", "What dinner?")
 		));
 
 		prefix("marisa/nether_mushroom_prep");
-		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_talk_02", "dialog_greet");
-		questAnims("complete", "dialog_talk_04", null, "dialog_agree");
+		questAnims("start", THINK_ANIMS_ALL, "dialog_decline", "dialog_agree");
+		questAnims("follow", TALK_ANIMS, "dialog_greet");
+		questAnims("complete", TALK_ANIMS, null, "dialog_agree");
 		quest("marisa/nether_mushroom_prep", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_FIRST_MUSHROOM), new HasAdvancementCondition(ADV_NETHER)),
 				questTitle("Nether Mushrooms"), questDesc("Bring Marisa nether mushroom samples."),
@@ -247,21 +259,23 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.COIN.get(), 6))
 								.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)))),
 				start("I saw the new request — has your mushroom obsession spread to the Nether?",
-						"The big-nosed natives around here say the mushrooms down there are something else entirely. No way I'm going there myself — all that fire and lava, and it ain't anything like the Former Hell. But you've been there, right? Bring me back some Nether mushrooms!",
+						"The big-nosed residents here say the mushrooms down there are something else "
+								+ "entirely. No way I'm going there myself — all that fire and lava, nothing like the "
+								+ "Former Hell. But you've been there, right? Bring me some Nether mushrooms!",
 						"I know the place — I can handle this.", "Knew I could count on ya! Bring those mushrooms back safe!", "Wait for good news.",
-						"Uh, I don't dare go there yet.", "Heh, fair enough. But that's where the really good research material is! Come back when you're feelin' brave.", "Okay."),
+						"Not really free right now.", "Then come back when you're free.", "Fine."),
 				follow("Let me confirm the request.",
 						"I need Nether mushrooms — found any yet? I hear they grow like weeds down there.",
-						"Haven't got any yet.", "Okay, stay safe~", "See you."),
+						"Not yet.", "Okay, stay safe~", "See you."),
 				complete("I brought them back.",
 						"Wow, look at this — it's like a living chunk of sulfur! That this world's plants can adapt to that place is fascinating. Amazing research material — thank you!",
-						"Well — all for research.", "Either way, thanks a bunch!", "You're too kind — I got paid for it, after all.")
+						"(Hand over the items)", "Either way, thanks a bunch!", "You're too kind — I got paid for it.")
 		));
 
 		prefix("marisa/shroomlight");
-		questAnims("start", "dialog_talk_05", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_talk_04", "dialog_think");
-		questAnims("complete", "dialog_talk_02", null, "dialog_agree");
+		questAnims("start", TALK_ANIMS, "dialog_decline", "dialog_agree");
+		questAnims("follow", TALK_ANIMS, THINK_ANIMS_ALL);
+		questAnims("complete", TALK_ANIMS, null, "dialog_agree");
 		quest("marisa/shroomlight", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_NETHER_MUSHROOM)),
 				questTitle("Glowing Fungi"), questDesc("Bring Marisa shroomlights."),
@@ -274,21 +288,22 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.COIN.get(), 6))
 								.withPool(lootItem(HexBrew.EXPLOSIVE_HEXBREW.bottle.get(), 2)))),
 				start("What's this glowing mushroom in the request?",
-						"I hear the Nether has giant mushrooms too — with flesh like wood! And a glowing core inside, right? I need that thing — bring me back a few.",
-						"I'll take the job.", "Now we're talkin'! Glowing cores — as many as ya can carry!", "Okay.",
+						"I hear the Nether has giant mushrooms too, with a glowing core inside, right? I want "
+								+ "that thing — bring me back a few.",
+						"I'll take the job.", "Now we're talkin'! It's called shroomlight, right? Bring back eight.", "Okay.",
 						"Why didn't you have me bring it last time...", "Hehe, I didn't know about this stuff last time — one more trip, pretty please.", "Let me get ready first."),
 				follow("Let me confirm the request.",
-						"You gettin' any of that glowing stuff? I wanna see how it lights up!",
+						"Got the shroomlight yet?",
 						"Not yet.", "Take care down there — don't get turned into a mushroom yourself!", "There's no such legend!"),
-				complete("Hand over the shroomlights.",
-						"Ohhh, so pretty! And look at the structure inside this stem! The magic must flow right through here.",
-						"Glad you like them.", "Like 'em? I love 'em!", "Just saying — the glowy ones are usually poisonous.")
+				complete("I brought the stuff back.",
+						"Ohhh, so pretty! Look at the veins inside! The magic must flow right through here.",
+						"(Hand over the items)", "Can you eat this?", "The glowy ones are usually poisonous, right?")
 		));
 
 		prefix("marisa/brewing");
 		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_think");
-		questAnims("complete", "dialog_agree", null, "dialog_talk_05");
+		questAnims("follow", "dialog_think", "dialog_think_02");
+		questAnims("complete", "dialog_agree", null, TALK_ANIMS);
 		quest("marisa/brewing", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT), new HasAdvancementCondition(ADV_FORTRESS)),
 				questTitle("Brewing"), questDesc("Bring Marisa blaze rods and nether wart."),
@@ -303,21 +318,22 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.COIN.get(), 8))
 								.withPool(lootItem(HexBrew.HEXBREW_ELIXIR.bottle.get(), 1)))),
 				start("Come to think of it, brewing here is nothing like those witches' — shouldn't it be blazes and nether wart based?",
-						"Different schools, y'know — but what you describe interests me too. Fetch me some of both — price is negotiable!",
+						"Different understandings, then — but what you describe interests me too. Fetch me "
+								+ "some of both — price is negotiable!",
 						"Fine, I'll help you.", "I'll wait for good news.", "Okay.",
-						"I'm busy with other stuff.", "Fine, I'm real patient — tell me when you're free?", "You really don't give up."),
+						"I'm busy with other stuff.", "Fine, tell me when you're free?", "You really don't give up."),
 				follow("Let me confirm the request.",
 						"Blaze rods and nether wart — I'm itchin' to fire up a brewing stand and study 'em!",
-						"I haven't actually gone yet — don't rush me.", "Okay, I admit I'm rushing — go on, get going.", "Okay, going now."),
+						"I haven't gone yet.", "Be careful on the way.", "Got it."),
 				complete("I got the stuff.",
 						"Blaze rods and nether wart — now I can finally study this 'brewing' business. Thanks again this time!",
 						"We each get what we need.", "Oh right — here's your reward.", "Thanks.")
 		));
 
 		prefix("marisa/hakkero");
-		questAnims("start", null, "dialog_decline", "dialog_talk_04");
-		questAnims("follow", null, "dialog_agree");
-		questAnims("complete", "dialog_talk_02", "dialog_decline", "dialog_talk_05");
+		questAnims("start", THINK_ANIMS_ALL, "dialog_decline", TALK_ANIMS);
+		questAnims("follow", THINK_ANIMS_ALL, "dialog_agree");
+		questAnims("complete", TALK_ANIMS, "dialog_decline", TALK_ANIMS);
 		// Offered to anyone holding the prototype who has not been given the
 		// repaired one yet, and the inverted second condition closes the quest for good.
 		quest("marisa/hakkero", new Quest(GLEntities.MARISA.get(),
@@ -336,26 +352,32 @@ public class MarisaQDGen extends QuestDialogData {
 				List.of(new ExpReward(300), new ReputationReward(20, 300, 10, 300),
 						loot("marisa/hakkero", LootTable.lootTable()
 								.withPool(lootItem(GLItems.MINI_HAKKERO.get(), 1)))),
-				start("Say, is that prototype of yours working out for you?",
-						"There it is! Say, I've had a look at that little prototype of yours - the old man sells them as curiosities, but the shape of that thing is interesting. It's a furnace that runs off nothing but itself, and it shouldn't be possible - the casing alone is a problem. There's real magic potential in there if somebody sat down and finished it properly. I could do that, if I had the parts.",
-						"What would you need?", "A little of everything: eight redstone to run the circuit, four gold for the contacts, sixteen iron to shore up the casing, and one netherite scrap to anchor the whole thing. Don't think that leaves your prototype in a bad way - I'll hand you back something better than what you gave me.",
-						"Off you go, then! One netherite scrap - don't get clever and try to fake it, I can tell.",
-						"I'm not going to part with any netherite.", "It's one scrap, not a nugget. And you'll get a proper hakkero out of it - that's worth more than the scrap in your pocket, trust me.",
+				start("(Show the prototype hakkero)",
+						"I feel nostalgic about this thing — the old man sells it as a curiosity, but the "
+								+ "shape is interesting. If I gather the materials, I can improve it for you, at least "
+								+ "make it less hot to the touch.",
+						"What would you need?", "Eight redstone for conduction, four gold for contacts, sixteen iron to shore up the "
+								+ "casing, plus one netherite scrap to anchor the whole structure. Don't worry — it'll "
+								+ "be much stronger than the prototype.",
+						"All right, I'll go get the stuff.",
+						"I think it works fine as is, maybe later.", "Then just find me when you want to upgrade it; I have experience.",
 						"I'll think about it."),
 				follow("Just to confirm - the parts for the repair?",
-						"Eight redstone, four gold, sixteen iron, one netherite scrap - and don't forget the prototype itself, I can't work on a copy!",
-						"Still getting them together.", "Take your time. The prototype isn't going anywhere without you.",
-						null),
+						"Eight redstone, four gold, sixteen iron, one netherite scrap — and don't forget to "
+								+ "bring the prototype itself.",
+						"All right.", "Take your time, no rush.",
+						"(Leave)"),
 				complete("Here - the parts, and the prototype.",
-						"Right, let's see... redstone for the circuit, gold to carry it, iron to hold it all together, and there we go - netherite, the part that actually matters. Hold still. ...There! Feel the difference? It runs cooler now, and it doesn't take nearly so long to finish a job. Morichika can have his little curiosity back.",
-						"Now that's a proper hakkero.", "A deal's a deal - it's yours.", "Huh, you know, that thing's practically a whole workshop in one hand.",
-						"Sorry, I don't have everything yet.", "No rush. Get the rest and come back.", "Okay.")
+						"Let's see... redstone, gold, and iron — right, the netherite is the truly crucial "
+								+ "part... There! Feel the difference? It runs cooler now, and smelting doesn't take as "
+								+ "long.",
+						"The furnace really doesn't leak heat now.", "There, it's yours.", "Huh, you know, that thing's practically a workshop in one hand.")
 		));
 
 		prefix("marisa/golden_apple");
-		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_talk_01", "dialog_think_02");
-		questAnims("complete", "dialog_talk_04", null, "dialog_think");
+		questAnims("start", THINK_ANIMS_ALL, "dialog_decline", "dialog_agree");
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
+		questAnims("complete", TALK_ANIMS, null, TALK_ANIMS);
 		quest("marisa/golden_apple", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING)),
 				questTitle("Enchanted Golden Apple"), questDesc("Bring Marisa an enchanted golden apple."),
@@ -367,20 +389,24 @@ public class MarisaQDGen extends QuestDialogData {
 						loot("marisa/golden_apple", LootTable.lootTable()
 								.withPool(lootItem(GLItems.COIN.get(), 10)))),
 				start("Finally a request that's not about mushrooms?",
-						"Ever seen those fancy golden apples — the glowy kind? Nobody in this world knows how to make 'em anymore, but I reckon I can figure it out! Find me one as a sample and I'll reverse-engineer the whole thing, then share the knowledge. Whaddaya say?",
-						"I'll try to find one.", "No pressure — this request has no deadline.", "Taking it or not, same thing really — wish me luck.",
-						"Too hard to find — I don't want it.", "Rare stuff is exactly the fun stuff! No hurry — look around when ya can.", "Depends on my luck."),
-				follow("Let me double-check the request.",
-						"Any news on the apple?",
-						"Haven't found one yet.", "I hear there are lots of abandoned buildings underground — rummage through chests and you'll run into one.", "Okay, I'll keep looking."),
+						"Ever seen those fancy golden apples — the enchanted kind? Nobody in this world knows "
+								+ "how to make 'em anymore, but I can figure it out! Find me one as a sample, and once "
+								+ "I've researched it I can reproduce it — whaddaya say?",
+						"I'll try to find one.", "No pressure — the request has no deadline.", "Whether you take it or not is the same, really — don't get your hopes up too high.",
+						"Too hard to find — maybe later.", "If you happen to find one, you can reconsider — let's leave it for now.", "Depends on my luck."),
+				follow("It's really not that easy to find.",
+						"You mean the enchanted golden apple — found one?",
+						"Not yet.", "I hear there are lots of abandoned buildings underground — rummage through chests and you'll run into one.", "Okay, I'll keep looking."),
 				complete("Finally — never mind how I got it, I found one.",
-						"Look at that glow — that's genuine lost technology. I'm gonna take it apart, learn every secret inside, and build my own!",
-						"No need to take it apart — you can just bite right in.", "Hey — ever heard of appreciating the moment?!", "That was on purpose.")
+						"Look at that glow — that's genuine lost technology. I'm gonna learn every secret "
+								+ "inside, and build my own!",
+						"Good luck.", "Wait for my good news — I'll be able to make these for you later!", "That'd be great.")
 		));
 
 		prefix("marisa/koishi_hat");
+		questAnims("start", TALK_ANIMS);
 		questAnims("follow", "dialog_confused", "dialog_agree");
-		questAnims("complete", "dialog_agree", null, "dialog_talk_05");
+		questAnims("complete", "dialog_agree", null, TALK_ANIMS);
 		quest("marisa/koishi_hat", new Quest(GLEntities.MARISA.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_BREWING),
 						new HasQuestCompletedCondition(QUEST_REIMU_OMINOUS)),
@@ -394,14 +420,21 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.COIN.get(), 8)))),
 				option("start", "What's with the hush-hush request — what's going on?", new StartQuestAction(),
 						dialog("start/dialog_1",
-								"Heard the news coming outta the Nether lately? Travelers comin' back white as sheets, swearin' somethin' followed 'em home — but none of 'em can say what. Gives me the creeps just thinkin' about it, ze. You're braver than me, though. Poke around down there for me, would ya? And... watch yourself.", List.of("dialog_talk_01"),
-								option("start/end", "Really? I'll go take a look."))),
+								"Heard the news coming outta the Nether lately? Travelers comin' back white "
+										+ "as sheets, swearin' somethin' followed 'em home — but none can say what. "
+										+ "Bring a shield before you go; witnesses claim they heard a strange bell, "
+										+ "then took a sharp blow to the back without ever seeing the attacker. You're "
+										+ "a real fighter — how about poking around the Nether for me?", TALK_ANIMS,
+								option("start/end", "Sounds dangerous — I'll keep an eye out."))),
 				follow("Hm — nothing seems to be happening?",
-						"Best if nothing's wrong — but while you were gone, travelers started going missing.",
-						"That dangerous? Boss, I've suddenly lost my nerve.", "That's fine too — best stay out of the Nether till this blows over.", "I'll keep that in mind."),
-				complete("I ran into what you mentioned — and I dealt with it.",
-						"Not a scratch? Knew you had it in you — travelers stopped ravin' about bein' followed, too.",
-						"Here — look at the loot.", "Haha! Another mystery laid to rest — this is for you.", "Then I'll take it with a clear conscience.")
+						"Best if nothing's wrong — but if you hear a bell, be careful.",
+						"Is this really not just a popular urban legend?", "If nobody had really been hurt, I doubt anyone would've actually commissioned an "
+								+ "investigation. Better safe than sorry.", "I'll keep that in mind."),
+				complete("I ran into it and got out unscathed. No idea who it was in the end, but judging by the hat "
+						+ "they dropped, it seems solved.",
+						"As expected of you — I never thought this commission would be completed; I was using "
+								+ "it as a notice board.",
+						"Here, look at the hat left at the scene.", "Haha! So that's how it was. You keep this hat — I know what's going on now.", "Then I'll take it with a clear conscience.")
 		));
 
 		dailyQuests();
@@ -410,9 +443,9 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void talismanQuests() {
 		prefix("marisa/talisman_request");
-		questAnims("start", "dialog_talk_04", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_agree");
-		questAnims("complete", "dialog_agree", null, "dialog_agree");
+		questAnims("start", TALK_ANIMS, "dialog_decline", "dialog_agree");
+		questAnims("follow", THINK_ANIMS_ALL, "dialog_agree");
+		questAnims("complete", TALK_ANIMS, null, "dialog_agree");
 		// Rep 100 AND (known to Reimu OR to Alice): their stock is what convinces
 		// Marisa the errand is worth trusting to the player.
 		quest("marisa/talisman_request", new Quest(GLEntities.MARISA.get(),
@@ -430,32 +463,36 @@ public class MarisaQDGen extends QuestDialogData {
 								.withPool(lootItem(GLItems.BROOM.get(), 1))
 								.withPool(lootItem(GLItems.STAR_WAND.get(), 1))
 								.withPool(lootItem(GLItems.COIN.get(), 16)))),
-				start("A talisman request?",
-						"Say — you've seen Reimu's ofuda, right? Those little papers pack a real punch! Lately my experiments keep leaving me singed, and healing's such a hassle. I wanna keep four for myself. Reimu sells 'em, so bring your coins. And... don't tell her they're for me. Whaddaya say?",
-						"I'll get them from Reimu.", "Great! Four healing papers — no knockoffs, got it?", "As if I would.",
-						"Aren't you two close? Why not ask her yourself?", "Reimu charges even me full price — and she'd tease me about it forever. Just help me out here.", "Let me think about it."),
+				start("Why commission talisman papers?",
+						"Say — you've seen Reimu's talisman papers, right? Lately my experiments keep leaving "
+								+ "me a mess; my safety measures still aren't good enough, so I thought of these. Buy "
+								+ "me a few. And... don't tell her they're for me, okay?",
+						"Fine, I'll take the job.", "Great! Four healing papers — no knockoffs, got it?", "As if I would.",
+						"Aren't you two close? Why not just ask her?", "Reimu charges even me full price — and she'd tease me about it forever. Just help me out here.", "Let me get ready first."),
 				follow("What was I supposed to buy again?",
 						"Healing papers — Reimu sells 'em at the shrine — four of 'em, burn that into your brain!",
-						"I remember they weren't cheap.", "Her prices are brutal, huh? But worth every coin, trust me!", "Ugh, so I'm paying out of pocket after all."),
-				complete("Here, the papers.",
-						"That's it! One ofuda and every ache is gone — I never could've asked her myself without you.",
-						"You didn't ask at all, though.", "Aw, never mind that — I've got good stuff for you too: a broom I whittled down this morning, and a star wand of my own making. The wand's the real prize — point one of Alice's dolls with it and she won't need a hand anymore. Keep it secret for me!", "At this point I kinda have to.")
+						"I remember they weren't cheap.", "Her prices are brutal, huh? I'll pay you back once you've bought them!", "Ugh, so I'm fronting the money after all."),
+				complete("Bought the talisman papers.",
+						"Haha, I really couldn't have asked her myself without you — sorry for the trouble.",
+						"Running errands really is a hassle.", "I've got good stuff for you — a broom I whittled this morning, and a star wand I "
+								+ "made. With the broom you won't have to worry about running errands at all~", "This really is much more convenient — I'll take it.")
 		));
 
 		prefix("marisa/daily_talisman");
-		questAnims("daily", "dialog_talk_03", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_greet", "dialog_agree");
+		questAnims("daily", TALK_ANIMS, "dialog_decline", TALK_ANIMS, TALK_ANIMS, List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), "dialog_agree");
 		var talismanTable = requestTable("daily_talisman", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(1))
 				.add(LootItem.lootTableItem(GLTalismans.HEAL_TALISMAN.get())
 						.apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
 		daily("marisa/daily_talisman", "Talisman Top-Up", "Bring Marisa healing talisman papers from Reimu.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_REQUEST)), 60, 10, 150, 0, 0,
-				"Yo! I've already used up the papers — help me make another trip to Reimu's and buy a few more healing papers, would ya?",
-				"Thanks! Still the usual four, got it?",
+				"The talisman papers are all used up — help me make another trip to Reimu's and buy a few "
+						+ "talismans, would ya?",
+				"I'll do it!", "Thanks! This is what the request needs~",
 				"How could you—",
-				"Healing papers — I burn through 'em fast with all my experimenting. Gotta keep 'em stocked!",
-				"Okay, I'll go buy them.", "Good, waiting for you to get back!",
-				"I bought them back.", "You're a huge help!", "Here.", "Thanks a bunch!", "You're welcome.",
+				"What talismans did you need again?", "Here, take a look.",
+				"I'll go make the trip.", "Good, waiting for you to get back!",
+				"Bought them.", "You're a huge help!", "(Hand over the items)", "Thanks a bunch!", "You're welcome.",
 				new TreeMap<>(Map.of(
 						"a-talisman", rollItem(talismanTable)
 				)), LootTable.lootTable()
@@ -465,7 +502,7 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void dailyQuests() {
 		prefix("marisa/daily_mycelium");
-		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_think", "dialog_talk_01", "dialog_greet", "dialog_agree");
+		questAnims("daily", TALK_ANIMS, "dialog_decline", "dialog_agree", THINK_ANIMS_ALL, TALK_ANIMS, TALK_ANIMS, "dialog_agree");
 		var myceliumTable = requestTable("daily_mycelium", LootTable.lootTable()
 				.withPool(lootItem(GLNaturalBlocks.GHOST_FIRE_MUSHROOM_SET.cap.asItem(), 3, 6))
 				.withPool(lootItem(GLNaturalBlocks.DREAM_MUSHROOM_SET.cap.asItem(), 3, 6))
@@ -473,19 +510,19 @@ public class MarisaQDGen extends QuestDialogData {
 		);
 		daily("marisa/daily_mycelium", "Specialty Mushrooms", "Bring Marisa fresh specialty mushrooms.",
 				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
-				"Morning! My stock's runnin' low again. Bring me a fresh bundle of forest mushrooms — the glowing ones, the dreamy ones, whatever ya can find. Fresh research material, stat!",
-				"That's the spirit! Bring me the good stuff!",
-				"Aw, c'mon! The specialty mushrooms are the best part of this world's flora!",
-				"Stock's runnin' low again — the glowing ones, the dreamy ones, whatever ya can find. Remember?",
-				null, "Good, don't take too long!",
+				"My stock's runnin' low again — bring me a batch of forest mushrooms.",
+				"I'll go.", "That's the spirit — these are what I need this time.",
+				"Ugh, fine.",
+				"What mushrooms did you need again?", "Take a look at the list.",
+				"Thanks.", "Good, don't take too long!",
 				"How about these mushrooms?", "Oh, you got 'em? Let me see!", "Here you go!",
-				"Oh, these are perfect! Thanks, buddy!", null,
+				"These mushrooms look great! Thanks!", null,
 				new TreeMap<>(Map.of(
 						"a-special", rollItem(myceliumTable)
 				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 1)));
 
 		prefix("marisa/daily_witchcraft");
-		questAnims("daily", "dialog_talk_04", "dialog_decline", "dialog_greet", "dialog_talk_02", "dialog_agree", "dialog_greet", "dialog_agree");
+		questAnims("daily", TALK_ANIMS, "dialog_decline", List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), TALK_ANIMS, "dialog_agree", List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"));
 		var witchcraftTable = requestTable("daily_witchcraft", LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
 						.add(LootItem.lootTableItem(GLNaturalBlocks.DEMONIC_MIASMA_MUSHROOM_SET.cap).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3)))))
@@ -497,12 +534,12 @@ public class MarisaQDGen extends QuestDialogData {
 						.add(LootItem.lootTableItem(Items.GUNPOWDER).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 3))))));
 		daily("marisa/daily_witchcraft", "Witchcraft Bits", "Bring Marisa rotten flesh, spider eyes, and miasma mushrooms.",
 				new QuestRecurrence(24000), List.of(), 60, 10, 150, 0, 0,
-				"Yo! I'm mid-brew and runnin' short on necro-materials. Think ya can scrounge up some rotten flesh, spider eyes, and a few miasma mushrooms? For, uh... research. Yeah. Research.",
-				"Thanks — waiting for you to get back!",
-				"What, too gross? Magic research can't be picky! Please!",
-				"Rotten flesh, spider eyes, miasma mushrooms — don't forget.",
-				null, "Good, I'll have the brew ready!",
-				"I got them.", "Oh, you got 'em? Let me see!", "Here.",
+				"I'm mid-brew and running short on materials — can you get me some monster materials?",
+				"Let me help.", "Thanks — here are the requirements, take a look.",
+				"That's a problem — guess I'll take my time on my own.",
+				"Could you go over the task again?", "These are the materials I need.",
+				"Got it.", "I'll get ready — waiting for you to get back.",
+				"I got them", "Thanks for the work — you're not hurt, are you?", "Safe and sound (Hand over the items)",
 				"Just what I needed! Thanks!", null,
 				new TreeMap<>(Map.of(
 						"a-grubby", rollItem(witchcraftTable)
@@ -510,7 +547,7 @@ public class MarisaQDGen extends QuestDialogData {
 						.withPool(lootItem(HexBrew.MIASMA_HEXBREW.bottle.get(), 1)));
 
 		prefix("marisa/daily_shroomlight");
-		questAnims("daily", "dialog_talk_02", "dialog_decline", "dialog_agree", "dialog_talk_04", "dialog_greet", "dialog_greet", "dialog_agree");
+		questAnims("daily", TALK_ANIMS, "dialog_decline", "dialog_agree", TALK_ANIMS, List.of("dialog_talk_01", "dialog_talk_04", "dialog_talk_05"), List.of("dialog_talk_01", "dialog_talk_03", "dialog_talk_04"), List.of("dialog_talk_01", "dialog_talk_02", "dialog_talk_05"));
 		var shroomlightTable = requestTable("daily_shroomlight", LootTable.lootTable().withPool(LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(2))
 				.add(LootItem.lootTableItem(Items.SHROOMLIGHT).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
@@ -519,25 +556,25 @@ public class MarisaQDGen extends QuestDialogData {
 		daily("marisa/daily_shroomlight", "Nether Light Run", "Bring Marisa shroomlights and nether fungus.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_SHROOMLIGHT)), 60, 10, 150, 0, 0,
 				"I need more Nether shroomlights and fungus — help me out~",
-				"Thanks~ come back safe!",
-				"What? The Nether's not that bad! Just watch out for the lava!",
-				"Nether fungus and shroomlights — remember, okay?",
-				null, "Stay safe down there!",
-				"I got them!", "Oh, you got 'em? Let me see.", "Here.",
-				"That's the one — thanks!", null,
+				"I'll go gather some.", "Thanks~ come back safe!",
+				"Fine, then.",
+				"What did I need from the Nether again?", "Nether fungus and shroomlight — don't forget.",
+				"All right, I'll get on it.", "Stay safe down there!",
+				"I'm back from the Nether.", "Oh? Did you get the materials?", "Here.",
+				"That's the one — here, your hard-earned pay~", null,
 				new TreeMap<>(Map.of(
 						"a-light", rollItem(shroomlightTable)
 				)), LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 2)));
 
 		prefix("marisa/daily_brewing");
-		questAnims("daily", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_agree", "dialog_talk_03", "dialog_agree");
+		questAnims("daily", THINK_ANIMS_ALL, "dialog_decline", "dialog_agree", THINK_ANIMS_ALL, "dialog_agree", TALK_ANIMS, "dialog_agree");
 		daily("marisa/daily_brewing", "Brewing Errand", "Bring Marisa blaze rods and nether wart.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_BREWING)), 60, 20, 150, 5, 130,
 				"Brewin' up a storm over here, and I'm fresh outta base ingredients! Please head to the Nether and grab me some blaze rods and nether wart.",
-				"Waiting for good news.",
-				"Aw, don't leave me hangin'! The brew won't brew itself!",
-				"Blaze rods and nether wart — remember!",
-				null, "Hurry back — the brew waits for no one!",
+				"I'll handle it.", "Waiting for good news.",
+				"Fine, I'll wait a bit longer.",
+				"Could you go over the task again?", "Blaze rods and nether wart — remember!",
+				"All right, I'll get on it.", "Hurry back — the brew waits for no one!",
 				"I got them.", "Oh, you got 'em? Let me see.", "Here.",
 				"Thank you!", "You're welcome.",
 				new TreeMap<>(Map.of(
@@ -706,7 +743,8 @@ public class MarisaQDGen extends QuestDialogData {
 
 	private void daily(String id, String title, String desc, QuestRecurrence rec,
 					   List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-					   String intro, String acceptLine, String rejectLine, String followLine, @Nullable String followEndOverride, String optLine,
+					   String intro, String accept, String acceptLine, String rejectLine,
+					   String follow, String followLine, String followButton, String optLine,
 					   String completeOpener, String gotemLine, String handover, String completeLine, @Nullable String thanks,
 					   Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.MARISA.get(), conditions,
@@ -715,27 +753,25 @@ public class MarisaQDGen extends QuestDialogData {
 				new TreeMap<>(reqs),
 				List.of(new ExpReward(exp), new ReputationReward(rep, softCap, capIncrease, maxCap),
 						loot(id, loot)),
-				dailyStart(intro, acceptLine, rejectLine),
-				dailyFollow(followLine, followEndOverride, optLine),
+				dailyStart(intro, accept, acceptLine, rejectLine),
+				dailyFollow(follow, followLine, followButton, optLine),
 				dailyComplete(completeOpener, gotemLine, handover, completeLine, thanks)));
 	}
 
-	private GroupDialogOption dailyStart(String intro, String acceptLine, String rejectLine) {
+	private GroupDialogOption dailyStart(String intro, String accept, String acceptLine, String rejectLine) {
 		return groupKey(dailyGroupKey, dailyStartKey,
 				dialog("start/dialog_1", intro, anims("daily", 0, THINK_ANIMS),
 						optionKey(dailyRejectKey,
 								dialog("start/reject/dialog_1", rejectLine, anims("daily", 1, List.of()))),
-						optionKey(dailyAcceptKey, new StartQuestAction(),
+						option("start/accept", accept, new StartQuestAction(),
 								dialog("start/accept/dialog_1", acceptLine, anims("daily", 2, List.of())))));
 	}
 
-	private GroupDialogOption dailyFollow(String followLine, @Nullable String endOverride, String optLine) {
-		var end = endOverride == null
-				? optionKey(dailyFollowEndKey, dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))
-				: option("follow_up/end", endOverride,
-				dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())));
-		return groupKey(dailyGroupKey, dailyFollowKey,
-				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS), end));
+	private GroupDialogOption dailyFollow(String follow, String followLine, String followButton, String optLine) {
+		return groupOption(dailyGroupKey, "follow_up", follow,
+				dialog("follow_up/dialog_1", followLine, anims("daily", 3, THINK_ANIMS),
+						option("follow_up/end", followButton,
+								dialog("follow_up/end/dialog_1", optLine, anims("daily", 4, List.of())))));
 	}
 
 	private GroupDialogOption dailyComplete(String opener, String gotemLine, String handover,

@@ -28,67 +28,69 @@ public class GiftQDGen extends QuestDialogData {
 
 	public GiftQDGen() {
 		var leave = giftLeave();
-		pair("reimu", GLEntities.REIMU.get(), leave, YoukaiAnim.TALK_05, 10,
+		var talk05 = List.of(YoukaiAnim.TALK_05.trigger());
+		var talk03 = List.of(YoukaiAnim.TALK_03.trigger());
+		pair("reimu", GLEntities.REIMU.get(), leave, talk05, 10,
 				"Why are you giving me things all of a sudden... but I do like it, so I'll keep it.",
 				null,
 				"Ugh, what's this? Take it away, take it away.",
 				"Here — this is a thank-you for the gifts. Don't read anything into it.",
 				"...Thanks. I'll take it, then.");
-		pair("marisa", GLEntities.MARISA.get(), leave, YoukaiAnim.TALK_05, 12,
+		pair("marisa", GLEntities.MARISA.get(), leave, TALK_ANIMS, 12,
 				"Wow, you really get me. I love this!",
 				null,
 				"Er, I just remembered something's on the stove. Hold on to this one, will you?",
 				"Ta-da! I picked this out myself. Hope it's useful!",
-				"Oh, this is great! Thanks!");
-		pair("morichika", GLEntities.MORICHIKA.get(), leave, YoukaiAnim.TALK_05, 9,
+				"What a surprise!");
+		pair("morichika", GLEntities.MORICHIKA.get(), leave, TALK_ANIMS, 9,
 				"How did you know I liked this? I'll accept your kind offer, then.",
 				null,
 				"Er, the shop has no room for this. You take it back, customer.",
-				"Here, with the establishment's thanks. Do come again.",
+				"Thanks for your patronage lately. I picked this out for you — do come again.",
 				"Thank you. I'll be sure to visit.");
-		pair("alice", GLEntities.ALICE.get(), leave, YoukaiAnim.TALK_05, 12,
+		pair("alice", GLEntities.ALICE.get(), leave, talk05, 12,
 				"What a curious thing. I'll keep it — care for some freshly brewed red tea?",
 				null,
 				"Mm, thank you, but I'm afraid I can't accept this one.",
 				"I've prepared a little something in return. It's not much, but it's yours.",
 				"How thoughtful. Thank you.");
-		pair("sakuya", GLEntities.IZAYOI_SAKUYA.get(), leave, YoukaiAnim.TALK_05, 8,
+		pair("sakuya", GLEntities.IZAYOI_SAKUYA.get(), leave, TALK_ANIMS, 8,
 				"This looks like something the young lady would like. I'll take it.",
 				null,
 				"I'm sorry, Scarlet Devil Mansion has no use for this. Please keep it.",
 				"Take this, with the young lady's compliments. It is only a small thing.",
-				"You're very kind. Thank you.");
-		pair("cirno", GLEntities.CIRNO.get(), leave, YoukaiAnim.TALK_05, 10,
+				"You're too kind.");
+		pair("cirno", GLEntities.CIRNO.get(), leave, TALK_ANIMS, 10,
 				"You're so nice! I really like this!",
 				"A present? Then I'll take it~",
 				"I don't like this one. You keep it.",
 				"I found this outside! It's yours now. Come play with me again, okay?",
 				"It's a date! I'll come find you.");
-		pair("suika", GLEntities.IBUKI_SUIKA.get(), leave, YoukaiAnim.TALK_01, 15,
+		pair("suika", GLEntities.IBUKI_SUIKA.get(), leave, TALK_ANIMS, 15,
 				"Now you're talking — you know what we like, so I won't be shy about it~",
 				"Looks pretty ordinary, but it's the thought that counts. I'll take it.",
 				"Hey hey, I don't take just anything. Think it over before you hand it over.",
 				"This does nothing for me, so I'm giving it to you. Come drink with me again~",
 				"My tolerance isn't great, so go easy on me!");
-		pair("yuyuko", GLEntities.SAIGYOUJI_YUYUKO.get(), leave, YoukaiAnim.TALK_01, 10,
+		pair("yuyuko", GLEntities.SAIGYOUJI_YUYUKO.get(), leave, TALK_ANIMS, 10,
 				"Such a delicate gift. I'm delighted — thank you.",
 				"Another gift? You're too kind. I'll accept it, then.",
 				"I'm sorry, but I can't accept this one.",
 				"This is for you. I hope you'll like it too.",
-				"(Accept the thank-you gift)");
-		pair("minamitsu", GLEntities.MINAMITSU.get(), leave, YoukaiAnim.TALK_05, 10,
+				"Thank you, I like it.");
+		pair("minamitsu", GLEntities.MINAMITSU.get(), leave, TALK_ANIMS, 10,
 				"You have a good eye. I'll take it, then.",
 				"A gift? Don't mind if I do.",
 				"I've no use for this aboard a ship. Keep it.",
-				"Here — I hauled this up a while back. It's yours.",
-				"Thanks. I'll take it.");
-		pair("nue", GLEntities.HOUJUU_NUE.get(), leave, YoukaiAnim.TALK_03, 10,
+				"Here — I hauled this up a while back, it's yours.",
+				"You're too kind.");
+		pair("nue", GLEntities.HOUJUU_NUE.get(), leave, talk03, 10,
 				"Thank you. I'll take it.",
 				"A gift for me? I suppose I'll take it.",
 				"I can't make anything of this. You keep it.",
 				"Take this. Don't ask me where it came from.",
 				"Mm. I'll take it.");
-		pair("nazrin", GLEntities.NAZRIN.get(), leave, YoukaiAnim.TALK_03, 10,
+		pair("nazrin", GLEntities.NAZRIN.get(), leave, talk03, 10,
 				"A treasure! You have a good eye. I'll take it.",
 				"Hm, not bad. I suppose I'll keep it.",
 				"I have no use for this. You can keep it.",
@@ -111,7 +113,7 @@ public class GiftQDGen extends QuestDialogData {
 	 * The text key is spelled whole rather than left to {@code dialog}, which would repeat the prefix:
 	 * {@code <char>/gift/dialog/<variant>}, not {@code .../gift/<char>/gift/...}.
 	 */
-	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, YoukaiAnim talkSlot,
+	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, List<String> returnAnims,
 					  int threshold, String like, @Nullable String neutral, String dislike,
 					  String giveBack, String takeIt) {
 		prefix(name + "/gift");
@@ -126,11 +128,11 @@ public class GiftQDGen extends QuestDialogData {
 				List.of(YoukaiAnim.DISLIKE.trigger()), leave);
 		// An override, not a weight: a gift owed is owed whatever the player came to ask about, so she
 		// hands it over on sight and no topic list is shown until the bank is empty again.
-		// TALK_05 where she has one, TALK_01 where she does not: Suika's rig carries two talk clips and
-		// folds every slot onto them, so naming the fifth would resolve to nothing and play no animation
+		// All talk clips where the edited data asks for variety; a plain TALK_05 otherwise: Suika's rig
+		// folds every slot onto her two talk clips, so naming the fifth there would play nothing.
 		overrideChat(name + "/gift", type, List.of(new GiftReturnCondition()),
 				dialogKey("return", rawText(name + "/gift/dialog/return", giveBack),
-						List.of(talkSlot.trigger()),
+						returnAnims,
 						option("return/take", takeIt, new GiftReturnAction())));
 		giftDialog(type, liked, plain, disliked, threshold,
 				GensokyoLegacy.loc(GiftReturn.TABLE_DIR + "/" + tablePath(type)));
