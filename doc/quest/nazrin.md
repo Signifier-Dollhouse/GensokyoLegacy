@@ -64,7 +64,9 @@ list; each option carries a `GiveItemAction`:
 
 The player picks one. This is why the quest rewards carry only exp and
 reputation: the choice lives in the dialog, where it can differ per click,
-which a `Quest.rewards` list cannot express.
+which a `Quest.rewards` list cannot express. JEI reads the three options off the
+completion dialog and shows them as "Any of the following rewards of your
+choice" (see [rewards.md](../design/quest/rewards.md)).
 
 ## Trades
 
