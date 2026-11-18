@@ -643,7 +643,8 @@
     "gensokyolegacy:myouren_temple": {
       "entities": [
         "gensokyolegacy:murasa_minamitsu",
-        "gensokyolegacy:hijiri_byakuren"
+        "gensokyolegacy:hijiri_byakuren",
+        "gensokyolegacy:nazrin"
       ],
       "house": [
         [
@@ -851,7 +852,8 @@
               5,
               -9
             ],
-            "name": "room_4"
+            "name": "room_4",
+            "owner": "gensokyolegacy:nazrin"
           },
           {
             "bound": [

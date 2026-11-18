@@ -88,6 +88,12 @@ public class GiftQDGen extends QuestDialogData {
 				"I can't make anything of this. You keep it.",
 				"Take this. Don't ask me where it came from.",
 				"Mm. I'll take it.");
+		pair("nazrin", GLEntities.NAZRIN.get(), leave, YoukaiAnim.TALK_03, 10,
+				"A treasure! You have a good eye. I'll take it.",
+				"Hm, not bad. I suppose I'll keep it.",
+				"I have no use for this. You can keep it.",
+				"Here — I dug this up on the way. It's yours.",
+				"Thanks. I'll take it.");
 	}
 
 	/**

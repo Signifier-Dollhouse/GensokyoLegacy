@@ -63,6 +63,13 @@
       "returnTable": "gensokyolegacy:gift_return/murasa_minamitsu",
       "threshold": 10
     },
+    "gensokyolegacy:nazrin": {
+      "dislike": "gensokyolegacy:nazrin/gift/dislike",
+      "like": "gensokyolegacy:nazrin/gift/like",
+      "neutral": "gensokyolegacy:nazrin/gift/neutral",
+      "returnTable": "gensokyolegacy:gift_return/nazrin",
+      "threshold": 10
+    },
     "gensokyolegacy:saigyouji_yuyuko": {
       "dislike": "gensokyolegacy:yuyuko/gift/dislike",
       "like": "gensokyolegacy:yuyuko/gift/like",

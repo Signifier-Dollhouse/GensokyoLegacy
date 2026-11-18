@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
@@ -90,9 +91,10 @@ public class GiftLootGen {
 		gift(pvd, "ibuki_suika", suika());
 		gift(pvd, "saigyouji_yuyuko", yuyuko());
 		gift(pvd, "murasa_minamitsu", minamitsu());
+		gift(pvd, "nazrin", nazrin());
 		gift(pvd, "houjuu_nue", nue());
 		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko(),
-				minamitsu(), nue());
+				minamitsu(), nazrin(), nue());
 	}
 
 	/**
@@ -102,7 +104,7 @@ public class GiftLootGen {
 	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
 		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
 				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika",
-				"saigyouji_yuyuko", "murasa_minamitsu", "houjuu_nue"};
+				"saigyouji_yuyuko", "murasa_minamitsu", "nazrin", "houjuu_nue"};
 		for (int i = 0; i < ladders.length; i++) {
 			var name = names[i];
 			var table = returnTable(ladders[i]);
@@ -274,6 +276,20 @@ public class GiftLootGen {
 						gift(GLItems.GHOST_SAKE, 20),
 						gift(GLItems.ZUN_BEER, 20)),
 				tier(1000, 0, gift(GLItems.MINAMITSU_ANCHOR, 10)));
+	}
+
+	/**
+	 * A dowser parts with her treasure basket once an evening passes 500 appeal; the middle rung is
+	 * what her dowsers turned up, so the band below the basket is a find rather than a drink.
+	 */
+	private static List<Tier> nazrin() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 500, gift(Items.GOLD_INGOT, 20),
+						gift(Items.EMERALD, 20),
+						gift(Items.DIAMOND, 10),
+						gift(GLItems.MERMAID_PEARL, 20)),
+				tier(500, 0, gift(GLBlocks.TREASURE_BASKET, 10)));
 	}
 
 	/**

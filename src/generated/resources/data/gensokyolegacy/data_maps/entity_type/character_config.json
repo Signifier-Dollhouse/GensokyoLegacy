@@ -48,6 +48,13 @@
       "respawnTime": 12000,
       "structure": "gensokyolegacy:myouren_temple",
       "wanderRadius": 16
+    },
+    "gensokyolegacy:nazrin": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:myouren_temple",
+      "wanderRadius": 16
     }
   }
 }
