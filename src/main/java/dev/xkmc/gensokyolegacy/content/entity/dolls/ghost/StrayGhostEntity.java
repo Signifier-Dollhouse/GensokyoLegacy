@@ -79,7 +79,6 @@ public class StrayGhostEntity extends StrayFlyingMob implements GeoEntity, Ghost
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
 										MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag pTag) {
 		SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData, pTag);
-		setPersistenceRequired();
 		if (reason == MobSpawnType.SPAWN_EGG || reason == MobSpawnType.COMMAND || reason == MobSpawnType.NATURAL) {
 			setVariant(GhostVariant.random(getRandom()));
 			setPower(GhostPowerHolder.wildPower(getRandom()));
