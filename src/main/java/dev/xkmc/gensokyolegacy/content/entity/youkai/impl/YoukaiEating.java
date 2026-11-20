@@ -39,8 +39,10 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 	}
 
 	default void stopEating() {
+		int left = getEatTicks();
 		getEntityData().set(DATA_EAT_ITEM, ItemStack.EMPTY);
 		getEntityData().set(DATA_EAT_TICKS, 0);
+		if (left > 0) releaseChewPose();
 	}
 
 	/**
@@ -61,7 +63,20 @@ public interface YoukaiEating extends YoukaiBaseImpl {
 	 */
 	default void tickEating() {
 		int left = getEatTicks();
-		if (left > 0) getEntityData().set(DATA_EAT_TICKS, left - 1);
+		if (left > 0) {
+			getEntityData().set(DATA_EAT_TICKS, left - 1);
+			if (left == 1) releaseChewPose();
+		}
+	}
+
+	/**
+	 * The chew clip holds its last pose, so nothing ends it on its own: drop the hold when the meal is over
+	 * and let the state loop fade back in. A clip triggered after the chew has already taken the controller,
+	 * which the release ignores.
+	 */
+	default void releaseChewPose() {
+		if (asYoukai() instanceof GeoYoukaiAnim anim)
+			anim.broadcastStopAnim();
 	}
 
 	/**

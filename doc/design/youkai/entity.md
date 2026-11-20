@@ -25,7 +25,7 @@ Copied from the doll implementation, which is the reference for the pattern:
 
 ### 1.1 What is in `impl/`
 
-Seven types, in two kinds. The facets are the default-method interfaces the rules above are about; the other three
+Eight types, in two kinds. The facets are the default-method interfaces the rules above are about; the other four
 are plain supporting types that moved in because they are the same *per-character machinery* and the old split left
 them stranded one package over.
 
@@ -41,6 +41,7 @@ them stranded one package over.
 |---|---|
 | `YoukaiAnim` | the shared one-shot vocabulary, trigger names and event ids (moved from `facet/`) |
 | `YoukaiFlags` | the flag bitfield's enum, the index `YoukaiBaseImpl` reads and writes (moved from the parent package) |
+| `OneShotController` | the overlay controller: the end-of-clip latch and the hold release behind `doc/design/youkai/anim.md` |
 
 `facet/` is gone. `GeoYoukaiAnim` and `YoukaiAnim` were its whole contents, and `YoukaiFlags` sat beside them
 logging a split that no longer means anything: `facet/` held two of the four things a character's own machinery is,
