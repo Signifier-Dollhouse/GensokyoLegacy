@@ -65,7 +65,22 @@ public class TreasureBasketEffectData extends EffectData {
 
 	@Override
 	public boolean isOwnerStillValid(ServerLevel level, BlockPos ownerPos, BlockState state) {
-		return state.is(GLBlocks.TREASURE_BASKET.get());
+		if (!state.is(GLBlocks.TREASURE_BASKET.get())) return false;
+		int fill = getFill();
+		if (state.getValue(TreasureBasketBlock.FILL) != fill)
+			level.setBlock(ownerPos, state.setValue(TreasureBasketBlock.FILL, fill), Block.UPDATE_ALL);
+		return true;
+	}
+
+	/**
+	 * 0 when empty, 2 when every slot is occupied, 1 in between.
+	 */
+	public int getFill() {
+		int used = 0;
+		for (ItemStack stack : items) {
+			if (!stack.isEmpty()) used++;
+		}
+		return used == 0 ? 0 : used == SLOTS ? 2 : 1;
 	}
 
 	@Override

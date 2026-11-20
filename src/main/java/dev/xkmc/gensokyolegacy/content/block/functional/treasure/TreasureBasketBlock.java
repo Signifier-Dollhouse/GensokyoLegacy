@@ -7,6 +7,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.area.ClientAreaEffectTracker;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.l2modularblock.impl.BlockEntityBlockMethodImpl;
+import dev.xkmc.l2modularblock.mult.CreateBlockStateBlockMethod;
+import dev.xkmc.l2modularblock.mult.DefaultStateBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnPlaceBlockMethod;
 import dev.xkmc.l2modularblock.mult.OnReplacedBlockMethod;
 import dev.xkmc.l2modularblock.mult.PlacementBlockMethod;
@@ -20,7 +22,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,11 +37,24 @@ import java.util.List;
  *
  * @see "doc/design/item/treasure_basket.md"
  */
-public class TreasureBasketBlock implements OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod,
-		UseWithoutItemBlockMethod {
+public class TreasureBasketBlock implements CreateBlockStateBlockMethod, DefaultStateBlockMethod,
+		OnPlaceBlockMethod, OnReplacedBlockMethod, PlacementBlockMethod, UseWithoutItemBlockMethod {
+
+	// 0 empty, 1 partially filled, 2 every slot occupied
+	public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, 2);
 
 	public static final BlockMethod BE = new BlockEntityBlockMethodImpl<>(
 			GLBlocks.TREASURE_BASKET_BE, TreasureBasketBlockEntity.class);
+
+	@Override
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FILL);
+	}
+
+	@Override
+	public BlockState getDefaultState(BlockState state) {
+		return state.setValue(FILL, 0);
+	}
 
 	@Override
 	public @Nullable BlockState getStateForPlacement(BlockState def, BlockPlaceContext context) {

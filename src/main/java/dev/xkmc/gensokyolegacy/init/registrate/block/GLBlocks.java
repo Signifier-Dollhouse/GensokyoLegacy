@@ -168,12 +168,17 @@ public class GLBlocks {
 							new TreasureBasketBlock(), TreasureBasketBlock.BE))
 					.properties(p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
 					.tag(BlockTags.MINEABLE_WITH_AXE)
-					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-							pvd.models().getBuilder("block/" + ctx.getName())
-									.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/treasure_basket")))
-									.texture("all", pvd.modLoc("block/utensil/treasure_basket_0"))
-									.renderType("cutout")))
-					.item().build()
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(), state -> {
+						int fill = state.getValue(TreasureBasketBlock.FILL);
+						String id = fill == 0 ? ctx.getName() : ctx.getName() + "_" + fill;
+						return pvd.models().getBuilder("block/" + id)
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/treasure_basket")))
+								.texture("all", pvd.modLoc("block/utensil/treasure_basket_" + fill))
+								.renderType("cutout");
+					}))
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("item/utensil/" + ctx.getName())))
+					.build()
 					.register();
 			TREASURE_BASKET_BE = GensokyoLegacy.REGISTRATE.blockEntity("treasure_basket", TreasureBasketBlockEntity::new)
 					.validBlock(TREASURE_BASKET)

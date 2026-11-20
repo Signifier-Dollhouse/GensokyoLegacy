@@ -4,8 +4,10 @@ The **treasure basket** is a `DelegateBlock` in `block.functional.treasure`. It 
 of `r = 7` chunks (configurable as `treasureBasketRadius`); while an item entity inside that area
 times out, the basket stores the stack instead of letting it despawn.
 
-The block has **no model or texture of its own yet**: its blockstate and item model reuse
-`custom/utensil/sealing_pot`, `block/utensil/sealing_pot` and `item/utensil/sealing_pot`.
+The block has **no model of its own yet**: the blockstate parents
+`custom/utensil/treasure_basket` and switches the `all` texture between
+`block/utensil/treasure_basket_0/1/2` for the fill states below. The item uses the flat
+`item/utensil/treasure_basket` icon through an `item/generated` model.
 
 ---
 
@@ -88,6 +90,16 @@ Key checks:
 - Right-clicking opens the menu. The block position travels in the menu open buffer, so
   `TreasureBasketMenu.fromNetwork` can rebuild the client menu.
 
+### Fill state
+
+`TreasureBasketBlock.FILL` is an `IntegerProperty` `0..2` added through
+`CreateBlockStateBlockMethod` (the `BookShelfBlock` pattern): `0` empty, `1` at least one item,
+`2` every one of the 54 slots occupied. Nothing writes it at insert time — the effect owner may be
+in an unloaded chunk — so `TreasureBasketEffectData.isOwnerStillValid` (run by
+`LevelAreaAttachment.tickValidation` once the owner chunk is loaded) recomputes it with `getFill`
+and updates the block through a `Block.UPDATE_ALL` `setBlock` when it changed. That keeps the
+model in step with the contents within at most 100 ticks.
+
 ---
 
 ## 5. Breaking the basket
@@ -112,8 +124,8 @@ game tick for each basket covering its chunk (`1` disables the acceleration).
 
 | Class | Role |
 |---|---|
-| `content/block/functional/treasure/TreasureBasketBlock.java` | Placement/removal behavior, effect ownership, menu opening. |
-| `content/block/functional/treasure/TreasureBasketEffectData.java` | 54-slot buffer, insertion, drop-all, placeholder client visual. |
+| `content/block/functional/treasure/TreasureBasketBlock.java` | Placement/removal behavior, fill state property, effect ownership, menu opening. |
+| `content/block/functional/treasure/TreasureBasketEffectData.java` | 54-slot buffer, insertion, fill-state update, drop-all, placeholder client visual. |
 | `content/block/functional/treasure/TreasureBasketBlockEntity.java` | Block entity that exposes the capability and the menu. |
 | `content/block/functional/treasure/TreasureBasketItemHandler.java` | `IItemHandlerModifiable` facade over the effect data. |
 | `content/block/functional/treasure/TreasureBasketMenu.java` | 54-slot chest-style menu. |
