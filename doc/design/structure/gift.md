@@ -196,6 +196,10 @@ rather than ids, so a mistyped path fails at datagen instead of resolving to not
 character with no plain-acceptance line of her own reuses her like line for that band, which is what
 the gift path did before the third reaction existed.
 
+The three reactions share one leave line, and a character can give one reaction its own when the
+answer differs — Alice's like and dislike do. A plain acceptance plays her agree clip unless her row
+names talk clips instead; Alice, Reimu, Marisa, Sakuya, Morichika and Suika ask for the talk clips.
+
 ## Paying a gift back
 
 Every accepted gift banks its own favor into `CharacterData.giftReturn`. When the bank reaches the

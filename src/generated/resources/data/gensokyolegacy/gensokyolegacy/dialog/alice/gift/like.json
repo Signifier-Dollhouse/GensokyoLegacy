@@ -7,7 +7,7 @@
       "type": "gensokyolegacy:simple",
       "actions": [],
       "conditions": [],
-      "text": "gensokyolegacy/dialog/gift/leave"
+      "text": "gensokyolegacy/alice/gift/option/like/leave"
     }
   ],
   "text": "gensokyolegacy/alice/gift/dialog/like"
