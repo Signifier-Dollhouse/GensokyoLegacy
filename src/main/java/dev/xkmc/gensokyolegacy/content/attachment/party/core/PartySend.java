@@ -169,7 +169,7 @@ public class PartySend {
 		// admitted from the ticker, one a second
 		party.start(level.getChunkAt(center), level.getGameTime(), sp.getUUID(), anchor,
 				plan.roster(), plan.capacity(),
-				PartyArea.foodAround(level, anchor), PartyArea.seatsAround(level, anchor));
+				plan.area().food(), plan.area().seats());
 		PartyTicker.register(level, partyChunk);
 
 		level.playSound(null, anchor, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.8F, 1.4F);
