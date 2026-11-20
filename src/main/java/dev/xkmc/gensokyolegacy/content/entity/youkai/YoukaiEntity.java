@@ -8,6 +8,7 @@ import dev.xkmc.gensokyolegacy.content.entity.foundation.DamageClampEntity;
 import dev.xkmc.gensokyolegacy.content.entity.foundation.SyncedDataTypes;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.*;
 import dev.xkmc.gensokyolegacy.init.registrate.GLParticles;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -111,6 +112,14 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 
 	protected SoundEvent getDeathSound() {
 		return SoundEvents.EMPTY;
+	}
+
+	/**
+	 * The typewriter voice of this character in a conversation, drawn from the same three voices as her
+	 * peers rather than a clip of her own: a large cast would otherwise need a sound file per member.
+	 */
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_REGULAR.get();
 	}
 
 	// base

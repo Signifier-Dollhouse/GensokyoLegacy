@@ -8,11 +8,11 @@
 	],
 	"subtitle": "gensokyolegacy.subtitle.koishi_ring"
   },
-  "dialog_blip": {
+  "dialog_chat_regular": {
 	"sounds": [
 	  {
 		"type": "file",
-		"name": "gensokyolegacy:dialog_blip"
+		"name": "gensokyolegacy:dialog_chat_regular"
 	  }
 	]
   },

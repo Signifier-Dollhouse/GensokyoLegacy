@@ -7,12 +7,14 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.gensokyolegacy.util.BrainUtils;
 import dev.xkmc.l2core.base.entity.SyncedData;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -84,6 +86,11 @@ public class SuikaEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 
 	public SuikaEntity(EntityType<? extends SuikaEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
+	}
+
+	@Override
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_YOUNG.get();
 	}
 
 	@Override

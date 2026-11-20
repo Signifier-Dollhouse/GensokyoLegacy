@@ -260,8 +260,9 @@ public abstract class DialogScreen extends Screen {
 	private void playBlip(float pitch) {
 		// VOICE rather than MASTER, which is what SimpleSoundInstance.forUI picks: a blip per character fires up to
 		// thirty times a second, so it deserves a slider of its own instead of riding on the master volume
+		var sound = character == null ? GLSounds.DIALOG_CHAT_REGULAR.get() : character.getDialogChatSound();
 		minecraft.getSoundManager().play(new SimpleSoundInstance(
-				GLSounds.DIALOG_BLIP.get().getLocation(), SoundSource.VOICE, BLIP_VOLUME, pitch,
+				sound.getLocation(), SoundSource.VOICE, BLIP_VOLUME, pitch,
 				SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, true));
 	}
 

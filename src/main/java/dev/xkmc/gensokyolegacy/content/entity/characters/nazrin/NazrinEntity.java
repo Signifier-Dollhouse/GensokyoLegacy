@@ -6,7 +6,9 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.tool.DowserHalf;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +47,11 @@ public class NazrinEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 
 	public NazrinEntity(EntityType<? extends BossYoukaiEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
+	}
+
+	@Override
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_YOUNG.get();
 	}
 
 	public PlayState stateAnimController(AnimationState<?> event) {
