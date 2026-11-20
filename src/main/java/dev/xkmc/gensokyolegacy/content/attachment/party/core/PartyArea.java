@@ -2,7 +2,6 @@ package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
 import dev.xkmc.gensokyolegacy.content.block.deco.seat.ISeatableBlock;
-import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Everything one party occupies, found by walking out from the clicked table. The scan is
- * the unit of "a party" and runs once per send, never per tick.
+ * Everything one party occupies, found by walking out from the clicked table. The scan is the
+ * unit of "a party": it runs once at send and again on the party's periodic rescan, never per tick.
  *
  * @param anchor      the table block the player clicked
  * @param food        every party-food block laid out for the spread, in walk order
@@ -120,44 +119,6 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * How far around the table a guest looks. A cheap cube for a triple loop, and much
-	 * smaller than the scan distance — limits.md §1.
-	 */
-	public static final int GUEST_RADIUS = 6;
-
-	/**
-	 * Every dish within {@link #GUEST_RADIUS} of the anchor — the box form of {@link #scan},
-	 * re-run while the party is open so its answer stays current. Deliberately does not walk
-	 * through walls.
-	 */
-	public static List<BlockPos> foodAround(Level level, BlockPos anchor) {
-		var access = level.registryAccess();
-		var ans = new ArrayList<BlockPos>();
-		for (var pos : box(anchor)) {
-			var state = level.getBlockState(pos);
-			if (!PartyFoodValue.isFood(level, pos, state)) continue;
-			if (!isLaidOut(level, pos, state)) continue;
-			// per block, not per party: a duplicate of a food the party already has is
-			// still a dish a guest may eat; the appeal dedupe lives in the scan, the only walk over it
-			if (!PartyFoodValue.attracts(access, level, pos, state)) continue;
-			ans.add(pos.immutable());
-		}
-		return ans;
-	}
-
-	/**
-	 * Every chair within {@link #GUEST_RADIUS}, unfiltered: reachability is the walk's problem, not the list's.
-	 */
-	public static List<BlockPos> seatsAround(Level level, BlockPos anchor) {
-		var ans = new ArrayList<BlockPos>();
-		for (var pos : box(anchor)) {
-			var state = level.getBlockState(pos);
-			if (isSeatState(state)) ans.add(pos.immutable());
-		}
-		return ans;
-	}
-
-	/**
 	 * Whether a block is a chair a guest may sit in. The tag names the <i>block</i>, so both halves
 	 * of a large chair carry it and only {@link ISeatableBlock#isSeatPos} tells them apart.
 	 */
@@ -166,19 +127,9 @@ public record PartyArea(BlockPos anchor, List<BlockPos> food, List<BlockPos> sea
 	}
 
 	/**
-	 * Every block of the guest box around the anchor, inclusive.
-	 */
-	private static Iterable<BlockPos> box(BlockPos anchor) {
-		return BlockPos.betweenClosed(
-				anchor.offset(-GUEST_RADIUS, -GUEST_RADIUS, -GUEST_RADIUS),
-				anchor.offset(GUEST_RADIUS, GUEST_RADIUS, GUEST_RADIUS));
-	}
-
-	/**
 	 * Queue the box around one piece of furniture, for the walk to read from.
 	 */
 	private static void poke(Deque<BlockPos> queue, BlockPos from) {
-		GensokyoLegacy.LOGGER.info("Poke " + from);
 		for (int dx = -POKE_X; dx <= POKE_X; dx++) {
 			for (int dy = -POKE_Y; dy <= POKE_Y; dy++) {
 				for (int dz = -POKE_Z; dz <= POKE_Z; dz++) {
