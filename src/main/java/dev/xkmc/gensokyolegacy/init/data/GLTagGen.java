@@ -58,8 +58,8 @@ public class GLTagGen {
 	public static final TagKey<Item> DEBUG_ITEMS = item("debug_items");
 
 	/**
-	 * Items the mod website must not list: {@link #DEBUG_ITEMS}, {@link #SPELL_CARD} and the two dowser halves,
-	 * which exist only as the render halves of {@code dowser} and are never obtainable.
+	 * Items the mod website must not list: {@link #DEBUG_ITEMS} and {@link #SPELL_CARD}, which are
+	 * not obtainable in normal play.
 	 */
 	public static final TagKey<Item> WEBSITE_HIDDEN = item("website_hidden");
 
@@ -175,7 +175,7 @@ public class GLTagGen {
 		pvd.addTag(HUGE_MUSHROOM)
 				.add(Items.MUSHROOM_STEM, Items.BROWN_MUSHROOM_BLOCK, Items.RED_MUSHROOM_BLOCK);
 		addTiles(pvd, TILE_VARIANTS_ITEM);
-		// the two halves are tagged on the items themselves; everything else arrives by whole tags
+		// the debug and spell-card items are tagged on the items themselves; everything else arrives by whole tags
 		pvd.addTag(WEBSITE_HIDDEN).addTag(DEBUG_ITEMS).addTag(SPELL_CARD);
 	}
 

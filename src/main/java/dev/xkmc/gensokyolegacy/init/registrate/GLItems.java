@@ -121,7 +121,6 @@ public class GLItems {
 	public static final ItemEntry<Hakkero> MINI_HAKKERO;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
-	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
 	public static final ItemEntry<TreasureTower> TREASURE_TOWER;
@@ -210,6 +209,8 @@ public class GLItems {
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
+	public static final DCVal<DowserHalf> DOWSER_HALF =
+			DC.enumVal("dowser_half", EnumCodec.of(DowserHalf.class, DowserHalf.values()));
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
 	public static final DCVal<ResourceLocation> UFO_LOOT = DC.loc("ufo_loot");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
@@ -518,22 +519,21 @@ public class GLItems {
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> {
+						var base = pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						// both halves are the same item: the component picks the model, emitted ascending for the bake
+						for (var half : DowserHalf.values()) {
+							String name = half.name().toLowerCase(Locale.ROOT);
+							base.override()
+									.predicate(GensokyoLegacy.loc("dowser_half"), half.ordinal() + 1)
+									.model(pvd.withExistingParent("item/" + ctx.getName() + "_" + name, "item/handheld")
+											.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_" + name)))
+									.end();
+						}
+					})
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 18, 1, 1))
 					.lang("Nazrin's Dowser").register();
-
-			DOWSER_LEFT = reg.item("dowser_left", Item::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.removeTab(TAB.key())
-					.tag(GLTagGen.WEBSITE_HIDDEN)
-					.lang("Nazrin's Dowser (Left Half)").register();
-
-			DOWSER_RIGHT = reg.item("dowser_right", Item::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.removeTab(TAB.key())
-					.tag(GLTagGen.WEBSITE_HIDDEN)
-					.lang("Nazrin's Dowser (Right Half)").register();
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))

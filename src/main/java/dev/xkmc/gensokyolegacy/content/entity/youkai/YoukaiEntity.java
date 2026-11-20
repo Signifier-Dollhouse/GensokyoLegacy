@@ -424,6 +424,13 @@ public abstract class YoukaiEntity extends DamageClampEntity implements
 		return false;
 	}
 
+	/**
+	 * The item drawn in an empty hand while playing. Visual only - no equipment slot is touched.
+	 */
+	public ItemStack getDefaultHeldItem(EquipmentSlot slot) {
+		return ItemStack.EMPTY;
+	}
+
 	@Override
 	public void travel(Vec3 vec) {
 		// Sleep freeze, client-side half: client physics (gravity, move control)

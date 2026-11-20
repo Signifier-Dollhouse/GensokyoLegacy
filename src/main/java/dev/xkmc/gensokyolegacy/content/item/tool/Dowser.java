@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.index.MissingTowerManager;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -112,6 +113,25 @@ public class Dowser extends Item {
 
 	public Dowser(Properties properties) {
 		super(properties.durability(64));
+	}
+
+	/**
+	 * A dowser stack carrying {@code half}, so its model draws that half of the pair.
+	 */
+	public static ItemStack ofHalf(DowserHalf half) {
+		return GLItems.DOWSER_HALF.set(GLItems.DOWSER.asStack(), half);
+	}
+
+	public static boolean isHalf(ItemStack stack) {
+		return stack.has(GLItems.DOWSER_HALF);
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:dowser_half}: the half's ordinal + 1, 0 for a whole dowser.
+	 */
+	public static float halfPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		DowserHalf half = GLItems.DOWSER_HALF.get(stack);
+		return half == null ? 0 : half.ordinal() + 1;
 	}
 
 	@Override

@@ -79,6 +79,9 @@ public class SmartYoukaiEntity extends YoukaiEntity {
 	protected void customServerAiStep() {
 		super.customServerAiStep();
 		getBrain().tick((ServerLevel) level(), Wrappers.cast(this));
+		boolean playing = getActivity() == Activity.PLAY;
+		if (getFlag(YoukaiFlags.PLAYING) != playing)
+			setFlag(YoukaiFlags.PLAYING, playing);
 		// Stale-sleep watchdog: YoukaiSleepTask only runs under REST, so an entity that loaded asleep
 		// would wander in sleeping pose for ever — the task never stops to wake it.
 		if (isSleeping() && getActivity() != Activity.REST) {
