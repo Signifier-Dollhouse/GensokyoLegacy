@@ -48,17 +48,20 @@ cost of evaluating the loop twice on every entity every frame.
 The loop does the fade-out, because it is the first controller of the frame and therefore the only one whose
 transition source is still the previous frame's final pose:
 
-1. The clip ends during frame F-1; `OneShotController#process` sees `hasAnimationFinished()` and latches
-   `finished`.
-2. On frame F, `loopController` consumes the latch **before** `stateAnimController` runs and calls
+1. `OneShotController#process` catches the clip's last tick **one frame early** (F-1) and rewrites its queue
+   entry as `HOLD_ON_LAST_FRAME`, then latches `finished`. A held entry is written instead of dropped, so
+   F-1 renders the clip's final pose (GeckoLib would otherwise set `STOPPED` and emit nothing — the snap).
+2. On frame F, `loopController` consumes the latch **before** `stateAnimController` runs, drops the one-shot
+   with `stopTriggeredAnimation()` (only if the clip it held still owns the controller), and calls
    `resetCurrentAnimation()`.
-3. `setAnimation` rebuilds from the reload flag and re-enters `TRANSITIONING`, fading the clip's last pose
+3. `setAnimation` rebuilds from the reload flag and re-enters `TRANSITIONING`, fading the held final pose
    into the loop's frame 0 over `ANIM_TRANSITION`.
 
-A latch rather than a direct check because the end is only observable at the end of F-1, and `main` has
+A latch rather than a direct check because the end is only reachable at the end of F-1, and `main` has
 already run by then. Detecting it inside `one_shot`'s own handler would be a frame late — `main` would have
 overwritten the snapshot, and the fade would start from the loop's own pose, which is the snap we are
-avoiding.
+avoiding. Catching it early rather than after `super.process` is what keeps a pose to fade from: the frame
+that leaves `RUNNING` writes nothing at all.
 
 **Cost: the loop restarts at frame 0.** GeckoLib's transition always samples the target at tick 0, so a
 phase-sensitive cycle (`walk`) gets its foot phase reset when a clip ends. `idle` / `sit` / hover are
