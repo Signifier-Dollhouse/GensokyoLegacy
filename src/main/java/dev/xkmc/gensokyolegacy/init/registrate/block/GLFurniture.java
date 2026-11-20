@@ -4,6 +4,7 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.cabinet.CabinetBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxBlock;
 import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxShape;
 import dev.xkmc.gensokyolegacy.content.block.deco.misc.*;
@@ -440,7 +441,7 @@ public class GLFurniture {
 	}
 
 	private static BlockEntry<DelegateBlock> registerDonationBox(L2Registrate reg, String id, DonationBoxShape shape) {
-		return reg.block(id, p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, shape, DonationBoxBlockEntity.TE))
+		return reg.block(id, p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, shape, new DonationBoxBlock(), DonationBoxBlockEntity.TE))
 				.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
 				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
 						pvd.models().getBuilder("block/" + ctx.getName())

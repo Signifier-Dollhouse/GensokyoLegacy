@@ -52,6 +52,8 @@ public class GLModConfig {
 		public final ModConfigSpec.IntValue treasureBasketRadius;
 		public final ModConfigSpec.IntValue treasureBasketExpirySpeed;
 		public final ModConfigSpec.DoubleValue jizoXpRatio;
+		public final ModConfigSpec.IntValue donationEffectDuration;
+		public final ModConfigSpec.IntValue donationRegenDuration;
 
 		public final ModConfigSpec.IntValue partyScanDistance;
 		public final ModConfigSpec.IntValue partyGuestRadius;
@@ -84,6 +86,10 @@ public class GLModConfig {
 						.defineInRange("treasureBasketExpirySpeed", 10, 1, 100);
 				jizoXpRatio = builder.text("Spiritual power a Jizo restores per experience point when it takes one level and the current progress; 0.1 restores 10%")
 						.defineInRange("jizoXpRatio", 2d, 0, 100);
+				donationEffectDuration = builder.text("Ticks the effect from a donation box lasts")
+						.defineInRange("donationEffectDuration", 3600, 1, 1000000);
+				donationRegenDuration = builder.text("Ticks the regeneration III from a donation box lasts")
+						.defineInRange("donationRegenDuration", 200, 1, 1000000);
 			}
 			builder.pop();
 

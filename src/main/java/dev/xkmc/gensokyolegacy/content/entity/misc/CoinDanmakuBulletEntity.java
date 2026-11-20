@@ -65,6 +65,8 @@ public class CoinDanmakuBulletEntity extends ItemBulletEntity {
 		if (stack.isEmpty()) return;
 		ItemEntity item = new ItemEntity(level(), getX(), getY(), getZ(), stack.copy());
 		item.setDefaultPickUpDelay();
+		var owner = getOwner();
+		if (owner != null) item.setThrower(owner);
 		level().addFreshEntity(item);
 	}
 

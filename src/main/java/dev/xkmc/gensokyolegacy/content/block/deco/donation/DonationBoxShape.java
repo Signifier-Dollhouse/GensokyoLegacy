@@ -16,11 +16,11 @@ public class DonationBoxShape implements ShapePathFindBlockMethod {
 
 	public static final VoxelShape SHAPE_NS = Shapes.or(
 			Block.box(-4, 0, 0, 20, 14, 16),
-			Block.box(-5, 14, -1, 21, 16, 17)
+			Block.box(-5, 14, -1, 21, 15, 17)
 	);
 	public static final VoxelShape SHAPE_WE = Shapes.or(
 			Block.box(0, 0, -4, 16, 14, 20),
-			Block.box(-1, 14, -5, 17, 16, 21)
+			Block.box(-1, 14, -5, 17, 15, 21)
 	);
 
 	private final VoxelShape northSouth;
@@ -38,9 +38,9 @@ public class DonationBoxShape implements ShapePathFindBlockMethod {
 	public static DonationBoxShape myouren() {
 		return new DonationBoxShape(
 				Shapes.or(Block.box(-11, 0, -1, 27, 2, 17), Block.box(-8, 2, 0, 24, 14, 16),
-						Block.box(-9, 14, -1, 25, 17, 17)),
+						Block.box(-9, 14, -1, 25, 15, 17)),
 				Shapes.or(Block.box(-1, 0, -11, 17, 2, 27), Block.box(0, 2, -8, 16, 14, 24),
-						Block.box(-1, 14, -9, 17, 17, 25)));
+						Block.box(-1, 14, -9, 17, 15, 25)));
 	}
 
 	@Override
