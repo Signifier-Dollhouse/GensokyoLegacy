@@ -1,4 +1,5 @@
 1.0.7.3
+- Fix gap portal crash
 - Fix some food might be left untouched in party
 - Fix biomes being too small and structures taking too long to locate
 - Fix animation transition
