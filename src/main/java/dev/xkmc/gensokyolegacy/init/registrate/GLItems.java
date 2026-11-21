@@ -131,7 +131,7 @@ public class GLItems {
 	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
 	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
-	public static final ItemEntry<UfoItem> UFO;
+	public static final ItemEntry<UfoItem> BLUE_UFO, RED_UFO, GREEN_UFO;
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE, LUCKY_TEA, ZUN_BEER, GOLDEN_LOTUS_TEA;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
@@ -819,9 +819,18 @@ public class GLItems {
 					.lang("Nue's Trident").tab(TAB.key())
 					.register();
 
-			UFO = reg.item("ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+			// the three colours are cosmetic: one wrapper class, one set of components, one tooltip
+			BLUE_UFO = reg.item("blue_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.lang("UFO").tab(TAB.key())
+					.lang("Blue UFO").tab(TAB.key())
+					.register();
+			RED_UFO = reg.item("red_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Red UFO").tab(TAB.key())
+					.register();
+			GREEN_UFO = reg.item("green_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Green UFO").tab(TAB.key())
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))

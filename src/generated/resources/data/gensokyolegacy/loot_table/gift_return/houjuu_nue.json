@@ -14,8 +14,34 @@
               "function": "minecraft:set_components"
             }
           ],
-          "name": "gensokyolegacy:ufo",
-          "weight": 20
+          "name": "gensokyolegacy:blue_ufo",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "gensokyolegacy:ufo_loot": "gensokyolegacy:gift/ufo"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "gensokyolegacy:red_ufo",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "gensokyolegacy:ufo_loot": "gensokyolegacy:gift/ufo"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "gensokyolegacy:green_ufo",
+          "weight": 6
         }
       ],
       "rolls": 1.0
