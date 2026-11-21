@@ -1,3 +1,8 @@
+1.0.7.3
+- Fix some food might be left untouched in party
+- Fix biomes being too small and structures taking too long to locate
+- Fix animation transition
+
 1.0.7.2
 - Fix mod biome occupying ocean
 - Fix ghost over-spawn
