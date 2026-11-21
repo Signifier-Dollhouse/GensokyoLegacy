@@ -21,7 +21,12 @@ public class BasePortalBlock extends DelegateEntityBlockImpl {
 		private static final String TIME = "gensokyolegacy:portal_time";
 
 		public void entityInside(BlockState state, Level level, BlockPos pos, Entity e) {
-			if (!(level instanceof ServerLevel sl) || e.isPassenger() || e.isOnPortalCooldown()) return;
+			if (!(level instanceof ServerLevel sl) || e.isPassenger()) return;
+			// 1.21 refreshes the cooldown every tick inside a portal via Entity#setAsInsidePortal.
+			if (e.isOnPortalCooldown()) {
+				e.setPortalCooldown();
+				return;
+			}
 			if (!(level.getBlockEntity(pos) instanceof IPortalBlockEntity be)) return;
 			var data = e.getPersistentData();
 			long now = level.getGameTime();
