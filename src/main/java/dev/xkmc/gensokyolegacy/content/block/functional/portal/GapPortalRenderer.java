@@ -39,28 +39,28 @@ public class GapPortalRenderer implements BlockEntityRenderer<GapPortalBlockEnti
 		Matrix3f normal = pose.last().normal();
 		if (e.pending) {
 			var vc = source.getBuffer(RenderType.entityCutout(FRAME_BACK));
-			vc.vertex(mat, -0.5f, 0, 0.01f).color(-1).uv(0, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-			vc.vertex(mat, 0.5f, 0, 0.01f).color(-1).uv(1, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-			vc.vertex(mat, 0.5f, 2, 0.01f).color(-1).uv(1, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-			vc.vertex(mat, -0.5f, 2, 0.01f).color(-1).uv(0, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-			vc.vertex(mat, -0.5f, 2, -0.01f).color(-1).uv(0, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-			vc.vertex(mat, 0.5f, 2, -0.01f).color(-1).uv(1, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-			vc.vertex(mat, 0.5f, 0, -0.01f).color(-1).uv(1, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-			vc.vertex(mat, -0.5f, 0, -0.01f).color(-1).uv(0, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
+			vc.vertex(mat, -0.5f, 0, 0.01f).color(-1).uv(0, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+			vc.vertex(mat, 0.5f, 0, 0.01f).color(-1).uv(1, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+			vc.vertex(mat, 0.5f, 2, 0.01f).color(-1).uv(1, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+			vc.vertex(mat, -0.5f, 2, 0.01f).color(-1).uv(0, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+			vc.vertex(mat, -0.5f, 2, -0.01f).color(-1).uv(0, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+			vc.vertex(mat, 0.5f, 2, -0.01f).color(-1).uv(1, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+			vc.vertex(mat, 0.5f, 0, -0.01f).color(-1).uv(1, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+			vc.vertex(mat, -0.5f, 0, -0.01f).color(-1).uv(0, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
 		} else {
 			{
 				var vc = source.getBuffer(RenderType.entityCutout(FRAME));
-				vc.vertex(mat, -0.5f, 0, 0.01f).color(-1).uv(0, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-				vc.vertex(mat, 0.5f, 0, 0.01f).color(-1).uv(1, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-				vc.vertex(mat, 0.5f, 2, 0.01f).color(-1).uv(1, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
-				vc.vertex(mat, -0.5f, 2, 0.01f).color(-1).uv(0, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, 1).endVertex();
+				vc.vertex(mat, -0.5f, 0, 0.01f).color(-1).uv(0, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+				vc.vertex(mat, 0.5f, 0, 0.01f).color(-1).uv(1, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+				vc.vertex(mat, 0.5f, 2, 0.01f).color(-1).uv(1, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
+				vc.vertex(mat, -0.5f, 2, 0.01f).color(-1).uv(0, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, 1).endVertex();
 			}
 			{
 				var vc = source.getBuffer(RenderType.entityCutout(FRAME_BACK));
-				vc.vertex(mat, -0.5f, 2, -0.01f).color(-1).uv(0, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-				vc.vertex(mat, 0.5f, 2, -0.01f).color(-1).uv(1, 1).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-				vc.vertex(mat, 0.5f, 0, -0.01f).color(-1).uv(1, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
-				vc.vertex(mat, -0.5f, 0, -0.01f).color(-1).uv(0, 0).uv2(light).overlayCoords(overlay).normal(normal, 0, 0, -1).endVertex();
+				vc.vertex(mat, -0.5f, 2, -0.01f).color(-1).uv(0, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+				vc.vertex(mat, 0.5f, 2, -0.01f).color(-1).uv(1, 1).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+				vc.vertex(mat, 0.5f, 0, -0.01f).color(-1).uv(1, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
+				vc.vertex(mat, -0.5f, 0, -0.01f).color(-1).uv(0, 0).overlayCoords(overlay).uv2(light).normal(normal, 0, 0, -1).endVertex();
 			}
 			{
 				VertexConsumer vc = source.getBuffer(RenderType.endPortal());
