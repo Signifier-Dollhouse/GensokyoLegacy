@@ -1,18 +1,48 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,part=left": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
+      "y": 90
+    },
+    "facing=east,part=middle": {
       "model": "gensokyolegacy:block/myouren_donation_box",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,part=right": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
+      "y": 90
+    },
+    "facing=north,part=left": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side"
+    },
+    "facing=north,part=middle": {
       "model": "gensokyolegacy:block/myouren_donation_box"
     },
-    "facing=south": {
+    "facing=north,part=right": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side"
+    },
+    "facing=south,part=left": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
+      "y": 180
+    },
+    "facing=south,part=middle": {
       "model": "gensokyolegacy:block/myouren_donation_box",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,part=right": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
+      "y": 180
+    },
+    "facing=west,part=left": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
+      "y": 270
+    },
+    "facing=west,part=middle": {
       "model": "gensokyolegacy:block/myouren_donation_box",
+      "y": 270
+    },
+    "facing=west,part=right": {
+      "model": "gensokyolegacy:block/myouren_donation_box_side",
       "y": 270
     }
   }

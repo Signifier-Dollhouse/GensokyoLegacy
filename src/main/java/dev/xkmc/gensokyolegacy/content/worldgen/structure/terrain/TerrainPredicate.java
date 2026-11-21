@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.PieceTree;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Terrain fitness rule of a flat-check structure: shifts the speculative layout onto the terrain and, for rules
@@ -27,6 +29,14 @@ public interface TerrainPredicate {
 	MapCodec<? extends TerrainPredicate> codec();
 
 	FitResult fit(TerrainFit fit);
+
+	/**
+	 * Boxes whose footprint must lie in the structure's biome set. Defaults to the whole layout; a rule may narrow
+	 * it to the pieces that tie the structure to its biome.
+	 */
+	default List<BoundingBox> biomeBoxes(PieceTree tree) {
+		return List.of(tree.unionBox());
+	}
 
 	/**
 	 * Whether placement should try all four start rotations instead of only the one drawn from the seed.

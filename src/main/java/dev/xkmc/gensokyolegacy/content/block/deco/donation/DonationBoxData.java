@@ -10,6 +10,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -18,7 +19,11 @@ import java.util.function.Predicate;
  *
  * @see "doc/design/structure/donation.md"
  */
-public record DonationBoxData(ResourceLocation structure, List<DonationEffect> effects) {
+public record DonationBoxData(ResourceLocation structure, ArrayList<DonationEffect> effects) {
+
+	public DonationBoxData(ResourceLocation structure, List<DonationEffect> effects) {
+		this(structure, new ArrayList<>(effects));
+	}
 
 	/**
 	 * One weighted reward: {@code level} as written, one higher than the stored amplifier.

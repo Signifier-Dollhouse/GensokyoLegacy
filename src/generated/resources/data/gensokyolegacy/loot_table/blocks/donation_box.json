@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "gensokyolegacy:donation_box",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "part": "middle"
+              }
+            }
+          ],
           "name": "gensokyolegacy:donation_box"
         }
       ],

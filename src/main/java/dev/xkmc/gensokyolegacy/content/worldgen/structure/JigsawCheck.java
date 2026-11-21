@@ -133,17 +133,8 @@ public record JigsawCheck(
 			return Validated.fail();
 		}
 		PieceTree tree = PieceTree.build(pieces);
-		// Total-bound biome check: 4 union-box corners + 4 edge centers.
-		BoundingBox union = tree.unionBox();
-		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
-		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
-		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
-				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
-		for (int[] q : biomePts) {
-			int h = TerrainFit.height(ctx, q[0], q[1]);
-			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
-			if (!biomes.contains(biome)) {
+		for (BoundingBox box : this.terrain.biomeBoxes(tree)) {
+			if (!inBiome(ctx, box)) {
 				return Validated.fail();
 			}
 		}
@@ -154,6 +145,25 @@ public record JigsawCheck(
 		}
 		BlockPos pos = layout.get().position().offset(0, result.delta(), 0);
 		return Validated.pass(new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece)));
+	}
+
+	/**
+	 * The 8-point biome gate of one box: 4 corners and 4 edge centres, sampled at the terrain height.
+	 */
+	private boolean inBiome(Structure.GenerationContext ctx, BoundingBox box) {
+		int x0 = box.minX(), z0 = box.minZ(), x1 = box.maxX(), z1 = box.maxZ();
+		int cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+		int[][] pts = {{x0, z0}, {x0, z1}, {x1, z0}, {x1, z1},
+				{cx, z0}, {cx, z1}, {x0, cz}, {x1, cz}};
+		for (int[] q : pts) {
+			int h = TerrainFit.height(ctx, q[0], q[1]);
+			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
+					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
+			if (!biomes.contains(biome)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
