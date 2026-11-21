@@ -37,46 +37,24 @@ public class GLOverworldRegion extends Region {
 	@Override
 	public void addBiomes(Registry<Biome> registry, Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> mapper) {
 		var builder = new VanillaParameterOverlayBuilder();
-		// Flat areas (low erosion) become sakura forest, leaving even ground for structures
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.NEUTRAL, ParameterUtils.Temperature.COOL,
-						ParameterUtils.Temperature.WARM)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.WET,
-						ParameterUtils.Humidity.HUMID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(DEPTH_RANGE)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, SakuraForestBiomeGen.KEY));
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.NEUTRAL, ParameterUtils.Temperature.COOL,
-						ParameterUtils.Temperature.WARM)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.WET,
-						ParameterUtils.Humidity.HUMID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_2, ParameterUtils.Erosion.EROSION_3)
-				.depth(DEPTH_RANGE)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, MagicalForestBiomeGen.KEY));
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.ICY, ParameterUtils.Temperature.COOL)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.DRY, ParameterUtils.Humidity.ARID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(DEPTH_RANGE)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, MyourenTempleBarrensBiomeGen.KEY));
+		start(builder, 0, 1, -1, -0.375f, SakuraForestBiomeGen.KEY);
+		start(builder, 0, 1, -0.375f, 0.05f, MagicalForestBiomeGen.KEY);
+		start(builder, -1, 0, -1, -0.375f, MyourenTempleBarrensBiomeGen.KEY);
 		builder.build().forEach(mapper);
-		// Fitness adds offset^2 and the target's offset is always 0, so this leaf wins wherever the nearest
-		// declared point is farther than FALLBACK_OFFSET, and falls back to vanilla there.
 		mapper.accept(Pair.of(Climate.parameters(FULL_RANGE, FULL_RANGE, FULL_RANGE, FULL_RANGE,
 				FULL_RANGE, FULL_RANGE, FALLBACK_OFFSET), Region.DEFERRED_PLACEHOLDER));
+	}
+
+	private static void start(VanillaParameterOverlayBuilder builder, float t0, float t1, float e0, float e1, ResourceKey<Biome> biome) {
+		new ParameterUtils.ParameterPointListBuilder()
+				.humidity(ParameterUtils.Humidity.FULL_RANGE)
+				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
+				.depth(DEPTH_RANGE)
+				.weirdness(ParameterUtils.Weirdness.FULL_RANGE)
+				.temperature(Climate.Parameter.span(t0, t1))
+				.erosion(Climate.Parameter.span(e0, e1))
+				.build()
+				.forEach(point -> builder.add(point, biome));
 	}
 
 }

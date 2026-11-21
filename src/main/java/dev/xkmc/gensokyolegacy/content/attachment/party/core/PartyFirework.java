@@ -20,7 +20,7 @@ import net.minecraft.world.phys.AABB;
  * <b>Where it goes up is the whole of the difficulty.</b> A burst hurts every living thing within
  * five blocks of it, and a guest knocked off her chair drops her seat claim — which holds the table
  * in GATHERING until {@link PartyTicker#PARTY_TIMEOUT} calls it off. So a rocket is fired from a
- * ring well outside {@link PartyArea#GUEST_RADIUS}, and only from a spot with nobody under it.
+ * ring well clear of the table, and only from a spot with nobody under it.
  *
  * @see "doc/design/party/state.md"
  */

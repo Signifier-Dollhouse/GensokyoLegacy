@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.attachment.party.core;
 
 import dev.xkmc.gensokyolegacy.content.attachment.area.ChunkPosRange;
+import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2library.capability.entity.GeneralCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.SerialClass;
@@ -79,41 +80,35 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	private int appealServed;
 
 	/**
-	 * Fast: a second course should be noticed while the table is still full of people.
+	 * Fast: a second course should be noticed while the table is still full of people, and the
+	 * remaining-food check has to see the whole region the send's scan did.
 	 */
-	private static final int FOOD_RESCAN = 40;
+	private static final int RESCAN = 40;
 
 	/**
-	 * Five times slower than the food: chairs are not eaten, and the list only has to stay roughly right.
-	 */
-	private static final int LAYOUT_RESCAN = 200;
-
-	/**
-	 * The spread as of the last food rescan; serialized so a resumed party keeps it.
+	 * The spread as of the last rescan; serialized so a resumed party keeps it.
 	 */
 	@SerialField
 	private final ArrayList<BlockPos> food = new ArrayList<>();
 
 	/**
-	 * Every chair as of the last layout rescan.
+	 * Every chair the last rescan's walk reached.
 	 */
 	@SerialField
 	private final ArrayList<BlockPos> seats = new ArrayList<>();
 
 	/**
-	 * The seating plan: chair to guest. First-write-wins, and pruned only by the layout
-	 * rescan when a chair goes away.
+	 * The seating plan: chair to guest. First-write-wins, and pruned only by the rescan
+	 * when a chair goes away.
 	 */
 	@SerialField
 	private final HashMap<BlockPos, UUID> claims = new HashMap<>();
 
 	/**
-	 * When each of the two lists was last rebuilt.
+	 * When both lists were last rebuilt.
 	 */
 	@SerialField
 	private long foodScannedAt;
-	@SerialField
-	private long layoutScannedAt;
 
 	/**
 	 * Bumped whenever the chair list changes, so a guest can notice her chair is gone.
@@ -347,47 +342,46 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	}
 
 	/**
-	 * Bring the cached lists up to date, each on its own schedule. Server only: both sweeps
-	 * read block entities.
+	 * Bring the cached lists up to date from one walk of the party region. Server only: the sweep
+	 * reads block entities and eats block states.
 	 */
 	public void refresh(ServerLevel level, long gameTime) {
 		var at = anchor;
 		if (at == null) return;
+		if (gameTime - foodScannedAt < RESCAN) return;
+		foodScannedAt = gameTime;
+		// The whole region, not a box around the clicked table: the remaining-food check has to
+		// see every dish the send's scan counted, and the chairs come from the same walk.
+		var area = PartyArea.scan(level, at, GLModConfig.SERVER.partyScanDistance.get());
 		boolean changed = false;
-		if (gameTime - foodScannedAt >= FOOD_RESCAN) {
-			foodScannedAt = gameTime;
-			var found = PartyArea.foodAround(level, at);
-			if (!found.equals(food)) changed = true;
-			food.clear();
-			food.addAll(found);
-			// two empty scans in a row end the party
-			emptyScans = found.isEmpty() ? emptyScans + 1 : 0;
-			// what the guests can actually reach, so hunger narrows from "the whole
-			// scanned room" at send to "the guest box" afterwards
-			var budget = 0;
-			for (var pos : food) budget += PartyFoodValue.totalHunger(level, pos, level.getBlockState(pos));
-			if (budget != hungerBudget) changed = true;
-			hungerBudget = budget;
+		var foundFood = area.food();
+		if (!foundFood.equals(food)) changed = true;
+		food.clear();
+		food.addAll(foundFood);
+		// two empty scans in a row end the party
+		emptyScans = foundFood.isEmpty() ? emptyScans + 1 : 0;
+		// the budget now tracks the same region the roster was drawn against
+		var budget = 0;
+		for (var pos : food) budget += PartyFoodValue.totalHunger(level, pos, level.getBlockState(pos));
+		if (budget != hungerBudget) changed = true;
+		hungerBudget = budget;
+
+		var foundSeats = area.seats();
+		// bumped on a change only, so a guest comparing it every tick is not woken
+		// by a rebuild that found exactly what it found last time
+		if (!foundSeats.equals(seats)) {
+			layoutVersion++;
+			changed = true;
 		}
-		if (gameTime - layoutScannedAt >= LAYOUT_RESCAN) {
-			layoutScannedAt = gameTime;
-			var found = PartyArea.seatsAround(level, at);
-			// bumped on a change only, so a guest comparing it every tick is not woken
-			// by a rebuild that found exactly what it found last time
-			if (!found.equals(seats)) {
-				layoutVersion++;
-				changed = true;
-			}
-			seats.clear();
-			seats.addAll(found);
-			// A gone chair releases its claim; without this the claim outlives the
-			// block and holds the party in GATHERING.
-			int before = claims.size();
-			claims.keySet().removeIf(seat -> !seats.contains(seat));
-			if (claims.size() != before) {
-				layoutVersion++;
-				changed = true;
-			}
+		seats.clear();
+		seats.addAll(foundSeats);
+		// A gone chair releases its claim; without this the claim outlives the
+		// block and holds the party in GATHERING.
+		int before = claims.size();
+		claims.keySet().removeIf(seat -> !seats.contains(seat));
+		if (claims.size() != before) {
+			layoutVersion++;
+			changed = true;
 		}
 		// Only when something moved: marking the chunk unsaved every twenty ticks would
 		// queue it for a save on a timer for a rebuild that found the same room.
@@ -404,8 +398,7 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 
 	/**
 	 * Freeze the roster, open the party, and seed the caches from the send's walk rather than
-	 * sweeping again. Only food and chairs inside the guest box are seeded: a guest is only ever
-	 * offered what she could walk to.
+	 * sweeping again: the food and chairs the party runs on are the ones its plan counted.
 	 */
 	public void start(LevelChunk chunk, long gameTime, UUID host, BlockPos anchor,
 					  List<EntityType<?>> roster, int hunger, List<BlockPos> food, List<BlockPos> seats) {
@@ -427,7 +420,6 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 		this.closingAt = 0;
 		this.sparkAt = 0;
 		this.foodScannedAt = gameTime;
-		this.layoutScannedAt = gameTime;
 		this.food.clear();
 		this.food.addAll(food);
 		this.seats.clear();

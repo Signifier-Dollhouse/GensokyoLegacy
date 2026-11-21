@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Every move a guest can be asked to make, over the state on {@link PartyModule}. This object
@@ -431,7 +432,15 @@ public class PartyContext {
 	}
 
 	/**
-	 * One dish, drawn at random with probability proportional to its appeal per serve.
+	 * How far around herself a guest draws only from her own side of the table. Half the time
+	 * she does, the other half the whole spread — see {@link #drawDish}.
+	 */
+	private static final int NEAR_DISH = 6;
+
+	/**
+	 * One dish, drawn with probability proportional to its appeal per serve. Half the time she
+	 * looks only within {@link #NEAR_DISH} blocks of herself, and falls back to the whole spread
+	 * when nothing is that close.
 	 *
 	 * @return the dish, or null when the spread is empty
 	 */
@@ -440,7 +449,6 @@ public class PartyContext {
 		var access = level.registryAccess();
 		var dishes = new ArrayList<BlockPos>();
 		var weights = new ArrayList<Integer>();
-		long total = 0;
 		for (var pos : attachment.food()) {
 			var state = level.getBlockState(pos);
 			if (!PartyArea.isLaidOut(level, pos, state)) continue;
@@ -449,8 +457,29 @@ public class PartyContext {
 			if (appeal <= 0) continue;
 			dishes.add(pos.immutable());
 			weights.add(appeal);
-			total += appeal;
 		}
+		if (dishes.isEmpty()) return null;
+		if (entity.getRandom().nextBoolean()) {
+			var from = entity.blockPosition();
+			var near = new ArrayList<BlockPos>();
+			var nearWeights = new ArrayList<Integer>();
+			for (int i = 0; i < dishes.size(); i++) {
+				if (dishes.get(i).distSqr(from) > NEAR_DISH * NEAR_DISH) continue;
+				near.add(dishes.get(i));
+				nearWeights.add(weights.get(i));
+			}
+			if (!near.isEmpty()) return rollDish(near, nearWeights);
+		}
+		return rollDish(dishes, weights);
+	}
+
+	/**
+	 * Weighted draw over already-validated dishes.
+	 */
+	@Nullable
+	private BlockPos rollDish(List<BlockPos> dishes, List<Integer> weights) {
+		long total = 0;
+		for (int weight : weights) total += weight;
 		if (total <= 0) return null;
 		// RandomSource has no bounded nextLong; nextDouble() is [0,1), so this lands in
 		// [0, total) without putting the bound on the int range at all.

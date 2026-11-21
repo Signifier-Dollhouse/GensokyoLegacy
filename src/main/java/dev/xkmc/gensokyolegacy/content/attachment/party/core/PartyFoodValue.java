@@ -114,22 +114,6 @@ public class PartyFoodValue {
 	}
 
 	/**
-	 * Whether this block puts anything attractive on the table, without building the list
-	 * {@link #appealPerFood} would. Deliberately <b>not</b> deduplicated against the rest of the
-	 * party: a block is part of the spread whatever else is there, and dropping a duplicate would
-	 * quietly stop it feeding anybody.
-	 */
-	public static boolean attracts(RegistryAccess access, Level level, BlockPos pos, BlockState state) {
-		var override = PartyFood.of(access, state);
-		for (var result : results(level, pos, state)) {
-			if (!result.valid()) continue;
-			int per = override != null ? clamp(override.appeal()) : result.appeal();
-			return per > 0;
-		}
-		return false;
-	}
-
-	/**
 	 * <b>The guest's number, not the party's</b> — a plate is worth what its servings are collectively
 	 * worth to whoever eats them, which is why this multiplies by serves and {@link #appealPerFood}
 	 * does not. A container is averaged across what it holds.
