@@ -1,155 +1,154 @@
 package dev.xkmc.gensokyolegacy.content.ui.trade;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinPurse;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
-import dev.xkmc.gensokyolegacy.content.rpg.trade.IClientOffer;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.OfferKind;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.content.ui.util.SpriteButton;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.gensokyolegacy.util.GuiSprites;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
+/**
+ * Draws the offer board, its price tags and the filter/paging rail.
+ *
+ * @see "doc/design/trade_ui.md"
+ */
 public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
-	/**
-	 * Open/close animation frames, trade_1.png (fully open) to trade_5.png (lid shut).
-	 * Opening plays 5 -> 1, closing plays 1 -> 5; each frame lasts {@link #FRAME_MS}.
-	 */
-	private static final ResourceLocation[] FRAMES = new ResourceLocation[5];
-	private static final int FRAME_MS = 20; // 2 ticks per frame
+	private static final ResourceLocation TEXTURE = GensokyoLegacy.loc("textures/gui/container/trade.png");
 
-	private static final ResourceLocation PRICE_SELL = GensokyoLegacy.loc("trade/price_sell");
-	private static final ResourceLocation PRICE_WANT = GensokyoLegacy.loc("trade/price_want");
+	private static final ResourceLocation PRICE_TRADE = GensokyoLegacy.loc("trade/price_trade");
+	private static final ResourceLocation PRICE_BUYING = GensokyoLegacy.loc("trade/price_buying");
+	private static final ResourceLocation PRICE_PROCESSING = GensokyoLegacy.loc("trade/price_processing");
+
+	private static final ResourceLocation[] FILTER_NORMAL = {
+			GensokyoLegacy.loc("trade/tab_trade_normal"),
+			GensokyoLegacy.loc("trade/tab_buying_normal"),
+			GensokyoLegacy.loc("trade/tab_processing_normal")
+	};
+	private static final ResourceLocation[] FILTER_HOVER = {
+			GensokyoLegacy.loc("trade/tab_trade_hover"),
+			GensokyoLegacy.loc("trade/tab_buying_hover"),
+			GensokyoLegacy.loc("trade/tab_processing_hover")
+	};
+	private static final ResourceLocation[] FILTER_DISABLED = {
+			GensokyoLegacy.loc("trade/tab_trade_disabled"),
+			GensokyoLegacy.loc("trade/tab_buying_disabled"),
+			GensokyoLegacy.loc("trade/tab_processing_disabled")
+	};
+	private static final GLLang.Trade[] FILTER_LANG = {
+			GLLang.Trade.FILTER_TRADE,
+			GLLang.Trade.FILTER_BUYING,
+			GLLang.Trade.FILTER_PROCESSING
+	};
+
 	private static final ResourceLocation PREV_NORMAL = GensokyoLegacy.loc("trade/prev_normal");
 	private static final ResourceLocation PREV_HOVER = GensokyoLegacy.loc("trade/prev_hover");
-	private static final ResourceLocation PREV_PRESSED = GensokyoLegacy.loc("trade/prev_pressed");
+	private static final ResourceLocation PREV_DISABLED = GensokyoLegacy.loc("trade/prev_disabled");
 	private static final ResourceLocation NEXT_NORMAL = GensokyoLegacy.loc("trade/next_normal");
 	private static final ResourceLocation NEXT_HOVER = GensokyoLegacy.loc("trade/next_hover");
-	private static final ResourceLocation NEXT_PRESSED = GensokyoLegacy.loc("trade/next_pressed");
+	private static final ResourceLocation NEXT_DISABLED = GensokyoLegacy.loc("trade/next_disabled");
 
-	static {
-		for (int i = 0; i < FRAMES.length; i++)
-			FRAMES[i] = GensokyoLegacy.loc("textures/gui/container/trade_" + (i + 1) + ".png");
-	}
+	private static final int BUTTON_SIZE = 12;
+	private static final int BUTTON_X = 217;
+	private static final int FILTER_Y = 61;
+	private static final int BUTTON_STEP = 14;
+	private static final int NEXT_Y = 103;
+	private static final int PREV_Y = 117;
 
+	private static final int MONEY_X = 24;
+	private static final int MONEY_Y = 76;
+	private static final int MONEY_W = 13;
+	private static final int MONEY_H = 7;
+
+	private static final OfferKind[] KINDS = OfferKind.values();
+
+	private final SpriteButton[] filterButtons = new SpriteButton[KINDS.length];
 	private Button prevButton, nextButton;
-
-	private long timer = Util.getMillis();
-	private boolean closing;
-	private int closeStart;
 
 	public TradeScreen(TradeMenu cont, Inventory plInv, Component title) {
 		super(cont, plInv, title);
 		imageWidth = 252;
-		imageHeight = 220;
-		playChestSound(SoundEvents.CHEST_OPEN);
+		imageHeight = 240;
+		playChestSound();
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		int y = topPos + 6;
-		prevButton = addRenderableWidget(new SpriteButton(PREV_NORMAL, PREV_HOVER, PREV_PRESSED,
-				leftPos + 95, y, 16, 16, b -> click(-1)));
-		nextButton = addRenderableWidget(new SpriteButton(NEXT_NORMAL, NEXT_HOVER, NEXT_PRESSED,
-				leftPos + 139, y, 16, 16, b -> click(-2)));
-	}
-
-	private int currentFrame() {
-		long steps = (Util.getMillis() - timer) / FRAME_MS;
-		if (closing) return Math.min(FRAMES.length, closeStart + (int) steps);
-		return Math.max(1, FRAMES.length - (int) steps);
-	}
-
-	private boolean isOpen() {
-		return !closing && currentFrame() == 1;
-	}
-
-	@Override
-	public void render(GuiGraphics g, int mx, int my, float pt) {
-		if (closing && Util.getMillis() - timer >= (FRAMES.length - closeStart + 1) * (long) FRAME_MS) {
-			closeNow();
-			return;
+		for (int i = 0; i < KINDS.length; i++) {
+			OfferKind kind = KINDS[i];
+			var btn = new SpriteButton(FILTER_NORMAL[i], FILTER_HOVER[i], FILTER_DISABLED[i],
+					leftPos + BUTTON_X, topPos + FILTER_Y + i * BUTTON_STEP, BUTTON_SIZE, BUTTON_SIZE,
+					() -> menu.getFilter() == kind, b -> click(TradeMenu.filterButtonId(kind)));
+			btn.setTooltip(Tooltip.create(FILTER_LANG[i].get()));
+			filterButtons[i] = addRenderableWidget(btn);
 		}
-		super.render(g, mx, my, pt);
-		this.renderTooltip(g, mx, my);
+		nextButton = addRenderableWidget(new SpriteButton(NEXT_NORMAL, NEXT_HOVER, NEXT_DISABLED,
+				leftPos + BUTTON_X, topPos + NEXT_Y, BUTTON_SIZE, BUTTON_SIZE, b -> click(TradeMenu.PAGE_NEXT)));
+		prevButton = addRenderableWidget(new SpriteButton(PREV_NORMAL, PREV_HOVER, PREV_DISABLED,
+				leftPos + BUTTON_X, topPos + PREV_Y, BUTTON_SIZE, BUTTON_SIZE, b -> click(TradeMenu.PAGE_PREV)));
+	}
+
+	private static void playChestSound() {
+		var mc = Minecraft.getInstance();
+		if (mc.player != null)
+			mc.player.playSound(SoundEvents.CHEST_OPEN, 0.5F, 0.9F + mc.player.getRandom().nextFloat() * 0.1F);
 	}
 
 	@Override
 	public void onClose() {
-		if (closing) { // repeated ESC while closing: skip remaining animation
-			closeNow();
-			return;
-		}
-		closeStart = currentFrame();
-		timer = Util.getMillis();
-		closing = true;
-		playChestSound(SoundEvents.CHEST_CLOSE);
-	}
-
-	private static void playChestSound(SoundEvent sound) {
 		var mc = Minecraft.getInstance();
 		if (mc.player != null)
-			mc.player.playSound(sound, 0.5F, 0.9F + mc.player.getRandom().nextFloat() * 0.1F);
-	}
-
-	private void closeNow() {
-		if (minecraft != null) {
-			if (this.minecraft.player != null)
-				this.minecraft.player.closeContainer();
-			this.minecraft.setScreen(null);
-		}
+			mc.player.playSound(SoundEvents.CHEST_CLOSE, 0.5F, 0.9F + mc.player.getRandom().nextFloat() * 0.1F);
+		super.onClose();
 	}
 
 	@Override
-	public boolean mouseClicked(double mx, double my, int button) {
-		if (!isOpen()) return false;
-		return super.mouseClicked(mx, my, button);
-	}
-
-	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (!isOpen() && keyCode != InputConstants.KEY_ESCAPE) return false;
-		return super.keyPressed(keyCode, scanCode, modifiers);
+	public void render(GuiGraphics g, int mx, int my, float pt) {
+		super.render(g, mx, my, pt);
+		renderTooltip(g, mx, my);
 	}
 
 	@Override
 	protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
-		boolean ready = currentFrame() == 1;
-		boolean showPages = ready && menu.getMaxPage() > 1;
-		if (prevButton != null) prevButton.visible = showPages;
-		if (nextButton != null) nextButton.visible = showPages;
-		for (var ts : menu.getTradeSlots()) ts.active = ready;
-		g.blit(FRAMES[currentFrame() - 1], leftPos, topPos, 0, 0, 256, 220);
+		for (int i = 0; i < KINDS.length; i++) {
+			if (filterButtons[i] != null) filterButtons[i].active = menu.isAvailable(KINDS[i]);
+		}
+		if (prevButton != null) prevButton.active = menu.getPage() > 0;
+		if (nextButton != null) nextButton.active = menu.getPage() < menu.getMaxPage() - 1;
+		g.blit(TEXTURE, leftPos, topPos, 0, 0, 256, 240);
 	}
 
 	@Override
 	protected void renderLabels(GuiGraphics g, int mx, int my) {
-		if (currentFrame() != 1) return;
+		int money = CoinPurse.money(menu.player);
+		drawMoney(g, money);
 		if (menu.getMaxPage() > 1) {
 			var text = Component.literal((menu.getPage() + 1) + "/" + menu.getMaxPage());
-			int x = 124 - font.width(text) / 2;
-			int y = 9;
-			g.drawString(font, text, x, y, 0x404040, false);
+			int x = imageWidth / 2 - font.width(text) / 2;
+			g.drawString(font, text, x, 29, 0xFFFFFF, true);
 		}
 		for (var ts : menu.getTradeSlots()) {
 			if (!ts.hasItem()) continue;
@@ -157,22 +156,64 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			if (offerId == null) continue;
 			var offer = CodecRegistry.TRADE.get(menu.player.level().registryAccess(), offerId);
 			if (offer == null) continue;
-			if (!offer.value().isSellOffer() && ts.getItem().getCount() != 1) {
+			var kind = offer.value().kind();
+			int x = ts.x - 6;
+			int y = ts.y + 17;
+			GuiSprites.blit(g, tag(kind), x, y, 27, 12);
+			if (kind == OfferKind.BUYING && ts.getItem().getCount() != 1) {
 				String s = String.valueOf(ts.getItem().getCount());
 				g.drawString(font, s, ts.x + 19 - 2 - font.width(s), ts.y + 6 + 3,
 						offer.value().canTrade(menu.player) ? 0x55FF55 : 0xFF5555, true);
 			}
-			var currency = IClientOffer.resolve(offer.value()).currency();
-			if (currency.isEmpty()) continue;
-			var price = Component.literal("¥" + currency.getCount());
-			boolean sell = offer.value().isSellOffer();
-			var tag = sell ? PRICE_SELL : PRICE_WANT;
-			int tw = sell ? 31 : 30;
-			int x = ts.x + 9 - tw / 2;
-			int y = ts.y + 17 - (12 - font.lineHeight) / 2;
-			GuiSprites.blit(g, tag, x, y, tw, 12);
-			g.drawString(font, price, ts.x + 9 - font.width(price) / 2, ts.y + 19, 0xFFFFFF, true);
+			var price = price(offer.value());
+			if (price.isEmpty()) continue;
+			var text = Component.literal("¥" + price.getCount());
+			int color = kind == OfferKind.TRADE && price.getCount() > money ? 0xFF5555 : 0xFFFFFF;
+			g.drawString(font, text, x + (27 - font.width(text)) / 2, y + 2, color, true);
 		}
+	}
+
+	private void drawMoney(GuiGraphics g, int money) {
+		var text = Component.literal(String.valueOf(money));
+		// centre the digit ink, not the advance: the trailing 1 px spacing would bias the text left
+		int width = font.width(text) - 1;
+		int height = font.lineHeight - 2;
+		float scale = Math.min(1F, Math.min((float) MONEY_W / width, (float) MONEY_H / height));
+		float x = MONEY_X + (MONEY_W - width * scale) / 2F;
+		float y = MONEY_Y + (MONEY_H - height * scale) / 2F - scale;
+		g.pose().pushPose();
+		g.pose().translate(x, y, 0);
+		g.pose().scale(scale, scale, 1);
+		g.drawString(font, text, 0, 0, 0xFFFFFF, true);
+		g.pose().popPose();
+	}
+
+	private static ResourceLocation tag(OfferKind kind) {
+		return switch (kind) {
+			case TRADE -> PRICE_TRADE;
+			case BUYING -> PRICE_BUYING;
+			case PROCESSING -> PRICE_PROCESSING;
+		};
+	}
+
+	private static ItemStack price(TradeOffer offer) {
+		return switch (offer.kind()) {
+			case TRADE -> {
+				ItemStack ans = ItemStack.EMPTY;
+				for (var entry : offer.ingredients()) {
+					for (var stack : entry.ingredient().getItems()) {
+						if (stack.is(GLTagGen.CURRENCY)) {
+							ans = stack.copyWithCount(entry.count());
+							break;
+						}
+					}
+					if (!ans.isEmpty()) break;
+				}
+				yield ans;
+			}
+			case BUYING -> offer.result();
+			case PROCESSING -> ItemStack.EMPTY;
+		};
 	}
 
 	@Override
@@ -195,23 +236,17 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	public static Component actionText(TradeOffer offer) {
 		var character = bracket(offer.character().getDescription(), ChatFormatting.AQUA);
-		if (!offer.isSellOffer()) {
-			var entry = offer.ingredients().get(0);
-			return GLLang.Trade.SELL.get(bracket(ingredientName(entry), ChatFormatting.YELLOW), character);
-		}
-		if (IClientOffer.resolve(offer).currency().isEmpty()) {
-			return GLLang.Trade.CRAFT.get(character, bracket(offer.result().getHoverName(), ChatFormatting.YELLOW));
-		}
-		return GLLang.Trade.BUY.get(bracket(offer.result().getHoverName(), ChatFormatting.YELLOW), character);
+		return switch (offer.kind()) {
+			case TRADE -> GLLang.Trade.BUY.get(bracket(offer.result().getHoverName(), ChatFormatting.YELLOW), character);
+			case BUYING -> GLLang.Trade.SELL.get(bracket(ingredientName(offer.ingredients().get(0)), ChatFormatting.YELLOW), character);
+			case PROCESSING -> GLLang.Trade.CRAFT.get(character, bracket(offer.result().getHoverName(), ChatFormatting.YELLOW));
+		};
 	}
 
-	/**
-	 * Whether the tooltip needs its own ingredient list. A priced offer already shows its cost - a want offer names
-	 * its ingredient in the action line, a buy offer a {@code ¥N} tag on the slot (see {@link #renderLabels}) - so a
-	 * craft offer, or a multi-ingredient priced one, still lists them here.
-	 */
+	/** Priced offers already show their cost - buying in the action line, trade as a {@code ¥N} tag - so only
+	 * processing or multi-ingredient offers need the list. See {@link #renderLabels}. */
 	private static boolean showIngredients(TradeOffer offer) {
-		return IClientOffer.resolve(offer).currency().isEmpty() || offer.ingredients().size() > 1;
+		return offer.kind() == OfferKind.PROCESSING || offer.ingredients().size() > 1;
 	}
 
 	private static Component bracket(Component inner, ChatFormatting color) {
@@ -227,7 +262,6 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	@Override
 	protected void renderTooltip(GuiGraphics g, int x, int y) {
-		if (!isOpen()) return;
 		if (menu.getCarried().isEmpty() && hoveredSlot instanceof TradeSlot ts && ts.hasItem()) {
 			var stack = ts.getItem();
 			var offerId = GLItems.DC_OFFER.get(stack);

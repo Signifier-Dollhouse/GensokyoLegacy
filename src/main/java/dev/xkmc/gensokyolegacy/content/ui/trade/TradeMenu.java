@@ -4,6 +4,7 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.TalkModule;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
+import dev.xkmc.gensokyolegacy.content.rpg.trade.OfferKind;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
@@ -22,7 +23,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Server-authoritative offer board: filters and paging live here, the client only reads the synced
+ * state.
+ *
+ * @see "doc/design/trade_ui.md"
+ */
 public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalkMenu {
+
+	private static final int FILTER_ALL = 0;
+	public static final int PAGE_PREV = -1;
+	public static final int PAGE_NEXT = -2;
+	private static final int FILTER_BASE = -3;
+
+	public static int filterButtonId(OfferKind kind) {
+		return FILTER_BASE - kind.ordinal();
+	}
 
 	private final SimpleContainer cont = new SimpleContainer(15);
 
@@ -49,6 +65,10 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 
 	private final DataSlot page;
 	private final DataSlot maxPage;
+	/** 0 = all kinds, otherwise {@code OfferKind.ordinal() + 1}. */
+	private final DataSlot filter;
+	/** One bit per {@code OfferKind.ordinal()}, set when at least one matching offer exists. */
+	private final DataSlot available;
 
 	public TradeMenu(@Nullable MenuType<?> type, int wid, Player player, @Nullable YoukaiEntity character) {
 		super(type, wid);
@@ -56,16 +76,29 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 		this.character = character;
 		page = addDataSlot(DataSlot.standalone());
 		maxPage = addDataSlot(DataSlot.standalone());
-		bindPlayerInventory(player.getInventory(), 47, 140);
+		filter = addDataSlot(DataSlot.standalone());
+		available = addDataSlot(DataSlot.standalone());
+		available.set((1 << OfferKind.values().length) - 1);
+		bindPlayerInventory(player.getInventory(), 47, 157);
 		for (int i = 0; i < 15; i++) {
-			addSlot(slots[i] = new TradeSlot(cont, i, 55 + i % 5 * 32, 44 + i / 5 * 32));
+			addSlot(slots[i] = new TradeSlot(cont, i, 56 + i % 5 * 32, 39 + i / 5 * 39));
 		}
 		if (player instanceof ServerPlayer)
 			refreshOffers();
 	}
 
 	private void refreshOffers() {
-		var list = getOffers();
+		var all = getOffers();
+		int avail = 0;
+		for (var offer : all) avail |= bit(offer.value().kind());
+		available.set(avail);
+		OfferKind selected = getFilter();
+		if (selected != null && (avail & bit(selected)) == 0) {
+			filter.set(FILTER_ALL);
+			selected = null;
+		}
+		final OfferKind kind = selected;
+		var list = kind == null ? all : all.stream().filter(e -> e.value().kind() == kind).toList();
 		maxPage.set(Math.max(1, (list.size() + 14) / 15));
 		if (page.get() >= maxPage.get()) page.set(maxPage.get() - 1);
 		for (int i = 0; i < 15; i++) {
@@ -73,8 +106,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 			if (index >= list.size()) {
 				slots[i].set(ItemStack.EMPTY);
 			} else {
-				var offer = list.get(index);
-				slots[i].set(TradeOffer.toIcon(offer));
+				slots[i].set(TradeOffer.toIcon(list.get(index)));
 			}
 		}
 	}
@@ -91,7 +123,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 			}
 		}
 		for (int k = 0; k < 9; k++) {
-			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 55));
+			this.addSlot(new Slot(inv, k, invX + k * 18, invY + 58));
 		}
 	}
 
@@ -107,11 +139,22 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 
 	@Override
 	public boolean clickMenuButton(Player pl, int id) {
-		if (id == -1 || id == -2) {
-			int target = page.get() + (id == -1 ? -1 : 1);
+		if (id == PAGE_PREV || id == PAGE_NEXT) {
+			int target = page.get() + (id == PAGE_PREV ? -1 : 1);
 			if (target < 0 || target >= maxPage.get()) return false;
 			if (pl instanceof ServerPlayer) {
 				page.set(target);
+				refreshOffers();
+			}
+			return true;
+		}
+		int index = FILTER_BASE - id;
+		if (index >= 0 && index < OfferKind.values().length) {
+			OfferKind kind = OfferKind.values()[index];
+			if (!isAvailable(kind)) return false;
+			if (pl instanceof ServerPlayer) {
+				filter.set(getFilter() == kind ? FILTER_ALL : kind.ordinal() + 1);
+				page.set(0);
 				refreshOffers();
 			}
 			return true;
@@ -123,6 +166,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 		if (offerId == null) return false;
 		var offer = CodecRegistry.TRADE.get(pl.level().registryAccess(), offerId);
 		if (offer == null) return false;
+		if (GLMeta.TRADE.type().getOrCreate(pl).getRemainingTrades(pl, offer) <= 0) return false;
 		if (!offer.value().canTrade(pl)) return false;
 		if (pl.level().isClientSide()) {
 			GLMeta.TRADE.type().getOrCreate(pl).onTrade(pl, offer);
@@ -136,12 +180,26 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 		return true;
 	}
 
+	private static int bit(OfferKind kind) {
+		return 1 << kind.ordinal();
+	}
+
 	public int getPage() {
 		return page.get();
 	}
 
 	public int getMaxPage() {
 		return maxPage.get();
+	}
+
+	public @Nullable OfferKind getFilter() {
+		int v = filter.get();
+		if (v <= FILTER_ALL || v > OfferKind.values().length) return null;
+		return OfferKind.values()[v - 1];
+	}
+
+	public boolean isAvailable(OfferKind kind) {
+		return (available.get() & bit(kind)) != 0;
 	}
 
 	public TradeSlot[] getTradeSlots() {
