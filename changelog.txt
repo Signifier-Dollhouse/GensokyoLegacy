@@ -1,5 +1,7 @@
 1.0.7.4
 - Fix server connection
+- fix trade stock limit not working
+- trade gui overhaul: add filter buttons
 
 1.0.7.3
 - Fix gap portal crash

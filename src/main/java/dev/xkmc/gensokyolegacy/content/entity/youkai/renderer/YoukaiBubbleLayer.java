@@ -14,6 +14,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +32,11 @@ import org.joml.Vector3f;
  * A {@link GeoRenderLayer} and not a world pass, because the pose a layer is handed is the one a name tag is
  * drawn in - which also puts the bubble in the entity's own pass, at the entity's own distance.
  * <p>
- * Everything is drawn in the frame the camera orientation and the {@link #SCALE} flip leave behind - {@code +x}
- * right, {@code +y} down, {@code +z} away from the camera, one unit to a sheet pixel - so a bubble off to one
- * side is off to the side of the screen rather than of the world.
+ * The bubble faces the player rather than the camera: the yaw is the horizontal player-to-entity direction, so
+ * in third person it still turns to the player instead of to the camera behind them. Everything is drawn in the
+ * frame that yaw and the {@link #SCALE} flip leave behind - the one {@code cameraOrientation()} would give a
+ * camera at the player looking at her - {@code +x} right, {@code +y} down, {@code +z} away from the player, one
+ * unit to a sheet pixel.
  *
  * @see "doc/design/want_bubble.md"
  */
@@ -113,10 +117,12 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		Minecraft mc = Minecraft.getInstance();
 		var dispatcher = mc.getEntityRenderDispatcher();
 		if (dispatcher.distanceToSqr(entity) > RANGE * RANGE) return;
+		var player = mc.player;
+		if (player == null) return;
 		poseStack.pushPose();
 
 		poseStack.translate(0, entity.getBbHeight() + LIFT + PILL_H * SCALE / 2, 0);
-		poseStack.mulPose(dispatcher.cameraOrientation());
+		poseStack.mulPose(Axis.YP.rotationDegrees(-yawToPlayer(entity, player, partialTick)));
 		poseStack.scale(-SCALE, -SCALE, SCALE);
 		poseStack.translate(sideShift(module.getWantPlacement()), 0, 0);
 		var bubbleBuffer = bufferSource.getBuffer(BUBBLE);
@@ -130,6 +136,19 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		mc.getItemRenderer().renderStatic(want, ItemDisplayContext.GUI, LightTexture.FULL_BRIGHT,
 				OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), 0);
 		poseStack.popPose();
+	}
+
+	/**
+	 * The yaw of a camera at the player's eyes looking at her, in degrees: interpolated the same way the entity
+	 * and the player are drawn, so the bubble does not jitter against them. 1.20.1's {@code cameraOrientation()}
+	 * for that yaw is {@code Axis.YP.rotationDegrees(-yaw)}.
+	 */
+	private static float yawToPlayer(YoukaiEntity entity, Player player, float pTick) {
+		double ex = Mth.lerp(pTick, entity.xo, entity.getX());
+		double ez = Mth.lerp(pTick, entity.zo, entity.getZ());
+		double px = Mth.lerp(pTick, player.xo, player.getX());
+		double pz = Mth.lerp(pTick, player.zo, player.getZ());
+		return (float) Math.toDegrees(Math.atan2(px - ex, ez - pz));
 	}
 
 	/**
