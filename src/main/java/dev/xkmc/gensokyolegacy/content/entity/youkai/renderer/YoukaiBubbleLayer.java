@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -29,9 +30,10 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
  * A {@link GeoRenderLayer} and not a world pass, because the pose a layer is handed is the one a name tag is
  * drawn in - which also puts the bubble in the entity's own pass, at the entity's own distance.
  * <p>
- * Everything is drawn in the frame {@code cameraOrientation()} leaves behind - {@code +x} right, {@code +y} up,
- * {@code +z} at the camera, one unit to a block - so a bubble off to one side is off to the side of the
- * screen rather than of the world.
+ * The bubble faces the player rather than the camera: the yaw is the horizontal player-to-entity direction, so
+ * in third person it still turns to the player instead of to the camera behind them. The frame is the one
+ * {@code cameraOrientation()} would leave behind for a camera at the player looking at her - {@code +x} right,
+ * {@code +y} up, {@code +z} at the player, one unit to a block.
  *
  * @see "doc/design/want_bubble.md"
  */
@@ -111,11 +113,18 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		Minecraft mc = Minecraft.getInstance();
 		var dispatcher = mc.getEntityRenderDispatcher();
 		if (dispatcher.distanceToSqr(entity) > RANGE * RANGE) return;
+		var player = mc.player;
+		if (player == null) return;
 		poseStack.pushPose();
 
 		poseStack.translate(0, entity.getBbHeight() + LIFT, 0);
 
-		poseStack.mulPose(dispatcher.cameraOrientation());
+		double ex = Mth.lerp(partialTick, entity.xo, entity.getX());
+		double ez = Mth.lerp(partialTick, entity.zo, entity.getZ());
+		double px = Mth.lerp(partialTick, player.xo, player.getX());
+		double pz = Mth.lerp(partialTick, player.zo, player.getZ());
+		float yaw = (float) Math.toDegrees(Math.atan2(px - ex, ez - pz));
+		poseStack.mulPose(Axis.YP.rotationDegrees(180 - yaw));
 		poseStack.mulPose(Axis.YP.rotationDegrees(180));
 		switch (module.getWantPlacement()) {
 			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(1, 0, 0);

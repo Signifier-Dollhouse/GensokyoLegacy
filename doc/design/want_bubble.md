@@ -75,9 +75,9 @@ The feed cooldown has to be synced because the client is the side asking, and `g
 
 ## 5. How it is drawn
 
-`YoukaiBubbleLayer` is a `GeoRenderLayer`, not a world pass: the pose a layer is handed is already the one a name tag is drawn in. `GeoEntityRenderer#actuallyRender` applies the body yaw inside a frame it pushes and pops itself, so by the time layers run the pose carries the entity's position and nothing else. That makes billboarding one `mulPose` against `cameraOrientation()`, and it means the bubble is drawn with the entity — same buffers, same pass, same distance.
+`YoukaiBubbleLayer` is a `GeoRenderLayer`, not a world pass: the pose a layer is handed is already the one a name tag is drawn in. `GeoEntityRenderer#actuallyRender` applies the body yaw inside a frame it pushes and pops itself, so by the time layers run the pose carries the entity's position and nothing else. That makes billboarding one `mulPose`, and it means the bubble is drawn with the entity — same buffers, same pass, same distance.
 
-Everything after that is drawn in the frame `mulPose` leaves behind: `+x` right, `+y` up, `+z` at the camera, one unit to a block. So a bubble put off to one side is off to the side of the *screen* rather than of the world, which is what "at her upper left" means once the camera is not straight on.
+The bubble turns to the **player**, not to the camera: the yaw is taken from the horizontal player-to-entity vector (interpolated positions, matching the frame origin), so in third person it still faces the player rather than the camera behind them. The result is the frame `cameraOrientation()` would leave behind for a camera at the player looking at her — `+x` right, `+y` up, `+z` at the player, one unit to a block — so a bubble put off to one side is off to the side as the player sees it, which is what "at her upper left" means once the camera is not straight on.
 
 Order of operations in `render`: resolve the module → skip an empty stack or an invisible entity → `mayShowWant()` → skip outside the 60-tick show window → skip past 64 blocks → draw the pill → draw the item.
 
