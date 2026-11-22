@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.ui.trade;
 
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinPurse;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.core.IngredientEntry;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.OfferKind;
@@ -24,7 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -147,7 +147,7 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	@Override
 	protected void renderLabels(GuiGraphics g, int mx, int my) {
-		int money = money(menu.player);
+		int money = CoinPurse.money(menu.player);
 		drawMoney(g, money);
 		if (menu.getMaxPage() > 1) {
 			var text = Component.literal((menu.getPage() + 1) + "/" + menu.getMaxPage());
@@ -170,15 +170,6 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 			int color = kind == OfferKind.TRADE && price.getCount() > money ? 0xFF5555 : 0xFFFFFF;
 			g.drawString(font, text, x + (27 - font.width(text)) / 2, y + 2, color, true);
 		}
-	}
-
-	private static int money(Player pl) {
-		int ans = 0;
-		for (var stack : pl.getInventory().items)
-			if (stack.is(GLTagGen.CURRENCY)) ans += stack.getCount();
-		for (var stack : pl.getInventory().offhand)
-			if (stack.is(GLTagGen.CURRENCY)) ans += stack.getCount();
-		return ans;
 	}
 
 	private void drawMoney(GuiGraphics g, int money) {

@@ -2,6 +2,7 @@ package dev.xkmc.gensokyolegacy.content.rpg.trade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinPurse;
 import dev.xkmc.gensokyolegacy.content.rpg.core.*;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import dev.xkmc.gensokyolegacy.init.data.GLTagGen;
@@ -48,13 +49,28 @@ public record TradeOffer(
 	}
 
 	public boolean canTrade(Player pl) {
-		return InventoryMapper.testCached(pl, this);
+		if (coinCost() == 0) return InventoryMapper.testCached(pl, this);
+		return new InventoryMapper(CoinPurse.asCoins(pl), ingredients).test();
 	}
 
 	public void doTrade(ServerPlayer sp) {
+		CoinPurse.split(sp, coinCost());
 		var ans = new InventoryMapper(sp.getInventory().items, ingredients);
-		ans.test();
-		ans.consume();
+		if (ans.test()) ans.consume();
+	}
+
+	/** Coins this offer charges. Other currency ingredients still pay item for item. */
+	private int coinCost() {
+		int ans = 0;
+		for (var entry : ingredients) {
+			for (var stack : entry.ingredient().getItems()) {
+				if (stack.is(GLItems.COIN)) {
+					ans += entry.count();
+					break;
+				}
+			}
+		}
+		return ans;
 	}
 
 	public static ItemStack toIcon(Holder<TradeOffer> offer) {

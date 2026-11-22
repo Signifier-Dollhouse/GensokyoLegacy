@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.content.block.deco.shelf;
 
 import dev.xkmc.gensokyolegacy.content.attachment.storage.PendingItemStorage;
+import dev.xkmc.gensokyolegacy.content.item.currency.CoinPurse;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.base.tile.BaseBlockEntity;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
@@ -167,37 +168,11 @@ public class ShelfBlockEntity extends BaseBlockEntity {
 
 	public boolean buy(Level level, ItemStack held, Player player) {
 		if (stack.isEmpty() || stock <= 0) return false;
-		int coins = 0, stacks = 0;
-		for (var e : player.getInventory().items) {
-			if (e.is(GLItems.COIN)) coins += e.getCount();
-			else if (e.is(GLItems.COIN_STACK)) stacks += e.getCount();
-		}
-		if (coins + stacks * GLItems.COIN_STACK_VALUE < cost) return false;
+		if (CoinPurse.coins(player) < cost) return false;
 		if (!level.isClientSide()) {
 			stock--;
 			earning += cost;
-
-			// coins first, then whole stacks; the last stack may overpay, so its change is paid back in coins
-			int coinCost = Math.min(coins, cost);
-			int stackCost = Math.min(stacks,
-					(cost - coinCost + GLItems.COIN_STACK_VALUE - 1) / GLItems.COIN_STACK_VALUE);
-			int change = coinCost + stackCost * GLItems.COIN_STACK_VALUE - cost;
-			for (var e : player.getInventory().items) {
-				if (e.is(GLItems.COIN_STACK) && stackCost > 0) {
-					int remove = Math.min(stackCost, e.getCount());
-					e.shrink(remove);
-					stackCost -= remove;
-				}
-			}
-			for (var e : player.getInventory().items) {
-				if (e.is(GLItems.COIN) && coinCost > 0) {
-					int remove = Math.min(coinCost, e.getCount());
-					e.shrink(remove);
-					coinCost -= remove;
-				}
-			}
-			if (change > 0)
-				player.getInventory().placeItemBackInInventory(new ItemStack(GLItems.COIN.get(), change));
+			CoinPurse.pay(player, cost);
 			player.getInventory().placeItemBackInInventory(stack.copyWithCount(1));
 			notifyTile();
 		}

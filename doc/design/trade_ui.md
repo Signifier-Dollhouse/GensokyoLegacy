@@ -47,9 +47,17 @@ carried currency is below it.
 
 ## Money display
 
-The coin plate on the left rail (`24, 75`, 13x8) shows how much currency the player carries:
-the total count of `GLTagGen.CURRENCY` stacks in the inventory and offhand. The number is
-scaled down when it would not fit the plate.
+The coin plate on the left rail (`24, 75`, 13x8) shows how much money the player carries: the
+`GLTagGen.CURRENCY` stacks in the main inventory, with `coin_stack` counted as
+`GLItems.COIN_STACK_VALUE` (8) coins. The number is scaled down when it would not fit the plate.
+
+## Payment
+
+`coin_stack` is worth 8 coins when an offer charges coins. If loose coins cannot cover the
+price, `CoinPurse` splits just enough coin stacks into coins before the ingredients are
+consumed; whatever is left over after the cost stays in the inventory as coins (the change).
+The shelf's `buy` uses the same helper. Other currency ingredients, such as gold ingots, still
+pay item for item.
 
 ## Filters and paging
 
