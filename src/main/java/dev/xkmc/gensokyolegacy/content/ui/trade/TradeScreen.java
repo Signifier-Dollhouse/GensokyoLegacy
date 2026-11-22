@@ -83,8 +83,9 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 	private static final int PREV_Y = 117;
 
 	private static final int MONEY_X = 24;
-	private static final int MONEY_Y = 75;
+	private static final int MONEY_Y = 76;
 	private static final int MONEY_W = 13;
+	private static final int MONEY_H = 7;
 
 	private static final OfferKind[] KINDS = OfferKind.values();
 
@@ -174,10 +175,14 @@ public class TradeScreen extends AbstractContainerScreen<TradeMenu> {
 
 	private void drawMoney(GuiGraphics g, int money) {
 		var text = Component.literal(String.valueOf(money));
-		int width = font.width(text);
-		float scale = Math.min(1F, (float) MONEY_W / width);
+		// centre the digit ink, not the advance: the trailing 1 px spacing would bias the text left
+		int width = font.width(text) - 1;
+		int height = font.lineHeight - 2;
+		float scale = Math.min(1F, Math.min((float) MONEY_W / width, (float) MONEY_H / height));
+		float x = MONEY_X + (MONEY_W - width * scale) / 2F;
+		float y = MONEY_Y + (MONEY_H - height * scale) / 2F - scale;
 		g.pose().pushPose();
-		g.pose().translate(Math.round(MONEY_X + (MONEY_W - width * scale) / 2F), MONEY_Y, 0);
+		g.pose().translate(x, y, 0);
 		g.pose().scale(scale, scale, 1);
 		g.drawString(font, text, 0, 0, 0xFFFFFF, true);
 		g.pose().popPose();

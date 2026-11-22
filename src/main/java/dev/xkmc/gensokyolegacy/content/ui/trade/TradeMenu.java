@@ -166,6 +166,7 @@ public class TradeMenu extends AbstractContainerMenu implements TalkModule.ITalk
 		if (offerId == null) return false;
 		var offer = CodecRegistry.TRADE.get(pl.level().registryAccess(), offerId);
 		if (offer == null) return false;
+		if (GLMeta.TRADE.type().getOrCreate(pl).getRemainingTrades(pl, offer) <= 0) return false;
 		if (!offer.value().canTrade(pl)) return false;
 		if (pl.level().isClientSide()) {
 			GLMeta.TRADE.type().getOrCreate(pl).onTrade(pl, offer);

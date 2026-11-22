@@ -49,7 +49,8 @@ carried currency is below it.
 
 The coin plate on the left rail (`24, 75`, 13x8) shows how much money the player carries: the
 `GLTagGen.CURRENCY` stacks in the main inventory, with `coin_stack` counted as
-`GLItems.COIN_STACK_VALUE` (8) coins. The number is scaled down when it would not fit the plate.
+`GLItems.COIN_STACK_VALUE` (8) coins. The number is centred on the plate's inner box and scaled
+down when it would not fit.
 
 ## Payment
 
@@ -73,3 +74,10 @@ Filtering and paging are server-authoritative, synced to the client through
 
 Each button sprite is a three-state set: `tab_<kind>_normal`, `tab_<kind>_hover` (also used
 while selected) and `tab_<kind>_disabled`; pagination uses `next_*` and `prev_*` the same way.
+
+## Stock
+
+`TradeAttachment` tracks the remaining trades per offer and the tooltip shows
+`remaining/max`. An offer stays on the board at 0 stock, but `TradeMenu.clickMenuButton`
+rejects it before `canTrade`, on the client and again on the server, so a depleted offer
+cannot be traded even by a client that skips the local check.
