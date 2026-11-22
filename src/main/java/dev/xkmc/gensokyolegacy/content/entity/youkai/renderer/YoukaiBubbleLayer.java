@@ -30,9 +30,9 @@ import org.joml.Vector3f;
  * A {@link GeoRenderLayer} and not a world pass, because the pose a layer is handed is the one a name tag is
  * drawn in - which also puts the bubble in the entity's own pass, at the entity's own distance.
  * <p>
- * Everything is drawn in the frame {@code cameraOrientation()} leaves behind - {@code +x} right, {@code +y} up,
- * {@code +z} at the camera, one unit to a block - so a bubble off to one side is off to the side of the
- * screen rather than of the world.
+ * Everything is drawn in the frame the camera orientation and the {@link #SCALE} flip leave behind - {@code +x}
+ * right, {@code +y} down, {@code +z} away from the camera, one unit to a sheet pixel - so a bubble off to one
+ * side is off to the side of the screen rather than of the world.
  *
  * @see "doc/design/want_bubble.md"
  */
@@ -40,8 +40,9 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 
 	private static final ResourceLocation TEXTURE = GensokyoLegacy.loc("textures/bubble/bubble.png");
 	/**
-	 * {@code NoCull}: a flat sprite has no inside to hide, and a quad that came out wound the other way
-	 * round would simply vanish if there were.
+	 * The text render type: a billboard sprite is the same draw as a name tag's text, so it gets the same
+	 * translucent pass and vertex format. The quad is wound the way a name tag's glyphs are, so it is not
+	 * culled.
 	 */
 	private static final RenderType BUBBLE = RenderType.text(TEXTURE);
 
@@ -56,16 +57,16 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	private static final float TAIL_Y = 24f;
 
 	/**
-	 * The middle of the pill's inside, in sheet pixels, which runs {@code x 3-44, y 3-20} - so half a pixel off
-	 * the pill's own centre. Where the item goes.
+	 * Blocks per sheet pixel. The frame is scaled by this once, and everything after it is drawn in sheet
+	 * pixels.
 	 */
-	private static final float ICON_CX = 23.5f;
-	private static final float ICON_CY = 14.5f;
+	private static final float SCALE = 0.025f;
 
 	/**
-	 * How far the item is placed in front of the bubble in the pixel coordinate frame.
+	 * How far the item is pushed towards the camera, in item-model units: half a unit cube, so the pill's
+	 * fill cannot swallow the back of the model.
 	 */
-	private static final float ICON_LIFT = -0.01f;
+	private static final float ICON_LIFT = 0.5f;
 
 	/**
 	 * How far the bottom edge of the pill hangs above the top of her hitbox. A plain gap: she hovers, so there
@@ -75,13 +76,13 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	private static final float LIFT = 0.25f;
 
 	/**
-	 * How far off to one side the bubble is put. Small on purpose: a fairy is 0.4 blocks wide, and a bubble
-	 * that had drifted a whole block off her head would stop reading as hers.
+	 * How far off to one side the bubble is put, in sheet pixels. Small on purpose: a fairy is 0.4 blocks
+	 * wide, and a bubble that had drifted a whole block off her head would stop reading as hers.
 	 */
-	private static final float SIDE_SHIFT = 0.3f;
+	private static final float SIDE_SHIFT = 12f;
 
 	/**
-	 * How long the bubble stays up: three seconds. Long enough to be read, short enough that the next one ten
+	 * How long the bubble stays up: ten seconds. Long enough to be read, short enough that the next one twelve
 	 * to twenty seconds later is a new thought rather than a flicker of the same one.
 	 */
 	private static final int SHOW_TICKS = 200;
@@ -114,21 +115,16 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		if (dispatcher.distanceToSqr(entity) > RANGE * RANGE) return;
 		poseStack.pushPose();
 
-		poseStack.translate(0, entity.getBbHeight() + LIFT, 0);
-
+		poseStack.translate(0, entity.getBbHeight() + LIFT + PILL_H * SCALE / 2, 0);
 		poseStack.mulPose(dispatcher.cameraOrientation());
-		poseStack.mulPose(Axis.YP.rotationDegrees(180));
-		switch (module.getWantPlacement()) {
-			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(1, 0, 0);
-			case AbstractBubbleModule.WANT_RIGHT -> poseStack.translate(-1, 0, 0);
-			default -> poseStack.translate(0, 0.2, 0);
-		}
-		poseStack.scale(-0.025F, -0.025F, 0.025F);
+		poseStack.scale(-SCALE, -SCALE, SCALE);
+		poseStack.translate(sideShift(module.getWantPlacement()), 0, 0);
 		var bubbleBuffer = bufferSource.getBuffer(BUBBLE);
 		drawPill(poseStack, bubbleBuffer);
 		drawTail(poseStack, bubbleBuffer, module.getWantPlacement());
 		poseStack.scale(16,16,16);
 		poseStack.mulPose(Axis.XP.rotationDegrees(180));
+		poseStack.translate(0, 0, ICON_LIFT);
 		// GUI context renders the inventory icon instead of a world item model. Full brightness keeps the icon
 		// legible at night.
 		mc.getItemRenderer().renderStatic(want, ItemDisplayContext.GUI, LightTexture.FULL_BRIGHT,
@@ -137,7 +133,7 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	}
 
 	/**
-	 * How far to one side of her head the bubble is put, in blocks: nothing in the middle, and
+	 * How far to one side of her head the bubble is put, in sheet pixels: nothing in the middle, and
 	 * {@link #SIDE_SHIFT} either way otherwise, as the player sees it.
 	 */
 	private static float sideShift(int placement) {
@@ -168,9 +164,9 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		poseStack.pushPose();
 		int offset = 24;
 		switch (placement) {
-			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(offset, 9, -0.05);
-			case AbstractBubbleModule.WANT_RIGHT -> poseStack.translate(-offset, 9, -0.05);
-			default -> 	poseStack.translate(0, 8, -0.05);
+			case AbstractBubbleModule.WANT_LEFT -> poseStack.translate(offset, 9, 0.05);
+			case AbstractBubbleModule.WANT_RIGHT -> poseStack.translate(-offset, 9, 0.05);
+			default -> 	poseStack.translate(0, 8, 0.05);
 		}
 		drawTextureRect(poseStack, vc, sourceX, (int) TAIL_Y, (int) TAIL_SIZE, (int) TAIL_SIZE,
 				-TAIL_SIZE / 2, -TAIL_SIZE / 2);
