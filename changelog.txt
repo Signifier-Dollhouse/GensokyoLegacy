@@ -1,3 +1,6 @@
+1.0.7.4
+- Fix server connection
+
 1.0.7.3
 - Fix gap portal crash
 - Fix some food might be left untouched in party

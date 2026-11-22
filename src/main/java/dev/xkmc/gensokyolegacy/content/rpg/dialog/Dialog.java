@@ -3,8 +3,8 @@ package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
+import dev.xkmc.gensokyolegacy.content.rpg.core.LenientRegistryFileCodec;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.RegistryFileCodec;
 
 import java.util.List;
 
@@ -25,6 +25,6 @@ public record Dialog(
 	 * and writes a registry reference as its id. Chats and quests inline; only what must be named later
 	 * is registered.
 	 */
-	public static final Codec<Holder<Dialog>> HOLDER = RegistryFileCodec.create(CodecRegistry.Keys.DIALOG, CODEC);
+	public static final Codec<Holder<Dialog>> HOLDER = LenientRegistryFileCodec.create(CodecRegistry.Keys.DIALOG, CODEC);
 
 }
