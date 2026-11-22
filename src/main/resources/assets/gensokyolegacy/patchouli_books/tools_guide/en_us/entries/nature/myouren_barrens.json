@@ -8,7 +8,7 @@
     {
       "type": "patchouli:text",
       "title": "The Land",
-      "text": "The land around the Myouren Temple. Tower grass grows among golden lotus and wild flowers, lakes are scattered across the wild, and locust trees stand over the graves. The temple's pools still hold their lilies, and wild ghosts drift through the fields."
+      "text": "Tower grass grows among golden lotus and wild flowers, lakes are scattered across the wild, and locust trees stand over the graves. Wild ghosts drift through the fields."
     },
     {
       "type": "patchouli:spotlight",
@@ -67,7 +67,7 @@
         "gensokyolegacy:locust_hollow_log"
       ],
       "title": "Lilies, Grass and Locust",
-      "text": "Small and large water lilies float on the temple's pools. The large one has seven looks — pad, bud, bloom and seed pod among them — and right-clicking a placed lily cycles through them. Tower grass is harvested for Mystical Straw. Spooky bushes grow among the flowers. The locust, with its sapling, hollow log and fallen leaves, is the tree that grows back over a grave."
+      "text": "Right-clicking a placed water lily cycles through its looks — a purely decorative feature. Tower grass is harvested for Mystical Straw. The locust is the theme tree of the biome."
     }
   ]
 }

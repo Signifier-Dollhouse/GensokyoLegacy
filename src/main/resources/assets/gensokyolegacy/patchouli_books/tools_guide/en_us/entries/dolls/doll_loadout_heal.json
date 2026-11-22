@@ -11,7 +11,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Dolls patch themselves up$(br2)Dolls schedule their own healing, preferring you, then itself, and finally the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand until it has been used, so it can never be pulled away mid-use.$(br2)When it sits in the core...$(br2)A doll is happy to heal itself from a hand talisman, and no happier when the talisman is in the core instead — it only ever heals itself."
+      "text": "Dolls patch themselves up$(br2)Dolls schedule their own healing, preferring you, then itself, and finally the nearest wounded fellow doll — which is why a squad keeps patching up its own hurt members while you fight.$(br2)Any order you give interrupts a heal in progress, and the paper stays in the hand until it has been used, so it can never be pulled away mid-use.$(br2)When it sits in the core...$(br2)A doll is happy to heal itself from a hand talisman, and all the more so when the talisman is in the core slot — it only ever heals itself."
     }
   ]
 }

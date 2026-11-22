@@ -17,7 +17,7 @@
         "gensokyolegacy:magic_book",
         "gensokyolegacy:fancy_fan"
       ],
-      "text": "每位在你桌上吃过东西的客人都会留下回礼。"
+      "text": "每位在你桌上吃过东西的客人都会留下回礼，客人会根据吸引力（吃过的不同菜品的总饱和）来判断奖励品质，详见JEI。"
     }
   ]
 }

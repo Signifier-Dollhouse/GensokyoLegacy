@@ -9,13 +9,13 @@
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:fairy_wings",
       "title": "A Fairy's Wings",
-      "text": "A copy of a fairy's wings. Ger off the ground and they will hold you there — a slow hover rather than a flight. Not quite fast but enough to cross complex terrain.$(br2)Side effect is that they make you weaker."
+      "text": "A copy of a fairy's wings. It lets you float like a fairy, good for crossing difficult terrain, but it leaves you frail."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:ice_wings",
       "title": "Cirno's Wings",
-      "text": "A copy of Cirno's wings, cut from ice crystals and copied just as faithfully. They lift you higher than the fairy's.$(br2)Their side effect makes you dumber."
+      "text": "A copy of ice-crystal wings. They let you fly, slowly.$(br2)Their side effect dulls your wits."
     }
   ]
 }
