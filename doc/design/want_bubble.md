@@ -90,7 +90,7 @@ Order of operations in `render`: resolve the module → skip an empty stack or a
 
 `textures/bubble/bubble.png` is a 256px square whose top-left corner holds the pill, `48 × 24`. The three `16 × 16` cells at `y = 24` are the same tail at three angles; the placement rolled with the want picks one, and the tail is drawn just behind the pill (`z = 0.05`, away from the camera) so the pill's outline covers the join. Left and right placement put the tail 24px off centre and 9px down, so it hangs from under the near end of the pill; the centre placement puts it 8px down, straight under the middle.
 
-The item is centred on the pill, 16px across — one item-model unit after the `scale(16, 16, 16)` — and is pushed 0.5 item units towards the camera after an `Axis.XP.rotationDegrees(180)` flip. The flip puts the model's own up and front the right way round in this y-down, z-away frame; the push then leaves the whole unit cube in front of the sprite's plane, so the pill cannot hide the back half of a cake.
+The item is centred on the pill, 16px across — one item-model unit after the `scale(16, 16, 16)` — and sits on the sprite's own plane, with the `Axis.XP.rotationDegrees(180)` flip putting the model's own up and front the right way round in this y-down, z-away frame. The unit cube straddles the plane, so the pill hides its back half and the item reads as sitting in the bubble rather than floating in front of it.
 
 It is rendered with `ItemDisplayContext.GUI` and full brightness: GUI so a cake comes out isometric rather than as its flat inventory sprite, full brightness for the same reason an item frame uses it — what she is asking for has to be legible at night, and it is a picture of an item rather than an item sitting in the dark.
 
@@ -104,7 +104,6 @@ It is rendered with `ItemDisplayContext.GUI` and full brightness: GUI so a cake 
 | `SCALE` | `YoukaiBubbleLayer` | 0.025 | 48px pill becomes 1.2 blocks wide — just over a name plate: readable, but not the thing the player is looking at |
 | `LIFT` | `YoukaiBubbleLayer` | 0.25 | gap above her hitbox; she hovers, so there is nothing for the bubble to sit on, and the hitbox is measured rather than the model because the model is not what the bubble belongs to |
 | `SIDE_SHIFT` | `YoukaiBubbleLayer` | 12 | sheet pixels, 0.3 blocks: small on purpose — a fairy is 0.4 blocks wide, and a bubble a whole block off her head stops reading as hers |
-| `ICON_LIFT` | `YoukaiBubbleLayer` | 0.5 | item-model units towards the camera: half the unit cube, so the pill cannot swallow the back of the model |
 | `RANGE` | `YoukaiBubbleLayer` | 64 | the range a name tag stops being drawn at; past it the bubble is smaller than the item in it |
 | `COOL_DOWN` | `FairyFeedModule` | 400 | twenty seconds of not being fed — the same number the temptation sensor respects |
 

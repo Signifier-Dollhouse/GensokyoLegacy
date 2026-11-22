@@ -67,12 +67,6 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 	private static final float SCALE = 0.025f;
 
 	/**
-	 * How far the item is pushed towards the camera, in item-model units: half a unit cube, so the pill's
-	 * fill cannot swallow the back of the model.
-	 */
-	private static final float ICON_LIFT = 0.5f;
-
-	/**
 	 * How far the bottom edge of the pill hangs above the top of her hitbox. A plain gap: she hovers, so there
 	 * is nothing for the bubble to sit on, and it is measured from her hitbox because the model is not what
 	 * the bubble belongs to.
@@ -130,7 +124,6 @@ public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends G
 		drawTail(poseStack, bubbleBuffer, module.getWantPlacement());
 		poseStack.scale(16,16,16);
 		poseStack.mulPose(Axis.XP.rotationDegrees(180));
-		poseStack.translate(0, 0, ICON_LIFT);
 		// GUI context renders the inventory icon instead of a world item model. Full brightness keeps the icon
 		// legible at night.
 		mc.getItemRenderer().renderStatic(want, ItemDisplayContext.GUI, LightTexture.FULL_BRIGHT,
