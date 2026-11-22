@@ -327,6 +327,9 @@ public final class GLLang {
 		BUY("Buy %s from %s", 2),
 		SELL("Sell %s to %s", 2),
 		CRAFT("Request %s to craft %s", 2),
+		FILTER_TRADE("Buy"),
+		FILTER_BUYING("Sell"),
+		FILTER_PROCESSING("Processing"),
 		OPTION("Trade");
 
 		private final String def;

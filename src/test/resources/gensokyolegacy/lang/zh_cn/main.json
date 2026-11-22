@@ -59,7 +59,10 @@
 			"buy": "从%2$s购买%1$s",
 			"sell": "向%2$s出售%1$s",
 			"craft": "请求%1$s制作%2$s",
-			"stock": "库存：%s/%s"
+			"stock": "库存：%s/%s",
+			"filter_trade": "购买",
+			"filter_buying": "出售",
+			"filter_processing": "加工"
 		},
 		"alchemy": {
 			"allow": "可能的材料",
