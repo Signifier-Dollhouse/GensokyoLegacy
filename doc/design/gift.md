@@ -146,6 +146,20 @@ The rest of the tag is tools and curios rather than gifts, and is priced by what
 instead: `mini_hakkero_prototype` 16-24, `dowser` 12-18, `cat_bell` 8-12, `strange_glasses` 6-10,
 `centipickaxe` and `mermaid_pearl` 4-6, `straw_hat` 3-6.
 
+`MORICHIKA_GIFTS` is the subset of `MORICHIKA_OFFERS` that are actual gifts, and is what the gift box
+rolls from; the tools and curios stay out of it.
+
+## Gift box
+
+`gift_box` is a dialog trade, not shelf stock: 8 coins for one box, 16 in stock, restocked after a
+day (24,000 ticks). It carries a `CONTAINER_LOOT` component naming
+`gensokyolegacy:gift_box`, whose one roll expands `#gensokyolegacy:morichika_gifts`. Opening a box
+consumes one from the stack and hands over one random gift, so a stack of 16 opens one at a time.
+
+The box and the UFO share `HoldToOpenItem`, which owns the hold, the loot roll and the hand-back;
+each subclass supplies its own hold time and tooltip. The box holds for 10 ticks (half a second),
+the UFO for 40 (two seconds).
+
 ## Adding a gift
 
 1. Give the item a `GIFT_DATA` entry: `new GiftItemData(favor, cooldown, type)`. Datagen writes
@@ -253,6 +267,8 @@ rather than leaving them having paid and owed the next one as well.
 - `content/item/gift/GiftType.java` -- the categories, their display names, and `neutral()`
 - `content/item/gift/GiftItemData.java` -- base favor / cooldown / type, and the three-tier lookup
 - `content/item/gift/GiftPreference.java` -- the `gift_preference` datamap value
+- `content/item/gift/GiftBoxItem.java` -- the box's half-second hold and tooltip
+- `content/item/common/HoldToOpenItem.java` -- the shared hold, loot roll and stack-aware hand-back
 - `content/rpg/core/GiftDialogData.java` -- the `gift_dialog` datamap value: the three reactions, the threshold, the return table
 - `content/rpg/condition/GiftReturnCondition.java` -- whether she owes a gift back
 - `content/rpg/action/GiftReturnAction.java` -- spends the bank and hands the item over
@@ -264,7 +280,8 @@ rather than leaving them having paid and owed the next one as well.
 - `init/registrate/GLMeta.java` -- the `GIFT_DATA`, `GIFT_PREFERENCE`, `GIFT_DIALOG_DATA` and `MORICHIKA_OFFER` registrations
 - `init/data/rpg/GiftQDGen.java` -- the three reaction dialogs and the return chat, for every character
 - `init/data/loot/GiftLootGen.java` -- the party gift ladders and the `gift_return` tables cut from them
-- `init/data/GLTagGen.java` -- the `MORICHIKA_OFFERS` item tag
+- `init/data/loot/GiftBoxLootGen.java` -- the gift box table over `MORICHIKA_GIFTS`
+- `init/data/GLTagGen.java` -- the `MORICHIKA_OFFERS` and `MORICHIKA_GIFTS` item tags
 - `event/GLClientEventHandlers.java` -- the favor / type tooltip
 - `content/block/deco/shelf/MorichikaOfferData.java` -- the shelf price / stock band
 - `content/entity/behavior/task/home/YoukaiRestockShelfTask.java` -- picks the offer and rolls its price

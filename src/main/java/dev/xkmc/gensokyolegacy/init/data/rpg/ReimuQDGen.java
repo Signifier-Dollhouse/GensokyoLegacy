@@ -569,7 +569,7 @@ public class ReimuQDGen extends QuestDialogData {
 		trade("offer_lucky_tea", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new SelfReputationCondition(81)),
 				new ItemStack(GLItems.LUCKY_TEA.get()),
-				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 16))));
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		trade("offer_border_umbrella", new TradeOffer(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_RAID)),
 				new ItemStack(GLItems.BORDER_UMBRELLA.get()),

@@ -1,18 +1,12 @@
 package dev.xkmc.gensokyolegacy.content.item.nue;
 
+import dev.xkmc.gensokyolegacy.content.item.common.HoldToOpenItem;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2core.util.DCStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -22,12 +16,12 @@ import java.util.List;
  *
  * @see "doc/design/nue_trident.md"
  */
-public class UfoItem extends Item {
+public class UfoItem extends HoldToOpenItem {
 
 	private static final int HOLD_TICKS = 40;
 
 	public UfoItem(Properties properties) {
-		super(properties);
+		super(properties, HOLD_TICKS);
 	}
 
 	public static ItemStack getContent(ItemStack stack) {
@@ -35,34 +29,15 @@ public class UfoItem extends Item {
 		return content == null ? ItemStack.EMPTY : content.stack();
 	}
 
+	@Override
+	protected ItemStack contentOf(ItemStack stack) {
+		return getContent(stack);
+	}
+
 	public static ItemStack wrap(ItemStack held) {
 		ItemStack ufo = new ItemStack(GLItems.UFO.get());
 		GLItems.UFO_CONTENT.set(ufo, new DCStack(held.copy()));
 		return ufo;
-	}
-
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-		if (getContent(stack).isEmpty()) return InteractionResultHolder.pass(stack);
-		player.startUsingItem(hand);
-		return InteractionResultHolder.consume(stack);
-	}
-
-	@Override
-	public int getUseDuration(ItemStack stack, LivingEntity entity) {
-		return HOLD_TICKS;
-	}
-
-	@Override
-	public UseAnim getUseAnimation(ItemStack stack) {
-		return UseAnim.BRUSH;
-	}
-
-	@Override
-	public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-		ItemStack content = getContent(stack);
-		return content.isEmpty() ? stack : content;
 	}
 
 	@Override

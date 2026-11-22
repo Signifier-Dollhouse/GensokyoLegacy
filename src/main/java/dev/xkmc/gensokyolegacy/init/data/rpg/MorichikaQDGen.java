@@ -102,6 +102,11 @@ public class MorichikaQDGen extends QuestDialogData {
 				List.of(),
 				new ItemStack(GLItems.STRANGE_GLASSES.get()),
 				new TradeRecurrence(1, 24000), List.of(item(GLItems.COIN.get(), 8))));
+		// A sealed box of whatever he had spare: one random gift from his shelf stock.
+		trade("offer_gift_box", new TradeOffer(GLEntities.MORICHIKA.get(),
+				List.of(),
+				new ItemStack(GLItems.GIFT_BOX.get()),
+				new TradeRecurrence(16, 24000), List.of(item(GLItems.COIN.get(), 8))));
 		trade("offer_guide_book", new TradeOffer(GLEntities.MORICHIKA.get(),
 				List.of(new HasAdvancementCondition(GLAdvGen.WELCOME)),
 				PatchouliHelper.getBook(GensokyoLegacy.loc("tools_guide")),

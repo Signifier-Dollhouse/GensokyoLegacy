@@ -31,7 +31,7 @@ damage and speed, and the thrown copy flies on the vanilla trident arc.
 | `NueTridentItem` | `content/item/nue/NueTridentItem.java` | the item: melee stats, charge, throw, cooldown |
 | `NueTridentProjectile` | `content/entity/misc/NueTridentProjectile.java` | the flying copy: gravity, damage, UFO conversion |
 | `NoFadeBulletRenderer` | `content/entity/misc/render/NoFadeBulletRenderer.java` | the copy's renderer: no distance fading, centred on the flight line |
-| `UfoItem` | `content/item/nue/UfoItem.java` | the wrapper: holds the stolen stack, hands it back after a two-second hold |
+| `UfoItem` | `content/item/nue/UfoItem.java` | the wrapper: holds the stolen stack, hands it back after a two-second hold; the hold itself is `HoldToOpenItem` |
 
 The projectile is an `ItemBulletEntity` subclass, like `IronDaggerBulletEntity`, which buys the
 l2serial save/spawn code and the fast-projectile collision for free. Two quirks come with it and are
@@ -164,7 +164,8 @@ stack and opens on demand.
 
 ### 5.3 Opening it
 
-`UfoItem` is a held-use item, not a click item:
+`UfoItem` is a held-use item built on `HoldToOpenItem`, not a click item; the base owns the hold and
+the hand-back, and the UFO only supplies its stored stack:
 
 | override | value |
 |---|---|

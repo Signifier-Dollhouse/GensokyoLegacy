@@ -56,7 +56,8 @@
 			"yuyuko_fan_lore": "扇中盛满了幽灵，却没有一个肯安分下来",
 			"minamitsu_anchor_lore": "沉重到足以拖住一艘船，却总能自己回来",
 			"nue_trident_lore": "掷出去的那把，永远不是你留下的那把",
-			"ufo_lore": "里面有什么东西，正等着被放出来"
+			"ufo_lore": "里面有什么东西，正等着被放出来",
+			"gift_box_lore": "森近霖之助随手打包的存货"
 		},
 		"gift": {
 			"type": {
@@ -242,6 +243,9 @@
 		"ufo": {
 			"contains": "内含：%s",
 			"hold": "长按右键两秒以取回"
+		},
+		"gift_box": {
+			"open": "长按右键半秒以打开"
 		},
 		"spiritual": {
 			"bar": "灵力：%s / %s"
