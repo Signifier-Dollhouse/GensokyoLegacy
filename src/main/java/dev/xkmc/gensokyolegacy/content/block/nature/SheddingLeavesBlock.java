@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 /**
  * Leaves that shed a petal or a leaf under the canopy and let a carpet of fallen leaves build up below.
  *
- * @see "doc/design/fallen_leaves.md"
+ * @see "doc/design/biome/fallen_leaves.md"
  */
 public class SheddingLeavesBlock extends LeavesBlock {
 

@@ -80,12 +80,12 @@ sourceSets.main.resources {
 
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
-            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-            neo_version         : neo_version, neo_version_range: neo_version_range,
-            loader_version_range: loader_version_range,
+            minecraft_version         : minecraft_version, minecraft_version_range: minecraft_version_range,
+            neo_version               : neo_version, neo_version_range: neo_version_range,
+            loader_version_range      : loader_version_range,
             terrablender_version_range: terrablender_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors         : mod_authors, mod_description: mod_description,
+            mod_id                    : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors               : mod_authors, mod_description: mod_description,
     ]
     inputs.properties replaceProperties
 
@@ -152,6 +152,12 @@ repositories {
         }
     }
     maven {
+        url 'https://api.modrinth.com/maven'
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
         name = 'GeckoLib'
         url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
         content {
@@ -208,12 +214,12 @@ dependencies {
     implementation "curse.maven:touhou-little-maid-355044:5896992"
     implementation "curse.maven:jade-324717:5976517"
     implementation "curse.maven:sodium-394468:6382651"
+    implementation "maven.modrinth:spark:1.10.124-neoforge-1.21.1"
 //    implementation "curse.maven:lootr-361276:8968561"
 
     testImplementation "com.mojang:datafixerupper:8.0.16"
     testImplementation "com.google.guava:guava:32.1.2-jre"
 }
-
 
 
 tasks.register('publishCurseForge', TaskPublishCurseForge) {

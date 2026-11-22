@@ -335,3 +335,8 @@ Passes `data.data().reputationCap` alongside `reputation` to `CharacterInfoToCli
 ## Migration
 
 Breaking change. Existing quest JSON must be regenerated via `./gradlew runData`. Old worlds will deserialize `reputationCap` as 0 (l2serial default), effectively capping all rep at 0 until cap-increasing actions are performed again.
+
+## Known gaps
+
+- The shared numbers are centralised (`ReputationConstants`, plus `reputationDecayFloor` in `GLModConfig.SERVER`), but the combat/targeting thresholds — `COMBAT_SAFE_THRESHOLD`, `DISCARD_REP_THRESHOLD`, and the discard / respawn / wander decisions that read them — are still the same for every character. A per-entity override on `CharacterConfig` is the remaining step if a character should tolerate or reject the player differently.
+- `CharacterAttachment.tick` scans the player's character map at each settlement (`O(C)`, see [youkai_character.md](youkai_character.md) §5). This is cheap today and is not a per-tick cost; it is recorded so a future character roster does not make dawn expensive.

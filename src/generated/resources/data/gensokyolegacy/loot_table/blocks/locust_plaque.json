@@ -1,0 +1,39 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "gensokyolegacy:locust_plaque",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "bottom"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "block": "gensokyolegacy:locust_plaque",
+              "function": "minecraft:copy_state",
+              "properties": [
+                "alternate"
+              ]
+            }
+          ],
+          "name": "gensokyolegacy:locust_plaque"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "gensokyolegacy:blocks/locust_plaque"
+}

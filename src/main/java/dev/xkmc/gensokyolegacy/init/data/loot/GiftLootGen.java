@@ -8,19 +8,24 @@ import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.rpg.gift.GiftReturn;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import dev.xkmc.gensokyolegacy.init.registrate.block.GLNaturalBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -69,8 +74,14 @@ public class GiftLootGen {
 	 */
 	public static final int RETURN_TIER = 1;
 
+	/**
+	 * The table Nue's gift UFO rolls from when opened.
+	 */
+	public static final ResourceLocation UFO_LOOT = GensokyoLegacy.loc("gift/ufo");
+
 	public static void genLoot(RegistrateLootTableProvider pvd) {
 		pvd.addLootAction(SET, c -> c.accept(PartyGift.DEFAULT_TABLE, table(DEFAULT)));
+		pvd.addLootAction(SET, c -> c.accept(ufoKey(), ufoTable()));
 		gift(pvd, "hakurei_reimu", reimu());
 		gift(pvd, "cirno", cirno());
 		gift(pvd, "kirisame_marisa", marisa());
@@ -80,8 +91,10 @@ public class GiftLootGen {
 		gift(pvd, "ibuki_suika", suika());
 		gift(pvd, "saigyouji_yuyuko", yuyuko());
 		gift(pvd, "murasa_minamitsu", minamitsu());
+		gift(pvd, "nazrin", nazrin());
+		gift(pvd, "houjuu_nue", nue());
 		returns(pvd, DEFAULT, reimu(), cirno(), marisa(), sakuya(), alice(), morichika(), suika(), yuyuko(),
-				minamitsu());
+				minamitsu(), nazrin(), nue());
 	}
 
 	/**
@@ -91,7 +104,7 @@ public class GiftLootGen {
 	private static void returns(RegistrateLootTableProvider pvd, List<Tier>... ladders) {
 		String[] names = {"default", "hakurei_reimu", "cirno", "kirisame_marisa",
 				"izayoi_sakuya", "alice_margatroid", "morichika_rinnosuke", "ibuki_suika",
-				"saigyouji_yuyuko", "murasa_minamitsu"};
+				"saigyouji_yuyuko", "murasa_minamitsu", "nazrin", "houjuu_nue"};
 		for (int i = 0; i < ladders.length; i++) {
 			var name = names[i];
 			var table = returnTable(ladders[i]);
@@ -102,6 +115,25 @@ public class GiftLootGen {
 	private static ResourceKey<LootTable> returnKey(String character) {
 		return ResourceKey.create(Registries.LOOT_TABLE,
 				ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, GiftReturn.TABLE_DIR + "/" + character));
+	}
+
+	private static ResourceKey<LootTable> ufoKey() {
+		return ResourceKey.create(Registries.LOOT_TABLE, UFO_LOOT);
+	}
+
+	/**
+	 * What a gift UFO opens into: one item, the weights reading as a rarer thing being worth the wait.
+	 */
+	private static LootTable.Builder ufoTable() {
+		var pool = LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(1f))
+				.setBonusRolls(ConstantValue.exactly(0f));
+		pool.add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA).setWeight(1));
+		pool.add(LootItem.lootTableItem(Items.DIAMOND).setWeight(2));
+		pool.add(LootItem.lootTableItem(Items.NETHERITE_SCRAP).setWeight(2));
+		pool.add(LootItem.lootTableItem(GLNaturalBlocks.GOLDEN_LOTUS).setWeight(2));
+		pool.add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(3));
+		return LootTable.lootTable().withPool(pool);
 	}
 
 	/**
@@ -115,7 +147,7 @@ public class GiftLootGen {
 				.setRolls(ConstantValue.exactly(1f))
 				.setBonusRolls(ConstantValue.exactly(0f));
 		for (var entry : rung.gifts()) {
-			pool.add(LootItem.lootTableItem(entry.item()).setWeight(entry.weight()));
+			pool.add(lootItem(entry));
 		}
 		return LootTable.lootTable().withPool(pool);
 	}
@@ -247,6 +279,31 @@ public class GiftLootGen {
 	}
 
 	/**
+	 * A dowser parts with her treasure basket once an evening passes 500 appeal; the middle rung is
+	 * what her dowsers turned up, so the band below the basket is a find rather than a drink.
+	 */
+	private static List<Tier> nazrin() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 500, gift(Items.GOLD_INGOT, 20),
+						gift(Items.EMERALD, 20),
+						gift(Items.DIAMOND, 10),
+						gift(GLItems.MERMAID_PEARL, 20)),
+				tier(500, 0, gift(GLBlocks.TREASURE_BASKET, 10)));
+	}
+
+	/**
+	 * Nue parts with her trident on the same thousand-appeal rung. Her middle rung is not drink but a
+	 * UFO that opens into one looted item, so the band below the trident is a draw rather than a drink.
+	 */
+	private static List<Tier> nue() {
+		return List.of(
+				tier(0, 50, gift(GLNaturalBlocks.STAR_FLOWER, 20)),
+				tier(50, 500, ufo(20)),
+				tier(500, 0, gift(GLItems.NUE_TRIDENT, 10)));
+	}
+
+	/**
 	 * Her rungs.
 	 */
 	private static void gift(RegistrateLootTableProvider pvd, String character, List<Tier> tiers) {
@@ -282,9 +339,19 @@ public class GiftLootGen {
 				.setBonusRolls(ConstantValue.exactly(0f))
 				.when(() -> new AppealConsumedCondition(tier.min, tier.max));
 		for (var entry : tier.gifts()) {
-			pool.add(LootItem.lootTableItem(entry.item()).setWeight(entry.weight()));
+			pool.add(lootItem(entry));
 		}
 		return pool;
+	}
+
+	/**
+	 * One entry, with whatever components it carries. The UFO's loot table is a component rather than a
+	 * distinct item, so it has to ride on the loot entry itself.
+	 */
+	private static LootItem.Builder<?> lootItem(Entry entry) {
+		var ans = LootItem.lootTableItem(entry.item()).setWeight(entry.weight());
+		if (entry.function() != null) ans.apply(entry.function());
+		return ans;
 	}
 
 	/**
@@ -300,7 +367,7 @@ public class GiftLootGen {
 	/**
 	 * One gift: what it is and how likely she is to pick it.
 	 */
-	private record Entry(Item item, int weight) {
+	private record Entry(Item item, int weight, @Nullable LootItemFunction.Builder function) {
 	}
 
 	/**
@@ -311,7 +378,25 @@ public class GiftLootGen {
 	}
 
 	private static Entry gift(ItemLike item, int weight) {
-		return new Entry(item.asItem(), weight);
+		return new Entry(item.asItem(), weight, null);
+	}
+
+	/**
+	 * One UFO of a random colour, each opening into one item out of {@link #UFO_LOOT}. The colour is
+	 * cosmetic, so the weight is split three ways, rounded down.
+	 */
+	private static Entry[] ufo(int weight) {
+		int each = Math.max(1, weight / 3);
+		return new Entry[]{
+				ufo(GLItems.BLUE_UFO.get(), each),
+				ufo(GLItems.RED_UFO.get(), each),
+				ufo(GLItems.GREEN_UFO.get(), each)
+		};
+	}
+
+	private static Entry ufo(Item item, int weight) {
+		return new Entry(item, weight,
+				SetComponentsFunction.setComponent(GLItems.UFO_LOOT.get(), UFO_LOOT));
 	}
 
 }

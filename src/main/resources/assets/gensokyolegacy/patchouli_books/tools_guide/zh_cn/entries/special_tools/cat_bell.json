@@ -1,0 +1,19 @@
+{
+  "name": "猫铃铛",
+  "icon": "gensokyolegacy:cat_bell",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_cat_bell",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:cat_bell",
+      "title": "朴实无华的防爆防空",
+      "text": "对自己驯服的猫使用猫铃，就能让它骑在你身上。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "没有猫时，会召唤一只驯服的猫，并骑在你身上。猫铃有 16 次使用次数；猫不会轻易走丢，而且能让旅途多一份可爱。"
+    }
+  ]
+}

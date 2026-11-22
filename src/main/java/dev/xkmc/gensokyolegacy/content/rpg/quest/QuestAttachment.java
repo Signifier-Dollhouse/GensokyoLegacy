@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 
@@ -31,11 +32,11 @@ public class QuestAttachment extends PlayerCapabilityTemplate<QuestAttachment> {
 		return d != null && d.started;
 	}
 
-	public void start(ServerPlayer sp, Holder<Quest> quest) {
+	public void start(ServerPlayer sp, Holder<Quest> quest, @Nullable YoukaiEntity ch) {
 		var id = quest.unwrapKey().orElseThrow().location();
 		var data = getData(id);
 		if (data.canStart(sp, quest.value())) {
-			data.start(sp, quest.value());
+			data.start(sp, quest.value(), ch);
 			sp.sendSystemMessage(Component.translatable(quest.value().title()), true);
 			GensokyoLegacy.HANDLER.toClientPlayer(new QuestStatusToClient(id, data, QuestStatusToClient.Reason.START), sp);
 		}

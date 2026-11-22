@@ -13,8 +13,8 @@ public class YuyukoQDGen extends QuestDialogData {
 		defaultDialog(GLEntities.SAIGYOUJI_YUYUKO.get(),
 				"My, my~ I seem to have wandered quite far, and met such a lively friend.",
 				"",
-				"I never thought I would get an invitation from the outside world. "
-						+ "I can't wait to see how you entertain me.",
+				"I never thought I'd receive an invitation from the outside world. "
+						+ "Thank you for your hospitality.",
 				"");
 	}
 

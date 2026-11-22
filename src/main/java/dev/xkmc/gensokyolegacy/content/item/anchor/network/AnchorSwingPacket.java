@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
  * An empty left click with the anchor held: the throw cannot reach {@code use}, and empty clicks
  * never reach the server on their own, so the client forwards them.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public record AnchorSwingPacket() implements SerialPacketBase<AnchorSwingPacket> {
 

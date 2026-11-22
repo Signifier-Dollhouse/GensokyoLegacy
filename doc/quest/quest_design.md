@@ -6,7 +6,7 @@ Morichika and acts as a template for the next character.
 
 Companion pages (the authoritative per-character tables, generated from the
 datagen classes): [reimu.md](reimu.md), [marisa.md](marisa.md),
-[alice.md](alice.md), [morichika.md](morichika.md).
+[alice.md](alice.md), [morichika.md](morichika.md), [nazrin.md](nazrin.md).
 
 ## 1. Plan (`doc/`)
 
@@ -148,7 +148,7 @@ A dialog is **written where it is used**. `dialog(...)` / `dialogKey(...)` retur
 `Holder.Direct`, so the whole conversation lands inline in the starter, quest or trade
 file that opens it, and the `dialog/` registry holds only what has to be named from
 outside a dialog tree — the three gift reactions, which the `gift_dialog` data map
-addresses by id (`namedDialogKey`, `doc/design/gift.md` *What she says about it*).
+addresses by id (`namedDialogKey`, `doc/design/structure/gift.md` *What she says about it*).
 Nothing resolves a dialog path at runtime, and deleting an inline dialog is editing
 its host file rather than deleting a file.
 
@@ -173,7 +173,7 @@ A starter marked `override: true` is not in this roll at all.
 `ServerCharacterDialogManager.pickOverrideChat` resolves it first, and
 `FirstDialogSession.open` enters its dialog instead of drawing the topic
 list, for anything that has to happen before the player chooses a topic — a
-gift owed back, which is `doc/design/gift.md` *Paying a gift back*. An
+gift owed back, which is `doc/design/structure/gift.md` *Paying a gift back*. An
 override carries no weight and has no starter line of its own, which is why
 `text` is optional on `DialogStarter`.
 
@@ -249,7 +249,8 @@ rewards, initialDialog, followUpDialog, completionDialog)`.
 Everything below is registered in `CodecRegistry`. Add a subclass there when
 you add one.
 
-**Options** (`CodecRegistry.OPTION`) — `simple`, `group`, `random`.
+**Options** (`CodecRegistry.OPTION`) — `simple`, `group`, `random`,
+`conditional`.
 
 - `SimpleDialogOption` — text + actions + next; may carry its own `conditions`.
 - `GroupDialogOption` — same, but tagged with a `group` key. Options sharing a
@@ -261,17 +262,30 @@ you add one.
   returns an `OptionResult` (`SimpleDialogOption` / `GroupDialogOption` return
   themselves, `RandomDialogOption` returns the rolled entry, or `null` when
   handed no `RandomSource`).
+- `ConditionalDialogOption` + `ConditionalEntry` — one button whose answer is
+  picked by the world at click time: the first entry whose `conditions` hold
+  wins, an entry with none is the fallback. `resolve` receives the player and
+  the character for this reason (`RandomDialogOption` ignores them). A plain
+  option's `conditions` only decide *whether* the button shows; this decides
+  *what* it says. Nazrin's follow-up uses it to answer "the tower is near" or
+  "it is elsewhere" from the same click.
 
 **Actions** (`ACTION`) — `start_quest`, `complete_quest`, `give_mob_effect`,
-`set_timer`. `GiveMobEffectAction(effect, duration, amplifier)` hands out e.g.
-Bad Omen; `SetTimerAction(key, delay)` stamps `CharacterData.timers`.
+`set_timer`, `give_item`. `GiveMobEffectAction(effect, duration, amplifier)`
+hands out e.g. Bad Omen; `SetTimerAction(key, delay)` stamps
+`CharacterData.timers`; `GiveItemAction(item, count)` places a stack in the
+inventory, for a reward the player picks from a menu rather than the quest's
+own reward list.
 
 **Conditions** (`CONDITION`) — `has_advancement`, `has_quest_completed`,
-`has_item`, `timer`, `self_reputation`, `other_reputation`, `any`.
+`has_item`, `timer`, `self_reputation`, `other_reputation`, `any`,
+`missing_tower_near`.
 Lists are ANDed (`GatedEntry#match`); `AnyCondition` is the only way to write
 "either A or B" and nests `CodecRegistry.CONDITION.codec()` directly (safe for
 the same reason `Quest.CODEC` is — `CONDITION` is assigned before any condition
-registers its codec).
+registers its codec). `MissingTowerNearCondition(quest, radius)` reads the
+player's tower record from `IndexStorage`, so it answers for a carried or
+absent tower too (see [missing_tower.md](../design/quest/missing_tower.md)).
 
 **Requirements** (`REQUIREMENT`) — `submit_item`, `has_item`, `kill_mob`,
 `kill_enemy`, `roll_item`, `raid_victory`, `koishi_hat`.
@@ -299,6 +313,9 @@ Machinery that only exists because a quest needed it:
   (`CharacterData.timers`, key → next-available game time), used for Reimu's
   fortune draw and reusable for any cooldown.
 - `AnyCondition` — "either A or B" (Marisa's talisman errand).
+- `ConditionalDialogOption` + `MissingTowerNearCondition` — a follow-up that
+  answers from the world rather than from a fixed line (Nazrin's lost tower:
+  "it's nearby" vs "it's elsewhere").
 
 ## 9. Per-character helper duplication
 

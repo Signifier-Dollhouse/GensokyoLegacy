@@ -17,7 +17,18 @@ import terrablender.api.VanillaParameterOverlayBuilder;
 
 import java.util.function.Consumer;
 
+/**
+ * Overworld region for the magical forest.
+ *
+ * @see "doc/design/biome/overworld_region.md"
+ */
 public class GLOverworldRegion extends Region {
+
+	private static final Climate.Parameter FULL_RANGE = Climate.Parameter.span(-1.0F, 1.0F);
+	// Depth reads 0 at the column surface, negative above it and one unit per 128 blocks below, so this
+	// covers the air and the shallow subsurface and leaves the caves to vanilla.
+	private static final Climate.Parameter DEPTH_RANGE = Climate.Parameter.span(-1.0F, 0.3F);
+	private static final float FALLBACK_OFFSET = 0.01F;
 
 	public GLOverworldRegion(int weight) {
 		super(ResourceLocation.fromNamespaceAndPath(GensokyoLegacy.MODID, "magical_forest"), RegionType.OVERWORLD, weight);
@@ -26,42 +37,24 @@ public class GLOverworldRegion extends Region {
 	@Override
 	public void addBiomes(Registry<Biome> registry, Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> mapper) {
 		var builder = new VanillaParameterOverlayBuilder();
-		// Flat areas (low erosion) become sakura forest, leaving even ground for structures
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.NEUTRAL, ParameterUtils.Temperature.COOL,
-						ParameterUtils.Temperature.WARM)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.WET,
-						ParameterUtils.Humidity.HUMID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, SakuraForestBiomeGen.KEY));
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.NEUTRAL, ParameterUtils.Temperature.COOL,
-						ParameterUtils.Temperature.WARM)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.WET,
-						ParameterUtils.Humidity.HUMID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_2, ParameterUtils.Erosion.EROSION_3)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, MagicalForestBiomeGen.KEY));
-		new ParameterUtils.ParameterPointListBuilder()
-				.temperature(ParameterUtils.Temperature.ICY, ParameterUtils.Temperature.COOL)
-				.humidity(ParameterUtils.Humidity.NEUTRAL, ParameterUtils.Humidity.DRY, ParameterUtils.Humidity.ARID)
-				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
-				.erosion(ParameterUtils.Erosion.EROSION_0, ParameterUtils.Erosion.EROSION_1)
-				.depth(ParameterUtils.Depth.SURFACE, ParameterUtils.Depth.FLOOR)
-				.weirdness(ParameterUtils.Weirdness.MID_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.MID_SLICE_NORMAL_DESCENDING,
-						ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_ASCENDING, ParameterUtils.Weirdness.HIGH_SLICE_NORMAL_DESCENDING)
-				.build()
-				.forEach(point -> builder.add(point, MyourenTempleBarrensBiomeGen.KEY));
+		start(builder, 0, 1, -1, -0.375f, SakuraForestBiomeGen.KEY);
+		start(builder, 0, 1, -0.375f, 0.05f, MagicalForestBiomeGen.KEY);
+		start(builder, -1, 0, -1, -0.375f, MyourenTempleBarrensBiomeGen.KEY);
 		builder.build().forEach(mapper);
+		mapper.accept(Pair.of(Climate.parameters(FULL_RANGE, FULL_RANGE, FULL_RANGE, FULL_RANGE,
+				FULL_RANGE, FULL_RANGE, FALLBACK_OFFSET), Region.DEFERRED_PLACEHOLDER));
+	}
+
+	private static void start(VanillaParameterOverlayBuilder builder, float t0, float t1, float e0, float e1, ResourceKey<Biome> biome) {
+		new ParameterUtils.ParameterPointListBuilder()
+				.humidity(ParameterUtils.Humidity.FULL_RANGE)
+				.continentalness(ParameterUtils.Continentalness.INLAND, ParameterUtils.Continentalness.FAR_INLAND)
+				.depth(DEPTH_RANGE)
+				.weirdness(ParameterUtils.Weirdness.FULL_RANGE)
+				.temperature(Climate.Parameter.span(t0, t1))
+				.erosion(Climate.Parameter.span(e0, e1))
+				.build()
+				.forEach(point -> builder.add(point, biome));
 	}
 
 }

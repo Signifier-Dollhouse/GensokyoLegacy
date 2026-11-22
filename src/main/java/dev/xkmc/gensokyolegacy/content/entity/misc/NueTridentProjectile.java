@@ -22,7 +22,7 @@ import net.neoforged.neoforge.entity.PartEntity;
  * The copy Nue's trident throws: it flies the vanilla trident arc, hits once, and leaves a UFO in
  * the target's hand where its item used to be.
  *
- * @see "doc/design/nue_trident.md"
+ * @see "doc/design/item/nue_trident.md"
  */
 @SerialClass
 public class NueTridentProjectile extends ItemBulletEntity {
@@ -95,7 +95,7 @@ public class NueTridentProjectile extends ItemBulletEntity {
 			held = target.getOffhandItem();
 		}
 		if (held.isEmpty() || held.getItem() instanceof UfoItem) return;
-		target.setItemInHand(hand, UfoItem.wrap(held));
+		target.setItemInHand(hand, UfoItem.wrap(held, target.getRandom()));
 		if (target instanceof Mob mob) {
 			mob.setGuaranteedDrop(hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
 		}

@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * One player's relationship with one character: reputation, its current ceiling, cooldowns and the feed memory.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/structure/reputation.md"
  */
 @SerialClass
 public class CharacterData {
@@ -40,7 +40,7 @@ public class CharacterData {
 	 * character's own {@code gift_dialog} threshold; deliberately untouched by {@link #dailyUpdate()},
 	 * since she is not losing interest, only waiting to reciprocate.
 	 *
-	 * @see "doc/design/gift.md"
+	 * @see "doc/design/structure/gift.md"
 	 */
 	@SerialField
 	public int giftReturn;

@@ -12,6 +12,9 @@ import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlock;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateBlockEntity;
 import dev.xkmc.gensokyolegacy.content.block.functional.plate.PlateRenderer;
 import dev.xkmc.gensokyolegacy.content.block.functional.portal.*;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketBlock;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketBlockEntity;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketShape;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2modularblock.core.BlockTemplates;
@@ -42,7 +45,13 @@ public class GLBlocks {
 		MORICHIKA(Blocks.LIGHT_BLUE_BED, new FlatBedShape()),
 		MARISA(Blocks.BLACK_BED, new WesternBedShape()),
 		ALICE(Blocks.WHITE_BED, new WesternBedShape()),
-		MINAMITSU(Blocks.CYAN_BED, new FlatBedShape());
+		MINAMITSU(Blocks.CYAN_BED, new FlatBedShape()),
+		NUE(Blocks.BLACK_BED, new FlatBedShape()),
+		BYAKUREN(Blocks.PURPLE_BED, new FlatBedShape()),
+		KYOUKO(Blocks.GREEN_BED, new FlatBedShape()),
+		ICHIRIN(Blocks.BLUE_BED, new FlatBedShape()),
+		NAZRIN(Blocks.GRAY_BED, new FlatBedShape()),
+		SHOU(Blocks.YELLOW_BED, new FlatBedShape());
 
 		private final BedBlock template;
 		private final BedShape shape;
@@ -89,6 +98,9 @@ public class GLBlocks {
 	public static final BlockEntityEntry<AlchemyPotBlockEntity> ALCHEMY_POT_BE;
 
 	public static final BlockEntry<DelegateBlock> SEALING_POT;
+
+	public static final BlockEntry<DelegateBlock> TREASURE_BASKET;
+	public static final BlockEntityEntry<TreasureBasketBlockEntity> TREASURE_BASKET_BE;
 
 	public static final BlockEntry<DelegateBlock> PLATE;
 	public static final BlockEntityEntry<PlateBlockEntity> PLATE_BE;
@@ -148,6 +160,28 @@ public class GLBlocks {
 					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
 							.texture("layer0", pvd.modLoc("item/utensil/sealing_pot")))
 					.build()
+					.register();
+
+			// 宝物篮：截留范围内超时消失的物品
+			TREASURE_BASKET = GensokyoLegacy.REGISTRATE.block("treasure_basket",
+					p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new TreasureBasketShape(),
+							new TreasureBasketBlock(), TreasureBasketBlock.BE))
+					.properties(p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
+					.tag(BlockTags.MINEABLE_WITH_AXE)
+					.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(), state -> {
+						int fill = state.getValue(TreasureBasketBlock.FILL);
+						String id = fill == 0 ? ctx.getName() : ctx.getName() + "_" + fill;
+						return pvd.models().getBuilder("block/" + id)
+								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/treasure_basket")))
+								.texture("all", pvd.modLoc("block/utensil/treasure_basket_" + fill))
+								.renderType("cutout");
+					}))
+					.item().model((ctx, pvd) -> pvd.withExistingParent(ctx.getName(), "item/generated")
+							.texture("layer0", pvd.modLoc("item/utensil/" + ctx.getName())))
+					.build()
+					.register();
+			TREASURE_BASKET_BE = GensokyoLegacy.REGISTRATE.blockEntity("treasure_basket", TreasureBasketBlockEntity::new)
+					.validBlock(TREASURE_BASKET)
 					.register();
 
 			// 盘子：放一份不带容器的食物，右键取回

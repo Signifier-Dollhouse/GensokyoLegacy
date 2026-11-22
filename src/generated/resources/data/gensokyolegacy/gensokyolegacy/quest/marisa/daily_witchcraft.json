@@ -6,7 +6,9 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_greet"
+        "dialog_talk_01",
+        "dialog_talk_03",
+        "dialog_talk_04"
       ],
       "options": [
         {
@@ -19,7 +21,9 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_agree"
+              "dialog_talk_01",
+              "dialog_talk_03",
+              "dialog_talk_04"
             ],
             "options": [],
             "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/complete/handover/dialog_1"
@@ -39,7 +43,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_talk_02"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -53,12 +61,12 @@
             "options": [],
             "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/follow_up/end/dialog_1"
           },
-          "text": "gensokyolegacy/marisa/shared/option/daily_follow_end"
+          "text": "gensokyolegacy/marisa/daily_witchcraft/option/follow_up/end"
         }
       ],
       "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/follow_up/dialog_1"
     },
-    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
+    "text": "gensokyolegacy/marisa/daily_witchcraft/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
@@ -66,7 +74,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_talk_04"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -92,12 +104,14 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_greet"
+              "dialog_talk_01",
+              "dialog_talk_03",
+              "dialog_talk_04"
             ],
             "options": [],
             "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/start/accept/dialog_1"
           },
-          "text": "gensokyolegacy/marisa/shared/option/daily_accept"
+          "text": "gensokyolegacy/marisa/daily_witchcraft/option/start/accept"
         }
       ],
       "text": "gensokyolegacy/marisa/daily_witchcraft/dialog/marisa/daily_witchcraft/start/dialog_1"

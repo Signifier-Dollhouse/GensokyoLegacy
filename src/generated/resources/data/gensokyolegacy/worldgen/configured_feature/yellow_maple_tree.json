@@ -18,23 +18,23 @@
     "root_depth": 3,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/tree/maple_tree_01",
+        "data": "gensokyolegacy:biome/tree/maple_tree_01",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/maple_tree_02",
+        "data": "gensokyolegacy:biome/tree/maple_tree_02",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/maple_tree_03",
+        "data": "gensokyolegacy:biome/tree/maple_tree_03",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/maple_tree_04",
+        "data": "gensokyolegacy:biome/tree/maple_tree_04",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/maple_tree_05",
+        "data": "gensokyolegacy:biome/tree/maple_tree_05",
         "weight": 1
       }
     ]

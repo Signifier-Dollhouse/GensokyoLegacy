@@ -8,6 +8,8 @@ import dev.xkmc.gensokyolegacy.content.block.deco.seat.NothingRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.byakuren.ByakurenRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.fairy.*;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.magician.AliceRenderer;
@@ -19,6 +21,10 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nazrin.NazrinEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nazrin.NazrinRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.sakuya.SakuyaEntity;
@@ -30,23 +36,14 @@ import dev.xkmc.gensokyolegacy.content.entity.dolls.SekibankiHeadEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.StrayDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.GhostEntity;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.ghost.StrayGhostEntity;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.DollRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.GhostRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.IronDaggerBulletRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.SekibankiHeadRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayDollRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.dolls.render.StrayGhostRenderer;
-import dev.xkmc.gensokyolegacy.content.entity.misc.ButterflyDanmakuBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.CoinDanmakuBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
-import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
-import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.IronDaggerBulletEntity;
-import dev.xkmc.gensokyolegacy.content.entity.misc.NueTridentProjectile;
+import dev.xkmc.gensokyolegacy.content.entity.dolls.render.*;
+import dev.xkmc.gensokyolegacy.content.entity.misc.*;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.AnchorHookRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.MissingTowerRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.NoFadeBulletRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.TreasureTowerRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
@@ -75,6 +72,9 @@ public class GLEntities {
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<YuyukoEntity> SAIGYOUJI_YUYUKO;
 	public static final EntityEntry<MinamitsuEntity> MINAMITSU;
+	public static final EntityEntry<NazrinEntity> NAZRIN;
+	public static final EntityEntry<ByakurenEntity> HIJIRI_BYAKUREN;
+	public static final EntityEntry<NueEntity> HOUJUU_NUE;
 
 	public static final EntityEntry<PlainFairyEntity> PLAIN_FAIRY;
 
@@ -95,16 +95,20 @@ public class GLEntities {
 	public static final EntityEntry<AnchorHookEntity> ANCHOR_HOOK;
 	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
 	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
+	public static final EntityEntry<TreasureTowerEntity> TREASURE_TOWER;
+	public static final EntityEntry<MissingTowerEntity> MISSING_TOWER;
 
 
 	// No character has a spawn egg: every mob is met in the world or summoned in-game, never placed.
 	static {
 
 		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
-				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU;
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU, TASTE_NUE,
+				TASTE_NAZRIN;
 
 		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
-				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_FAIRY;
+				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_NUE,
+				GIFT_NAZRIN, GIFT_FAIRY;
 
 		// taste
 		{
@@ -118,6 +122,8 @@ public class GLEntities {
 			TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
 			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 			TASTE_MINAMITSU = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_NAZRIN = new PartyTaste(100, 0, 200, 1, 100, 500, 20, 60, 160, 0.05, 0.05);
+			TASTE_NUE = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 			// she only ever turns up for a lavish spread
@@ -191,6 +197,17 @@ public class GLEntities {
 					GiftType.COLLECTION, 1.5,
 					GiftType.TOOL, 1.0
 			));
+			GIFT_NAZRIN = GiftPreference.of(Map.of(
+					GiftType.COLLECTION, 2.0,
+					GiftType.FOOD, 2.0,
+					GiftType.TOOL, 1.5
+			));
+			GIFT_NUE = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.FOOD, 1.5,
+					GiftType.COLLECTION, 1.5,
+					GiftType.TOOL, 1.0
+			));
 		}
 
 		// misc
@@ -230,6 +247,9 @@ public class GLEntities {
 					.attributes(StrayDollEntity::createAttributes)
 					.tag(EntityTypeTags.FALL_DAMAGE_IMMUNE)
 					.loot(EntityLootGen::noLoot)
+					.spawnPlacement(SpawnPlacementTypes.ON_GROUND,
+							Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MobSpawnRules::hostileGround,
+							RegisterSpawnPlacementsEvent.Operation.REPLACE)
 					.spawnEgg(0xE6D5B8, 0x8B6B4A).build()
 					.renderer(() -> StrayDollRenderer::new)
 					.register();
@@ -278,7 +298,7 @@ public class GLEntities {
 			IRON_DAGGER = GensokyoLegacy.REGISTRATE
 					.<IronDaggerBulletEntity>entity("iron_dagger", IronDaggerBulletEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(4).updateInterval(1 << 16))
-					.renderer(() -> IronDaggerBulletRenderer::new)
+					.renderer(() -> ItemBulletRenderer::new)
 					.register();
 
 			// the butterfly danmaku: same bullet, but it leaves a petal trail, so it needs its own
@@ -315,6 +335,20 @@ public class GLEntities {
 					.<NueTridentProjectile>entity("nue_trident", NueTridentProjectile::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1 << 16))
 					.renderer(() -> NoFadeBulletRenderer<NueTridentProjectile>::new)
+					.register();
+
+			// the tower leaves the hand and comes back; the server owns its position every tick
+			TREASURE_TOWER = GensokyoLegacy.REGISTRATE
+					.<TreasureTowerEntity>entity("treasure_tower", TreasureTowerEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(10).updateInterval(1))
+					.renderer(() -> TreasureTowerRenderer::new)
+					.register();
+
+			// the quest tower is a plain world object, not the cast projectile
+			MISSING_TOWER = GensokyoLegacy.REGISTRATE
+					.<MissingTowerEntity>entity("missing_treasure_tower", MissingTowerEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.45F, 0.45F).clientTrackingRange(12).updateInterval(2))
+					.renderer(() -> MissingTowerRenderer::new)
 					.register();
 		}
 
@@ -432,6 +466,37 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_MINAMITSU)
 					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_MINAMITSU)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			NAZRIN = GensokyoLegacy.REGISTRATE
+					.entity("nazrin", NazrinEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> NazrinRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_NAZRIN)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_NAZRIN)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HIJIRI_BYAKUREN = GensokyoLegacy.REGISTRATE
+					.entity("hijiri_byakuren", ByakurenEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> ByakurenRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+
+			HOUJUU_NUE = GensokyoLegacy.REGISTRATE
+					.entity("houjuu_nue", NueEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> NueRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.dataMap(GLMeta.GIFT_PREFERENCE.reg(), GIFT_NUE)
+					.dataMap(GLMeta.PARTY_TASTE.reg(), TASTE_NUE)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 		}

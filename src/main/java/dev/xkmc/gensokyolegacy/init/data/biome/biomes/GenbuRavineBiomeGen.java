@@ -37,7 +37,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold humid cell of the mountain band in {@code doc/design/gensokyo_dimension_biome_guide.md}: the Genbu ravine,
+ * The cold humid cell of the mountain band in {@code doc/design/biome/gensokyo_biomes.md}: the Genbu ravine,
  * a wet cut in the mountain with the lush caves' own growth hanging off its walls.
  * <p>
  * Swamp is what makes it a wet ravine on the surface, plus lush caves below it: the biome's own moss and mud stay,
@@ -56,8 +56,8 @@ import java.util.List;
  * grass that grew first. The chamber has to be cut before the plates are laid, because it is the
  * chamber's floor they would otherwise have to be laid on.
  *
- * @see "doc/design/gensokyo_biomes.md" §1
- * @see "doc/design/genbu_ravine_cave.md"
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/genbu_ravine_cave.md"
  */
 public class GenbuRavineBiomeGen extends AbstractBiomeGen {
 

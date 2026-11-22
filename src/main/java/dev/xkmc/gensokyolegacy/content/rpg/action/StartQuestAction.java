@@ -14,7 +14,7 @@ public record StartQuestAction() implements DialogAction<StartQuestAction> {
 		// A guest never hands out new work, whether visiting someone's house or eating at their
 		// party; the topic list already withholds it, this covers a click that raced the window.
 		if (context.character().isVisiting() || context.character().isPartying()) return;
-		GLMeta.QUEST.type().getOrCreate(context.sp()).start(context.sp(), quest.get());
+		GLMeta.QUEST.type().getOrCreate(context.sp()).start(context.sp(), quest.get(), context.character());
 	}
 
 	@Override

@@ -4,30 +4,26 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.*;
-import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
-import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with {@link MultiSpreadPlacement}. Every check is a pure
@@ -36,8 +32,10 @@ import java.util.Set;
  * copied here, so the two sides cannot disagree. setCount/setIndex must never change once released.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/secondary.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
-public class FlatCheckStructure extends Structure {
+public class FlatCheckStructure extends Structure implements LocatableStructure {
 
 	public static final MapCodec<FlatCheckStructure> CODEC = RecordCodecBuilder.<FlatCheckStructure>mapCodec((i) -> i.group(
 			settingsCodec(i),
@@ -45,7 +43,7 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
+			TerrainPredicate.CODEC.fieldOf("terrain").forGetter((e) -> e.terrain),
 			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set),
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
@@ -62,7 +60,7 @@ public class FlatCheckStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int flatTolerance;
+	private final TerrainPredicate terrain;
 	private final int safetyRadius;
 	private final int setIndex;
 	private final int setCount;
@@ -91,7 +89,8 @@ public class FlatCheckStructure extends Structure {
 		return DataResult.success(s);
 	}
 
-	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
+	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth,
+							  boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							  Holder<StructureSet> set, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
@@ -99,7 +98,7 @@ public class FlatCheckStructure extends Structure {
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.flatTolerance = flatTolerance;
+		this.terrain = terrain;
 		this.safetyRadius = safetyRadius;
 		this.setIndex = setIndex;
 		this.setCount = setCount;
@@ -136,15 +135,6 @@ public class FlatCheckStructure extends Structure {
 		return random.nextInt(count);
 	}
 
-	private boolean checkRegionPicked(long seed, MultiSpreadPlacement placement, ChunkPos chunkpos) {
-		if (this.setCount <= 1) {
-			return true;
-		}
-		int rx = Math.floorDiv(chunkpos.x, placement.spacing());
-		int rz = Math.floorDiv(chunkpos.z, placement.spacing());
-		return pickForRegion(seed, rx, rz, placement.salt(), this.setCount) == this.setIndex;
-	}
-
 	@Override
 	public Optional<GenerationStub> findGenerationPoint(GenerationContext ctx) {
 		ChunkPos me = ctx.chunkPos();
@@ -158,214 +148,60 @@ public class FlatCheckStructure extends Structure {
 		if (idx < 0) {
 			return Optional.empty();
 		}
-		if (!this.checkRegionPicked(ctx.seed(), place, me)) {
+		int rx = Math.floorDiv(me.x, place.spacing());
+		int rz = Math.floorDiv(me.z, place.spacing());
+		if (this.firstPassInRegion(ctx, place, rx, rz) != idx) {
 			return Optional.empty();
 		}
-		for (int j = 0; j < idx; j++) {
-			ChunkPos sib = cands.get(j);
-			GenerationContext sctx = new GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(),
-					ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), sib, ctx.heightAccessor(), this.biomes()::contains);
-			if (this.checkCandidate(sctx, sib, place).isPresent()) {
-				return Optional.empty();
-			}
-		}
-		return this.checkCandidate(ctx, me, place);
+		return this.check().checkCandidate(ctx, me, place);
 	}
 
 	/**
-	 * Full eligibility of a candidate chunk, cheapest gates first: middle-column prefilter, margin
-	 * safety at the provisional height, then the speculative jigsaw layout with tree checks.
+	 * Index of the first candidate of region {@code (rx, rz)} where the picked primary passes, or {@code -1}. Pure in
+	 * seed, generator and region, so every candidate of the region and the lower tiers share one scan; a member that is
+	 * not picked, or a reserved pick, returns {@code -1} without a scan.
+	 *
+	 * @see "doc/design/structure/secondary.md"
 	 */
-	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
-		Prefilter pre = prefilter(ctx, chunkpos);
-		if (!pre.pass()) {
-			return Optional.empty();
-		}
-		if (!this.checkMarginSafe(ctx, chunkpos, placement)) {
-			return Optional.empty();
-		}
-		Validated v = this.validateLayout(ctx, chunkpos, pre.y());
-		if (!v.pass()) {
-			return Optional.empty();
-		}
-		return Optional.of(v.stub());
+	int firstPassInRegion(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
+		return RegionMemo.verdict(this, ctx.chunkGenerator(), ctx.seed(), rx, rz,
+				() -> computeFirstPass(ctx, placement, rx, rz));
 	}
 
-	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason) {
-
-		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason);
-		}
-
-	}
-
-	/**
-	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ; the root rigid group is shifted to the
-	 * footprint average afterwards) and runs the biome, root-footprint, rigid and joint checks. On success returns a
-	 * stub serving the already-shifted pieces.
-	 */
-	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY) {
-		int sea = ctx.chunkGenerator().getSeaLevel();
-		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
-		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
-				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter,
-				PoolAliasLookup.EMPTY, DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING);
-		if (layout.isEmpty()) {
-			return Validated.fail("no-layout");
-		}
-		List<PoolElementStructurePiece> pieces = new ArrayList<>();
-		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
-			if (p instanceof PoolElementStructurePiece pool) {
-				pieces.add(pool);
-			}
-		}
-		if (pieces.isEmpty()) {
-			return Validated.fail("no-layout");
-		}
-		PieceTree tree = PieceTree.build(pieces);
-		// Total-bound biome check: 4 union-box corners + 4 edge centers.
-		BoundingBox union = tree.unionBox();
-		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
-		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
-		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
-				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
-		for (int[] q : biomePts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
-			if (!biomes().contains(biome)) {
-				return Validated.fail("biome");
-			}
-		}
-		// Root footprint check: corners + edge centers + center of start box.
-		BoundingBox rootBox = pieces.get(0).getBoundingBox();
-		int rx0 = rootBox.minX(), rz0 = rootBox.minZ(), rx1 = rootBox.maxX(), rz1 = rootBox.maxZ();
-		int rcx = (rx0 + rx1) / 2, rcz = (rz0 + rz1) / 2;
-		int[][] rootPts = {{rx0, rz0}, {rx0, rz1}, {rx1, rz0}, {rx1, rz1},
-				{rcx, rz0}, {rcx, rz1}, {rx0, rcz}, {rx1, rcz}, {rcx, rcz}};
-		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-		for (int[] q : rootPts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			if (h <= sea) {
-				return Validated.fail("sea");
-			}
-			if (h < min) min = h;
-			if (h > max) max = h;
-		}
-		if (max - min > 2 * this.flatTolerance) {
-			return Validated.fail("height[%d-%d]".formatted(min, max));
-		}
-		int spawn = (max + min) / 2;
-		// Shift the start rigid group (assumes a rigid start piece) so its
-		// ground sits on the footprint average.
-		int delta = tree.shiftStartGroupToGround(spawn);
-		// Rigid check: center terrain within tolerance of placed ground.
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			BoundingBox b = tree.piece(i).getBoundingBox();
-			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			if (h <= sea) {
-				return Validated.fail("rigid-sea-%d".formatted(i));
-			}
-			int g = tree.groundOf(i);
-			if (Math.abs(h - g) > this.flatTolerance) {
-				return Validated.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
-			}
-		}
-		// Joint check: per connected non-rigid subgraph, adjacent rigid
-		// group grounds must lie within tolerance of each other.
-		for (Set<Integer> grounds : tree.flexJointGrounds()) {
-			if (grounds.size() < 2) continue;
-			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
-			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
-			if (hi - lo > this.flatTolerance) {
-				return Validated.fail("joint[%d-%d]".formatted(lo, hi));
-			}
-		}
-		BlockPos pos = layout.get().position().offset(0, delta, 0);
-		GenerationStub stub = new GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass");
-	}
-
-	private static int freeHeight(GenerationContext ctx, int x, int z) {
-		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
-	}
-
-	/**
-	 * Cheap middle-column sea/biome gate. Rejects unsuitable candidates
-	 * before the speculative jigsaw layout is built.
-	 */
-	private record Prefilter(boolean pass, int y, String reason) {
-	}
-
-	private Prefilter prefilter(GenerationContext ctx, ChunkPos chunkpos) {
-		int y = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
-		if (y <= ctx.chunkGenerator().getSeaLevel()) {
-			return new Prefilter(false, y, "sea");
-		}
-		var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(y),
-				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
-		if (!biomes().contains(biome)) {
-			return new Prefilter(false, y, "biome");
-		}
-		return new Prefilter(true, y, "pass");
-	}
-
-	/**
-	 * A candidate within {@code safetyRadius} chunks of its region border is rejected when a neighbouring region hosts
-	 * a candidate inside the same radius that passes the prefilter and lies at most as close to its own region center
-	 * as we do to ours. The closer of two colliding candidates survives, exact ties reject both, candidates deep inside
-	 * their region are always safe, and no jigsaw layouts are built here.
-	 */
-	private boolean checkMarginSafe(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
-		if (this.safetyRadius <= 0) {
-			return true;
+	private int computeFirstPass(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
+		if (pickForRegion(ctx.seed(), rx, rz, placement.salt(), this.setCount) != this.setIndex) {
+			return -1;
 		}
 		int spacing = placement.spacing();
-		int rx = Math.floorDiv(chunkpos.x, spacing);
-		int rz = Math.floorDiv(chunkpos.z, spacing);
-		int minX = rx * spacing;
-		int minZ = rz * spacing;
-		int maxX = minX + spacing - 1;
-		int maxZ = minZ + spacing - 1;
-		int borderDist = Math.min(Math.min(chunkpos.x - minX, maxX - chunkpos.x),
-				Math.min(chunkpos.z - minZ, maxZ - chunkpos.z));
-		if (borderDist >= this.safetyRadius) {
-			return true;
-		}
-		double cxc = minX + (spacing - 1) / 2.0;
-		double czc = minZ + (spacing - 1) / 2.0;
-		double myDx = chunkpos.x - cxc, myDz = chunkpos.z - czc;
-		double myDist = myDx * myDx + myDz * myDz;
-		long dist = (long) this.safetyRadius * this.safetyRadius;
-		for (int drx = -1; drx <= 1; drx++) {
-			for (int drz = -1; drz <= 1; drz++) {
-				if (drx == 0 && drz == 0) {
-					continue;
-				}
-				int nx = rx + drx, nz = rz + drz;
-				double nxc = nx * spacing + (spacing - 1) / 2.0;
-				double nzc = nz * spacing + (spacing - 1) / 2.0;
-				for (ChunkPos c : placement.getPotentialChunks(ctx.seed(), nx * spacing, nz * spacing)) {
-					int dxq = c.x - chunkpos.x, dzq = c.z - chunkpos.z;
-					if ((long) dxq * dxq + (long) dzq * dzq > dist) {
-						continue;
-					}
-					double dxc = c.x - nxc, dzc = c.z - nzc;
-					double cDist = dxc * dxc + dzc * dzc;
-					if (cDist > myDist) {
-						continue;
-					}
-					GenerationContext sctx = this.ctxFor(ctx.registryAccess(), ctx.chunkGenerator(),
-							ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), c, ctx.heightAccessor());
-					if (this.prefilter(sctx, c).pass()) {
-						return false;
-					}
-				}
+		List<ChunkPos> cands = placement.getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
+		JigsawCheck check = check();
+		for (int i = 0; i < cands.size(); i++) {
+			ChunkPos c = cands.get(i);
+			if (check.checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, placement).isPresent()) {
+				return i;
 			}
 		}
-		return true;
+		return -1;
+	}
+
+	/**
+	 * Shared eligibility of the template this structure points at.
+	 */
+	private JigsawCheck check() {
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, terrain,
+				biomes(), safetyRadius);
+	}
+
+	int setIndex() {
+		return setIndex;
+	}
+
+	int setCount() {
+		return setCount;
+	}
+
+	int safetyRadius() {
+		return safetyRadius;
 	}
 
 	@Override
@@ -373,129 +209,55 @@ public class FlatCheckStructure extends Structure {
 		return GLWorldGen.FLAT.get();
 	}
 
-	private GenerationContext ctxFor(RegistryAccess registries, ChunkGenerator generator, RandomState randomState,
-									 StructureTemplateManager templates, long seed, ChunkPos pos, LevelHeightAccessor heightAccessor) {
-		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
-		random.setLargeFeatureSeed(seed, pos.x, pos.z);
-		return new GenerationContext(registries, generator, generator.getBiomeSource(), randomState,
-				templates, random, seed, pos, heightAccessor, this.biomes()::contains);
+	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		return JigsawCheck.adaptation(this.terrain, super.terrainAdaptation());
 	}
 
 	/**
-	 * Per-region funnel counts, cumulative: each bucket counts attempts
-	 * passing that gate and every earlier one.
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
 	 */
-	public record RegionStats(int tried, int prefilter, int margin, int biome, int root, int detailed, int pass) {
-
-		public RegionStats add(RegionStats o) {
-			return new RegionStats(tried + o.tried, prefilter + o.prefilter, margin + o.margin,
-					biome + o.biome, root + o.root, detailed + o.detailed, pass + o.pass);
-		}
-
-		public static RegionStats zero() {
-			return new RegionStats(0, 0, 0, 0, 0, 0, 0);
-		}
-
-	}
-
-	public record RegionReport(List<String> lines, RegionStats stats) {
+	@Override
+	public int spacing() {
+		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
 	}
 
 	/**
-	 * Dev diagnostic: lists every attempted position in one region with its verdict (suppressed / place-fail /
-	 * margin-fail / pass(checks)) plus the cumulative funnel line, placing nothing. Mirrors {@link
-	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried.
+	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
+	 * the least-index candidate that passes {@link JigsawCheck#checkCandidate} wins, so this agrees with worldgen and
+	 * reads no chunks. Cached per region by {@link RegionMemo}.
 	 */
-	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-									   ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-									   LevelHeightAccessor heightAccessor) {
-		List<String> lines = new ArrayList<>();
+	@Override
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
 		Optional<MultiSpreadPlacement> resolved = this.placement();
 		if (resolved.isEmpty()) {
-			lines.add("no multi-spread structure set places this structure");
-			return new RegionReport(lines, RegionStats.zero());
+			return Optional.empty();
 		}
 		MultiSpreadPlacement placement = resolved.get();
 		int spacing = placement.spacing();
 		List<ChunkPos> cands = placement.getPotentialChunks(seed, regionX * spacing, regionZ * spacing);
-		StringBuilder head = new StringBuilder("region [%d, %d] spacing %d salt %d candidates:".formatted(
-				regionX, regionZ, spacing, placement.salt()));
-		for (int n = 0; n < cands.size(); n++) {
-			ChunkPos c = cands.get(n);
-			head.append(" #%d (%d, %d)".formatted(n, c.x, c.z));
+		if (cands.isEmpty()) {
+			return Optional.empty();
 		}
-		lines.add(head.toString());
-		int prePassed = 0;
-		for (ChunkPos c : cands) {
-			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, c, heightAccessor);
-			if (this.prefilter(ctx, c).pass()) prePassed++;
+		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
+				cands.getFirst(), heightAccessor, biomes());
+		int idx = this.firstPassInRegion(ctx, placement, regionX, regionZ);
+		if (idx < 0) {
+			return Optional.empty();
 		}
-		lines.add("  prefilter: %d/%d passed".formatted(prePassed, cands.size()));
-		int pick = pickForRegion(seed, regionX, regionZ, placement.salt(), this.setCount);
-		lines.add("  region pick: #%d (mine #%d of %d)".formatted(pick, this.setIndex, this.setCount));
-		if (pick != this.setIndex) {
-			for (int i = 0; i < cands.size(); i++) {
-				ChunkPos me = cands.get(i);
-				lines.add("  #%d (%d, %d): suppressed-by-pick-#%d".formatted(i, me.x, me.z, pick));
-			}
-			lines.add("  funnel tried=0 prefilter=0 margin=0 biome=0 root=0 detailed=0 pass=0");
-			return new RegionReport(lines, RegionStats.zero());
-		}
-		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
-		int firstPass = -1;
-		for (int i = 0; i < cands.size(); i++) {
-			ChunkPos me = cands.get(i);
-			String verdict;
-			int stage;
-			if (firstPass >= 0) {
-				verdict = "suppressed-by-#" + firstPass;
-				stage = -1;
-			} else {
-				tried++;
-				GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
-				var prefilter = this.prefilter(ctx, me);
-				if (!prefilter.pass()) {
-					verdict = "place-" + prefilter.reason();
-					stage = 0;
-				} else {
-					pre++;
-					if (!this.checkMarginSafe(ctx, me, placement)) {
-						verdict = "margin-fail";
-						stage = 1;
-					} else {
-						mar++;
-						var v = this.validateLayout(ctx, me, prefilter.y());
-						if (!v.pass()) {
-							verdict = "place-" + v.reason();
-							stage = stageOf(v.reason());
-						} else {
-							verdict = "pass(checks)";
-							stage = 5;
-							pas++;
-							firstPass = i;
-						}
-					}
-				}
-			}
-			if (stage >= 3) bio++;
-			if (stage >= 4) roo++;
-			if (stage >= 5) det++;
-			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
-		}
-		lines.add("  funnel tried=%d prefilter=%d margin=%d biome=%d root=%d detailed=%d pass=%d".formatted(
-				tried, pre, mar, bio, roo, det, pas));
-		return new RegionReport(lines, new RegionStats(tried, pre, mar, bio, roo, det, pas));
-	}
-
-	/**
-	 * Furthest gate passed for a layout failure reason: 2 = margin (layout or detailed biome
-	 * failed), 3 = detailed biome (root sea/variation), 4 = root (rigid sea/variation), 5 = joint.
-	 */
-	private static int stageOf(String reason) {
-		if (reason.startsWith("joint[")) return 5;
-		if (reason.startsWith("rigid-")) return 4;
-		if (reason.equals("sea") || reason.startsWith("height[")) return 3;
-		return 2;
+		ChunkPos chunk = cands.get(idx);
+		return Optional.of(new Located(chunk, placement.getLocatePos(chunk), regionX, regionZ));
 	}
 
 }

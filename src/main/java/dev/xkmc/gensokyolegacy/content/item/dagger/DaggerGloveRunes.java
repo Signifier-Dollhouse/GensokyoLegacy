@@ -12,7 +12,7 @@ import java.util.Map;
  * the id is saved, so a rune must survive a reload and an unknown id reads as {@link #NONE} rather than
  * failing. A rune needing per-stack numbers has to grow a codec on the component (§7). None registered yet.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class DaggerGloveRunes {
 

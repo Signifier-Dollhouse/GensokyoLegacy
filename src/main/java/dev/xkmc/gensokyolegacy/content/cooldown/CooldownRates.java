@@ -13,7 +13,7 @@ import java.util.List;
  * The sources multiply, so each one is a factor of the whole rather than a share of it, and the
  * cap is what keeps a pile of them from running the clock away.
  *
- * @see "doc/design/cooldown.md"
+ * @see "doc/design/item/cooldown.md"
  */
 public class CooldownRates {
 

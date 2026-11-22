@@ -30,7 +30,7 @@ import java.util.List;
  * <p>
  * The reach, the two cone angles and the cooldown are the whole tuning.
  *
- * @see "doc/design/fancy_fan.md"
+ * @see "doc/design/item/fancy_fan.md"
  */
 public class FancyFanItem extends Item {
 

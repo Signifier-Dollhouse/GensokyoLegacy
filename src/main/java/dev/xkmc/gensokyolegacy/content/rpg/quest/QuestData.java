@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.requirement.QuestRequirementData;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.TreeMap;
@@ -52,10 +53,10 @@ public class QuestData {
 		return time < lastCompletion || lastCompletion <= 0 || time > lastCompletion + opt.get().cooldown();
 	}
 
-	public void start(ServerPlayer sp, Quest quest) {
+	public void start(ServerPlayer sp, Quest quest, @Nullable YoukaiEntity ch) {
 		started = true;
 		for (var e : quest.requirements().entrySet()) {
-			e.getValue().start(this, sp, e.getKey());
+			e.getValue().start(this, sp, ch, e.getKey());
 		}
 	}
 

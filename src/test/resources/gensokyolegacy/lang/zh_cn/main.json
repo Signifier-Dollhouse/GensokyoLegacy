@@ -2,7 +2,7 @@
 	"gensokyolegacy.title": "东方幻想绮谈",
 	"gensokyolegacy.subtitle.koishi_ring": "这里是玛丽小姐～",
 	"patchouli.gensokyolegacy.title": "幻想乡工具指南",
-	"patchouli.gensokyolegacy.landing": "本卷记载了东方幻想绮谈的劳作之侧：在炼金锅中酿造、纸符、战斗人偶及其手套、特殊与日常工具，以及可坐、可覆盖、可滑动的装饰方块。$(br2)用任意 Patchouli 指南书打开。每个条目都会说明$(bold)它是做什么的$()、$(bold)怎么用$()以及$(bold)从哪里获得$()。",
+	"patchouli.gensokyolegacy.landing": "本卷记载了东方幻想绮谈的劳作之侧：在炼金锅中酿造、纸符、战斗人偶及其手套、特殊与日常工具，以及可坐、可覆盖、可滑动的装饰方块。",
 	"itemGroup.gensokyolegacy": {
 		"ingredients": "东方幻想绮谈 - 功能性方块物品",
 		"building_blocks": "东方幻想绮谈 - 建筑装饰方块"
@@ -24,7 +24,9 @@
 			"doors_to_close": "待关闭的门（%s）：",
 			"youkai_avoid": "%s可能暂时不想见你",
 			"entity_party_eaten": "宴席上：已吃 %s／%s 饱食量",
-			"entity_party_appeal": "宴席上：已吃下 %s 吸引力"
+			"entity_party_appeal": "宴席上：已吃下 %s 吸引力",
+			"donation_credit": "赛钱进度：%s / %s",
+			"donation_wrong_structure": "这个赛钱箱不在它所属的结构内"
 		},
 		"msg": {
 			"reset": "角色已重置",
@@ -46,13 +48,21 @@
 			"item_submit_fail": "部分条件未满足",
 			"item_submit_pass": "所有条件均已满足"
 		},
+		"missing_tower": {
+			"pickup": "你托起了失落的寻宝塔",
+			"carried": "你已经带着一座宝塔了",
+			"not_started": "你没有理由拿走这座宝塔"
+		},
 		"trade": {
 			"ingredients": "材料：",
 			"option": "交易",
 			"buy": "从%2$s购买%1$s",
 			"sell": "向%2$s出售%1$s",
 			"craft": "请求%1$s制作%2$s",
-			"stock": "库存：%s/%s"
+			"stock": "库存：%s/%s",
+			"filter_trade": "购买",
+			"filter_buying": "出售",
+			"filter_processing": "加工"
 		},
 		"alchemy": {
 			"allow": "可能的材料",
@@ -67,6 +77,10 @@
 			"reward_exp": "%s 经验",
 			"reward_reputation": "%s 声望",
 			"reward_loot": "战利品表：%s",
+			"reward_all": "以下全部奖励",
+			"reward_random": "以下任意奖励（战利品表随机）",
+			"reward_choice": "以下任意奖励（由你选择）",
+			"reward_mixed": "复杂掉落（混合规则）",
 			"gift_band": "< %s",
 			"gift_band_top": "%s+",
 			"gift_chance": "几率：%s%%",
@@ -77,7 +91,9 @@
 			"feed_note": "拿着它右键她即可；只有当她不再把你当敌人时才会回礼，单靠喂食最多涨到 %s 声望",
 			"shelf_price": "价格：%s",
 			"shelf_stock": "库存：%s",
-			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机"
+			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机",
+			"treasure_tower_tag": "石头标签：#%s",
+			"treasure_tower_note": "宝石会被消耗，寻宝塔飞出发射后回到手中"
 		}
 	},
 	"jei": {
@@ -87,7 +103,8 @@
 			"quest": "任务奖励",
 			"gift": "宴会赠礼",
 			"interaction": "互动",
-			"shelf_offer": "森近霖之助的货架商品"
+			"shelf_offer": "森近霖之助的货架商品",
+			"treasure_tower": "寻宝塔"
 		}
 	},
 	"death.attack": {

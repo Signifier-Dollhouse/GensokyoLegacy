@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.xkmc.gensokyolegacy.content.entity.broom.BroomEntity;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
+import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.tool.DowserHalf;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -35,7 +37,7 @@ public abstract class ItemInHandRendererMixin {
 
 	/**
 	 * Nazrin's Dowser in the main hand with an empty offhand draws as its two halves, one per hand.
-	 * Purely visual - no slot is touched.
+	 * Purely visual - no slot is touched. The half stacks are dowsers too, so they must not re-split.
 	 */
 	@Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
 	private void gensokyolegacy$dowserSplitHands(AbstractClientPlayer player, float partialTicks, float pitch,
@@ -44,12 +46,13 @@ public abstract class ItemInHandRendererMixin {
 												 MultiBufferSource buffer, int combinedLight, CallbackInfo ci) {
 		if (hand != InteractionHand.MAIN_HAND) return;
 		if (!stack.is(GLItems.DOWSER.get())) return;
+		if (Dowser.isHalf(stack)) return;
 		if (!player.getOffhandItem().isEmpty()) return;
 		ci.cancel();
 		this.renderArmWithItem(player, partialTicks, pitch, InteractionHand.MAIN_HAND, swingProgress,
-				new ItemStack(GLItems.DOWSER_LEFT.get()), equippedProgress, poseStack, buffer, combinedLight);
+				Dowser.ofHalf(DowserHalf.LEFT), equippedProgress, poseStack, buffer, combinedLight);
 		this.renderArmWithItem(player, partialTicks, pitch, InteractionHand.OFF_HAND, 0,
-				new ItemStack(GLItems.DOWSER_RIGHT.get()), equippedProgress, poseStack, buffer, combinedLight);
+				Dowser.ofHalf(DowserHalf.RIGHT), equippedProgress, poseStack, buffer, combinedLight);
 	}
 
 	/**
@@ -69,7 +72,7 @@ public abstract class ItemInHandRendererMixin {
 	 * The anchor is in the world, not in the hand: while its stack carries the hook's UUID, skip the
 	 * held-item draw. The client trusts the UUID alone; the server clears it when the hook is gone.
 	 *
-	 * @see "doc/design/minamitsu_anchor.md §3.3"
+	 * @see "doc/design/item/minamitsu_anchor.md §3.3"
 	 */
 	@Inject(method = "renderItem", at = @At("HEAD"), cancellable = true)
 	private void gensokyolegacy$hideThrownAnchor(LivingEntity entity, ItemStack stack, ItemDisplayContext context,

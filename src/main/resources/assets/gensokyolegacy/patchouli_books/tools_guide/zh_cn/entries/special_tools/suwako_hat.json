@@ -1,0 +1,18 @@
+{
+  "name": "诹访子的帽子",
+  "icon": "gensokyolegacy:suwako_hat",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:suwako_hat",
+      "title": "不祥自助",
+      "text": "给青蛙戴上草帽，帽子会见证一切。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "佩戴时$(br2)这顶帽子会给予土著神的祝福——它提升你的移动速度与触及距离，并且在你身上其他装备之外再额外提供 25% 魔法伤害。"
+    }
+  ]
+}

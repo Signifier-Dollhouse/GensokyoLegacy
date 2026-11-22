@@ -6,6 +6,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.BastionHeightCheck;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.UniformHeightCheck;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.*;
@@ -16,6 +18,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -28,13 +31,15 @@ import java.util.function.Supplier;
 
 public class GLStructureGen {
 
-	// Structure ids, public because visit chat is written per host: a guest says
-	// different things at each of these, so the QDGen classes name them.
+	// Structure ids, public because other classes name them: visit chat is written per
+	// host, so a guest says different things at each, and the barrens' features avoid them.
 	public static final ResourceLocation CIRNO_NEST = GensokyoLegacy.loc("cirno_nest");
 	public static final ResourceLocation HAKUREI_SHRINE = GensokyoLegacy.loc("hakurei_shrine");
 	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
 	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
 	public static final ResourceLocation ALICE_HOUSE = GensokyoLegacy.loc("alice_house");
+	public static final ResourceLocation MYOUREN_TEMPLE = GensokyoLegacy.loc("myouren_temple");
+	public static final ResourceLocation SMALL_GRAVEYARD = GensokyoLegacy.loc("small_graveyard");
 
 	// Marisa's house and Kourindou share one structure set: every region picks one of 4 slots (FlatCheckStructure
 	// setIndex/setCount gate), so they never spawn too close; slots 2-3 are reserved and the total must never change.
@@ -53,7 +58,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.CIRNO.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 32, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 32, 8),
 						// its own set: the nest is in the snowy biomes and shares
 						// no region with the magical forest houses
 						CIRNO_NEST
@@ -69,7 +74,7 @@ public class GLStructureGen {
 						)),
 						visits(Map.of(
 								GLEntities.ALICE.get(), visit(0.20f, 2400, 3600))),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 60, 8),
 						FOREST_HOUSES
 				),
 				// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
@@ -101,7 +106,7 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree3", true, List.of())
-						), Map.of(), 5, 80, 8),
+						), Map.of(), new UniformHeightCheck(5), 80, 8),
 						// its own set: the shrine is not part of the forest houses
 						HAKUREI_SHRINE
 				),
@@ -119,7 +124,7 @@ public class GLStructureGen {
 								GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
 								GLEntities.MARISA.get(), visit(0.30f, 2400, 6000),
 								GLEntities.IZAYOI_SAKUYA.get(), visit(0.30f, 2400, 6000))),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 64, 8),
 						FOREST_HOUSES
 				),
 				// Alice's house in the magical forest (root 29x23x18, bed at (12,6,6)-(12,6,7)). Five jigsaw parts
@@ -139,8 +144,78 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("path", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree", true, List.of()),
 								new StructFlatJigsawBuilding.Part("backyard", true, List.of())
-						), Map.of(), 5, 80, 8),
+						), Map.of(), new UniformHeightCheck(5), 80, 8),
 						FOREST_HOUSES
+				),
+				// Myouren Temple, the barrens' only structure (assembled 89x27x97 from 29 jigsaw parts): the
+				// main hall and its wings, the bedroom blocks, the gate and bell tower, the wall ring and the
+				// pond. All parts use RIGID projection so their assembled offsets are preserved. Byakuren,
+				// Minamitsu and Nazrin live in the temple; Nue only visits, so she has no bed here.
+				new StructStructure(
+						MYOUREN_TEMPLE, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
+						StructureConfigBuilder.myouren(),
+						List.of(
+								new StructBed(
+										GLEntities.MINAMITSU,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.MINAMITSU.holder()
+								),
+								new StructBed(
+										GLEntities.HIJIRI_BYAKUREN,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.BYAKUREN.holder()
+								),
+								new StructBed(
+										GLEntities.NAZRIN,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.NAZRIN.holder()
+								)
+						),
+						visits(Map.of(
+								GLEntities.HOUJUU_NUE.get(), visit(0.50f, 6000, 6000))),
+						new StructFlatJigsawBuilding(6, List.of(
+								new StructFlatJigsawBuilding.Part("root", true, List.of()),
+								new StructFlatJigsawBuilding.Part("gate", true, List.of()),
+								new StructFlatJigsawBuilding.Part("path", true, List.of()),
+								new StructFlatJigsawBuilding.Part("pond", true, List.of()),
+								new StructFlatJigsawBuilding.Part("bell", true, List.of()),
+								new StructFlatJigsawBuilding.Part("roof", true, List.of()),
+								new StructFlatJigsawBuilding.Part("roof_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("side_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("stair_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("stair_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_5", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_6", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_7", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_8", true, List.of())
+						), Map.of(), new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4,
+								Blocks.COBBLESTONE.defaultBlockState()), 96, 8),
+						MYOUREN_TEMPLE
+				),
+				// The barrens' fallback (template 12x8x20): it fills the candidates the temple's own fit rejected,
+				// and yields to the temple's start. It shares the temple's set and biome tag, but is no home.
+				new StructStructure(
+						SMALL_GRAVEYARD, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
+						StructureConfig.builder(), List.of(),
+						new StructFallbackSingleBuilding(
+								GensokyoLegacy.loc("biome/graveyard/small_graveyard"),
+								List.of(), Map.of(), new UniformHeightCheck(5), 32),
+						MYOUREN_TEMPLE
 				)
 		);
 	}
@@ -165,6 +240,10 @@ public class GLStructureGen {
 		var entityReg = pvd.builder(GLMeta.ENTITY_DATA.reg());
 		var structureReg = pvd.builder(GLMeta.STRUCTURE_DATA.reg());
 		for (var e : STRUCTURES.get()) {
+			// A tiny structure is not a home: it has no bed, no resident and no visit table.
+			if (e.building().role() == Role.TINY) {
+				continue;
+			}
 			var config = e.config();
 			for (var bedData : e.beds()) {
 				for (var bed : bedData.bed())
@@ -176,13 +255,6 @@ public class GLStructureGen {
 				config.visit(entry.getKey(), entry.getValue());
 			structureReg.add(e.id(), config.build(), false);
 		}
-
-		// Minamitsu has no preset home yet: her bed binds to any custom home
-		// (StructureKey.support() accepts every custom key), so a player-built
-		// room holding a Minamitsu bed claims her and respawns her there.
-		bedReg.add(GLBlocks.Beds.MINAMITSU.holder(), new BedData(GLEntities.MINAMITSU.get()), false);
-		entityReg.add(GLEntities.MINAMITSU,
-				CharacterConfig.forStructure(6000, 12000, 12, 30), false);
 	}
 
 	public static void init(DataProviderInitializer init) {
@@ -200,17 +272,34 @@ public class GLStructureGen {
 			var groups = groups();
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				e.building().registerStructure(ctx, e.id(), biome, SetContext.of(e, groups.get(e.set()), setTotal(e.set(), groups.get(e.set()))));
+				var role = e.building().role();
+				var members = groups.get(e.set());
+				var sameTier = ofRole(members, role);
+				var set = role == Role.TINY
+						? SetContext.tiny(e)
+						: SetContext.of(e, sameTier, setTotal(e.set(), role, sameTier));
+				e.building().registerStructure(ctx, e.id(), biome, set);
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
 			for (var entry : groups().entrySet()) {
 				var members = entry.getValue();
-				var first = members.getFirst();
+				var primaries = ofRole(members, Role.PRIMARY);
+				if (primaries.isEmpty()) {
+					throw new IllegalStateException("structures sharing set " + entry.getKey() +
+							" must include at least one primary member");
+				}
+				var first = primaries.getFirst();
 				for (var e : members) {
 					if (e.spacing() != first.spacing() || e.attempts() != first.attempts()) {
 						throw new IllegalStateException("structures sharing set " + entry.getKey() +
 								" must use the same spacing/attempts");
+					}
+				}
+				for (var e : primaries) {
+					if (e.building().safetyRadius() != first.building().safetyRadius()) {
+						throw new IllegalStateException("primary structures sharing set " + entry.getKey() +
+								" must use the same safety radius");
 					}
 				}
 				var entries = members.stream()
@@ -231,8 +320,12 @@ public class GLStructureGen {
 		return groups;
 	}
 
-	private static int setTotal(ResourceLocation set, List<StructStructure> members) {
-		if (set.equals(FOREST_HOUSES)) {
+	private static List<StructStructure> ofRole(List<StructStructure> members, Role role) {
+		return members.stream().filter(e -> e.building().role() == role).toList();
+	}
+
+	private static int setTotal(ResourceLocation set, Role role, List<StructStructure> members) {
+		if (set.equals(FOREST_HOUSES) && role == Role.PRIMARY) {
 			if (members.size() > FOREST_HOUSES_TOTAL) {
 				throw new IllegalStateException("forest houses exceed reserved total " + FOREST_HOUSES_TOTAL);
 			}

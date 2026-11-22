@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatch
  * what it stands on is the block under the water rather than the water's own cell.
  *
  * @see MudVegetationPatchFeature
- * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
  */
 public class MudWaterloggedVegetationPatchFeature extends WaterloggedVegetationPatchFeature {
 

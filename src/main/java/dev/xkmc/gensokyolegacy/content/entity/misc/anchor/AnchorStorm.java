@@ -1,6 +1,5 @@
 package dev.xkmc.gensokyolegacy.content.entity.misc.anchor;
 
-import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.danmakuapi.content.entity.ItemBulletEntity;
 import dev.xkmc.danmakuapi.content.spell.mover.RectMover;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
@@ -26,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Trail, burst and area damage shared by the unbound storm anchors.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public final class AnchorStorm {
 
@@ -123,7 +122,7 @@ public final class AnchorStorm {
 		AABB box = new AABB(at.subtract(radius, radius, radius), at.add(radius, radius, radius));
 		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, box)) {
 			if (target == owner) continue;
-			if (!IDanmakuEntity.canHurt(owner, target)) continue;
+			if (target.isAlliedTo(owner)) continue;
 			if (target.position().distanceToSqr(at) > radius * radius) continue;
 			target.hurt(source, damage);
 		}

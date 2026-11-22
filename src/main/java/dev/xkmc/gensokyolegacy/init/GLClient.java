@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.init;
 import com.github.tartaricacid.touhoulittlemaid.TouhouLittleMaid;
 import dev.xkmc.fastprojectileapi.render.ProjectileRenderHelper;
 import dev.xkmc.gensokyolegacy.compat.touhoulittlemaid.TLMRenderHandler;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.AlchemyHintOverlay;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileClientTooltip;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileTooltip;
@@ -27,9 +28,11 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.ClientHakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
+import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.FrogRenderer;
@@ -62,8 +65,11 @@ public class GLClient {
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"), DaggerGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"), AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.DOWSER.get(), GensokyoLegacy.loc("dowser_half"), Dowser::halfPredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_mode"), YuyukoFanItem::modePredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"), YuyukoFanItem::displayPredicate);
+			ItemProperties.register(GLDecoBlocks.LOCUST_PLAQUE.asItem(), PlaqueItem.ALTERNATE_MODEL,
+					(stack, level, entity, seed) -> PlaqueItem.isAlternate(stack) ? 1 : 0);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);

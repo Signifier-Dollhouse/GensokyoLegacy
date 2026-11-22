@@ -10,11 +10,14 @@ public class GLSounds {
 
 	public static final SimpleEntry<SoundEvent> KOISHI_RING = reg("koishi_ring");
 
-	public static final SimpleEntry<SoundEvent> DIALOG_BLIP = reg("dialog_blip");
+	/**
+	 * The typewriter voice most characters speak in, and the fallback when no character is resolved.
+	 */
+	public static final SimpleEntry<SoundEvent> DIALOG_CHAT_REGULAR = reg("dialog_chat_regular");
 
 	/**
-	 * Full spoken lines, kept for a per-character dialog voice: two timbre variants of the same length as
-	 * {@link #DIALOG_BLIP}, so they slot into the typewriter blip unchanged. Registered but not played yet.
+	 * Two timbre variants of the same length as {@link #DIALOG_CHAT_REGULAR}, so they slot into the typewriter
+	 * blip unchanged. A character picks its own through {@code YoukaiEntity#getDialogChatSound}.
 	 */
 	public static final SimpleEntry<SoundEvent> DIALOG_CHAT_YOUNG = reg("dialog_chat_young");
 

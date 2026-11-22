@@ -1,0 +1,14 @@
+{
+  "name": "Suwako Hat",
+  "icon": "gensokyolegacy:suwako_hat",
+  "category": "gensokyolegacy:special_tools",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:suwako_hat",
+      "title": "While Worn",
+      "text": "The hat grants Native God's Bless — it raises your movement speed and your reach, and adds 25% magic damage on top of everything else you are wearing."
+    }
+  ]
+}

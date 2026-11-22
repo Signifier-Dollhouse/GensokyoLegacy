@@ -21,7 +21,8 @@ public class SakuyaQDGen extends QuestDialogData {
 		defaultDialog(GLEntities.IZAYOI_SAKUYA.get(),
 				"May I help you?",
 				"Nice to see you here",
-				"Nice stuff. Care to make an offer?");
+				"This time I'm the one being entertained. If you're short-handed, I can teach you how to raise an excellent maid one day.",
+				"Does the Scarlet Devil Mansion sell anything to outsiders?");
 
 		chats();
 		trades();
@@ -31,8 +32,8 @@ public class SakuyaQDGen extends QuestDialogData {
 		prefix("sakuya/visit_morichika_shop");
 		chat("sakuya/visit_morichika_shop_greet", GLEntities.IZAYOI_SAKUYA.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
-				starterText("greet", "Is it open? I heard this is the only shop in the forest."),
-				dialog("greet", "It is. I have been here before - Rinnosuke's stock is the only thing in Gensokyo I have no objection to.", List.of("dialog_talk_01"),
+				starterText("greet", "Does the mansion do its shopping here as well?"),
+				dialog("greet", "The young lady's requests are sometimes more than an ordinary shop can satisfy. One always finds something worthwhile here, if the goods are unusual.", TALK_ANIMS,
 						option("greet/end", "Understood.")),
 				CHAT_DEFAULT);
 

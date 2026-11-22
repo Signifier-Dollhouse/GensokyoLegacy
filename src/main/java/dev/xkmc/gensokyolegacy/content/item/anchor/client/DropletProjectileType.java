@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * Camera-facing droplet that still leans along its flight: the sprite is billboarded like a plain
  * ball, then spun in the screen plane so its tip points along the motion projected onto the view.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public record DropletProjectileType(ResourceLocation tex, DisplayType display)
 		implements RenderableDanmakuType<DropletProjectileType, DropletProjectileType.Ins> {

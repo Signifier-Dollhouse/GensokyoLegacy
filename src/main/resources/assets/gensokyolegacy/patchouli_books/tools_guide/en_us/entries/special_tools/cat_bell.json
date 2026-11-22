@@ -1,0 +1,19 @@
+{
+  "name": "Cat Bell",
+  "icon": "gensokyolegacy:cat_bell",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_cat_bell",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:cat_bell",
+      "title": "A Shoulder Cat",
+      "text": "Use the bell on one of your tamed cats to let it ride on you. Cats are held in contempt by creepers and phantoms alike, so a cat riding your shoulder is enough to keep them from coming near."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "With no cat to hand, it summons a tamed cat and puts it on your shoulder. The bell has 16 uses, and a shoulder cat is not easily lost — it just makes the journey cuter."
+    }
+  ]
+}

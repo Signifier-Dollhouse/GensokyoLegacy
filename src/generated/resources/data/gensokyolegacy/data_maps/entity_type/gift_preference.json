@@ -33,6 +33,15 @@
         "FOOD": 1.5
       }
     },
+    "gensokyolegacy:houjuu_nue": {
+      "override": {},
+      "preference": {
+        "ALCOHOL": 2.0,
+        "COLLECTION": 1.5,
+        "FOOD": 1.5,
+        "TOOL": 1.0
+      }
+    },
     "gensokyolegacy:ibuki_suika": {
       "override": {},
       "preference": {
@@ -77,6 +86,14 @@
         "COLLECTION": 1.5,
         "FOOD": 1.5,
         "TOOL": 1.0
+      }
+    },
+    "gensokyolegacy:nazrin": {
+      "override": {},
+      "preference": {
+        "COLLECTION": 2.0,
+        "FOOD": 2.0,
+        "TOOL": 1.5
       }
     },
     "gensokyolegacy:plain_fairy": {

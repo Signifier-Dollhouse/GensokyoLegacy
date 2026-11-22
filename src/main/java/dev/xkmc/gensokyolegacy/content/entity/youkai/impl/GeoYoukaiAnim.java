@@ -20,12 +20,24 @@ import java.util.Optional;
  * because a GeckoLib controller plays one animation at a time: shared, every bone a one-shot skips holds
  * still mid-hover until it ends. {@link #registerControllers} is identical for every character; only
  * {@link #getAnim} and {@link #stateAnimController} vary.
+ * <p>
+ * Both ends of a one-shot are fades: the clip fades in from whatever the loop wrote, and the loop fades back
+ * in from the clip's last pose when it ends ({@link #loopController}). Author clips on the bones they
+ * actually move, or they overwrite the loop on the rest for their whole length.
+ *
+ * @see "doc/design/youkai/anim.md"
  */
 public interface GeoYoukaiAnim extends GeoEntity {
 
 	RawAnimation BLINK = RawAnimation.begin().thenLoop("wink");
 
 	byte ANIM_EVENT_BASE = 71;
+
+	/**
+	 * Ends a one-shot that is holding its last pose. Above the {@code ANIM_EVENT_BASE + ordinal} range,
+	 * which is why it is not derived from the base, and clear of the doll rig's 66-70.
+	 */
+	byte ANIM_EVENT_STOP = 94;
 
 	String ANIM_CONTROLLER = "main";
 	String ONE_SHOT_CONTROLLER = "one_shot";
@@ -43,16 +55,16 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * naming a clip the model cannot resolve logs "Unable to find animation" and plays nothing, every frame.
 	 * <p>
 	 * {@code thenPlayAndHold} rather than {@code thenPlay}: the chew must sit there until she reaches for the
-	 * next dish, and holding the last pose makes an off timing read as her still chewing.
+	 * next dish, and holding the last pose makes an off timing read as her still chewing. Nothing ends a hold
+	 * on its own, so {@code YoukaiEating} drops it when the meal is over.
 	 */
 	RawAnimation EAT = RawAnimation.begin().thenPlayAndHold("eat");
 
 	/**
 	 * The flinch, shared for the same reason as the chew: {@link YoukaiAnim#HURT} maps straight to it.
 	 * <p>
-	 * {@code thenPlay} rather than {@code thenPlayAndHold}: a held last pose would strand her in the flinch,
-	 * the one-shot controller having nothing to hand the pose back to — the state loop is separate and would
-	 * just override it again next tick.
+	 * {@code thenPlay} rather than {@code thenPlayAndHold}: a held last pose would strand her in the flinch
+	 * until something else is triggered; ending the clip lets the loop fade back in instead.
 	 */
 	RawAnimation HURT = RawAnimation.begin().thenPlay("hurt");
 
@@ -104,10 +116,24 @@ public interface GeoYoukaiAnim extends GeoEntity {
 		// overwrites the face, and the one-shots go down last so they cover the bones they share.
 		if (hasBlinkAnim())
 			controllers.add(new AnimationController<>(this, WINK_CONTROLLER, 0, e -> e.setAndContinue(BLINK)));
-		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, ANIM_TRANSITION, this::stateAnimController));
+		controllers.add(new AnimationController<>(this, ANIM_CONTROLLER, ANIM_TRANSITION, this::loopController));
 		var oneShot = oneShotController();
 		addTriggerableAnims(oneShot);
 		controllers.add(oneShot);
+	}
+
+	/**
+	 * The loop half of the rig, plus the hand-back: when a one-shot ran out, the loop re-enters its own
+	 * transition so it fades in from the clip's last pose.
+	 * <p>
+	 * It has to happen here rather than in {@link #oneShotController}: the loop writes first, so this
+	 * frame's snapshot still holds the clip pose the previous frame ended on. One frame later the loop
+	 * would have overwritten it and the fade would start from its own pose.
+	 */
+	default PlayState loopController(AnimationState<?> event) {
+		if (oneShot().map(OneShotController::consumeFinished).orElse(false))
+			event.resetCurrentAnimation();
+		return stateAnimController(event);
 	}
 
 	/**
@@ -118,10 +144,20 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	 * nothing is playing: a rig that re-points its triggers from state ({@code SuikaEntity#triggerAnim},
 	 * which swaps every dialog slot for her lying-down clip while she naps) must do it mid-one-shot.
 	 */
-	default AnimationController<GeoEntity> oneShotController() {
-		AnimationController<GeoEntity> controller =
-				new AnimationController<>(this, ONE_SHOT_CONTROLLER, ANIM_TRANSITION, this::oneShotAnimController);
-		return controller.receiveTriggeredAnimations();
+	default OneShotController oneShotController() {
+		return new OneShotController(this, ANIM_TRANSITION, this::oneShotAnimController)
+				.receiveTriggeredAnimations();
+	}
+
+	/**
+	 * The overlay controller on the client, or empty on the server and before this entity first renders.
+	 */
+	default Optional<OneShotController> oneShot() {
+		LivingEntity self = (LivingEntity) this;
+		if (!self.level().isClientSide()) return Optional.empty();
+		AnimationController<?> controller = getAnimatableInstanceCache().getManagerForId(self.getId())
+				.getAnimationControllers().get(ONE_SHOT_CONTROLLER);
+		return controller instanceof OneShotController c ? Optional.of(c) : Optional.empty();
 	}
 
 	/**
@@ -149,6 +185,16 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	}
 
 	/**
+	 * Server-side: drop a one-shot that is holding its last pose, so the loop can fade back in. No-op on
+	 * the receiving side when a later clip already took the controller.
+	 */
+	default void broadcastStopAnim() {
+		LivingEntity self = (LivingEntity) this;
+		if (!self.level().isClientSide())
+			self.level().broadcastEntityEvent(self, ANIM_EVENT_STOP);
+	}
+
+	/**
 	 * Play one of the given dialog triggers once, chosen at random. Entries map to {@link YoukaiAnim} by
 	 * trigger name (falling back to enum name); unknown entries and unmapped slots are ignored, and an
 	 * empty list falls back to a random talk clip.
@@ -168,9 +214,13 @@ public interface GeoYoukaiAnim extends GeoEntity {
 	}
 
 	/**
-	 * Client-side: play the one-shot. Returns true when the id was consumed.
+	 * Client-side: play the one-shot, or drop a held one. Returns true when the id was consumed.
 	 */
 	default boolean handleAnimEvent(byte id) {
+		if (id == ANIM_EVENT_STOP) {
+			oneShot().ifPresent(OneShotController::releaseHeld);
+			return true;
+		}
 		int ord = id - ANIM_EVENT_BASE;
 		var values = YoukaiAnim.values();
 		if (ord < 0 || ord >= values.length) return false;

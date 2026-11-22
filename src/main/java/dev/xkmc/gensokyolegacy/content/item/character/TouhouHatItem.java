@@ -109,7 +109,7 @@ public class TouhouHatItem extends Item implements Equipable, ICurioItem {
 	 * {@code neoforge:separate_transforms} model whose head perspective names the geometry file,
 	 * and it is drawn the way vanilla draws any non-armor helmet-slot item.
 	 *
-	 * @see "doc/design/hats.md"
+	 * @see "doc/design/item/hats.md"
 	 */
 	public boolean isModeledHat() {
 		return false;

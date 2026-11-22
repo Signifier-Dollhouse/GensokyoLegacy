@@ -11,13 +11,13 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import java.util.List;
 
 /**
- * The hot humid cell the guide calls the sunflower plains, and the one biome that used to be a verbatim vanilla copy.
+ * The hot humid cell the plan calls the sunflower plains, and the one biome that used to be a verbatim vanilla copy.
  * <p>
  * Its climate, colours and sky are vanilla's own numbers, because a sunflower field is plains and nothing about the
  * flowers changes what the grass looks like. Only its features are written out here. It is also the only biome that
  * spells its sky colour out instead of letting the temperature set it.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class SunflowerPlainsBiomeGen extends AbstractBiomeGen {
 

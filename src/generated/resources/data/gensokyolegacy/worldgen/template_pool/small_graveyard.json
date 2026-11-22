@@ -1,0 +1,15 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "gensokyolegacy:biome/graveyard/small_graveyard",
+        "override_liquid_settings": "ignore_waterlogging",
+        "processors": "gensokyolegacy:small_graveyard",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

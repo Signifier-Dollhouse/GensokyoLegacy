@@ -3,8 +3,9 @@
 	"gensokyolegacy": {
 		"suika": {
 			"chat": {
-				"greeting": "哦？你也来了，我现在正享受微醺的感觉呢。",
-				"party_greeting": "哟，我来赴宴了，你可要让我尽兴啊。"
+				"greeting": "欢迎来到我的地盘！要比拼一下酒力么？",
+				"party_greeting": "哟，我来赴宴了，你可要让我尽兴啊。",
+				"visit_greeting": "哦？你也来了，我现在正享受微醺的感觉呢。"
 			},
 			"gift": {
 				"dialog": {
@@ -14,7 +15,7 @@
 					"return": "这东西对我用处不大，送你啦，有空一起再来聚酒吧~"
 				},
 				"option": {
-					"return/take": "我酒力不行，还望手下留情啊。"
+					"return/take": "我酒力不行，还望手下留情"
 				}
 			}
 		}

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.neoforged.api.distmarker.Dist;
@@ -26,12 +27,22 @@ public class GapPortalRenderer implements BlockEntityRenderer<GapPortalBlockEnti
 	public GapPortalRenderer(BlockEntityRendererProvider.Context ctx) {
 	}
 
+	private static float yawToPlayer(GapPortalBlockEntity e, float pTick) {
+		var player = Minecraft.getInstance().player;
+		if (player == null) return 0;
+		double px = Mth.lerp(pTick, player.xo, player.getX());
+		double pz = Mth.lerp(pTick, player.zo, player.getZ());
+		double dx = px - (e.getBlockPos().getX() + 0.5);
+		double dz = (e.getBlockPos().getZ() + 0.5) - pz;
+		return (float) Math.toDegrees(Math.atan2(dx, dz));
+	}
+
 	public void render(GapPortalBlockEntity e, float pTick, PoseStack pose, MultiBufferSource source, int light, int overlay) {
 		if (e.getBlockState().getValue(BlockStateProperties.HALF) == Half.TOP) return;
-		var cam = Minecraft.getInstance().gameRenderer.getMainCamera();
 		pose.pushPose();
 		pose.translate(0.5f, 0, 0.5f);
-		pose.mulPose(Axis.YP.rotationDegrees(180 - cam.getYRot()));
+		// face the player, not the camera: the yaw is the horizontal block-to-player direction
+		pose.mulPose(Axis.YP.rotationDegrees(180 - yawToPlayer(e, pTick)));
 		var mat = pose.last().pose();
 		var normal = pose.last();
 		if (e.pending) {

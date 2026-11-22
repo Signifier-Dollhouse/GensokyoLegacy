@@ -5,7 +5,7 @@ import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public record GiftItemData(int favor, int cooldown, GiftType type) {
 

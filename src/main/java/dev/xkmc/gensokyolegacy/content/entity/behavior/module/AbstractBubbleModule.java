@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
  * bubble up by having one of these rather than by being wired into the entity. The id is the subclass's: a
  * bubble module is one module, not two, so there is nothing extra to register or save.
  *
- * @see "doc/design/want_bubble.md"
+ * @see "doc/design/youkai/want_bubble.md"
  */
 public abstract class AbstractBubbleModule extends AbstractYoukaiModule implements IBubbleModule {
 

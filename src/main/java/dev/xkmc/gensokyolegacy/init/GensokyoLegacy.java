@@ -10,6 +10,7 @@ import dev.xkmc.gensokyolegacy.content.cooldown.LivelySource;
 import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
@@ -71,7 +72,7 @@ public class GensokyoLegacy {
 	public static final String MODID = "gensokyolegacy";
 	public static final Reg REG = new Reg(MODID);
 	public static final L2Registrate REGISTRATE = new L2Registrate(MODID);
-	public static final PacketHandler HANDLER = GLPackets.create(4);
+	public static final PacketHandler HANDLER = GLPackets.create(5);
 
 	public GensokyoLegacy() {
 
@@ -95,7 +96,7 @@ public class GensokyoLegacy {
 									.requires(Items.BOOK).requires(GLItems.MAGIC_BOOK.get()),
 							() -> Items.BOOK)
 					.buildBook("Gensokyo Tools Guide",
-							"This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.$(br2)Open it from any Patchouli guide book. An entry shows $(bold)what it does$(), $(bold)how to use it$() and $(bold)where it comes from$().",
+							"This volume documents the working side of Gensokyo Legacy: brewing in the Alchemy Pot, paper talismans, combat dolls and their glove, special and everyday tools, and the decoration blocks you can sit on, cover and slide.",
 							1, GLItems.TAB.key());
 		}
 
@@ -111,6 +112,10 @@ public class GensokyoLegacy {
 		event.registerBlockEntity(
 				Capabilities.ItemHandler.BLOCK,
 				GLBlocks.ALCHEMY_POT_BE.get(),
+				(be, dir) -> be.getItemCap(dir));
+		event.registerBlockEntity(
+				Capabilities.ItemHandler.BLOCK,
+				GLBlocks.TREASURE_BASKET_BE.get(),
 				(be, dir) -> be.getItemCap(dir));
 		event.registerBlockEntity(
 				Capabilities.FluidHandler.BLOCK,
@@ -131,6 +136,7 @@ public class GensokyoLegacy {
 			DollGloveSelectionListener.register();
 			DaggerGloveSelectionListener.register();
 			YuyukoFanSelectionListener.register();
+			InteriorWandSelectionListener.register();
 			AnchorSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 
@@ -189,8 +195,9 @@ public class GensokyoLegacy {
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
 		var minamitsu = new MinamitsuQDGen();
+		var nazrin = new NazrinQDGen();
 		QuestDialogData.build(REGISTRATE, reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko,
-				minamitsu, new GiftQDGen());
+				minamitsu, nazrin, new GiftQDGen());
 
 		ReportBlocksInStructure.report();
 	}

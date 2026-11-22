@@ -1,3 +1,15 @@
+- fix trade stock limit not working
+- trade gui overhaul: add filter buttons
+
+1.0.7.3
+- Fix some food might be left untouched in party
+- Fix biomes being too small and structures taking too long to locate
+- Fix animation transition
+
+1.0.7.2
+- Fix mod biome occupying ocean
+- Fix ghost over-spawn
+
 1.0.7
 - new biome: myouren temple barren
 - wild ghost, and tamed ghost
@@ -7,6 +19,7 @@
 - fix structure search lag
 - fix doll damage won't aggravate target
 - fix doll being recolored by other player
+- fix broom bug in multiplayer with high latency
 
 1.0.6
 - Add ability for fancy fan

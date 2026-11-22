@@ -1,10 +1,15 @@
 package dev.xkmc.gensokyolegacy.content.item.tool;
 
+import dev.xkmc.danmakuapi.content.entity.DanmakuHelper;
+import dev.xkmc.gensokyolegacy.content.attachment.index.IndexStorage;
+import dev.xkmc.gensokyolegacy.content.attachment.index.MissingTowerManager;
 import dev.xkmc.gensokyolegacy.content.client.deco.DowserRenderer;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
+import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2serial.network.SerialPacketBase;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,6 +29,7 @@ import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -34,6 +40,7 @@ import java.util.Set;
 public class Dowser extends Item {
 
 	public static final int RANGE = 4;
+	public static final double TOWER_RAY_STEP = 1.0;
 
 	public static boolean isValid(@Nullable BlockEntity be) {
 		if (!(be instanceof RandomizableContainerBlockEntity e)) return false;
@@ -78,8 +85,53 @@ public class Dowser extends Item {
 		return ans;
 	}
 
+	/**
+	 * A line of composter sparks from the eye along the tower's bearing, so the dowser points at a lost
+	 * tower the way it points at a chest. Sent only to the holder with the long-distance flag.
+	 */
+	private static void castTowerRay(ServerPlayer player) {
+		var state = IndexStorage.get(player.serverLevel()).getTower(player.getUUID());
+		if (state == null || state.carried()) return;
+		if (!state.dim().equals(player.serverLevel().dimension().location())) return;
+		Vec3 from = player.position().add(0, player.getBbHeight() / 2, 0);
+		Vec3 dir = Vec3.atCenterOf(state.pos()).subtract(from);
+		double len = Math.min(dir.length(), MissingTowerManager.MAX_RADIUS);
+		if (len < 1.0E-4) return;
+		dir = dir.normalize();
+		Vec3 hor = DanmakuHelper.getOrientation(dir).rotateDegrees(90);
+		for (double d = -2; d < Math.min(len, 20); d += 0.5) {
+			Vec3 at;
+			at = from.add(hor).add(dir.scale(d));
+			player.serverLevel().sendParticles(player, ParticleTypes.FLAME, true,
+					at.x, at.y, at.z, 1, 0, 0, 0, 0);
+			at = from.subtract(hor).add(dir.scale(d));
+			player.serverLevel().sendParticles(player, ParticleTypes.FLAME, true,
+					at.x, at.y, at.z, 1, 0, 0, 0, 0);
+
+		}
+	}
+
 	public Dowser(Properties properties) {
 		super(properties.durability(64));
+	}
+
+	/**
+	 * A dowser stack carrying {@code half}, so its model draws that half of the pair.
+	 */
+	public static ItemStack ofHalf(DowserHalf half) {
+		return GLItems.DOWSER_HALF.set(GLItems.DOWSER.asStack(), half);
+	}
+
+	public static boolean isHalf(ItemStack stack) {
+		return stack.has(GLItems.DOWSER_HALF);
+	}
+
+	/**
+	 * Model-override value for {@code gensokyolegacy:dowser_half}: the half's ordinal + 1, 0 for a whole dowser.
+	 */
+	public static float halfPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
+		DowserHalf half = GLItems.DOWSER_HALF.get(stack);
+		return half == null ? 0 : half.ordinal() + 1;
 	}
 
 	@Override
@@ -90,6 +142,7 @@ public class Dowser extends Item {
 			var ans = searchBlock(sp.serverLevel(), pos, RANGE);
 			ans.addAll(searchEntity(sp.serverLevel(), pos, RANGE));
 			GensokyoLegacy.HANDLER.toClientPlayer(new DowserToClient(ans), sp);
+			castTowerRay(sp);
 			if (!player.isCreative()) {
 				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
 			}

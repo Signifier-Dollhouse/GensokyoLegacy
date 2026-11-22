@@ -25,7 +25,7 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
  * a hat that draws from its item model's head perspective ({@link TouhouHatItem#isModeledHat()}),
  * which goes through {@link HeadItemRenderer} like any other head-worn item.
  *
- * @see "doc/design/hats.md"
+ * @see "doc/design/item/hats.md"
  */
 public class TouhouHatRenderer implements ICurioRenderer {
 

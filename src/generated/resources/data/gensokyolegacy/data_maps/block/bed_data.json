@@ -3,6 +3,9 @@
     "gensokyolegacy:alice_bed": {
       "type": "gensokyolegacy:alice_margatroid"
     },
+    "gensokyolegacy:byakuren_bed": {
+      "type": "gensokyolegacy:hijiri_byakuren"
+    },
     "gensokyolegacy:cirno_bed": {
       "type": "gensokyolegacy:cirno"
     },
@@ -14,6 +17,9 @@
     },
     "gensokyolegacy:morichika_bed": {
       "type": "gensokyolegacy:morichika_rinnosuke"
+    },
+    "gensokyolegacy:nazrin_bed": {
+      "type": "gensokyolegacy:nazrin"
     },
     "gensokyolegacy:reimu_bed": {
       "type": "gensokyolegacy:hakurei_reimu"

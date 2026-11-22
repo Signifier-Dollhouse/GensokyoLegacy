@@ -42,12 +42,14 @@ public class CodecRegistry {
 	public static final CdcVal<SimpleDialogOption> SIMPLE_OPTION = OPTION.reg("simple", SimpleDialogOption.CODEC);
 	public static final CdcVal<GroupDialogOption> GROUP_OPTION = OPTION.reg("group", GroupDialogOption.CODEC);
 	public static final CdcVal<RandomDialogOption> RANDOM_OPTION = OPTION.reg("random", RandomDialogOption.CODEC);
+	public static final CdcVal<ConditionalDialogOption> CONDITIONAL_OPTION = OPTION.reg("conditional", ConditionalDialogOption.CODEC);
 
 	public static final CdcVal<StartQuestAction> START_QUEST = ACTION.reg("start_quest", StartQuestAction.CODEC);
 	public static final CdcVal<CompleteQuestAction> COMPLETE_QUEST = ACTION.reg("complete_quest", CompleteQuestAction.CODEC);
 	public static final CdcVal<GiveMobEffectAction> GIVE_MOB_EFFECT = ACTION.reg("give_mob_effect", GiveMobEffectAction.CODEC);
 	public static final CdcVal<SetTimerAction> SET_TIMER = ACTION.reg("set_timer", SetTimerAction.CODEC);
 	public static final CdcVal<GiftReturnAction> GIFT_RETURN_ACTION = ACTION.reg("gift_return", GiftReturnAction.CODEC);
+	public static final CdcVal<GiveItemAction> GIVE_ITEM = ACTION.reg("give_item", GiveItemAction.CODEC);
 
 	public static final CdcVal<HasAdvancementCondition> HAS_ADV = CONDITION.reg("has_advancement", HasAdvancementCondition.CODEC);
 	public static final CdcVal<HasQuestCompletedCondition> HAS_QUEST = CONDITION.reg("has_quest_completed", HasQuestCompletedCondition.CODEC);
@@ -60,6 +62,7 @@ public class CodecRegistry {
 	public static final CdcVal<PartyCondition> PARTY = CONDITION.reg("party", PartyCondition.CODEC);
 	public static final CdcVal<GiftReturnCondition> GIFT_RETURN = CONDITION.reg("gift_return", GiftReturnCondition.CODEC);
 	public static final CdcVal<VisitStructureCondition> VISIT_STRUCTURE = CONDITION.reg("visit_structure", VisitStructureCondition.CODEC);
+	public static final CdcVal<MissingTowerNearCondition> TOWER_NEAR = CONDITION.reg("missing_tower_near", MissingTowerNearCondition.CODEC);
 
 	public static final CdcVal<KillMobRequirement> KILL_MOB_REQ = REQUIREMENT.reg("kill_mob", KillMobRequirement.CODEC);
 	public static final CdcVal<KillEnemyRequirement> KILL_ENEMY_REQ = REQUIREMENT.reg("kill_enemy", KillEnemyRequirement.CODEC);
@@ -68,6 +71,7 @@ public class CodecRegistry {
 	public static final CdcVal<KoishiHatRequirement> KOISHI_HAT_REQ = REQUIREMENT.reg("koishi_hat", KoishiHatRequirement.CODEC);
 	public static final CdcVal<RollItemRequirement> ROLL_ITEM_REQ = REQUIREMENT.reg("roll_item", RollItemRequirement.CODEC);
 	public static final CdcVal<RaidVictoryRequirement> RAID_VICTORY_REQ = REQUIREMENT.reg("raid_victory", RaidVictoryRequirement.CODEC);
+	public static final CdcVal<MissingTowerRequirement> MISSING_TOWER_REQ = REQUIREMENT.reg("missing_tower", MissingTowerRequirement.CODEC);
 
 	public static final CdcVal<LootTableReward> LOOT_REWARD = REWARD.reg("loot_table", LootTableReward.CODEC);
 	public static final CdcVal<ExpReward> EXP_REWARD = REWARD.reg("exp", ExpReward.CODEC);

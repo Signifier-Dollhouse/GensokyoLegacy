@@ -17,6 +17,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.misc.KoishiAttackCapability;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFood;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
@@ -86,6 +87,8 @@ public class GLMeta {
 
 	public static final DataMapReg<Block, BedData> BED_DATA =
 			GensokyoLegacy.REG.dataMap("bed_data", Registries.BLOCK, BedData.class);
+	public static final DataMapReg<Block, DonationBoxData> DONATION_DATA =
+			GensokyoLegacy.REG.dataMap("donation_box", Registries.BLOCK, DonationBoxData.class);
 
 	public static final AttVal.CapVal<LevelChunk, PartyAttachment> PARTY =
 			ATT.entity("party_data", PartyAttachment.class, PartyAttachment::new, LevelChunk.class, e -> true);

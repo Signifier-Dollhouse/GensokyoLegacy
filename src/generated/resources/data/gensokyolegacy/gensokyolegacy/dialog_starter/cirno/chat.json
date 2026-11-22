@@ -1,0 +1,24 @@
+{
+  "character": "gensokyolegacy:cirno",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:home_bound"
+    }
+  ],
+  "dialog": {
+    "animations": [
+      "dialog_think",
+      "dialog_think_02"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [],
+        "conditions": [],
+        "text": "gensokyolegacy/cirno/chat/option/hi/end"
+      }
+    ],
+    "text": "gensokyolegacy/cirno/chat/dialog/cirno/chat/hi"
+  },
+  "text": "gensokyolegacy/cirno/chat/starter/start"
+}

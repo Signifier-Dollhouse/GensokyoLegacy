@@ -1,0 +1,15 @@
+{
+  "type": "gensokyolegacy:fallback",
+  "biomes": "#gensokyolegacy:has_structure/myouren_temple",
+  "max_distance_from_center": 32,
+  "set": "gensokyolegacy:myouren_temple",
+  "size": 1,
+  "spawn_overrides": {},
+  "start_pool": "gensokyolegacy:small_graveyard",
+  "step": "underground_decoration",
+  "terrain": {
+    "type": "gensokyolegacy:uniform_height",
+    "height_tolerance": 5
+  },
+  "terrain_adaptation": "beard_thin"
+}

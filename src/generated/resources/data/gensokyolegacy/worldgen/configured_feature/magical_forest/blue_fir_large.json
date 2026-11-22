@@ -185,11 +185,11 @@
     "root_depth": 5,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/tree/blue_fir_large_1",
+        "data": "gensokyolegacy:biome/tree/blue_fir_large_1",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/tree/blue_fir_large_2",
+        "data": "gensokyolegacy:biome/tree/blue_fir_large_2",
         "weight": 1
       }
     ]

@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.party.network.PartyGiftToClien
 import dev.xkmc.gensokyolegacy.content.client.debug.*;
 import dev.xkmc.gensokyolegacy.content.client.structure.*;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.PathDataToClient;
+import dev.xkmc.gensokyolegacy.content.entity.broom.DismountBroomToServer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadMoveToServer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadReleaseToServer;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.network.HeadUseToServer;
@@ -20,6 +21,7 @@ import dev.xkmc.gensokyolegacy.content.item.glove.network.DollGloveSwingPacket;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.Hakkero;
 import dev.xkmc.gensokyolegacy.content.item.tool.CatBell;
 import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.treasure.network.TreasureTowerToClient;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.network.*;
 import dev.xkmc.gensokyolegacy.content.rpg.network.*;
 import dev.xkmc.l2serial.network.PacketHandler;
@@ -77,7 +79,9 @@ public class GLPackets {
 				.toClient(PartyGiftToClient.class)
 				.toClient(Dowser.DowserToClient.class)
 				.toClient(CatBell.MountToClient.class)
+				.toClient(TreasureTowerToClient.class)
 				.toClient(Hakkero.BroomBoostToClient.class)
+				.toServer(DismountBroomToServer.class)
 
 				.toServer(BorderUmbrellaWheelSelectPacket.class)
 				.toServer(BorderUmbrellaRenamePacket.class)
