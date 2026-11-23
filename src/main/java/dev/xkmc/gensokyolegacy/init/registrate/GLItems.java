@@ -34,6 +34,9 @@ import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandMode;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorData;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorStick;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollMode;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollModel;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.ghost.BoneFluteItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.ButterflyDanmakuItem;
@@ -132,6 +135,7 @@ public class GLItems {
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
 	public static final ItemEntry<AnchorItem> MINAMITSU_ANCHOR;
+	public static final ItemEntry<DevilScrollItem> DEVILS_SCROLL;
 	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
 	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
@@ -216,6 +220,8 @@ public class GLItems {
 			DC.enumVal("yuyuko_fan_mode", EnumCodec.of(YuyukoFanMode.class, YuyukoFanMode.values()));
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
+	public static final DCVal<DevilScrollMode> DEVILS_SCROLL_MODE =
+			DC.enumVal("devils_scroll_mode", EnumCodec.of(DevilScrollMode.class, DevilScrollMode.values()));
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DowserHalf> DOWSER_HALF =
 			DC.enumVal("dowser_half", EnumCodec.of(DowserHalf.class, DowserHalf.values()));
@@ -786,6 +792,12 @@ public class GLItems {
 							ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE)
 					.lang("Minamitsu's Anchor").tab(TAB.key())
 					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
+					.register();
+
+			DEVILS_SCROLL = reg.item("devils_scroll", DevilScrollItem::new)
+					.model(DevilScrollModel::model)
+					.tag(ItemTags.WEAPON_ENCHANTABLE, ItemTags.SHARP_WEAPON_ENCHANTABLE, L2ISTagGen.SELECTABLE)
+					.lang("Devil's Scroll").tab(TAB.key())
 					.register();
 
 			// the water twin: never held, only drawn by an unbound storm anchor, which must switch models

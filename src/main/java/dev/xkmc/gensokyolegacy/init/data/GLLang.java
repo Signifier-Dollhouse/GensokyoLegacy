@@ -708,6 +708,7 @@ public final class GLLang {
 		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY),
 		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY),
 		MINAMITSU_ANCHOR_LORE("Heavy enough to stop a ship, and it still comes back.", 0, ChatFormatting.GRAY),
+		DEVILS_SCROLL_LORE("Signed in a hand that was never quite human.", 0, ChatFormatting.GRAY),
 		NUE_TRIDENT_LORE("The one you throw is never the one you keep.", 0, ChatFormatting.GRAY),
 		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY),
 		GIFT_BOX_LORE("Whatever Morichika had spare, tied up with string.", 0, ChatFormatting.GRAY);
@@ -1449,6 +1450,56 @@ public final class GLLang {
 		}
 	}
 
+	public enum ItemDevilScroll implements LangEntry {
+		MODE("Mode: %s", 1, ChatFormatting.GRAY),
+		MODE_PASSIVE("Passive"),
+		MODE_SUPERHUMAN("Superhuman"),
+		MODE_DEVIL("Devil"),
+		DESC_PASSIVE("Only the attributes of the hand holding it apply.", 0, ChatFormatting.GRAY),
+		DESC_SUPERHUMAN("Main hand: unstoppable melee, a permanent leap, and a dashing strike.", 0, ChatFormatting.GRAY),
+		DESC_DEVIL("Either hand: every hit calls four orange lasers.", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemDevilScroll(String def) {
+			this(def, 0, null);
+		}
+
+		ItemDevilScroll(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemDevilScroll(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".devils_scroll." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum ItemTreasureTower implements LangEntry {
 		NEED_POWER("The tower needs at least %s spiritual power", 1, ChatFormatting.RED),
 		TOOLTIP("Right-click at stone to send the tower out; it turns the stone and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
@@ -1716,6 +1767,7 @@ public final class GLLang {
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
 				ItemAnchor.values(), ItemUfo.values(), ItemTreasureTower.values(), ItemGiftBox.values(),
+				ItemDevilScroll.values(),
 				Jizo.values(), Gravestone.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

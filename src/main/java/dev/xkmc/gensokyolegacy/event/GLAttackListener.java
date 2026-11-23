@@ -6,6 +6,7 @@ import dev.xkmc.gensokyolegacy.content.effect.MiasmaEffect;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.BaseDollEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.item.character.TouhouHatItem;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.TalismanCurioItem;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
@@ -40,6 +41,11 @@ public class GLAttackListener implements AttackListener {
 
 	@Override
 	public void onCreateSource(CreateSourceEvent event) {
+		if (event.getOriginal().equals(DamageTypes.PLAYER_ATTACK)
+				&& event.getAttacker() instanceof Player player
+				&& DevilScrollItem.isSuperhuman(player)) {
+			event.enable(DefaultDamageState.BYPASS_COOLDOWN);
+		}
 		if (!(event.getDirect() instanceof BaseDollEntity)) return;
 		if (!event.getOriginal().equals(DamageTypes.MOB_ATTACK)) return;
 		event.enable(DefaultDamageState.BYPASS_COOLDOWN);

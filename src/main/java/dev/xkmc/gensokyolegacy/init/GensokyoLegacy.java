@@ -11,6 +11,7 @@ import dev.xkmc.gensokyolegacy.content.dimension.GLDimensionGen;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorRegistry;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
@@ -139,6 +140,7 @@ public class GensokyoLegacy {
 			YuyukoFanSelectionListener.register();
 			InteriorWandSelectionListener.register();
 			AnchorSelectionListener.register();
+			DevilScrollSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 
 			DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_COLD.get());

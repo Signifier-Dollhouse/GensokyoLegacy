@@ -19,6 +19,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.InvTooltip;
 import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
@@ -65,6 +66,7 @@ public class GLClient {
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"), DaggerGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"), AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.DEVILS_SCROLL.get(), GensokyoLegacy.loc("devils_scroll_mode"), DevilScrollItem::displayPredicate);
 			ItemProperties.register(GLItems.DOWSER.get(), GensokyoLegacy.loc("dowser_half"), Dowser::halfPredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_mode"), YuyukoFanItem::modePredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"), YuyukoFanItem::displayPredicate);
