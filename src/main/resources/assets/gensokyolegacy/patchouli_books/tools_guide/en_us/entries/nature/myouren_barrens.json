@@ -24,12 +24,9 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": [
-        "gensokyolegacy:minamitsu_anchor",
-        "gensokyolegacy:yuyuko_fan"
-      ],
+      "item": "tag:gensokyolegacy:spiritual_tools",
       "title": "Spiritual Power",
-      "text": "Some items carry a spiritual power pool, shown as a cyan bar:$(br2)$(l:special_tools/minamitsu_anchor)Minamitsu's Anchor$(/l)$(br)$(l:special_tools/yuyuko_fan)Yuyuko's Fan$(/l)",
+      "text": "Some items carry a spiritual power pool, shown as a cyan bar:$(br2)$(l:special_tools/minamitsu_anchor)Minamitsu's Anchor$(/l)$(br)$(l:special_tools/yuyuko_fan)Yuyuko's Fan$(/l)$(br)$(l:special_tools/treasure_tower)Treasure Tower$(/l)",
 	  "_website_marker": true
 	},
     {
@@ -64,7 +61,14 @@
         "gensokyolegacy:spooky_bush",
         "gensokyolegacy:locust_sapling",
         "gensokyolegacy:locust_log",
-        "gensokyolegacy:locust_hollow_log"
+        "gensokyolegacy:locust_wood",
+        "gensokyolegacy:locust_hollow_log",
+        "gensokyolegacy:stripped_locust_log",
+        "gensokyolegacy:stripped_locust_wood",
+        "gensokyolegacy:locust_planks",
+        "gensokyolegacy:locust_wall",
+        "gensokyolegacy:locust_leaves",
+        "gensokyolegacy:locust_fallen_leaves"
       ],
       "title": "Lilies, Grass and Locust",
       "text": "Right-clicking a placed water lily cycles through its looks — a purely decorative feature. Tower grass is harvested for Mystical Straw. The locust is the theme tree of the biome."

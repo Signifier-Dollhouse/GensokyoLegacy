@@ -34,6 +34,21 @@
       ],
       "title": "纸箱、板条箱与书",
       "text": "$(bold)纸箱$()其有三种颜色。$(br2)$(bold)板条箱$()一个装饰性方块。$(br2)$(bold)书$()书堆有三种大小，对它右键可以依次切换。书堆和书摞只会掉落原本的制作材料。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:scroll_empty",
+        "gensokyolegacy:scroll_cloud",
+        "gensokyolegacy:scroll_bishamonten",
+        "gensokyolegacy:scroll_sun",
+        "gensokyolegacy:scroll_temple",
+        "gensokyolegacy:scroll_text",
+        "gensokyolegacy:scroll_pile",
+        "gensokyolegacy:green_scroll_pile"
+      ],
+      "title": "画卷与卷轴堆",
+      "text": "六种画卷都是两格高的挂墙装饰，只有一格厚，上下两半背后都要有一面坚实的墙。卷轴堆有四种数量，右键依次切换；绿色卷轴堆只是换了个颜色。画卷破坏时只掉落一次，不会因为分上下两半而掉两个。"
     }
   ]
 }
