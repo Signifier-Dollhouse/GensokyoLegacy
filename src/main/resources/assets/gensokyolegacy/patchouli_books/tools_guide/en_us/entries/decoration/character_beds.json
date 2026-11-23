@@ -8,9 +8,18 @@
     {
       "type": "patchouli:spotlight",
       "item": [
+        "gensokyolegacy:cirno_bed",
         "gensokyolegacy:reimu_bed",
+        "gensokyolegacy:morichika_bed",
         "gensokyolegacy:marisa_bed",
-        "gensokyolegacy:morichika_bed"
+        "gensokyolegacy:alice_bed",
+        "gensokyolegacy:minamitsu_bed",
+        "gensokyolegacy:nue_bed",
+        "gensokyolegacy:byakuren_bed",
+        "gensokyolegacy:kyouko_bed",
+        "gensokyolegacy:ichirin_bed",
+        "gensokyolegacy:nazrin_bed",
+        "gensokyolegacy:shou_bed"
       ],
       "title": "Made to Order",
       "text": "Every naturally spawned character has a bed of her own; a character without one vanishes where the player cannot see. Players cannot use a character bed, nor set their spawn point on one."

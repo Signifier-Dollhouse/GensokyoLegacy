@@ -21,10 +21,12 @@
         "gensokyolegacy:red_lantern",
         "gensokyolegacy:white_lantern",
         "gensokyolegacy:lettered_red_lantern",
-        "gensokyolegacy:lettered_white_lantern"
+        "gensokyolegacy:lettered_white_lantern",
+        "gensokyolegacy:paper_lantern",
+        "gensokyolegacy:green_frame_lantern"
       ],
       "title": "灯笼",
-      "text": "有四种变体，用于装饰性照明。"
+      "text": "有六种变体，用于装饰性照明。"
     },
     {
       "type": "patchouli:spotlight",
@@ -85,6 +87,7 @@
         "gensokyolegacy:myouren_brick_vertical_slab",
         "gensokyolegacy:myouren_fence",
         "gensokyolegacy:myouren_flag",
+        "gensokyolegacy:flagpole",
         "gensokyolegacy:myouren_donation_box",
         "gensokyolegacy:locust_plaque"
       ],
