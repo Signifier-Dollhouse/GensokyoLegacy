@@ -31,7 +31,7 @@ damage and speed, and the thrown copy flies on the vanilla trident arc.
 | `NueTridentItem` | `content/item/nue/NueTridentItem.java` | the item: melee stats, charge, throw, cooldown |
 | `NueTridentProjectile` | `content/entity/misc/NueTridentProjectile.java` | the flying copy: gravity, damage, UFO conversion |
 | `NoFadeBulletRenderer` | `content/entity/misc/render/NoFadeBulletRenderer.java` | the copy's renderer: no distance fading, centred on the flight line |
-| `UfoItem` | `content/item/nue/UfoItem.java` | the wrapper: holds the stolen stack, hands it back after a two-second hold |
+| `UfoItem` | `content/item/nue/UfoItem.java` | the wrapper: holds the stolen stack, hands it back after a two-second hold; the hold itself is `HoldToOpenItem` |
 
 The projectile is an `ItemBulletEntity` subclass, like `IronDaggerBulletEntity`, which buys the
 l2serial save/spawn code and the fast-projectile collision for free. Two quirks come with it and are
@@ -153,18 +153,20 @@ the usual 8.5% hand chance. A player drops their hands normally, so nothing is n
 
 ### 5.2 Stored on the UFO
 
-One data component, registered in `GLItems` with the existing `DCReg`:
+One data component plus the vanilla container-loot component:
 
 | component | type | contents |
 |---|---|---|
-| `ufo_content` | `DCStack` (`DC.stack`) | the stolen stack, `ItemStack.EMPTY`-optional |
-| `ufo_loot` | `ResourceLocation` (`DC.loc`) | the loot table a gift UFO opens into |
+| `ufo_content` | `DCStack` (`DC.stack`, registered in `GLItems`) | the stolen stack, `ItemStack.EMPTY`-optional |
+| `container_loot` | `SeededContainerLoot` (vanilla `DataComponents.CONTAINER_LOOT`) | the loot table a gift UFO opens into |
 
 A UFO carries at most one of the two: content hands the stored stack back, loot rolls one item out
 of the named table. Nothing else is stored: the UFO has no clock. It is a wrapper, like a shulker box
-that holds one stack and opens on demand.
+that holds one stack and opens on demand. The loot table rides on the loot entry as a component
+(`SetComponentsFunction`, seed `0` for a fresh roll each time), so the item registration itself stays
+component-free and a trident-stolen UFO never becomes a gift.
 
-A **gift UFO** is the loot-table variant, with `ufo_loot` pointing at `gensokyolegacy:gift/ufo`.
+A **gift UFO** is the loot-table variant, with `container_loot` pointing at `gensokyolegacy:gift/ufo`.
 It is also blue, red or green at random, weight split three ways:
 
 | item | weight |
@@ -181,14 +183,18 @@ rung, which makes her thank-you gift a UFO as well.
 
 ### 5.3 Opening it
 
-`UfoItem` is a held-use item, not a click item:
+`UfoItem` is a held-use item built on `HoldToOpenItem`, not a click item; the base owns the hold,
+the hand-back and the loot roll, and the UFO only supplies its stored stack and its lore:
 
 | override | value |
 |---|---|
-| `getUseDuration(stack, entity)` | `40` — two seconds of holding |
-| `getUseAnimation(stack)` | `UseAnim.BRUSH` — the arm works at the item, with no extra prop |
-| `use(level, player, hand)` | `InteractionResultHolder.consume(stack)` when content or a loot table is present, `PASS` when neither is |
-| `finishUsingItem(stack, level, entity)` | return `content`, or one item rolled from the loot table — the game puts it in the slot the UFO occupied |
+| constructor | `super(properties, 40)` — two seconds of holding |
+| `contentOf(stack)` | the stored stack, `ItemStack.EMPTY` when there is none |
+| `appendHoverText(...)` | the lore, the `Contains <item name>` line, and a hold or open hint |
+
+The base gives `UseAnim.BRUSH`, a `use` that is `PASS` when neither content nor `CONTAINER_LOOT` is
+present and `consume` otherwise, and a `finishUsingItem` that returns the content or one item rolled
+from the loot table, so the game puts the result in the slot the UFO occupied.
 
 * the content leaves only through a completed hold; releasing early (`releaseUsing`) does nothing,
   so a slip of the mouse cannot open it by accident;

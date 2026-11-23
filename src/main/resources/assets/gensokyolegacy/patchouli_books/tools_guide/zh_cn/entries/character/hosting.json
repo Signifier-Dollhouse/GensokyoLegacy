@@ -1,0 +1,24 @@
+{
+  "name": "开办宴会",
+  "icon": "gensokyolegacy:invitation_letter",
+  "category": "gensokyolegacy:character",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:plate",
+      "text": "一场宴席需要餐桌、食物和座椅。$(br2)餐桌的摆放建议最多两格宽，这样能够保证餐桌的每一面都有地板，不然客人可能会上桌吃饭。$(br2)除了使用本模组的盘装食物，还兼容乐事、森罗等可放置餐品"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:stool",
+      "text": "这里的桌椅专指本模组的座椅，距离3格以内的桌椅会被计入同一场宴会范围。桌椅分散有助于客人走动取食，但不要太分散避免未被计入。$(br2)宴会最好在空旷的地方举办，方便客人前来。",
+      "_website_marker": true
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:invitation_letter",
+      "text": "持信右键桌子来举办宴会，同一时间内只能存在一场宴会。"
+    }
+  ]
+}

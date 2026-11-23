@@ -1,0 +1,33 @@
+{
+  "parent": "gensokyolegacy:main/obtain_anchor",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:treasure_tower"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_treasure_tower.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:treasure_tower"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_treasure_tower.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

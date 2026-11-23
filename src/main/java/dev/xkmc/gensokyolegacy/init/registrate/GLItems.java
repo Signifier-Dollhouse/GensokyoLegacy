@@ -74,7 +74,9 @@ import dev.xkmc.l2core.util.DCStack;
 import dev.xkmc.l2itemselector.init.data.L2ISTagGen;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -88,6 +90,8 @@ import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.SeededContainerLoot;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
@@ -132,6 +136,10 @@ public class GLItems {
 	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
 	public static final ItemEntry<UfoItem> BLUE_UFO, RED_UFO, GREEN_UFO;
+	public static final ItemEntry<GiftBoxItem> GIFT_BOX;
+
+	public static final ResourceKey<LootTable> GIFT_BOX_LOOT =
+			ResourceKey.create(Registries.LOOT_TABLE, GensokyoLegacy.loc("gift_box"));
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE, LUCKY_TEA, ZUN_BEER, GOLDEN_LOTUS_TEA;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
@@ -212,7 +220,6 @@ public class GLItems {
 	public static final DCVal<DowserHalf> DOWSER_HALF =
 			DC.enumVal("dowser_half", EnumCodec.of(DowserHalf.class, DowserHalf.values()));
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
-	public static final DCVal<ResourceLocation> UFO_LOOT = DC.loc("ufo_loot");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC,
 			ByteBufCodecs.fromCodecWithRegistries(PartyWandData.CODEC), false);
 	public static final DCVal<StructureMirrorData> STRUCTURE_MIRROR = DC.reg("structure_mirror",
@@ -384,6 +391,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Tengu Sake").register();
 
@@ -394,6 +402,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Ghost Sake").register();
 
@@ -431,6 +440,7 @@ public class GLItems {
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(6, 1000, GiftType.BOOK))
 					.dataMap(NeoForgeDataMaps.FURNACE_FUELS, new FurnaceFuel(40000))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(12, 24, 1, 1))
 					.lang("Obscure Magic Book").register();
 
@@ -457,6 +467,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.ALCOHOL))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(5, 10, 3, 6))
 					.lang("Zun Beer").register();
 
@@ -468,6 +479,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(2, 1000, GiftType.FOOD))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(2, 4, 3, 6))
 					.lang("Magic Candy").register();
 
@@ -492,8 +504,15 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 					.dataMap(GLMeta.GIFT_DATA.reg(), new GiftItemData(5, 1000, GiftType.COLLECTION))
 					.tag(GLTagGen.MORICHIKA_OFFERS)
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.dataMap(GLMeta.MORICHIKA_OFFER.reg(), new MorichikaOfferData(10, 20, 1, 1))
 					.lang("Fancy Fan").register();
+
+			// the box rolls its loot table on opening; a zero seed means a fresh roll each time
+			GIFT_BOX = reg.item("gift_box", p -> new GiftBoxItem(p.stacksTo(16).rarity(Rarity.UNCOMMON)
+							.component(DataComponents.CONTAINER_LOOT, new SeededContainerLoot(GIFT_BOX_LOOT, 0L))))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.lang("Gift Box").register();
 		}
 
 		// tools
@@ -823,14 +842,17 @@ public class GLItems {
 			BLUE_UFO = reg.item("blue_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Blue UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 			RED_UFO = reg.item("red_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Red UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 			GREEN_UFO = reg.item("green_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Green UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))

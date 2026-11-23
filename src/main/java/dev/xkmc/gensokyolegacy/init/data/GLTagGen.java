@@ -34,6 +34,7 @@ public class GLTagGen {
 	public static final TagKey<Item> TOUHOU_HAT = item("touhou_hat");
 
 	public static final TagKey<Item> TALISMAN = item("talisman");
+	public static final TagKey<Item> UFO = item("ufo");
 
 	/**
 	 * The talisman papers themselves, without the folded charm every one of them turns into.
@@ -41,6 +42,11 @@ public class GLTagGen {
 	public static final TagKey<Item> TALISMAN_PAPERS = item("talisman_papers");
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
+
+	/**
+	 * The gifts among {@link #MORICHIKA_OFFERS}: what the gift box can contain.
+	 */
+	public static final TagKey<Item> MORICHIKA_GIFTS = item("morichika_gifts");
 
 	/**
 	 * Items carrying a {@code spiritual_power_max} component, so an advancement can ask for any of them.

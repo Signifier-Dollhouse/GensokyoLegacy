@@ -1,8 +1,8 @@
 {
-  "name": "客人的回礼",
+  "name": "Guest Gifts",
   "icon": "gensokyolegacy:sturdy_teddy_bear",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 4,
+  "category": "gensokyolegacy:character",
+  "sortnum": 6,
   "pages": [
     {
       "type": "patchouli:spotlight",
@@ -17,7 +17,7 @@
         "gensokyolegacy:magic_book",
         "gensokyolegacy:fancy_fan"
       ],
-      "text": "每位在你桌上吃过东西的客人都会留下回礼。"
+      "text": "Every guest who ate from your table leaves something behind. The quality of the gift is judged by the appeal — the total saturation of the different dishes she ate. See JEI for the details."
     }
   ]
 }

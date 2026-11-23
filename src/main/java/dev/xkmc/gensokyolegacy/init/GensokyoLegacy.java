@@ -27,6 +27,7 @@ import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeModifierGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLOverworldRegion;
 import dev.xkmc.gensokyolegacy.init.data.biome.biomes.*;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
+import dev.xkmc.gensokyolegacy.init.data.loot.GiftBoxLootGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.*;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
@@ -167,6 +168,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftLootGen::genLoot);
+		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftBoxLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
 		var init = REGISTRATE.getDataGenInitializer();

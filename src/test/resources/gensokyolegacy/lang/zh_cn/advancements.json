@@ -18,9 +18,17 @@
 					"title": "香霖堂",
 					"description": "进入魔法森林中的香霖堂"
 				},
+				"suwako_hat": {
+					"title": "诹访子的帽子",
+					"description": "给青蛙戴上草帽"
+				},
 				"enter_alice_house": {
 					"title": "爱丽丝小屋",
 					"description": "进入魔法森林中爱丽丝的小屋"
+				},
+				"enter_myouren_temple": {
+					"title": "命莲寺",
+					"description": "进入命莲寺"
 				},
 				"alchemy": {
 					"title": "炼金锅",
@@ -57,6 +65,10 @@
 				"obtain_broom": {
 					"title": "飞行扫帚",
 					"description": "获得飞行扫帚"
+				},
+				"koishi_hat": {
+					"title": "帽子先生",
+					"description": "获得帽子先生"
 				},
 				"obtain_mini_hakkero": {
 					"title": "迷你八卦炉",
@@ -105,6 +117,22 @@
 				"obtain_wings": {
 					"title": "翅膀",
 					"description": "获得一对翅膀"
+				},
+				"obtain_treasure_basket": {
+					"title": "百宝篮",
+					"description": "获得百宝篮"
+				},
+				"obtain_anchor": {
+					"title": "村纱水蜜的锚",
+					"description": "获得村纱水蜜的锚"
+				},
+				"obtain_treasure_tower": {
+					"title": "宝塔",
+					"description": "获得宝塔"
+				},
+				"obtain_nue_trident": {
+					"title": "鵺的三叉戟",
+					"description": "获得鵺的三叉戟"
 				},
 				"gravestone_summon": {
 					"title": "墓碑供奉",

@@ -55,7 +55,7 @@ Stock = max times tradeable per refresh; Refresh = ticks until restock (20 ticks
 | `swap_coin_to_emerald` | none | coin ×1 | emerald ×1 | 16 | 24000 |
 | `offer_strange_glasses` | none | coin ×8 | strange glasses ×1 | 1 | 24000 |
 | `offer_guide_book` | adv `main/welcome` | coin ×1 | tools guide (Patchouli book) ×1 | 1 | 24000 |
-| `offer_koishi_hat` | adv `gensokyolegacy:koishi_hat` | coin ×32 | koishi hat ×1 | 1 | 168000 |
+| `offer_koishi_hat` | adv `gensokyolegacy:main/koishi_hat` | coin ×32 | koishi hat ×1 | 1 | 168000 |
 | `offer_dagger_glove` | adv `main/obtain_iron_dagger` | coin ×24 | dagger glove ×1 | 1 | 168000 |
 | `offer_sekibanki_head` | rep ≥ 80 | coin ×48 | Sekibanki's head ×1 | 1 | 168000 |
 

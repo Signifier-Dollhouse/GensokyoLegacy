@@ -8,12 +8,12 @@
 		{
 			"type": "patchouli:spotlight",
 			"item": "gensokyolegacy:fairy_wings",
-			"text": "仿制的妖精翅膀。离开地面就能飘起来。移动速度不快，但是适合跨越复杂地形。副作用是让玩家变得孱弱。"
+			"text": "仿制的妖精翅膀，能像妖精一样漂浮，适合跨越复杂地形，但会让玩家变得孱弱。"
 		},
 		{
 			"type": "patchouli:spotlight",
 			"item": "gensokyolegacy:ice_wings",
-			"text": "仿制的冰晶翅膀。比妖精翅膀飞得更高。副作用是让玩家变傻。"
+			"text": "仿制的冰晶翅膀，能让玩家低速飞行，副作用是...？"
 		}
 	]
 }

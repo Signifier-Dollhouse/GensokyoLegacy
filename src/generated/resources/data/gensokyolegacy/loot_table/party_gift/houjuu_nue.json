@@ -33,7 +33,9 @@
           "functions": [
             {
               "components": {
-                "gensokyolegacy:ufo_loot": "gensokyolegacy:gift/ufo"
+                "minecraft:container_loot": {
+                  "loot_table": "gensokyolegacy:gift/ufo"
+                }
               },
               "function": "minecraft:set_components"
             }
@@ -46,7 +48,9 @@
           "functions": [
             {
               "components": {
-                "gensokyolegacy:ufo_loot": "gensokyolegacy:gift/ufo"
+                "minecraft:container_loot": {
+                  "loot_table": "gensokyolegacy:gift/ufo"
+                }
               },
               "function": "minecraft:set_components"
             }
@@ -59,7 +63,9 @@
           "functions": [
             {
               "components": {
-                "gensokyolegacy:ufo_loot": "gensokyolegacy:gift/ufo"
+                "minecraft:container_loot": {
+                  "loot_table": "gensokyolegacy:gift/ufo"
+                }
               },
               "function": "minecraft:set_components"
             }

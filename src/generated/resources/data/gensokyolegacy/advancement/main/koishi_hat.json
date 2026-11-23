@@ -1,0 +1,29 @@
+{
+  "parent": "gensokyolegacy:main/obtain_broom",
+  "criteria": {
+    "0": {
+      "trigger": "gensokyolegacy:koishi_hat"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.koishi_hat.description"
+    },
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:koishi_hat"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.koishi_hat.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

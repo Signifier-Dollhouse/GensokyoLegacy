@@ -1,8 +1,8 @@
 {
-  "name": "Guest Gifts",
+  "name": "客人的回礼",
   "icon": "gensokyolegacy:sturdy_teddy_bear",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 4,
+  "category": "gensokyolegacy:character",
+  "sortnum": 6,
   "pages": [
     {
       "type": "patchouli:spotlight",
@@ -17,7 +17,7 @@
         "gensokyolegacy:magic_book",
         "gensokyolegacy:fancy_fan"
       ],
-      "text": "Every guest who ate from your table leaves something behind."
+      "text": "每位在你桌上吃过东西的客人都会留下回礼，客人会根据吸引力（吃过的不同菜品的总饱和）来判断奖励品质，详见JEI。"
     }
   ]
 }

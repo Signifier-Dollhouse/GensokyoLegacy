@@ -1,0 +1,29 @@
+{
+  "parent": "gensokyolegacy:main/enter_morichika_shop",
+  "criteria": {
+    "0": {
+      "trigger": "gensokyolegacy:suwako_wear"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.suwako_hat.description"
+    },
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:suwako_hat"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.suwako_hat.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

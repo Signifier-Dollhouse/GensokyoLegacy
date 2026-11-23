@@ -13,11 +13,11 @@
         "gensokyolegacy:morichika_bed"
       ],
       "title": "Made to Order",
-      "text": "Each bed belongs to one character and cannot be claimed twice. Stand one in a room of the matching house and that character takes it as hers. You cannot sleep in it, and it is not your respawn point either."
+      "text": "Every naturally spawned character has a bed of her own; a character without one vanishes where the player cannot see. Players cannot use a character bed, nor set their spawn point on one."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)What they do$()$(br)Right-clicking a bed does nothing at all. Once a character has claimed one, she sleeps in it through the night, and works as her respawn point."
+      "text": "$(bold)What it is for$()$(br)Inside a structure, the bed is the character's spawn point; even if she is lost or dies by accident, she will revive on this bed.$(br2)$(bold)Placing$()$(br)But be warned: any attempt to move the bed may make it fail, so do not move it at will, or the character may be wiped."
     }
   ]
 }

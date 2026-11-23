@@ -1,0 +1,24 @@
+{
+  "name": "Hosting a Banquet",
+  "icon": "gensokyolegacy:invitation_letter",
+  "category": "gensokyolegacy:character",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:plate",
+      "text": "A banquet needs a table, food and seats.$(br2)Keep the table no more than two blocks wide if you can: that way there is floor on every side of it, and a guest will not end up eating on the tabletop.$(br2)Besides the mod's own plated food, placeable dishes from Farmer's Delight, Kaleidoscope and the like are supported as well."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:gensokyolegacy:stool",
+      "text": "The tables and chairs here are this mod's own seats; any within 3 blocks of one another count as the same banquet. Spreading them out helps guests move about and take food, but not so far that they stop counting.$(br2)A banquet is best held in an open place, where guests can easily come.",
+      "_website_marker": true
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:invitation_letter",
+      "text": "Right-click a table with a letter to hold a banquet. Only one banquet can be under way at a time."
+    }
+  ]
+}

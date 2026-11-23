@@ -1,0 +1,33 @@
+{
+  "parent": "gensokyolegacy:main/enter_myouren_temple",
+  "criteria": {
+    "0": {
+      "conditions": {
+        "items": [
+          {
+            "items": "gensokyolegacy:treasure_basket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.gensokyolegacy.main.obtain_treasure_basket.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "gensokyolegacy:treasure_basket"
+    },
+    "title": {
+      "translate": "advancements.gensokyolegacy.main.obtain_treasure_basket.title"
+    }
+  },
+  "requirements": [
+    [
+      "0"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
