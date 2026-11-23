@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -25,8 +26,7 @@ public class DevilScrollEventHandlers {
 
 	private static final double LAUNCH_UP = 1.0;
 	private static final double SLAM_DOWN = -1.5;
-	private static final double KNOCK_HORIZONTAL = 0.4;
-	private static final float GROUND_STRENGTH = 1.5F;
+	private static final double KNOCK_SPEED = 2.0;
 
 	@SubscribeEvent
 	public static void onDamage(LivingDamageEvent.Post event) {
@@ -62,13 +62,22 @@ public class DevilScrollEventHandlers {
 		} else if (!player.onGround()) {
 			launch(event, target, SLAM_DOWN);
 		} else {
-			event.setStrength(Math.max(event.getStrength(), GROUND_STRENGTH));
+			launch(event, target, 0);
 		}
 	}
 
 	/**
-	 * Cancelling is what lets the vertical variants work: vanilla caps the on-ground lift at 0.4 and
-	 * halves the target's velocity, so the custom variants set the whole motion themselves.
+	 * Dash hits knock the target along the dash direction instead of away from the player.
+	 */
+	public static void applyKnockback(LivingEntity target, Vec3 dir, double speed) {
+		if (target instanceof Player player && DevilScrollItem.isSuperhuman(player)) return;
+		double len = dir.length();
+		setMotion(target, len > 1e-6 ? dir.scale(speed / len) : Vec3.ZERO);
+	}
+
+	/**
+	 * Every variant overwrites the whole motion: vanilla halves the target's velocity and caps the
+	 * on-ground lift, so the target's previous speed is ignored.
 	 */
 	private static void launch(LivingKnockBackEvent event, LivingEntity target, double y) {
 		event.setCanceled(true);
@@ -76,13 +85,17 @@ public class DevilScrollEventHandlers {
 		double z = event.getRatioZ();
 		double len = Math.sqrt(x * x + z * z);
 		if (len > 1e-5) {
-			x = -x / len * KNOCK_HORIZONTAL;
-			z = -z / len * KNOCK_HORIZONTAL;
+			x = -x / len * KNOCK_SPEED;
+			z = -z / len * KNOCK_SPEED;
 		} else {
 			x = 0;
 			z = 0;
 		}
-		target.setDeltaMovement(x, y, z);
+		setMotion(target, new Vec3(x, y, z));
+	}
+
+	private static void setMotion(LivingEntity target, Vec3 v) {
+		target.setDeltaMovement(v);
 		target.hasImpulse = true;
 		if (target instanceof Player player) player.hurtMarked = true;
 	}

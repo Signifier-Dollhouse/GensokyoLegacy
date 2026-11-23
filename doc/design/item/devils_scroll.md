@@ -167,13 +167,14 @@ attacker is `target.getLastHurtByMob()`.
 |---|---|
 | sneaking | cancel the event; set the target's velocity to a strong **upward** launch (`y = 1.0`) |
 | airborne, not sneaking | cancel the event; set the target's velocity to a strong **downward** slam (`y = -1.5`) |
-| on the ground, not sneaking | keep the event; raise `strength` to at least `1.5` for a heavy horizontal shove |
+| on the ground, not sneaking | cancel the event; set the target's velocity to a heavy **horizontal** shove (`y = 0`) |
 
-Sneaking wins over airborne when both are true. Cancelling is what lets the vertical variants work:
-vanilla caps the on-ground vertical at `0.4`, and it also halves the target's existing velocity, so
-the custom variants set the whole velocity themselves. The horizontal part is kept from the event's
-ratios, pointing away from the player. Both variants flag `hasImpulse` and, for a player target,
-`hurtMarked` so the server sends the motion.
+Sneaking wins over airborne when both are true. All three variants cancel the event and call
+`setDeltaMovement` themselves, at a horizontal speed of `2`: vanilla caps the on-ground vertical at
+`0.4` and halves the target's existing velocity, so overriding the whole motion ignores the target's
+previous speed. The horizontal direction is kept from the event's ratios, pointing away from the
+player. Each variant flags `hasImpulse` and, for a player target, `hurtMarked` so the server sends
+the motion.
 
 The handler only reacts when the attacker is a player holding the scroll in the main hand in
 Superhuman mode. The target's own knockback immunity check (§5.2) runs first and returns.
@@ -193,8 +194,11 @@ Right-click in the main hand in Superhuman mode:
    that is not the player, not an ally, not a passive animal/villager and still alive:
    - hurts it with `player.damageSources().playerAttack(player)` for the player's
      `ATTACK_DAMAGE` (which includes the scroll's `+7`);
-   - lets vanilla's `hurt` apply its knockback, which the §5.3 handler then turns into the
-     superhuman variant.
+   - on a successful hit, snaps it `2` blocks from the player along the full 3D **dash direction**
+     (y included) with an entity `move`, so walls stop the snap, then knocks it along the same
+     direction at speed `3` with `setDeltaMovement`, ignoring its previous speed and the
+     player-state rule of §5.3. This runs after `hurt`, so it replaces the knockback that hit just
+     applied.
    A `List<Integer>` of already-hit entity ids stops one entity being hit twice in a single dash.
    Targets are filtered with `GrazeHelper.shouldPlayerHurt`, the same test danmaku uses.
 4. The ticker ends after 10 ticks or when the player's speed drops below `0.2` blocks/tick (a wall).
@@ -429,7 +433,8 @@ strings are never emitted.
 - `BYPASS_COOLDOWN`: two clicks inside the target's i-frames both deal damage.
 - Jump Boost II is permanent while held in Superhuman; falling from a height deals no damage; a
   zombie's hit does not move the player.
-- Knockback: a ground hit shoves hard, a sneaking hit launches up, an airborne hit slams down.
+- Knockback: a ground hit shoves hard, a sneaking hit launches up, an airborne hit slams down, and
+  a dash hit snaps the target in front of the player and knocks it along the dash direction.
 - Dash: right-click moves about three blocks on the first tick, hits every entity in the path once,
   does not hit allies, and respects its cooldown.
 - Aim cache: in Superhuman mode with the scroll in the main hand, the crosshair target glows orange;

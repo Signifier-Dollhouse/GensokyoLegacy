@@ -5,9 +5,11 @@ import dev.xkmc.danmakuapi.content.spell.item.ItemSpell;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.danmakuapi.content.spell.spellcard.Ticker;
 import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
+import dev.xkmc.gensokyolegacy.event.DevilScrollEventHandlers;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 public class DevilScrollDash extends ItemSpell {
 
 	private static final double SPEED = 3;
+	private static final double KNOCK_SPEED = 3;
+	private static final double SNAP_DIST = 2;
 	private static final int DURATION = 10;
 	private static final double MIN_SPEED = 0.2;
 	private static final double HIT_INFLATE = 0.5;
@@ -72,10 +76,24 @@ public class DevilScrollDash extends ItemSpell {
 					e -> e != player && e.isAlive() && !hit.contains(e.getId())
 							&& GrazeHelper.shouldPlayerHurt(player, e))) {
 				hit.add(e.getId());
-				e.hurt(player.damageSources().playerAttack(player), damage);
+				if (e.hurt(player.damageSources().playerAttack(player), damage)) {
+					snap(e, player, spell.dir);
+					DevilScrollEventHandlers.applyKnockback(e, spell.dir, KNOCK_SPEED);
+				}
 			}
 			from = to;
 			return tick > DURATION || player.getDeltaMovement().length() < MIN_SPEED;
+		}
+
+		/**
+		 * Moves the target {@link #SNAP_DIST} blocks ahead along the full 3D dash direction. It is an
+		 * entity move, so block collisions stop or deflect the snap instead of teleporting through walls.
+		 */
+		private static void snap(LivingEntity target, Player player, Vec3 dir) {
+			double len = dir.length();
+			if (len < 1e-5) return;
+			Vec3 pos = player.position().add(dir.scale(SNAP_DIST / len));
+			target.move(MoverType.SELF, pos.subtract(target.position()));
 		}
 
 	}
