@@ -2,14 +2,17 @@
 	"name": "鵺的三叉戟",
 	"icon": "gensokyolegacy:nue_trident",
 	"category": "gensokyolegacy:special_tools",
+	"advancement": "gensokyolegacy:main/obtain_nue_trident",
 	"sortnum": 13,
 	"pages": [
 		{
-			"type": "patchouli:text",
+			"type": "patchouli:spotlight",
+			"item": "gensokyolegacy:nue_trident",
 			"text": "$(bold)正体不明$()$(br)被三叉戟击中时，生物手上的物品会被替换为 UFO，死亡时必定掉落 "
 		},
 		{
-			"type": "patchouli:text",
+			"type": "patchouli:spotlight",
+			"item": "tag:gensokyolegacy:ufo",
 			"text": "$(bold)揭开它的面纱$()$(br)手持UFO按住右键两秒，就能取回其中的物品。"
 		}
 	]

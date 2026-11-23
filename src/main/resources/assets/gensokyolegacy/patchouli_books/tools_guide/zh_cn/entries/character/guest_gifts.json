@@ -1,8 +1,8 @@
 {
   "name": "客人的回礼",
   "icon": "gensokyolegacy:sturdy_teddy_bear",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 4,
+  "category": "gensokyolegacy:character",
+  "sortnum": 6,
   "pages": [
     {
       "type": "patchouli:spotlight",
@@ -10,6 +10,7 @@
         "gensokyolegacy:sturdy_teddy_bear",
         "gensokyolegacy:magic_candy",
         "gensokyolegacy:kappa_bento",
+        "gensokyolegacy:ghost_dango",
         "gensokyolegacy:lucky_tea",
         "gensokyolegacy:tengu_sake",
         "gensokyolegacy:ghost_sake",

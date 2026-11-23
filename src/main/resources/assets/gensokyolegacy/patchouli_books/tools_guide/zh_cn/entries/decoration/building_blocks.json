@@ -21,10 +21,12 @@
         "gensokyolegacy:red_lantern",
         "gensokyolegacy:white_lantern",
         "gensokyolegacy:lettered_red_lantern",
-        "gensokyolegacy:lettered_white_lantern"
+        "gensokyolegacy:lettered_white_lantern",
+        "gensokyolegacy:paper_lantern",
+        "gensokyolegacy:green_frame_lantern"
       ],
       "title": "灯笼",
-      "text": "有四种变体，用于装饰性照明。"
+      "text": "有六种变体，用于装饰性照明。"
     },
     {
       "type": "patchouli:spotlight",
@@ -75,6 +77,22 @@
       ],
       "title": "冰砖",
       "text": "baka看了都能学会。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:myouren_bricks",
+        "gensokyolegacy:myouren_brick_stairs",
+        "gensokyolegacy:myouren_brick_slab",
+        "gensokyolegacy:myouren_brick_vertical_slab",
+        "gensokyolegacy:myouren_fence",
+        "gensokyolegacy:myouren_flag",
+        "gensokyolegacy:flagpole",
+        "gensokyolegacy:myouren_donation_box",
+        "gensokyolegacy:locust_plaque"
+      ],
+      "title": "命莲寺方块",
+      "text": "四块闪长岩围着一块灵魂土，可以合成四块白砖，另有楼梯、台阶和竖台阶。栅栏整格宽，不与相邻的栅栏连接。两格高的旗帜和三格宽的赛钱箱是命莲寺的样式。槐木牌匾两格高，挂在墙上；创造模式下手持物品对空气右键，可以切换正反两面。"
     }
   ]
 }

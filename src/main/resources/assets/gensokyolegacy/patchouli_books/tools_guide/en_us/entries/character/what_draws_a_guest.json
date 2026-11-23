@@ -1,8 +1,8 @@
 {
   "name": "Notes on Inviting Guests",
   "icon": "minecraft:golden_carrot",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 2,
+  "category": "gensokyolegacy:character",
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:text",

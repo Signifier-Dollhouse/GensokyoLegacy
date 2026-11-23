@@ -49,7 +49,7 @@
 			"item_submit_pass": "所有条件均已满足"
 		},
 		"missing_tower": {
-			"pickup": "你托起了失落的寻宝塔",
+			"pickup": "你托起了失落的宝塔",
 			"carried": "你已经带着一座宝塔了",
 			"not_started": "你没有理由拿走这座宝塔"
 		},
@@ -93,7 +93,7 @@
 			"shelf_stock": "库存：%s",
 			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机",
 			"treasure_tower_tag": "石头标签：#%s",
-			"treasure_tower_note": "宝石会被消耗，寻宝塔飞出发射后回到手中"
+			"treasure_tower_note": "宝石会被消耗，宝塔飞出发射后回到手中"
 		}
 	},
 	"jei": {
@@ -104,7 +104,7 @@
 			"gift": "宴会赠礼",
 			"interaction": "互动",
 			"shelf_offer": "森近霖之助的货架商品",
-			"treasure_tower": "寻宝塔"
+			"treasure_tower": "宝塔"
 		}
 	},
 	"death.attack": {

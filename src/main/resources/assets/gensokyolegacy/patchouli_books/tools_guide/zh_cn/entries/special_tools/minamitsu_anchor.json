@@ -2,6 +2,7 @@
 	"name": "村纱水蜜的锚",
 	"icon": "gensokyolegacy:minamitsu_anchor",
 	"category": "gensokyolegacy:special_tools",
+	"advancement": "gensokyolegacy:main/obtain_anchor",
 	"sortnum": 12,
 	"pages": [
 		{
