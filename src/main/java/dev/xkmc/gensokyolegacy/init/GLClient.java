@@ -185,6 +185,7 @@ public class GLClient {
 		if (renderer instanceof LivingEntityRenderer ler && ler.getModel() instanceof HumanoidModel) {
 			ler.addLayer(new TouhouHatLayer<>(ler));
 			ler.addLayer(new IceWingsLayer<>(ler));
+			ler.addLayer(new DevilScrollLayer<>(ler));
 		}
 	}
 

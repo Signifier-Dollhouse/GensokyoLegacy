@@ -1,6 +1,24 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gensokyolegacy:item/tool/devils_scroll_superhuman"
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "gensokyolegacy:item/tool/devils_scroll_superhuman"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "firstperson_lefthand": {
+      "parent": "gensokyolegacy:custom/devils_scroll_passive"
+    },
+    "firstperson_righthand": {
+      "parent": "minecraft:item/air"
+    },
+    "thirdperson_lefthand": {
+      "parent": "gensokyolegacy:custom/devils_scroll_passive"
+    },
+    "thirdperson_righthand": {
+      "parent": "minecraft:item/air"
+    }
   }
 }

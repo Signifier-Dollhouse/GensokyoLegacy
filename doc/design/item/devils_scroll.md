@@ -48,7 +48,9 @@ wheel is how the player picks which trade they want.
 | `DevilScrollMode` | `content/item/devil/DevilScrollMode.java` | `PASSIVE / SUPERHUMAN / DEVIL`, display name, description, wheel entry |
 | `DevilScrollSelectionListener` | `content/item/devil/DevilScrollSelectionListener.java` | wheel/list registration and mode swap |
 | `DevilScrollModeWheel` | `content/item/devil/client/DevilScrollModeWheel.java` | the client wheel |
-| `DevilScrollModel` | `content/item/devil/DevilScrollModel.java` | one model per mode, selected by the mode predicate |
+| `DevilScrollModel` | `content/item/devil/DevilScrollModel.java` | per-mode icon plus the closed scroll in the hands that do not carry the layer, by `SeparateTransformsModel` |
+| `DevilScrollLayer` | `content/client/model/DevilScrollLayer.java` | draws the open scroll on the player (superhuman main hand, devil either hand) |
+| `DevilScrollLayerModel` / `DevilScrollAnimatable` | `content/client/model/` | the open scroll rig, skin and idle clip |
 | `DevilScrollDash` | `content/spell/item/DevilScrollDash.java` | `ItemSpell` that sets the dash velocity and runs the sweep ticker |
 | `DevilScrollAim` | `content/item/devil/client/DevilScrollAim.java` | client camera lock onto the cached target (§5.5) |
 | `DevilScrollEventHandlers` | `event/DevilScrollEventHandlers.java` | lasers on damage, fall immunity, knockback rules |
@@ -321,6 +323,9 @@ New:
 - `content/item/devil/DevilScrollMode.java`
 - `content/item/devil/DevilScrollSelectionListener.java`
 - `content/item/devil/DevilScrollModel.java`
+- `content/client/model/DevilScrollLayer.java`
+- `content/client/model/DevilScrollLayerModel.java`
+- `content/client/model/DevilScrollAnimatable.java`
 - `content/item/devil/client/DevilScrollModeWheel.java`
 - `content/item/devil/package-info.java`, `content/item/devil/client/package-info.java`
 - `content/spell/item/DevilScrollDash.java`
@@ -328,6 +333,11 @@ New:
 - `src/main/resources/assets/gensokyolegacy/textures/item/tool/devils_scroll.png` (passive)
 - `src/main/resources/assets/gensokyolegacy/textures/item/tool/devils_scroll_superhuman.png`
 - `src/main/resources/assets/gensokyolegacy/textures/item/tool/devils_scroll_devil.png`
+- `src/main/resources/assets/gensokyolegacy/textures/item/tool/devils_scroll_passive.png` (closed model)
+- `src/main/resources/assets/gensokyolegacy/models/custom/devils_scroll_passive.json` (closed model)
+- `src/main/resources/assets/gensokyolegacy/textures/geo/devils_scroll_superhuman.png` (open model)
+- `src/main/resources/assets/gensokyolegacy/geo/devils_scroll_superhuman.geo.json` (open model)
+- `src/main/resources/assets/gensokyolegacy/animations/devils_scroll_superhuman.animation.json`
 - this document
 
 Modified:
@@ -357,27 +367,64 @@ The item is added in the tools block, after `TAB` is built, so it lands in the c
 constructor applies `ATTRIBUTES` and `stacksTo(1)`. `L2ISTagGen.SELECTABLE` is what lets the item
 wheel open on the scroll.
 
-The three icons are **copies**, not references to the items they come from:
+The superhuman and devil icons are **copies**, not references to the items they come from:
 
-| mode | texture | copied from |
+| mode | texture | source |
 |---|---|---|
-| Passive | `item/tool/devils_scroll.png` | vanilla `item/book.png` |
-| Superhuman | `item/tool/devils_scroll_superhuman.png` | `item/gift/magic_book.png` (the obscure magic book) |
-| Devil | `item/tool/devils_scroll_devil.png` | vanilla `item/enchanted_book.png` |
+| Passive | `item/tool/devils_scroll.png` | new scroll art |
+| Superhuman | `item/tool/devils_scroll_superhuman.png` | copied from `item/gift/magic_book.png` (the obscure magic book) |
+| Devil | `item/tool/devils_scroll_devil.png` | copied from vanilla `item/enchanted_book.png` |
 
-Copying rather than pointing the model at `item/book` or `item/gift/magic_book` keeps the scroll's
-textures independent: the final art is a one-file replacement, and the source items can change
-without touching this item.
+Keeping the art local rather than pointing the model at `item/gift/magic_book` or
+`item/enchanted_book` keeps the scroll's textures independent: the final art is a one-file
+replacement, and the source items can change without touching this item.
 
-`DevilScrollModel` generates the base model from the passive icon and emits overrides at predicate
-values 1 and 2 for the other two. `DevilScrollItem.displayPredicate` returns the mode ordinal, so
-the model, the wheel and the selector list all agree:
+### 8.1 Item model
+
+The scroll is two models selected by `ItemDisplayContext`: the flat icon is the `base`, so the
+inventory, item frame and dropped item stay flat, and the four hand perspectives are the Blockbench
+closed scroll (`custom/devils_scroll_passive`). This is the `neoforge:separate_transforms` loader, as
+for the anchor.
+
+| mode | GUI icon | main hand | off hand |
+|---|---|---|---|
+| Passive | `devils_scroll` | closed | closed |
+| Superhuman | `devils_scroll_superhuman` | **empty** (`item/air`), open scroll is a layer | closed |
+| Devil | `devils_scroll_devil` | **empty** (`item/air`), open scroll is a layer | **empty** (`item/air`), open scroll is a layer |
+
+`DevilScrollModel` emits the base model and overrides at predicate values 1 and 2 for the other two
+modes. `DevilScrollItem.displayPredicate` returns the mode ordinal, so the model, the wheel and the
+selector list all agree:
 
 ```java
 public static float displayPredicate(ItemStack stack, Level level, LivingEntity entity, int seed) {
     return getMode(stack).ordinal();
 }
 ```
+
+The empty hands are deliberate: the open scroll is drawn on the player by `DevilScrollLayer`, so
+drawing the closed one as well would double it. That covers the superhuman main hand and both devil
+hands. Left-hand contexts use the same closed model; vanilla mirrors the right-hand transform for
+them.
+
+### 8.2 Player layer
+
+`DevilScrollLayer` is added beside the wings and hat layers in `GLClient#addCharacterLayers`, so it
+follows the same sweep over every humanoid renderer. It draws when:
+
+| hand | mode |
+|---|---|
+| main | `SUPERHUMAN` or `DEVIL` |
+| off | `DEVIL` |
+
+A superhuman off-hand scroll is a stat stick, so it stays closed. Devil mode reuses the superhuman
+geo, skin and `animation.devils_scroll_superhuman.idle` clip for now; only the texture lookup
+(`DevilScrollLayer#texture`) has to change when the devil art exists.
+
+The layer copies the wings transform: `Axis.ZN` by 180° cancels the entity model's `(-1, -1, 1)`, and
+`z = 4/16` brings the scroll's own `z = 0` plane out behind the back like the wings' `z = 4` rig.
+`y = 12/16` puts its centre on the upper back. The animation is started per frame from an
+`AnimationState`, keyed by the wearer's UUID so two players do not share a phase.
 
 `GLClient` registers the predicate under `gensokyolegacy:devils_scroll_mode`.
 
