@@ -1,8 +1,8 @@
 {
   "name": "请客须知",
   "icon": "minecraft:golden_carrot",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 2,
+  "category": "gensokyolegacy:character",
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:text",

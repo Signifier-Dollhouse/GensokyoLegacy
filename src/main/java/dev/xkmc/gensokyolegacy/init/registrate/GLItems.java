@@ -842,14 +842,17 @@ public class GLItems {
 			BLUE_UFO = reg.item("blue_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Blue UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 			RED_UFO = reg.item("red_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Red UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 			GREEN_UFO = reg.item("green_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
 					.lang("Green UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))

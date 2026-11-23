@@ -1,8 +1,8 @@
 {
   "name": "选菜指南",
   "icon": "minecraft:cake",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 3,
+  "category": "gensokyolegacy:character",
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:text",

@@ -1,8 +1,8 @@
 {
   "name": "Choosing the Menu",
   "icon": "minecraft:cake",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 3,
+  "category": "gensokyolegacy:character",
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:text",
