@@ -2,14 +2,16 @@
 
 A one-handed scroll with three stances — **Passive**, **Superhuman** and **Devil** — switched from
 the item wheel. It is a melee weapon in the main hand, a support charm in the off hand, a short
-dash, and a ring of orange lasers that answers every hit its bearer lands.
+dash that bends onto a target under the crosshair, and a ring of orange lasers that answers every
+hit its bearer lands.
 
 > **Status:** implemented. Numbers below are first guesses and are meant to be tuned; the playtest
 > checklist is §10.
 > **Package:** `content/item/devil/` (item, mode, selector, model), `content/spell/item/` (the dash
 > ticker), `event/` (damage, fall, knockback).
 > **Related:** `minamitsu_anchor.md` (mode wheel and selection listener), `dagger_glove.md`
-> (mode component and wheel), `fancy_fan.md` (a shove applied by hand rather than by a projectile).
+> (mode component and wheel), `doll/glove.md` (the shared crosshair target cache), `fancy_fan.md`
+> (a shove applied by hand rather than by a projectile).
 
 ## 1. What it is
 
@@ -29,6 +31,7 @@ The attributes apply in every mode. The modes gate the rest:
 | Jump Boost II, fall-damage immunity, knockback immunity | main hand + **Superhuman** |
 | special melee knockback (ground / sneaking / airborne) | main hand + **Superhuman** |
 | right-click dash | main hand + **Superhuman** |
+| dash aim assist + target glow (crosshair cache) | main hand + **Superhuman** |
 | four orange lasers on dealing damage | either hand + **Devil** |
 
 So a scroll in the off hand in Superhuman mode is only a stat stick, and a scroll in the main hand
@@ -40,12 +43,14 @@ wheel is how the player picks which trade they want.
 
 | Piece | File | Job |
 |---|---|---|
-| `DevilScrollItem` | `content/item/devil/DevilScrollItem.java` | item, attributes, `use` (dash), `inventoryTick` (jump boost), laser summon helper |
+| `DevilScrollItem` | `content/item/devil/DevilScrollItem.java` | item, attributes, `use` (dash), `inventoryTick` (jump boost), laser summon helper, the scroll's `GloveTargeting` |
+| `GloveTargetCache` / `GloveTargetAttachment` | `content/item/common/` | the shared crosshair target cache the dash reads (§5.5); no scroll-specific copy |
 | `DevilScrollMode` | `content/item/devil/DevilScrollMode.java` | `PASSIVE / SUPERHUMAN / DEVIL`, display name, description, wheel entry |
 | `DevilScrollSelectionListener` | `content/item/devil/DevilScrollSelectionListener.java` | wheel/list registration and mode swap |
 | `DevilScrollModeWheel` | `content/item/devil/client/DevilScrollModeWheel.java` | the client wheel |
 | `DevilScrollModel` | `content/item/devil/DevilScrollModel.java` | one model per mode, selected by the mode predicate |
 | `DevilScrollDash` | `content/spell/item/DevilScrollDash.java` | `ItemSpell` that sets the dash velocity and runs the sweep ticker |
+| `DevilScrollAim` | `content/item/devil/client/DevilScrollAim.java` | client camera lock onto the cached target (§5.5) |
 | `DevilScrollEventHandlers` | `event/DevilScrollEventHandlers.java` | lasers on damage, fall immunity, knockback rules |
 | `GLAttackListener` | `event/GLAttackListener.java` | adds the `BYPASS_COOLDOWN` state on `player_attack` |
 | `GLItems` | `init/registrate/GLItems.java` | item entry and `DEVILS_SCROLL_MODE` component |
@@ -177,12 +182,12 @@ Superhuman mode. The target's own knockback immunity check (§5.2) runs first an
 
 Right-click in the main hand in Superhuman mode:
 
-1. `use` checks the item cooldown (10 ticks), then calls
-   `SpellContainer.castSpell(sp, DevilScrollDash::new, null)`.
-2. `DevilScrollDash.start` sets the player's velocity to `dir * 3`, flags `hasImpulse` and
-   `hurtMarked`, and zeroes `fallDistance`. The `hurtMarked` flag is what makes the server send the
-   new motion, the same way the anchor's grapple does. It also records the pre-dash position for the
-   first sweep segment.
+1. `use` checks the item cooldown (10 ticks), resolves the crosshair aim target (§5.5), and calls
+   `SpellContainer.castSpell(sp, DevilScrollDash::new, target)`.
+2. `DevilScrollDash.start` bends `dir` onto the target when it is within 20° of the view (§5.5),
+   then sets the player's velocity to `dir * 3`, flags `hasImpulse` and `hurtMarked`, and zeroes
+   `fallDistance`. The `hurtMarked` flag is what makes the server send the new motion, the same way
+   the anchor's grapple does. It also records the pre-dash position for the first sweep segment.
 3. A `Ticker` runs for up to 10 ticks. Each tick it sweeps an `AABB` from the previous position to
    the current one, inflated by the player's half-width plus `0.5`, and for each new living entity
    that is not the player, not an ally, not a passive animal/villager and still alive:
@@ -197,6 +202,51 @@ Right-click in the main hand in Superhuman mode:
 `ItemSpell` is used only as the serialized per-player ticker container; the dash spawns no danmaku.
 Both the spell and its ticker carry `@SerialClass`, and every field that must survive a save is
 `@SerialField`, as in `YukariItemSpellLaser` and `SuikaSpell.ChargeTicker`.
+
+### 5.5 Aim assist
+
+The dash reads the same crosshair target cache as the glove items, by implementing
+`GloveTargeting` (`doll/glove.md` §2). There is no scroll-specific cache: `GloveTargetCache` traces
+the crosshair on the client, `GloveTargetPacket` feeds the hint to the server, and
+`GloveTargetAttachment` stores it per item.
+
+| member | value | why |
+|---|---|---|
+| `acceptsTarget` | mode `SUPERHUMAN`, main hand, a living entity the holder's danmaku could hurt | only the superhuman package can dash, and the off-hand scroll is a stat stick |
+| `targetRange` | 32 blocks | covers the dash's own reach (3 × 10 ticks) |
+| `targetTtl` | 40 ticks (2 s) | a glance at a target still aims a dash a moment later |
+| `blockedByBlocks` | false | the dash plows into the wall rather than refusing to aim at what stands behind it |
+| `targetGlow` | orange `0xFF8800` in `SUPERHUMAN` | the holder sees the cached target, as with the gloves |
+
+`use` resolves the hint on both sides. The server re-runs `acceptsTarget` and passes the target to
+`SpellContainer.castSpell`; `DevilScrollDash.start` then compares the view direction with the vector
+from the eye to the target's centre and replaces `dir` when the angle is under `AIM_COS` (20°) or the
+player is sneaking, so the dash bends onto the target. The client turns the camera
+(`setYRot` / `setXRot` / `setYHeadRot`) onto the same centre in two places: once on the dash click in
+`use`, and every client tick from `DevilScrollAim.lock`, driven by `GLClient`.
+
+The tick lock is what makes sneaking a held lock-on: while the player sneaks with a superhuman scroll
+in the main hand, the camera keeps tracking the cached target until the player stops sneaking or the
+target leaves the cache. The dash click also locks for the non-sneaking 20° case.
+
+The lock runs a second time from `RenderFrameEvent.Pre`, because `Minecraft.runTick` applies
+`mouseHandler.handleAccumulatedMovement()` after the client ticks and before the frame is drawn. A
+tick-only lock would therefore be overwritten by the mouse delta on every frame. That call passes
+the frame's `DeltaTracker` partial tick, so the camera aims at the target's **interpolated** position
+(`getPosition(partialTick)`, the same lerp the renderer uses) and at the player's interpolated eye:
+locking onto the raw tick position would make the view step at 20 Hz while the mob is drawn at frame
+rate. The tick call uses `1.0`, the current position, which is also what the server's dash reads.
+`lockView` also sets `xRotO` / `yRotO` to the locked angles, so the partial-tick camera lerp has
+nothing stale to blend in between the lock and the drawn frame.
+
+`AIM_COS` lives on `DevilScrollItem` so both sides read one number. The server's bend stays
+authoritative: the use packet can reach the server before the rotated movement packet, so the camera
+lock is presentation while the dash direction is the contract.
+
+**Sneaking skips the gate** on both sides and always takes the cached target: a sneak-dash commits
+to a target even off the crosshair, and the lock keeps the camera on it while the key is held.
+The rest of the dash is unchanged: it still needs a live cache entry, so this is "stop aiming, start
+committing", not "dash at anything".
 
 ## 6. Devil mode
 
@@ -221,8 +271,8 @@ are not excluded — only laser danmaku is, per the spec.
 
 ### 6.1 The four lasers
 
-Origins are four points around the player's eyes: the eye position offset `±0.5` vertically and
-`±0.5` along the player's horizontal right vector (the look vector crossed with up, normalised; a
+Origins are four points around the player's eyes: the eye position offset `±1.5` vertically and
+`±1.5` along the player's horizontal right vector (the look vector crossed with up, normalised; a
 straight-up look falls back to world +X).
 
 Each laser aims at the **target that was just damaged**: the direction is
@@ -362,6 +412,12 @@ strings are never emitted.
 - **Devil lasers and the dash**: the dash is a Superhuman action, so it only procs lasers when the
   *other* hand holds a Devil-mode scroll. That is consistent with the hand/mode table, but worth
   confirming in play.
+- **Aim assist window**: 20° is the spec's number; `TARGET_TTL` is 2 s and `TARGET_RANGE` is 32.
+  The range covers the dash's full travel, but the assist only changes the direction, not the
+  distance — a target 25 blocks away still eats a normal 10-tick dash. Widen the duration if the
+  assist is meant to close long gaps.
+- **Aim assist vs. wall**: `blockedByBlocks` is false, so a target behind a wall can glow and bend
+  the dash — which then stops at the wall. Set it to true if the glow should mean "reachable".
 
 ## 10. Playtest checklist
 
@@ -376,6 +432,14 @@ strings are never emitted.
 - Knockback: a ground hit shoves hard, a sneaking hit launches up, an airborne hit slams down.
 - Dash: right-click moves about three blocks on the first tick, hits every entity in the path once,
   does not hit allies, and respects its cooldown.
+- Aim cache: in Superhuman mode with the scroll in the main hand, the crosshair target glows orange;
+  the glow and the assist survive a 2 s pause and are gone after it; an off-hand Superhuman scroll
+  never glows.
+- Dash aim: right-clicking with a target under the crosshair bends the dash onto it and turns the
+  camera onto the same target; a target 30° off the view does neither while not sneaking.
+- Sneak lock: with a superhuman scroll in the main hand, sneaking keeps the camera on the cached
+  target every tick, at any angle; letting go of sneak or losing the target releases the lock. Moving
+  the mouse does not shake the locked view.
 - Lasers: four orange beams appear at the four head offsets, converge on the damaged target, take
   5/5 ticks to open, deal 6, last 20 ticks and fade over 5. A second hit 5 ticks later starts a new
   set. The lasers themselves never start another set. Arrows and bullets do start a set.

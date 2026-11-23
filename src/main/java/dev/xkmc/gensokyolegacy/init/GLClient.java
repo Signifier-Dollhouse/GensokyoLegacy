@@ -20,6 +20,7 @@ import dev.xkmc.gensokyolegacy.content.item.common.client.GloveTargetCache;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorItem;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
+import dev.xkmc.gensokyolegacy.content.item.devil.client.DevilScrollAim;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.DollGloveItem;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollAttackStatusOverlay;
@@ -101,12 +102,22 @@ public class GLClient {
 
 	@SubscribeEvent
 	public static void clientTick(ClientTickEvent.Post event) {
-		// the shared glove target cache (glove.md §2) traces for whichever gloves are held,
-		// so it is driven from one place rather than from every glove's inventoryTick
+		// the shared target cache (glove.md §2) traces for whichever targeting items are held,
+		// so it is driven from one place rather than from every item's inventoryTick
 		GloveTargetCache.tick();
+		// while sneaking with a superhuman scroll, the view stays locked onto that target
+		DevilScrollAim.lock(1.0F);
 		// after the level tick, so the head under a possessed camera reports the frame it
 		// just flew rather than the keys it has not pressed yet
 		HeadPossession.tick();
+	}
+
+	@SubscribeEvent
+	public static void renderFrame(RenderFrameEvent.Pre event) {
+		// the mouse turn is applied after the client tick, so the sneak lock is reapplied here,
+		// with the frame's partial tick so the camera follows the target as it is drawn, not
+		// as it stood on the last tick
+		DevilScrollAim.lock(event.getPartialTick().getGameTimeDeltaPartialTick(true));
 	}
 
 	@SubscribeEvent

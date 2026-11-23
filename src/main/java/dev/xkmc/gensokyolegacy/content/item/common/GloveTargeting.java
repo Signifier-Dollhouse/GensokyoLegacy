@@ -6,12 +6,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A glove that acts on whatever is under the holder's crosshair rather than on the entity they clicked -
- * the contract for the one shared ray-trace target cache (glove.md §2), implemented by the doll glove and
- * the dagger glove's homing mode (dagger_glove.md §2d). One client map and one server store, both keyed by
- * the glove's item, so two gloves in two hands keep two targets instead of fighting over one slot.
+ * A held item that acts on whatever is under the holder's crosshair rather than on the entity they
+ * clicked - the contract for the one shared ray-trace target cache (glove.md §2), implemented by the
+ * gloves, the Yuyuko fan's haunt mode and the Devil's Scroll's dash. One client map and one server
+ * store, both keyed by the item, so two hands keep two targets instead of fighting over one slot.
  * <p>
- * Everything glove-specific lives behind these four members - how far it looks, whether a wall vetoes the
+ * Everything item-specific lives behind these members - how far it looks, whether a wall vetoes the
  * shot, what it accepts, what colour its marker glows - so both sides run the same trace and check.
  *
  * @see "doc/design/item/dagger_glove.md"

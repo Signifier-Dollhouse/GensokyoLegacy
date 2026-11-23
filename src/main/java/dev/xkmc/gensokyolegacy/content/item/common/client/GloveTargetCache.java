@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Client-side ray-trace target cache (glove.md §2), shared by every {@link GloveTargeting} glove - the doll
- * glove and the dagger glove's homing mode (dagger_glove.md §2d).
+ * Client-side ray-trace target cache (glove.md §2), shared by every {@link GloveTargeting} item - the
+ * gloves, the Yuyuko fan's haunt mode and the Devil's Scroll's dash.
  * <p>
  * While the local player holds one, the crosshair entity within the glove's own range is cached per glove
  * item, re-synced to the server on every hit and glowing through {@code ClientGlowManager} in the held
@@ -41,7 +41,7 @@ public final class GloveTargetCache {
 	/** Server ticks per second, for turning a glove's TTL into the client-side linger. */
 	private static final long MILLIS_PER_TICK = 50;
 
-	private record Entry(@Nullable UUID target, long time) {
+	private record Entry(@Nullable UUID target, int id, long time) {
 	}
 
 	private static final Map<Item, Entry> ENTRIES = new HashMap<>();
@@ -87,9 +87,9 @@ public final class GloveTargetCache {
 						glove.acceptsTarget(stack, player, living),
 				range * range);
 		if (hit == null || from.distanceTo(hit.getLocation()) > blockDist) return;
-		UUID target = hit.getEntity().getUUID();
-		ENTRIES.put(stack.getItem(), new Entry(target, System.currentTimeMillis()));
-		GensokyoLegacy.HANDLER.toServer(new GloveTargetPacket(stack.getItem(), target));
+		Entity target = hit.getEntity();
+		ENTRIES.put(stack.getItem(), new Entry(target.getUUID(), target.getId(), System.currentTimeMillis()));
+		GensokyoLegacy.HANDLER.toServer(new GloveTargetPacket(stack.getItem(), target.getUUID()));
 	}
 
 	/**
@@ -117,6 +117,24 @@ public final class GloveTargetCache {
 		Entry entry = ENTRIES.get(stack.getItem());
 		return entry != null && entry.target != null && entry.target.equals(target.getUUID()) &&
 				System.currentTimeMillis() - entry.time < glove.targetTtl() * MILLIS_PER_TICK;
+	}
+
+	/**
+	 * The entity this stack's cache currently holds, or null: missing, stale, dead or a reused id all
+	 * read alike. Read at use time by an item that acts on the cached target (the scroll's aim lock).
+	 * Client-side only.
+	 */
+	@Nullable
+	public static LivingEntity clientTarget(ItemStack stack) {
+		if (!(stack.getItem() instanceof GloveTargeting glove)) return null;
+		Entry entry = ENTRIES.get(stack.getItem());
+		if (entry == null || entry.target == null) return null;
+		if (System.currentTimeMillis() - entry.time >= glove.targetTtl() * MILLIS_PER_TICK) return null;
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null || mc.level == null) return null;
+		if (!(mc.level.getEntity(entry.id) instanceof LivingEntity living)) return null;
+		if (!living.isAlive() || !living.getUUID().equals(entry.target)) return null;
+		return mc.player.distanceTo(living) > glove.targetRange() ? null : living;
 	}
 
 	/**

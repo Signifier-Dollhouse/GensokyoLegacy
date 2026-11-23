@@ -4,6 +4,7 @@ import dev.xkmc.danmakuapi.api.GrazeHelper;
 import dev.xkmc.danmakuapi.content.spell.item.ItemSpell;
 import dev.xkmc.danmakuapi.content.spell.spellcard.CardHolder;
 import dev.xkmc.danmakuapi.content.spell.spellcard.Ticker;
+import dev.xkmc.gensokyolegacy.content.item.devil.DevilScrollItem;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,6 +33,13 @@ public class DevilScrollDash extends ItemSpell {
 	@Override
 	public void start(LivingEntity entity, @Nullable LivingEntity target) {
 		super.start(entity, target);
+		if (target != null) {
+			Vec3 to = target.getBoundingBox().getCenter().subtract(entity.getEyePosition());
+			if (to.lengthSqr() > 1e-6) {
+				Vec3 aim = to.normalize();
+				if (entity.isShiftKeyDown() || dir.dot(aim) > DevilScrollItem.AIM_COS) dir = aim;
+			}
+		}
 		var ticker = new DashTicker();
 		ticker.from = entity.position();
 		addTicker(ticker);

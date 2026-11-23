@@ -1,14 +1,18 @@
 package dev.xkmc.gensokyolegacy.content.item.devil;
 
+import dev.xkmc.danmakuapi.api.IDanmakuEntity;
 import dev.xkmc.danmakuapi.content.entity.ItemLaserEntity;
 import dev.xkmc.danmakuapi.content.spell.item.SpellContainer;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuEntities;
 import dev.xkmc.danmakuapi.init.registrate.DanmakuItems;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
+import dev.xkmc.gensokyolegacy.content.item.common.GloveTargeting;
+import dev.xkmc.gensokyolegacy.content.item.devil.client.DevilScrollAim;
 import dev.xkmc.gensokyolegacy.content.spell.item.DevilScrollDash;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import dev.xkmc.l2itemselector.init.data.L2Keys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -32,6 +36,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -41,7 +46,26 @@ import java.util.List;
  *
  * @see "doc/design/item/devils_scroll.md"
  */
-public class DevilScrollItem extends Item {
+public class DevilScrollItem extends Item implements GloveTargeting {
+
+	/**
+	 * How far the superhuman aim assist reaches, matching the dash's own reach.
+	 */
+	public static final double TARGET_RANGE = 32;
+
+	/**
+	 * How long a traced target stays usable: two seconds, so a dash a moment after a glance still aims.
+	 */
+	public static final long TARGET_TTL = 40;
+
+	/**
+	 * Cosine of the 20° aim gate: the dash bends onto a cached target only when the view is this
+	 * close to it. Sneaking skips the gate. Both sides read the same value, so the camera lock and
+	 * the dash agree.
+	 */
+	public static final double AIM_COS = Math.cos(Math.toRadians(20));
+
+	private static final int TARGET_GLOW = 0xFF8800;
 
 	private static final int DASH_COOLDOWN = 10;
 	private static final int JUMP_DURATION = 40;
@@ -135,12 +159,18 @@ public class DevilScrollItem extends Item {
 			return InteractionResultHolder.fail(stack);
 		}
 		if (level.isClientSide()) {
+			// the server bends the dash; this turns the camera so the player sees the same lock
+			DevilScrollAim.lockView(player, stack);
 			return InteractionResultHolder.sidedSuccess(stack, true);
 		}
 		if (!(player instanceof ServerPlayer sp)) {
 			return InteractionResultHolder.fail(stack);
 		}
-		SpellContainer.castSpell(sp, DevilScrollDash::new, null);
+		// the shared target cache (glove.md §2): a hint the dash bends onto. Re-checked here, since
+		// the cache is client-fed and the hand or mode may have changed since it was traced.
+		LivingEntity target = GLMeta.GLOVE_TARGET.type().getOrCreate(sp).resolve(sp, stack);
+		if (target != null && !acceptsTarget(stack, sp, target)) target = null;
+		SpellContainer.castSpell(sp, DevilScrollDash::new, target);
 		sp.getCooldowns().addCooldown(this, DASH_COOLDOWN);
 		sp.swing(hand, true);
 		return InteractionResultHolder.sidedSuccess(stack, false);
@@ -192,6 +222,44 @@ public class DevilScrollItem extends Item {
 			laser.setPos(origin);
 			EntityStorageHelper.fastAdd(level, laser);
 		}
+	}
+
+	// ---------- shared target cache (glove.md §2) ----------
+
+	@Override
+	public double targetRange() {
+		return TARGET_RANGE;
+	}
+
+	/**
+	 * False: the dash plows into what stands in the way rather than refusing to aim at it.
+	 */
+	@Override
+	public boolean blockedByBlocks() {
+		return false;
+	}
+
+	@Override
+	public long targetTtl() {
+		return TARGET_TTL;
+	}
+
+	/**
+	 * Only the superhuman package aims, and only from the main hand: the off-hand scroll is a stat
+	 * stick, so it must not light up a target it can never dash at.
+	 */
+	@Override
+	public boolean acceptsTarget(ItemStack stack, Player holder, LivingEntity candidate) {
+		return getMode(stack) == DevilScrollMode.SUPERHUMAN
+				&& holder.getMainHandItem() == stack
+				&& candidate != holder && !candidate.isSpectator()
+				&& IDanmakuEntity.canHurt(holder, candidate);
+	}
+
+	@Nullable
+	@Override
+	public Integer targetGlow(ItemStack stack) {
+		return getMode(stack) == DevilScrollMode.SUPERHUMAN ? TARGET_GLOW : null;
 	}
 
 }
