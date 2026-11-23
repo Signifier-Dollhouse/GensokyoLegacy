@@ -35,13 +35,15 @@ import java.util.Optional;
 
 public class GLAdvGen {
 	public static final ResourceLocation KOISHI_FIRST = GensokyoLegacy.loc("koishi_first");
-	public static final ResourceLocation KOISHI_HAT = GensokyoLegacy.loc("koishi_hat");
+	public static final ResourceLocation KOISHI_HAT = GensokyoLegacy.loc("main/koishi_hat");
+	public static final ResourceLocation SUWAKO_HAT = GensokyoLegacy.loc("main/suwako_hat");
 
 	public static final ResourceLocation WELCOME = GensokyoLegacy.loc("main/welcome");
 	public static final ResourceLocation ENTER_HAKUREI_SHRINE = GensokyoLegacy.loc("main/enter_hakurei_shrine");
 	public static final ResourceLocation ENTER_MARISA_HOUSE = GensokyoLegacy.loc("main/enter_marisa_house");
 	public static final ResourceLocation ENTER_MORICHIKA_SHOP = GensokyoLegacy.loc("main/enter_morichika_shop");
 	public static final ResourceLocation ENTER_ALICE_HOUSE = GensokyoLegacy.loc("main/enter_alice_house");
+	public static final ResourceLocation ENTER_MYOUREN_TEMPLE = GensokyoLegacy.loc("main/enter_myouren_temple");
 
 	public static final ResourceLocation ALCHEMY = GensokyoLegacy.loc("main/alchemy");
 	public static final ResourceLocation OBTAIN_DOLL_GLOVE = GensokyoLegacy.loc("main/obtain_doll_glove");
@@ -63,6 +65,10 @@ public class GLAdvGen {
 	public static final ResourceLocation OBTAIN_FAIRY_ICE_CRYSTAL = GensokyoLegacy.loc("main/obtain_fairy_ice_crystal");
 	public static final ResourceLocation OBTAIN_FROZEN_FROG = GensokyoLegacy.loc("main/obtain_frozen_frog");
 	public static final ResourceLocation OBTAIN_WINGS = GensokyoLegacy.loc("main/obtain_wings");
+	public static final ResourceLocation OBTAIN_TREASURE_BASKET = GensokyoLegacy.loc("main/obtain_treasure_basket");
+	public static final ResourceLocation OBTAIN_ANCHOR = GensokyoLegacy.loc("main/obtain_anchor");
+	public static final ResourceLocation OBTAIN_TREASURE_TOWER = GensokyoLegacy.loc("main/obtain_treasure_tower");
+	public static final ResourceLocation OBTAIN_NUE_TRIDENT = GensokyoLegacy.loc("main/obtain_nue_trident");
 
 	public static final ResourceLocation GRAVESTONE_SUMMON = GensokyoLegacy.loc("main/gravestone_summon");
 	public static final ResourceLocation BIND_GHOST = GensokyoLegacy.loc("main/bind_ghost");
@@ -102,9 +108,6 @@ public class GLAdvGen {
 		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_first",
 				GLCriteriaTriggers.KOISHI_FIRST.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
 		).build(KOISHI_FIRST));
-		pvd.accept(Advancement.Builder.advancement().addCriterion("koishi_hat",
-				GLCriteriaTriggers.KOISHI_HAT.get().createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty()))
-		).build(KOISHI_HAT));
 
 		var gen = new AdvancementGenerator(pvd, GensokyoLegacy.MODID);
 		var tab = gen.new TabBuilder("main");
@@ -135,6 +138,12 @@ public class GLAdvGen {
 				CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
 						LocationPredicate.Builder.inStructure(resolve(pvd, "morichika_shop")))),
 				"Kourindou", "Enter Morichika's shop in the Magical Forest");
+		// Hidden until unlocked: the page it gates explains the straw hat Morichika sells, so
+		// the frog that receives it is the right place to reveal the hat behind the trade.
+		morichika.create("suwako_hat", GLItems.SUWAKO_HAT.get(),
+						CriterionBuilder.player(GLCriteriaTriggers.SUWAKO_WEAR.get()),
+						"Suwako Hat", "Give a frog a straw hat")
+				.type(AdvancementType.TASK, false, false, true);
 		// Purple is the last of Alice's seven dyes, and the glove she weaves
 		// them into hangs off this branch rather than off Marisa's alchemy pot.
 		var aliceHouse = root.create("enter_alice_house", Items.PURPLE_DYE,
@@ -151,10 +160,15 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLBlocks.SEALING_POT.asItem()),
 						"Sealing Pot", "Obtain a Sealing Pot")
 				.type(AdvancementType.TASK, false, false, false);
-		alchemy.create("obtain_broom", GLItems.BROOM.get(),
+		var broom = alchemy.create("obtain_broom", GLItems.BROOM.get(),
 						CriterionBuilder.item(GLItems.BROOM.get()),
 						"Flying Broom", "Obtain a Flying Broom")
 				.type(AdvancementType.TASK, false, false, false);
+		// Hidden until unlocked: it only gates the Patchouli page for the hat Koishi drops.
+		broom.create("koishi_hat", GLItems.KOISHI_HAT.get(),
+						CriterionBuilder.player(GLCriteriaTriggers.KOISHI_HAT.get()),
+						"Mr. Hat", "Obtain Mr. Hat")
+				.type(AdvancementType.TASK, false, false, true);
 		aliceHouse.create("obtain_doll_glove", GLItems.DOLL_GLOVE.get(),
 						CriterionBuilder.item(GLItems.DOLL_GLOVE.get()),
 						"Doll Glove", "Obtain the Seven-Colored Doll Glove")
@@ -269,6 +283,29 @@ public class GLAdvGen {
 						CriterionBuilder.item(GLItems.DAGGER_GLOVE.get()),
 						"Dagger Glove", "Obtain a Dagger Glove")
 				.type(AdvancementType.TASK, false, false, false);
+		// The temple's own chain: the basket is Nazrin's loot, the anchor is Minamitsu's, and the
+		// tower and trident follow from what the two of them keep in the temple.
+		var myouren = root.create("enter_myouren_temple", GLFurniture.MYOUREN_DONATION_BOX.asItem(),
+						CriterionBuilder.one(PlayerTrigger.TriggerInstance.located(
+								LocationPredicate.Builder.inStructure(resolve(pvd, "myouren_temple")))),
+						"Myouren Temple", "Enter the Myouren Temple")
+				.type(AdvancementType.TASK, false, false, false);
+		var treasureBasket = myouren.create("obtain_treasure_basket", GLBlocks.TREASURE_BASKET.asItem(),
+						CriterionBuilder.item(GLBlocks.TREASURE_BASKET.asItem()),
+						"Treasure Basket", "Obtain a Treasure Basket")
+				.type(AdvancementType.TASK, true, true, false);
+		var anchor = treasureBasket.create("obtain_anchor", GLItems.MINAMITSU_ANCHOR.get(),
+						CriterionBuilder.item(GLItems.MINAMITSU_ANCHOR.get()),
+						"Minamitsu's Anchor", "Obtain Minamitsu's Anchor")
+				.type(AdvancementType.TASK, true, true, false);
+		var treasureTower = anchor.create("obtain_treasure_tower", GLItems.TREASURE_TOWER.get(),
+						CriterionBuilder.item(GLItems.TREASURE_TOWER.get()),
+						"Treasure Tower", "Obtain a Treasure Tower")
+				.type(AdvancementType.TASK, true, true, false);
+		treasureTower.create("obtain_nue_trident", GLItems.NUE_TRIDENT.get(),
+						CriterionBuilder.item(GLItems.NUE_TRIDENT.get()),
+						"Nue's Trident", "Obtain Nue's Trident")
+				.type(AdvancementType.TASK, true, true, false);
 		root.finish();
 	}
 

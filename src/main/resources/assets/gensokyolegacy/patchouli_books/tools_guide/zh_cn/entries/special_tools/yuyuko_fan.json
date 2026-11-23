@@ -2,6 +2,7 @@
 	"name": "幽幽子的扇子",
 	"icon": "gensokyolegacy:yuyuko_fan",
 	"category": "gensokyolegacy:special_tools",
+	"advancement": "gensokyolegacy:main/obtain_yuyuko_fan",
 	"sortnum": 11,
 	"pages": [
 		{

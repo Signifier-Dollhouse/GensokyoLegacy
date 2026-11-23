@@ -2,6 +2,7 @@
   "name": "宝塔",
   "icon": "gensokyolegacy:treasure_tower",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_treasure_tower",
   "sortnum": 22,
   "pages": [
     {
