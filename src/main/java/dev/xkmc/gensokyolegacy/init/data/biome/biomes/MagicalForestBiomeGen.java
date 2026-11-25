@@ -469,7 +469,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 													String... templates) {
 		var list = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (var id : templates) {
-			list.add(GensokyoLegacy.loc("magical_forest/" + id), 1);
+			list.add(GensokyoLegacy.loc("biome/" + id), 1);
 		}
 		return vegetation(footprint, floor, list.build());
 	}
@@ -478,7 +478,7 @@ public class MagicalForestBiomeGen extends AbstractBiomeGen {
 													List<Map.Entry<String, Integer>> templates) {
 		var list = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (var e : templates) {
-			list.add(GensokyoLegacy.loc("magical_forest/" + e.getKey()), e.getValue());
+			list.add(GensokyoLegacy.loc("biome/" + e.getKey()), e.getValue());
 		}
 		return vegetation(footprint, floor, list.build());
 	}

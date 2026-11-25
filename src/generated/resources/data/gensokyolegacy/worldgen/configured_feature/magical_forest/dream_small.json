@@ -7,23 +7,23 @@
     "root_depth": 2,
     "templates": [
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_1",
+        "data": "gensokyolegacy:biome/mushroom/dream_small_1",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_2",
+        "data": "gensokyolegacy:biome/mushroom/dream_small_2",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_3",
+        "data": "gensokyolegacy:biome/mushroom/dream_small_3",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_4",
+        "data": "gensokyolegacy:biome/mushroom/dream_small_4",
         "weight": 1
       },
       {
-        "data": "gensokyolegacy:magical_forest/mushroom/dream_small_5",
+        "data": "gensokyolegacy:biome/mushroom/dream_small_5",
         "weight": 1
       }
     ]

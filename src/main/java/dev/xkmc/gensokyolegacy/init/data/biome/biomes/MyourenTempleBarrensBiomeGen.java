@@ -104,7 +104,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 		// three hand-built tomb plots: a grave, its lanterns and the offerings left on it
 		var tombs = SimpleWeightedRandomList.<ResourceLocation>builder();
 		for (int i = 1; i <= 3; i++) {
-			tombs.add(GensokyoLegacy.loc("myouren_temple/tomb_0" + i), 1);
+			tombs.add(GensokyoLegacy.loc("biome/graveyard/tomb_0" + i), 1);
 		}
 		FeatureUtils.register(ctx, TOMB, GLWorldGen.TEMPLATE_STRUCTURE.get(), new TemplateFeatureConfig(
 				tombs.build(), TemplateFeatureConfig.NO_PROCESSORS, BlockTags.DIRT, 2, 0, 0, 0, List.of()));
