@@ -8,7 +8,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,36 +31,9 @@ public interface LocatableStructure {
 								   StructureTemplateManager templates, LevelHeightAccessor heightAccessor);
 
 	/**
-	 * Diagnostic lines for one region, placing nothing.
-	 */
-	Diagnosis diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-							 ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-							 LevelHeightAccessor heightAccessor);
-
-	/**
-	 * Diagnostic for the region containing {@code chunkpos}.
-	 */
-	default Diagnosis diagnoseAt(long seed, ChunkPos chunkpos, RegistryAccess registries, ChunkGenerator generator,
-								 RandomState randomState, StructureTemplateManager templates,
-								 LevelHeightAccessor heightAccessor) {
-		int spacing = spacing();
-		if (spacing <= 0) {
-			return new Diagnosis(List.of("no multi-spread structure set places this structure"), 0);
-		}
-		return diagnoseRegion(seed, Math.floorDiv(chunkpos.x, spacing), Math.floorDiv(chunkpos.z, spacing),
-				registries, generator, randomState, templates, heightAccessor);
-	}
-
-	/**
 	 * A start returned by {@link #locateRegion}: its chunk, the position {@code /locate} would report, and its region.
 	 */
 	record Located(ChunkPos chunk, BlockPos pos, int regionX, int regionZ) {
-	}
-
-	/**
-	 * Diagnostic output plus the number of starts the region would place, used as the command exit code.
-	 */
-	record Diagnosis(List<String> lines, int passes) {
 	}
 
 }

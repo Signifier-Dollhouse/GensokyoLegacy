@@ -82,7 +82,7 @@
 			"shelf_stock": "库存：%s",
 			"shelf_note": "森近霖之助会随机补货货架；每次补货时价格和库存都会重新随机",
 			"treasure_tower_tag": "石头标签：#%s",
-			"treasure_tower_note": "宝石会被消耗，寻宝塔留在手中"
+			"treasure_tower_note": "宝石会被消耗，寻宝塔飞出发射后回到手中"
 		}
 	},
 	"jei": {

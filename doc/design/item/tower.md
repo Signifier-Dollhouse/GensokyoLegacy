@@ -1,12 +1,13 @@
 # Treasure Tower (`treasure_tower`) — Turning Stone into Ore
 
-A held item that winds up for a second, then replaces the aimed stone block and the stone connected to
-it with the ore of a gem the player is carrying. One gem is spent per block, the item is not. The
+A held item that leaves the hand as an entity: it flies to a spot two blocks ahead and one block up,
+beams the aimed stone, and flies back. The beam replaces that stone and everything connected to it
+with the ore of a gem the player is carrying. One gem is spent per block, the item is not. The
 recipe is not written down: it is derived from the datapack as **ore → gem** (smelting) and
 **ore → stone** (ore features), and the two halves are joined on the ore block.
 
-Cost: a spiritual power pool on the item (`SpiritualItem`, 1000 capacity) spends 100 per release,
-plus one gem per block converted and a 10-tick cooldown. The gems cap one release at the size of a
+Cost: a spiritual power pool on the item (`SpiritualItem`, 1000 capacity) spends 100 per cast,
+plus one gem per block converted and a 10-tick cooldown. The gems cap one cast at the size of a
 single stack, which is what keeps one stack of diamonds from paving a mine.
 
 ---
@@ -160,34 +161,42 @@ needs a world restart anyway.
 ## 5. The item
 
 `TreasureTower extends SpiritualItem`, `MAX_POWER = 1000`, `COST = 100`, `COOLDOWN = 10`,
-`USE_DURATION = 20`. `getUseAnimation` returns `SPEAR`, so the wind-up is the spear pose.
-`SpiritualItem` already draws the pool as the durability bar, appends the `Spiritual Power: n / m`
-line, and `SpiritualEffect` refills it at 10/s per level. A jizo shrine also fills it, trading
-experience levels — the same loop the anchor and the fan use.
+`REACH = 24`. `SpiritualItem` already draws the pool as the durability bar, appends the
+`Spiritual Power: n / m` line, and `SpiritualEffect` refills it at 10/s per level. A jizo shrine
+also fills it, trading experience levels — the same loop the anchor and the fan use.
 
-`use` starts the wind-up and returns `consume`. The use duration *is* the charge, so an early
-release does nothing; when it runs out the game finishes the use and `finishUsingItem` runs, server
-side. A release on the last tick goes through `releaseUsing`, which calls the same method:
+`use` resolves the shot server-side and sends the tower out; the item itself does no conversion:
 
-1. A tap, short of the full `USE_DURATION`, ends in `releaseUsing` and costs nothing.
-2. Ray-trace the aimed block with `player.pick(REACH)`, where `REACH` is 24. A miss, or a stone no gem
-   accepts, does nothing.
+1. Gate on the pool: below `COST` nothing happens but the action-bar message.
+2. Ray-trace the aimed block with `player.pick(REACH)`. A miss, or a stone no gem accepts, does
+   nothing. The result is locked in now, so looking away during the flight does not move the target.
 3. Pick the gem: the offhand stack first, then the main hand, then the inventory in slot order.
    Only stacks whose item maps to an ore **for this stone** qualify, so carrying a diamond and an
    emerald still does the right thing on deepslate. That one stack is also the budget: its count caps
    the conversion, and stacks of the same gem are never summed.
-4. Gate on the pool: below `COST` nothing happens but the action-bar message. Otherwise BFS from the
-   aimed block through its six neighbours, keeping every block this gem converts, and stop at the
-   budget. The nearest N are converted, each to the ore its own recipe names, so one run of stone and
-   deepslate becomes both ore variants.
-5. Spend `COST` power and N gems (gems skipped when `hasInfiniteMaterials`), chime, beam, `swing`,
-   `awardStat`, and start the cooldown. Returning early leaves the cooldown untouched, so a miss
-   costs nothing.
+4. Copy the stack into a `TreasureTowerEntity`, spawn it at the eye, and clear the hand; the entity
+   is the tower until it returns. Start the cooldown.
 
-The beam is the item's particle (`HAPPY_VILLAGER`) drawn from the eye to the aimed block, ten
-particles per block of distance with ±0.1 spread per axis. The swing is the only animation; there is
-no GeckoLib rig and no renderer. The item model is the ordinary `generated` one, and until
-`textures/item/tool/treasure_tower.png` exists it borrows the sealing pot's icon.
+The entity has three phases:
+
+- **OUT** — fly from the eye to `player.position() + horizontalLook * 2 + (0, 1, 0)` at 0.45 blocks
+  per tick. The look vector is flattened so looking up or down does not make the tower climb or dive.
+- **CAST** — on arrival, BFS from the locked target through its six neighbours, keeping every block
+  the chosen gem converts, and stop at the budget. The nearest N are converted, each to the ore its
+  own recipe names, so one run of stone and deepslate becomes both ore variants. Spend `COST` power
+  on the carried stack and N gems (gems skipped when `hasInfiniteMaterials`), chime, beam, `swing`
+  and `awardStat`. The beam then keeps firing for 10 ticks from the tower's position to the target.
+- **RETURN** — fly back to the hand at 0.6 blocks per tick, then put the stack into the slot it left;
+  if that slot is taken, add it to the inventory, and drop it only if the inventory is full.
+
+The carried stack is synched as the entity's item, so the client renders the real tower (power and
+all) while it is in flight. If the owner dies, leaves the dimension or gets more than 32 blocks away,
+the entity drops the tower where it is and vanishes. A saved entity keeps its phase, target, hand
+and slot, so a chunk unload cannot lose the tower.
+
+The beam is `HAPPY_VILLAGER`, four particles per block of distance with ±0.1 spread per axis. The
+renderer draws the item spinning slowly with a small bob; there is no GeckoLib rig. The item model is
+the ordinary `generated` one on `textures/item/tool/treasure_tower.png`.
 
 ---
 
@@ -214,7 +223,9 @@ page list never goes stale. The category title is `gensokyolegacy.jei.treasure_t
 
 Add:
 
-- `content/item/treasure/TreasureTower.java` — the item, charge and release, beam, tooltip.
+- `content/item/treasure/TreasureTower.java` — the item, target lock and launch, tooltip.
+- `content/entity/misc/TreasureTowerEntity.java` — the three phases, the cast and the return.
+- `content/entity/misc/render/TreasureTowerRenderer.java` — the spinning, bobbing item.
 - `content/item/treasure/OreRecipe.java` — the recipe (gem, ore, tags, blocks), plus `matches(BlockState)`.
 - `content/item/treasure/TreasureTowerData.java` — the recipe list and per-gem index, `@see "doc/design/item/tower.md"`.
 - `content/item/treasure/TreasureTowerManager.java` — §3 end to end, plus `TagsUpdatedEvent` clearing.
@@ -227,6 +238,7 @@ Modify:
 
 - `init/registrate/GLItems.java` — `TREASURE_TOWER = reg.item(...)` in the tab, tagged
   `SPIRITUAL_TOOLS`, `.lang("Treasure Tower")`.
+- `init/registrate/GLEntities.java` — `TREASURE_TOWER` entity, its renderer and tracking interval.
 - `init/GLPackets.java` and `GensokyoLegacy.HANDLER` — new packet, protocol version 4 → 5.
 - `event/GLMetaEventHandlers.java` — send on `OnDatapackSyncEvent` beside the gift/loot packets.
 - `init/data/GLLang.java` — item tooltip, JEI title and notes.
@@ -247,7 +259,7 @@ Generated, then committed: `src/generated/resources/assets/gensokyolegacy/models
 | ore → gem | 70 smelting recipes, ingredient expansion |
 | ore → rule | 196 features, 47 targets, 7 entries |
 | rule → ingredient | 2 tag ids kept as-is, 1 block, brute force only for exotic rules |
-| maps | 7 recipes, one index per gem; a release scans only that gem's entries |
+| maps | 7 recipes, one index per gem; a cast scans only that gem's entries |
 
 Measured over the pre-parsed vanilla data in a Python prototype: **well under 0.1 ms** per build,
 with no loot table touched at all. The Java version adds class loading on the first call (10–30 ms,
@@ -273,15 +285,18 @@ it.
 ## 10. Decisions
 
 - **Reusable, spiritual power, 10-tick cooldown.** No durability: the pool already is the wear, and
-  it refills from a renewable source. A full pool is ten releases; a release costs 100 whether it
-  converts one block or a whole stack.
+  it refills from a renewable source. A full pool is ten casts; a cast costs 100 whether it converts
+  one block or a whole stack.
+- **The tower is the entity.** Leaving the hand is what makes the beam come from the tower rather
+  than the player; the item is cleared on launch and handed back on return, so there is never a
+  second copy. A lost entity drops the stack instead of deleting it.
 - **One stack pays.** The gem budget is the count of the selected stack, never the sum of the pack:
-  a release is a bounded, predictable purchase, and a second stack is a second release.
+  a cast is a bounded, predictable purchase, and a second stack is a second cast.
 - **Smelt result only.** No loot table test; the smelting recipe is the authority on what an ore is
   worth, and the gem tag filters out the metals for free.
 - **`#c:gems` only.** No local gem tag: coal and redstone stay out until a pack says otherwise, and
   a modded gem works the moment it is tagged.
-- **Tags stay tags.** The ingredient keeps the tag id from the rule test all the way to the release,
+- **Tags stay tags.** The ingredient keeps the tag id from the rule test all the way to the cast,
   so a tag edit is live without a rebuild and the packet stays small; only `block_match` and exotic
   rules contribute loose blocks.
 - **Feature or nothing.** A stone is accepted only because an `OreConfiguration` says the ore

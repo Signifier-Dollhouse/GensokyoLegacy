@@ -9,7 +9,6 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * Terrain fitness rule of a flat-check structure: shifts the speculative layout onto the terrain and, for rules
@@ -33,14 +32,6 @@ public interface TerrainPredicate {
 	 */
 	default boolean triesAllRotations() {
 		return false;
-	}
-
-	/**
-	 * Diagnostic lines for {@link #fit}: call it first, then this reads the same tree for the numbers behind the
-	 * verdict.
-	 */
-	default List<String> describe(TerrainFit fit) {
-		return List.of();
 	}
 
 	/**

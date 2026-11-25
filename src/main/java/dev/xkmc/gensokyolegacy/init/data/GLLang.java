@@ -1018,7 +1018,7 @@ public final class GLLang {
 		SHELF_STOCK("Stock: %s", 1),
 		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0),
 		TREASURE_TOWER_TAG("Stone tag: #%s", 1),
-		TREASURE_TOWER_NOTE("The gem is spent; the tower keeps its place in the hand", 0);
+		TREASURE_TOWER_NOTE("The gem is spent; the tower flies out and returns to the hand", 0);
 
 		private final String def;
 		private final int argn;
@@ -1397,7 +1397,7 @@ public final class GLLang {
 
 	public enum ItemTreasureTower implements LangEntry {
 		NEED_POWER("The tower needs at least %s spiritual power", 1, ChatFormatting.RED),
-		TOOLTIP("Hold right-click for a second, then release it at stone to turn it and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
+		TOOLTIP("Right-click at stone to send the tower out; it turns the stone and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;

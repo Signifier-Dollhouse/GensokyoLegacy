@@ -146,7 +146,7 @@ set's primaries.
 - `content/worldgen/structure/JigsawCheck.java`
   - moved `validateLayout` + `prefilter` + `Prefilter` + `Validated` out of `FlatCheckStructure`
     into a record parameterised by start pool, depth, expansion hack, max distance, `TerrainPredicate` and biome
-    holder; all three structures call it, and `FlatCheckStructure#diagnoseRegion` keeps working through `check()`.
+    holder; all three structures call it.
 - `init/data/structure/helper/StructFallbackBuilding.java`
   - mirrors `StructFlatJigsawBuilding`: one template pool per part at `<id>/<part>`, generation from the root part,
     and registers `FallbackStructure` with `StructBuilding.setRef(context)`.
@@ -203,9 +203,7 @@ set's primaries.
 
 ## 7. Verification
 
-- Extend `FlatCheckStructure#diagnoseRegion` (or add the same report to `FallbackStructure`) with a per-candidate
-  line carrying the flat verdict, the chosen fallback, the distance verdict and the fallback verdict; run it over
-  several seeds on a dev world and check that:
+- On a dev world over several seeds, check that:
   - no position has both a flat pass and a fallback start;
   - a region with a flat start may still hold fallbacks, but none within `safety_radius` of a passing flat
     candidate;

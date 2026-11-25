@@ -232,8 +232,8 @@ and links here for the change.
   - `findGenerationPoint` per §5, `resolve()` per §2, `startInRegion` per §4.2 and `neighbourPrimaryFree` per §6;
   - `SECONDARY_PICK_MIX`, and a `verifyRange` guard copied from `FlatCheckStructure`
     (`max_distance_from_center + 12 <= 128`);
-  - the shared check through `JigsawCheck` (§8 "Changed"), including `LocatableStructure` so `/gensokyo structure scan`,
-    `/gensokyo structure diagnose` and fairy dust can find a secondary start.
+  - the shared check through `JigsawCheck` (§8 "Changed"), including `LocatableStructure` so `/gensokyo structure scan`
+    and fairy dust can find a secondary start.
 - `content/worldgen/structure/RegionMemo.java`
   - one process-wide `ConcurrentHashMap<Key, Integer>`, `Key(Structure structure, ChunkGenerator generator, long seed,
     int rx, int rz)`, bounded and `clearAll()`ed from `ServerStoppedEvent` and the datapack-sync branch of
@@ -248,8 +248,7 @@ and links here for the change.
   run the structure's `TerrainPredicate` (`fit`, all-rotation retries, the per-piece beard, `afterPlace`). This is the
   single copy of the check that primary, secondary and tiny share.
 - `FlatCheckStructure`: `check()` passes its own radius; `checkCandidate` delegates to the shared check; add
-  `firstPassInRegion` backed by a `RegionMemo`; `locateRegion` and `diagnoseRegion` read the shared check too.
-  `diagnoseRegion` reads the shared check and can report `p`.
+  `firstPassInRegion` backed by a `RegionMemo`; `locateRegion` reads the shared check too.
 - `FallbackStructure`: collect secondaries in `resolve()`, replace `nearFlat` with `nearStart`/`nearNeighbourStart`
   (§7), reorder the gates so the exact distance checks precede the tiny layout.
 - `GLWorldGen`: `STRUCTURES.reg("secondary", () -> () -> SecondaryStructure.CODEC)`.
@@ -303,11 +302,6 @@ group), and one in the cirno / hakurei sets once their secondary assets exist. E
 
 ## 10. Verification
 
-- Add `SecondaryStructure#diagnoseRegion(seed, rx, rz, ...)` printing: the primary pick and `p`, the secondary pick and
-  `s`, and a per-candidate verdict (`primary-started`, `not-picked`, `suppressed-by-#k`, `place-<reason>`, `pass`).
-- Regression for the primary: run `FlatCheckStructure#diagnoseRegion` over several seeds and regions before and after
-  the `JigsawCheck` extraction and diff the output. It must be empty; this is the only guard, because the project has
-  no JUnit tests.
 - Invariants on a dev world, over several seeds:
   - no region has both a primary start and a secondary start;
   - at most one secondary start per region;
@@ -326,4 +320,4 @@ group), and one in the cirno / hakurei sets once their secondary assets exist. E
 - Per-tier radii: all three tiers use the set's primary `safety_radius`.
 
 The primary now reads its own `firstPassInRegion` instead of rescanning `j < i` (implemented with this tier). The
-verdict is observationally identical; the §10 `diagnoseRegion` diff over several seeds is the guard.
+verdict is observationally identical.
