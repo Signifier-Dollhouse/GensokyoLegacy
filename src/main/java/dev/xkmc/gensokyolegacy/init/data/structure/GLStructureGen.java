@@ -6,6 +6,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.BastionHeightCheck;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.UniformHeightCheck;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.structure.helper.*;
@@ -18,6 +20,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraftforge.common.util.Lazy;
@@ -56,7 +59,7 @@ public class GLStructureGen {
 								CharacterConfig.forStructure(6000, 12000, 12, 30),
 								GLBlocks.Beds.CIRNO.holder()
 						)),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 32, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 32, 8),
 						// its own set: the nest is in the snowy biomes and shares
 						// no region with the magical forest houses
 						CIRNO_NEST
@@ -72,7 +75,7 @@ public class GLStructureGen {
 						)),
 						visits(Map.of(
 								GLEntities.ALICE.get(), visit(0.20f, 2400, 3600))),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 60, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 60, 8),
 						FOREST_HOUSES
 				),
 				// Hakurei shrine jigsaw in the modded sakura forest (root 19x14x19, bed at local (5,2,12)-(5,2,13))
@@ -104,7 +107,7 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("tree2", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree2_top", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree3", true, List.of())
-						), Map.of(), 5, 80, 8),
+						), Map.of(), new UniformHeightCheck(5), 80, 8),
 						// its own set: the shrine is not part of the forest houses
 						HAKUREI_SHRINE
 				),
@@ -122,7 +125,7 @@ public class GLStructureGen {
 								GLEntities.REIMU.get(), visit(0.30f, 2400, 6000),
 								GLEntities.MARISA.get(), visit(0.30f, 2400, 6000),
 								GLEntities.IZAYOI_SAKUYA.get(), visit(0.30f, 2400, 6000))),
-						new StructFlatBuilding(List.of(), Map.of(), 5, 64, 8),
+						new StructFlatBuilding(List.of(), Map.of(), new UniformHeightCheck(5), 64, 8),
 						FOREST_HOUSES
 				),
 				// Alice's house in the magical forest (root 29x23x18, bed at (12,6,6)-(12,6,7)). Five jigsaw parts
@@ -142,7 +145,7 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("path", true, List.of()),
 								new StructFlatJigsawBuilding.Part("tree", true, List.of()),
 								new StructFlatJigsawBuilding.Part("backyard", true, List.of())
-						), Map.of(), 5, 80, 8),
+						), Map.of(), new UniformHeightCheck(5), 80, 8),
 						FOREST_HOUSES
 				),
 				// Myouren Temple, the barrens' only structure (assembled 89x27x97 from 29 jigsaw parts): the
@@ -186,7 +189,8 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("wall_6", true, List.of()),
 								new StructFlatJigsawBuilding.Part("wall_7", true, List.of()),
 								new StructFlatJigsawBuilding.Part("wall_8", true, List.of())
-						), Map.of(), 5, 96, 8),
+						), Map.of(), new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4,
+								Blocks.DIRT.defaultBlockState()), 96, 8),
 						MYOUREN_TEMPLE
 				)
 		);

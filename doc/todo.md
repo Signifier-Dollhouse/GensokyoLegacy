@@ -13,3 +13,9 @@ Debug and testing focus:
 - block interaction
 - capability persistence and sync
 - item data component
+
+Port merge todos:
+- remove terrain predicate debug tool after myouren temple gen fully working and tested
+- check if iterating all 4 rotation would boost spawn rate for myouren temple
+- custom beardifier for bastion check type to make gate still beard-thin while other pieces still remove terrain above ground, just not add terrain below.
+- 

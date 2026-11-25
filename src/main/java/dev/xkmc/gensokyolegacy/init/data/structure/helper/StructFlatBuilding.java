@@ -3,7 +3,7 @@ package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 import com.mojang.datafixers.util.Pair;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLSinglePiece;
-import dev.xkmc.gensokyolegacy.content.worldgen.structure.SecondaryStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
@@ -25,21 +25,15 @@ import java.util.Map;
 public record StructFlatBuilding(
 		List<StructureProcessor> processors,
 		Map<MobCategory, StructureSpawnOverride> spawns,
-		int heightTolerance,
+		TerrainPredicate terrain,
 		int maxDistanceFromCenter,
-		int safetyRadius,
-		Role role
+		int safetyRadius
 ) implements StructBuilding {
-
-	public StructFlatBuilding(List<StructureProcessor> processors, Map<MobCategory, StructureSpawnOverride> spawns,
-							  int heightTolerance, int maxDistanceFromCenter, int safetyRadius) {
-		this(processors, spawns, heightTolerance, maxDistanceFromCenter, safetyRadius, Role.PRIMARY);
-	}
 
 	@Override
 	public void registerTemplatePools(BootstapContext<StructureTemplatePool> ctx, ResourceLocation id) {
 		var empty = ctx.lookup(Registries.TEMPLATE_POOL)
-				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecraft", "empty")));
+				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.withDefaultNamespace("empty")));
 		var list = ctx.lookup(Registries.PROCESSOR_LIST)
 				.getOrThrow(ResourceKey.create(Registries.PROCESSOR_LIST, id));
 		ctx.register(ResourceKey.create(Registries.TEMPLATE_POOL, id), new StructureTemplatePool(empty, List.of(
@@ -57,19 +51,10 @@ public record StructFlatBuilding(
 	public void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set) {
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
-		var settings = new Structure.StructureSettings(biome, spawns(),
-				GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN);
-		var ref = StructBuilding.setRef(set);
-		if (role == Role.SECONDARY) {
-			ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new SecondaryStructure(
-					settings, pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
-					ref, set.setIndex(), set.setCount()
-			));
-			return;
-		}
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
-				settings, pool, 1, false, maxDistanceFromCenter(), heightTolerance(),
-				ref, safetyRadius(), set.setIndex(), set.setCount()
+				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
+				pool, 1, false, maxDistanceFromCenter(), terrain(),
+				StructBuilding.setRef(set), safetyRadius(), set.setIndex(), set.setCount()
 		));
 	}
 

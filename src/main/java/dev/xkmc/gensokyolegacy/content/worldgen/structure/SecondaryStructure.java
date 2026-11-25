@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -35,7 +36,7 @@ public class SecondaryStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.heightTolerance),
+			TerrainPredicate.CODEC.fieldOf("terrain").forGetter((e) -> e.terrain),
 			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
 			Codec.intRange(1, 128).optionalFieldOf("set_count", 1).forGetter((e) -> e.setCount)
@@ -51,7 +52,7 @@ public class SecondaryStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int heightTolerance;
+	private final TerrainPredicate terrain;
 	private final int setIndex;
 	private final int setCount;
 	private final RegionMemo memo = new RegionMemo();
@@ -80,7 +81,7 @@ public class SecondaryStructure extends Structure {
 	}
 
 	public SecondaryStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth,
-							  boolean useExpansionHack, int maxDistanceFromCenter, int heightTolerance,
+							  boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							  Holder<StructureSet> set, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
@@ -88,7 +89,7 @@ public class SecondaryStructure extends Structure {
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.heightTolerance = heightTolerance;
+		this.terrain = terrain;
 		this.setIndex = setIndex;
 		this.setCount = setCount;
 	}
@@ -279,7 +280,7 @@ public class SecondaryStructure extends Structure {
 	}
 
 	private JigsawCheck check(int radius) {
-		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, heightTolerance,
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, terrain,
 				biomes(), radius);
 	}
 

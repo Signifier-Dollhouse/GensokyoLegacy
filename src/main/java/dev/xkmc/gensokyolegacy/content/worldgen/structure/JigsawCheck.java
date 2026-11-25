@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.FitResult;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainFit;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -9,7 +12,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -22,38 +24,41 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * Speculative jigsaw eligibility of one template: cheap prefilter, layout build and the biome, root-height, rigid and
- * joint checks. {@link FlatCheckStructure}, {@link SecondaryStructure} and {@link FallbackStructure} differ only in
- * parameters and in how a candidate is selected, so all run this.
+ * Speculative jigsaw eligibility of one template: cheap prefilter, layout build, biome gate and the terrain fit.
+ * {@link FlatCheckStructure}, {@link SecondaryStructure} and {@link FallbackStructure} differ only in parameters and
+ * in how a candidate is selected, so all run this.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
 public record JigsawCheck(
 		Holder<StructureTemplatePool> startPool,
 		int maxDepth,
 		boolean useExpansionHack,
 		int maxDistanceFromCenter,
-		int tolerance,
+		TerrainPredicate terrain,
 		HolderSet<Biome> biomes,
 		int safetyRadius
 ) {
 
 	public static int freeHeight(Structure.GenerationContext ctx, int x, int z) {
-		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG,
-				ctx.heightAccessor(), ctx.randomState());
+		return TerrainFit.height(ctx, x, z);
 	}
 
 	public record Prefilter(boolean pass, int y, String reason) {
 
 	}
 
-	public record Validated(boolean pass, int spawnY, Structure.GenerationStub stub, String reason) {
+	public record Validated(boolean pass, Structure.GenerationStub stub, String reason) {
 
 		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason);
+			return new Validated(false, null, reason);
+		}
+
+		static Validated pass(Structure.GenerationStub stub) {
+			return new Validated(true, stub, "pass");
 		}
 
 	}
@@ -76,11 +81,19 @@ public record JigsawCheck(
 	}
 
 	/**
-	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ; the root rigid group is shifted to the
-	 * footprint average afterwards) and runs the biome, root-footprint, rigid and joint checks. On success returns a
-	 * stub serving the already-shifted pieces.
+	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ), runs the biome gate, then lets
+	 * {@link #terrain} place the layout on the terrain. On success returns a stub serving the shifted pieces; the
+	 * predicate's foundation runs later in {@link TerrainPredicate#afterPlace}.
 	 */
 	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY) {
+		return validateLayout(ctx, chunkpos, provY, null);
+	}
+
+	/**
+	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but a non-null {@code trace} collects the
+	 * predicate's numbers when the fit fails.
+	 */
+	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
 		int sea = ctx.chunkGenerator().getSeaLevel();
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<Structure.GenerationStub> layout = JigsawPlacement.addPieces(ctx, startPool, Optional.empty(), maxDepth, start,
@@ -112,52 +125,17 @@ public record JigsawCheck(
 				return Validated.fail("biome");
 			}
 		}
-		// Root footprint check: corners + edge centers + center of start box.
-		var rootBox = pieces.get(0).getBoundingBox();
-		int rx0 = rootBox.minX(), rz0 = rootBox.minZ(), rx1 = rootBox.maxX(), rz1 = rootBox.maxZ();
-		int rcx = (rx0 + rx1) / 2, rcz = (rz0 + rz1) / 2;
-		int[][] rootPts = {{rx0, rz0}, {rx0, rz1}, {rx1, rz0}, {rx1, rz1},
-				{rcx, rz0}, {rcx, rz1}, {rx0, rcz}, {rx1, rcz}, {rcx, rcz}};
-		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-		for (int[] q : rootPts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			if (h <= sea) {
-				return Validated.fail("sea");
+		TerrainFit fit = new TerrainFit(ctx, tree, sea);
+		FitResult result = this.terrain.fit(fit);
+		if (!result.pass()) {
+			if (trace != null) {
+				trace.add("fit: " + result.reason());
+				trace.addAll(this.terrain.describe(fit));
 			}
-			if (h < min) min = h;
-			if (h > max) max = h;
+			return Validated.fail(result.reason());
 		}
-		if (max - min > 2 * tolerance) {
-			return Validated.fail("height[%d-%d]".formatted(min, max));
-		}
-		int spawn = (max + min) / 2;
-		// Shift the start rigid group (assumes a rigid start piece) so its ground sits on the footprint average.
-		int delta = tree.shiftStartGroupToGround(spawn);
-		// Rigid check: center terrain within tolerance of placed ground.
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			var b = tree.piece(i).getBoundingBox();
-			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			if (h <= sea) {
-				return Validated.fail("rigid-sea-%d".formatted(i));
-			}
-			int g = tree.groundOf(i);
-			if (Math.abs(h - g) > tolerance) {
-				return Validated.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
-			}
-		}
-		// Joint check: per connected non-rigid subgraph, adjacent rigid group grounds must lie within tolerance.
-		for (Set<Integer> grounds : tree.flexJointGrounds()) {
-			if (grounds.size() < 2) continue;
-			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
-			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
-			if (hi - lo > tolerance) {
-				return Validated.fail("joint[%d-%d]".formatted(lo, hi));
-			}
-		}
-		BlockPos pos = layout.get().position().offset(0, delta, 0);
-		Structure.GenerationStub stub = new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass");
+		BlockPos pos = layout.get().position().offset(0, result.delta(), 0);
+		return Validated.pass(new Structure.GenerationStub(pos, b -> pieces.forEach(b::addPiece)));
 	}
 
 	/**

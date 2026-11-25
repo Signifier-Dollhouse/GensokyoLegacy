@@ -226,7 +226,7 @@ and links here for the change.
 ### New
 
 - `content/worldgen/structure/SecondaryStructure.java`
-  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `height_tolerance`,
+  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `terrain`,
     `set`, `set_index`, `set_count`; no `safety_radius`;
   - `findGenerationPoint` per §5, `resolve()` per §2, `startInRegion` per §4.2 and `neighbourPrimaryFree` per §6;
   - `SECONDARY_PICK_MIX`, and a `verifyRange` guard copied from `FlatCheckStructure`

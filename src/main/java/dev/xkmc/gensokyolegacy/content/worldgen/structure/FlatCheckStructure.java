@@ -3,17 +3,22 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.*;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -28,6 +33,7 @@ import java.util.Optional;
  * copied here, so the two sides cannot disagree. setCount/setIndex must never change once released.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
 public class FlatCheckStructure extends Structure {
 
@@ -37,7 +43,7 @@ public class FlatCheckStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.fieldOf("use_expansion_hack").forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.flatTolerance),
+			TerrainPredicate.CODEC.fieldOf("terrain").forGetter((e) -> e.terrain),
 			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set),
 			Codec.intRange(0, 16).optionalFieldOf("safety_radius", 8).forGetter((e) -> e.safetyRadius),
 			Codec.intRange(0, 128).optionalFieldOf("set_index", 0).forGetter((e) -> e.setIndex),
@@ -54,7 +60,7 @@ public class FlatCheckStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int flatTolerance;
+	private final TerrainPredicate terrain;
 	private final int safetyRadius;
 	private final int setIndex;
 	private final int setCount;
@@ -83,7 +89,7 @@ public class FlatCheckStructure extends Structure {
 		return DataResult.success(s);
 	}
 
-	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, int flatTolerance,
+	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							  Holder<StructureSet> set, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
@@ -91,7 +97,7 @@ public class FlatCheckStructure extends Structure {
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.flatTolerance = flatTolerance;
+		this.terrain = terrain;
 		this.safetyRadius = safetyRadius;
 		this.setIndex = setIndex;
 		this.setCount = setCount;
@@ -150,6 +156,15 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's jigsaw pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	/**
 	 * Index of the first candidate of region {@code (rx, rz)} where the picked primary passes, or {@code -1}. Pure in
 	 * seed, generator and region, so every candidate of the region and the lower tiers share one scan; a member that is
 	 * not picked, or a reserved pick, returns {@code -1} without a scan.
@@ -182,7 +197,7 @@ public class FlatCheckStructure extends Structure {
 	 * Shared eligibility of the template this structure points at.
 	 */
 	private JigsawCheck check() {
-		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, flatTolerance,
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, terrain,
 				biomes(), safetyRadius);
 	}
 
@@ -224,13 +239,29 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * Dev diagnostic for the region containing {@code chunkpos}; see {@link #diagnoseRegion}.
+	 */
+	public RegionReport diagnoseAt(long seed, ChunkPos chunkpos, RegistryAccess registries, ChunkGenerator generator,
+								   RandomState randomState, StructureTemplateManager templates,
+								   LevelHeightAccessor heightAccessor, boolean detailed) {
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) {
+			return new RegionReport(List.of("no multi-spread structure set places this structure"), RegionStats.zero());
+		}
+		int spacing = resolved.get().spacing();
+		return diagnoseRegion(seed, Math.floorDiv(chunkpos.x, spacing), Math.floorDiv(chunkpos.z, spacing),
+				registries, generator, randomState, templates, heightAccessor, detailed);
+	}
+
+	/**
 	 * Dev diagnostic: lists every attempted position in one region with its verdict (suppressed / place-fail /
 	 * margin-fail / pass(checks)) plus the cumulative funnel line, placing nothing. Mirrors {@link
-	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried.
+	 * #findGenerationPoint}, and stops at the first full pass, so later attempts are untried. With {@code detailed},
+	 * the first candidate to reach the terrain fit also prints the predicate's own numbers.
 	 */
 	public RegionReport diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 									   ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-									   LevelHeightAccessor heightAccessor) {
+									   LevelHeightAccessor heightAccessor, boolean detailed) {
 		List<String> lines = new ArrayList<>();
 		Optional<MultiSpreadPlacement> resolved = this.placement();
 		if (resolved.isEmpty()) {
@@ -266,10 +297,12 @@ public class FlatCheckStructure extends Structure {
 		}
 		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
 		int firstPass = -1;
+		boolean detailUsed = false;
 		for (int i = 0; i < cands.size(); i++) {
 			ChunkPos me = cands.get(i);
 			String verdict;
 			int stage;
+			List<String> trace = null;
 			if (firstPass >= 0) {
 				verdict = "suppressed-by-#" + firstPass;
 				stage = -1;
@@ -288,7 +321,9 @@ public class FlatCheckStructure extends Structure {
 						stage = 1;
 					} else {
 						mar++;
-						var v = this.check().validateLayout(ctx, me, prefilter.y());
+						if (detailed && !detailUsed) trace = new ArrayList<>();
+						var v = this.check().validateLayout(ctx, me, prefilter.y(), trace);
+						if (trace != null && !trace.isEmpty()) detailUsed = true;
 						if (!v.pass()) {
 							verdict = "place-" + v.reason();
 							stage = stageOf(v.reason());
@@ -305,6 +340,9 @@ public class FlatCheckStructure extends Structure {
 			if (stage >= 4) roo++;
 			if (stage >= 5) det++;
 			lines.add("  #%d (%d, %d): %s".formatted(i, me.x, me.z, verdict));
+			if (trace != null) {
+				for (String line : trace) lines.add("      " + line);
+			}
 		}
 		lines.add("  funnel tried=%d prefilter=%d margin=%d biome=%d root=%d detailed=%d pass=%d".formatted(
 				tried, pre, mar, bio, roo, det, pas));

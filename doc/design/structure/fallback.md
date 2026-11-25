@@ -135,7 +135,7 @@ set's primaries.
 ### New
 
 - `content/worldgen/structure/FallbackStructure.java`
-  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `height_tolerance`,
+  - codec: `settings`, `start_pool`, `size`, `use_expansion_hack`, `max_distance_from_center`, `terrain`,
     `set`, and no `set_index`/`set_count`;
   - `findGenerationPoint` per §3; own layout check through `JigsawCheck`;
   - `resolve()` reads placement, primary and secondary members, fallback members and this member's fallback index from

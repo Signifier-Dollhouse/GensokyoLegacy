@@ -3,6 +3,7 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.core.Holder;
 import net.minecraft.util.ExtraCodecs;
@@ -36,7 +37,7 @@ public class FallbackStructure extends Structure {
 			Codec.intRange(0, 7).fieldOf("size").forGetter((e) -> e.maxDepth),
 			Codec.BOOL.optionalFieldOf("use_expansion_hack", false).forGetter((e) -> e.useExpansionHack),
 			Codec.intRange(1, 128).fieldOf("max_distance_from_center").forGetter((e) -> e.maxDistanceFromCenter),
-			Codec.intRange(1, 128).fieldOf("height_tolerance").forGetter((e) -> e.heightTolerance),
+			TerrainPredicate.CODEC.fieldOf("terrain").forGetter((e) -> e.terrain),
 			StructureSet.CODEC.fieldOf("set").forGetter((e) -> e.set)
 	).apply(i, FallbackStructure::new)), FallbackStructure::verifyRange);
 
@@ -45,7 +46,7 @@ public class FallbackStructure extends Structure {
 	private final int maxDepth;
 	private final boolean useExpansionHack;
 	private final int maxDistanceFromCenter;
-	private final int heightTolerance;
+	private final TerrainPredicate terrain;
 
 	private static DataResult<FallbackStructure> verifyRange(FallbackStructure s) {
 		byte b0;
@@ -68,7 +69,7 @@ public class FallbackStructure extends Structure {
 	}
 
 	public FallbackStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth,
-							 boolean useExpansionHack, int maxDistanceFromCenter, int heightTolerance,
+							 boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							 Holder<StructureSet> set) {
 		super(settings);
 		this.startPool = startPool;
@@ -76,11 +77,11 @@ public class FallbackStructure extends Structure {
 		this.maxDepth = maxDepth;
 		this.useExpansionHack = useExpansionHack;
 		this.maxDistanceFromCenter = maxDistanceFromCenter;
-		this.heightTolerance = heightTolerance;
+		this.terrain = terrain;
 	}
 
 	private JigsawCheck check() {
-		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, heightTolerance,
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, terrain,
 				biomes(), 0);
 	}
 
