@@ -50,7 +50,7 @@ public class MiscEventHandlers {
 		if (item == GLFurniture.PAPER_LANTERN.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_EMPTY.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_CLOUD.get().asItem()
-				|| item == GLDecoBlocks.SCROLL_MOUNTAIN.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_BISHAMONTEN.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_SUN.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_TEMPLE.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_TEXT.get().asItem())
