@@ -252,7 +252,10 @@
 		"pink_butterfly_danmaku": "粉色蝴蝶弹幕",
 		"blue_butterfly_danmaku": "蓝色蝴蝶弹幕",
 		"structure_wand": "结构杖",
-		"party_wand": "宴会调试杖",
+		"structure_mirror_stick": "结构镜像杖",
+		"party_wand": "宴会调试杖"
+	},
+	"gensokyolegacy.debug": {
 		"party_wand_hover": "注视食物方块以查看它的价值",
 		"party_wand_eat": "点击食物方块，取走一份食物",
 		"party_wand_simulate": "点击宴会桌以模拟一场宴会",

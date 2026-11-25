@@ -26,6 +26,11 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandData;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandMode;
+import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorData;
+import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorStick;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.ghost.BoneFluteItem;
@@ -128,6 +133,8 @@ public class GLItems {
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
+	public static final ItemEntry<StructureMirrorStick> STRUCTURE_MIRROR_STICK;
+	public static final ItemEntry<InteriorWandItem> INTERIOR_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
 	public static final ItemEntry<PartyWand> PARTY_WAND;
 
@@ -193,6 +200,10 @@ public class GLItems {
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC, false);
+	public static final DCVal<StructureMirrorData> STRUCTURE_MIRROR = DC.reg("structure_mirror", StructureMirrorData.CODEC, false);
+	public static final DCVal<InteriorWandData> INTERIOR_WAND_DATA = DC.reg("interior_wand", InteriorWandData.CODEC, false);
+	public static final DCVal<InteriorWandMode> INTERIOR_WAND_MODE =
+			DC.enumVal("interior_wand_mode", EnumCodec.of(InteriorWandMode.class, InteriorWandMode.values()));
 
 
 	static {
@@ -848,6 +859,17 @@ public class GLItems {
 			STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 					.tag(GLTagGen.DEBUG_ITEMS)
+					.defaultLang().register();
+
+			STRUCTURE_MIRROR_STICK = reg.item("structure_mirror_stick", p -> new StructureMirrorStick(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
+					.defaultLang().register();
+
+			INTERIOR_WAND = reg.item("interior_wand", p -> new InteriorWandItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
+					.tag(L2ISTagGen.SELECTABLE)
 					.defaultLang().register();
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))
