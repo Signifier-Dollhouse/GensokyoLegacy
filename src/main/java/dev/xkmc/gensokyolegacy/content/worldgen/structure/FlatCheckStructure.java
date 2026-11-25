@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.util.ExtraCodecs;
@@ -263,6 +264,41 @@ public class FlatCheckStructure extends Structure {
 		int spacing = resolved.get().spacing();
 		return diagnoseRegion(seed, Math.floorDiv(chunkpos.x, spacing), Math.floorDiv(chunkpos.z, spacing),
 				registries, generator, randomState, templates, heightAccessor, detailed);
+	}
+
+	/**
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
+	 */
+	public int spacing() {
+		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
+	}
+
+	/**
+	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
+	 * the least-index candidate that passes {@link #checkCandidate} wins, so this agrees with worldgen and reads
+	 * no chunks.
+	 */
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) return Optional.empty();
+		MultiSpreadPlacement placement = resolved.get();
+		int spacing = placement.spacing();
+		int baseX = regionX * spacing;
+		int baseZ = regionZ * spacing;
+		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
+				new ChunkPos(baseX, baseZ), heightAccessor, biomes());
+		int idx = firstPassInRegion(ctx, placement, regionX, regionZ);
+		if (idx < 0) return Optional.empty();
+		ChunkPos cand = placement.getPotentialChunks(seed, baseX, baseZ).get(idx);
+		return Optional.of(new Located(cand, placement.getLocatePos(cand), regionX, regionZ));
+	}
+
+	/**
+	 * A start returned by {@link #locateRegion}: its chunk, the position {@code /locate} would report, and its region.
+	 */
+	public record Located(ChunkPos chunk, BlockPos pos, int regionX, int regionZ) {
 	}
 
 	/**
