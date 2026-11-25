@@ -52,7 +52,8 @@ public record StructFlatBuilding(
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FlatCheckStructure(
-				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
+				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION,
+						terrain().needsBeardifier() ? TerrainAdjustment.NONE : TerrainAdjustment.BEARD_THIN),
 				pool, 1, false, maxDistanceFromCenter(), terrain(),
 				StructBuilding.setRef(set), safetyRadius(), set.setIndex(), set.setCount()
 		));

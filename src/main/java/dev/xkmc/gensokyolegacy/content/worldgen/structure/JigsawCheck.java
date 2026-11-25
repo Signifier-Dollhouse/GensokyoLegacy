@@ -9,6 +9,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -91,9 +93,33 @@ public record JigsawCheck(
 
 	/**
 	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but a non-null {@code trace} collects the
-	 * predicate's numbers when the fit fails.
+	 * predicate's numbers when the fit fails, and a predicate that so asks tries all four start rotations.
 	 */
 	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
+		if (!this.terrain.triesAllRotations()) {
+			return validateLayout(ctx, chunkpos, provY, trace, -1);
+		}
+		Validated firstFail = null;
+		for (Rotation rotation : Rotation.getShuffled(seededRandom(ctx.seed(), chunkpos))) {
+			Validated v = validateLayout(ctx, chunkpos, provY, firstFail == null ? trace : null, rotation.ordinal());
+			if (v.pass()) {
+				return v;
+			}
+			if (firstFail == null) {
+				firstFail = v;
+			}
+		}
+		return firstFail;
+	}
+
+	/**
+	 * As above, but {@code rotation >= 0} forces the start rotation instead of the one drawn from {@code ctx.random()}.
+	 */
+	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace,
+									 int rotation) {
+		if (rotation >= 0) {
+			ctx = ctxForRotation(ctx, rotation);
+		}
 		int sea = ctx.chunkGenerator().getSeaLevel();
 		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
 		Optional<Structure.GenerationStub> layout = JigsawPlacement.addPieces(ctx, startPool, Optional.empty(), maxDepth, start,
@@ -104,7 +130,9 @@ public record JigsawCheck(
 		List<PoolElementStructurePiece> pieces = new ArrayList<>();
 		for (var p : layout.get().getPiecesBuilder().build().pieces()) {
 			if (p instanceof PoolElementStructurePiece pool) {
-				pieces.add(pool);
+				TerrainAdjustment adjustment = this.terrain.beardAdjustment(pool);
+				pieces.add(adjustment == null ? pool
+						: GLBeardedPiece.of(ctx.structureTemplateManager(), pool, adjustment));
 			}
 		}
 		if (pieces.isEmpty()) {
@@ -226,6 +254,48 @@ public record JigsawCheck(
 		random.setLargeFeatureSeed(seed, pos.x, pos.z);
 		return new Structure.GenerationContext(registries, generator, generator.getBiomeSource(), randomState,
 				templates, random, seed, pos, heightAccessor, biomes::contains);
+	}
+
+	/**
+	 * The candidate's own seeded random, used for the rotation shuffle so the layout stream stays untouched.
+	 */
+	private static WorldgenRandom seededRandom(long seed, ChunkPos pos) {
+		WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+		random.setLargeFeatureSeed(seed, pos.x, pos.z);
+		return random;
+	}
+
+	private static Structure.GenerationContext ctxForRotation(Structure.GenerationContext ctx, int rotation) {
+		return new Structure.GenerationContext(ctx.registryAccess(), ctx.chunkGenerator(), ctx.biomeSource(),
+				ctx.randomState(), ctx.structureTemplateManager(), new RotationRandom(rotation, ctx.seed(), ctx.chunkPos()),
+				ctx.seed(), ctx.chunkPos(), ctx.heightAccessor(), ctx.validBiome());
+	}
+
+	/**
+	 * Returns {@code rotation} from the first {@code nextInt(4)} and delegates everything else, so the rest of the
+	 * layout sees the same random stream the drawn rotation would have consumed.
+	 */
+	private static final class RotationRandom extends WorldgenRandom {
+
+		private final int rotation;
+		private boolean forced;
+
+		RotationRandom(int rotation, long seed, ChunkPos pos) {
+			super(new LegacyRandomSource(0L));
+			this.rotation = rotation;
+			this.setLargeFeatureSeed(seed, pos.x, pos.z);
+		}
+
+		@Override
+		public int nextInt(int bound) {
+			if (!this.forced && bound == Rotation.values().length) {
+				this.forced = true;
+				super.nextInt(bound);
+				return this.rotation;
+			}
+			return super.nextInt(bound);
+		}
+
 	}
 
 }

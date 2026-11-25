@@ -165,6 +165,18 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * The Beardifier drops structures whose adaptation is NONE before it reads any piece, so a sparse-beard rule
+	 * advertises BEARD_THIN here while each piece still reports its own adjustment. The configured JSON value stays
+	 * NONE: only the gate keeps a beard.
+	 */
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		TerrainAdjustment configured = super.terrainAdaptation();
+		return configured == TerrainAdjustment.NONE && this.terrain.needsBeardifier()
+				? TerrainAdjustment.BEARD_THIN : configured;
+	}
+
+	/**
 	 * Index of the first candidate of region {@code (rx, rz)} where the picked primary passes, or {@code -1}. Pure in
 	 * seed, generator and region, so every candidate of the region and the lower tiers share one scan; a member that is
 	 * not picked, or a reserved pick, returns {@code -1} without a scan.
