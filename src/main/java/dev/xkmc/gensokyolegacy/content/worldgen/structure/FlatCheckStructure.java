@@ -276,11 +276,18 @@ public class FlatCheckStructure extends Structure {
 	/**
 	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
 	 * the least-index candidate that passes {@link #checkCandidate} wins, so this agrees with worldgen and reads
-	 * no chunks.
+	 * no chunks. Cached per region by {@link StructureLocateCache}.
 	 */
 	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
 										  ChunkGenerator generator, RandomState randomState,
 										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		return StructureLocateCache.get(this, generator, seed, regionX, regionZ,
+				() -> computeRegion(seed, regionX, regionZ, registries, generator, randomState, templates, heightAccessor));
+	}
+
+	private Optional<Located> computeRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+											ChunkGenerator generator, RandomState randomState,
+											StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
 		Optional<MultiSpreadPlacement> resolved = this.placement();
 		if (resolved.isEmpty()) return Optional.empty();
 		MultiSpreadPlacement placement = resolved.get();

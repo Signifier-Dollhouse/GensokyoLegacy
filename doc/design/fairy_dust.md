@@ -14,6 +14,7 @@ Related: [structure/placement.md](structure/placement.md), [cooldown.md](cooldow
 |---|---|
 | pink petals, poppy | `hakurei_shrine` |
 | dandelion, oxeye daisy | `marisa_house` |
+| azure bluet | `myouren_temple` |
 | cornflower | `morichika_shop` |
 | any tulip | `alice_house` |
 | any other flower | `character_homes` (all six homes) |
@@ -46,7 +47,7 @@ Everything it touches is immutable or per-call, captured before the worker start
 | `RegistryAccess` | frozen snapshot |
 | `ChunkGenerator` / `BiomeSource` / `RandomState` | stateless density trees |
 | `StructureTemplateManager` | `ConcurrentMap` + `computeIfAbsent` |
-| `LevelHeightAccessor` | a `Height` record of the two bounds, not the `ServerLevel` |
+| `LevelHeightAccessor` | a `LevelBounds` record of the two bounds, not the `ServerLevel` |
 | `FlatCheckStructure` | all fields final; `TerrainPredicate` is a record |
 | candidate random | a fresh `WorldgenRandom` per candidate |
 
@@ -67,7 +68,14 @@ Per tick the server does one `sendParticles` and one future poll. All region che
 `gensokyo-fairy-dust` thread, which is not `Util.backgroundExecutor()`: the worldgen pool must not be starved by a
 search. Casts from different players queue on that thread instead of competing with chunk generation.
 
-## 6. Failure and refund
+## 6. Region cache
+
+`FlatCheckStructure#locateRegion` is memoised by `StructureLocateCache` per `(structure, generator, seed, region)`,
+misses included, so a second cast over the same ground only pays for regions neither cast has seen. The cache is
+shared with `/gensokyo structure scan` (see [structure/placement.md](structure/placement.md) §5), bounded, and
+cleared on server stop.
+
+## 7. Failure and refund
 
 When the last ring comes back empty the mote scatters and the consumed stack is dropped at the flower with the default
 pickup delay. Creative casts consume nothing and refund nothing. On server stop the ticker exits immediately and the

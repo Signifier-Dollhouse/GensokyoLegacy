@@ -88,16 +88,26 @@ salt 162382118 — its `abs(hash("gensokyolegacy:cirno_nest"))`.
 must never change once released. Datagen writes them together with `set` (`init/data/structure/`), so a member's index and
 its set's grid move in one step.
 
-## 5. Listing every start: `/gensokyo structure scan`
+## 5. Listing starts: `/gensokyo structure scan`
 
-`/gensokyo structure scan <structure> <radius>` lists every start of one flat-check structure within `radius` region
-rings of the command source (`1..100`, the same ring unit as `/locate`). For each region in the `(2r+1)^2` square it
-calls `FlatCheckStructure#locateRegion`, which walks the region's candidate stream in order and returns the least-index
-candidate passing `checkCandidate` — the same rule `findGenerationPoint` applies — so the output is the worldgen answer,
-not a guess, and no chunks or region files are read. Hits are printed nearest-first with region, chunk and block
-coordinates, plus the elapsed milliseconds, and logged under `[structure]`.
+`/gensokyo structure scan <structure> <radius> [first|all]` searches the `radius` region rings around the command
+source (`1..100`, the same ring unit as `/locate`). For each region it calls `FlatCheckStructure#locateRegion`, which
+walks the region's candidate stream in order and returns the least-index candidate passing `checkCandidate` — the same
+rule `findGenerationPoint` applies — so the output is the worldgen answer, not a guess, and no chunks or region files
+are read.
+
+- `all` (the default) walks the whole `(2r+1)^2` square and prints every start nearest-first.
+- `first` walks rings outward and stops at the first ring that has a start, nearest-first within that ring.
+
+Both run on the `gensokyo-structure-scan` thread and post their output back through the server queue, so a large radius
+costs no tick time; progress is printed every two seconds. One scan runs at a time — a second command fails with "A
+structure scan is already running" — and a scan still running at server stop is cancelled.
+
+`locateRegion` is memoised per `(structure, generator, seed, region)` by `StructureLocateCache`, misses included, so a
+repeated scan or a fairy-dust cast over the same ground is nearly free. The cache is bounded and cleared on server stop,
+so a long session cannot grow it without limit.
 
 The query describes what the current rules would place. A start already written into a generated chunk by an older
 worldgen can differ: `/locate` reads that stored start first, `scan` recomputes it. Cost is quadratic in the radius
-(about a minute at radius 20 on the dev world), and the jigsaw layout is only built for candidates that pass the
-height/biome prefilter. Like `/locate` it runs on the server thread, so large radii stall the tick loop.
+(about a minute at radius 20 on the dev world, before the cache), and the jigsaw layout is only built for candidates
+that pass the height/biome prefilter.
