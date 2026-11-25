@@ -53,7 +53,9 @@ public class MiscEventHandlers {
 				|| item == GLDecoBlocks.SCROLL_BISHAMONTEN.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_SUN.get().asItem()
 				|| item == GLDecoBlocks.SCROLL_TEMPLE.get().asItem()
-				|| item == GLDecoBlocks.SCROLL_TEXT.get().asItem())
+				|| item == GLDecoBlocks.SCROLL_TEXT.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_PILE.get().asItem()
+				|| item == GLDecoBlocks.GREEN_SCROLL_PILE.get().asItem())
 			event.setBurnTime(100);
 	}
 
