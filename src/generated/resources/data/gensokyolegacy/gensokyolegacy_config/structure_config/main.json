@@ -639,6 +639,233 @@
         }
       },
       "wouldFix": "gensokyolegacy:structure_fix/morichika_shop/would_fix"
+    },
+    "gensokyolegacy:myouren_temple": {
+      "entities": [
+        "gensokyolegacy:murasa_minamitsu"
+      ],
+      "house": [
+        [
+          4,
+          2,
+          8,
+          32,
+          17,
+          36
+        ],
+        [
+          -14,
+          0,
+          -19,
+          -7,
+          10,
+          -7
+        ],
+        [
+          42,
+          0,
+          -19,
+          49,
+          9,
+          -1
+        ],
+        [
+          -26,
+          0,
+          7,
+          -13,
+          13,
+          34
+        ],
+        [
+          49,
+          0,
+          7,
+          62,
+          9,
+          22
+        ],
+        [
+          11,
+          0,
+          41,
+          36,
+          15,
+          51
+        ]
+      ],
+      "interior": {
+        "nodes": [
+          {
+            "posA": [
+              45,
+              2,
+              -14
+            ],
+            "posB": [
+              45,
+              2,
+              -14
+            ],
+            "roomA": 5,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              -9,
+              2,
+              -13
+            ],
+            "posB": [
+              -9,
+              2,
+              -13
+            ],
+            "roomA": 4,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              -16,
+              4,
+              16
+            ],
+            "posB": [
+              -16,
+              4,
+              16
+            ],
+            "roomA": 3,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              -16,
+              4,
+              24
+            ],
+            "posB": [
+              -16,
+              4,
+              24
+            ],
+            "roomA": 2,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              18,
+              4,
+              10
+            ],
+            "posB": [
+              18,
+              4,
+              10
+            ],
+            "roomA": 0,
+            "roomB": -1
+          },
+          {
+            "posA": [
+              52,
+              4,
+              15
+            ],
+            "posB": [
+              52,
+              4,
+              15
+            ],
+            "roomA": 6,
+            "roomB": -1
+          }
+        ],
+        "rooms": [
+          {
+            "bound": [
+              5,
+              3,
+              10,
+              30,
+              13,
+              35
+            ],
+            "name": "room_0"
+          },
+          {
+            "bound": [
+              13,
+              4,
+              44,
+              23,
+              7,
+              48
+            ],
+            "name": "room_1"
+          },
+          {
+            "bound": [
+              -22,
+              3,
+              22,
+              -17,
+              8,
+              32
+            ],
+            "name": "room_2"
+          },
+          {
+            "bound": [
+              -22,
+              4,
+              11,
+              -17,
+              8,
+              20
+            ],
+            "name": "room_3"
+          },
+          {
+            "bound": [
+              -11,
+              0,
+              -17,
+              -9,
+              5,
+              -9
+            ],
+            "name": "room_4"
+          },
+          {
+            "bound": [
+              45,
+              0,
+              -17,
+              47,
+              5,
+              -9
+            ],
+            "name": "room_5"
+          },
+          {
+            "bound": [
+              53,
+              3,
+              11,
+              58,
+              8,
+              20
+            ],
+            "name": "room_6",
+            "owner": "gensokyolegacy:murasa_minamitsu"
+          }
+        ]
+      },
+      "primaryFix": "gensokyolegacy:structure_fix/myouren_temple/primary",
+      "rooms": [],
+      "visitors": {},
+      "wouldFix": "gensokyolegacy:structure_fix/myouren_temple/would_fix"
     }
   }
 }

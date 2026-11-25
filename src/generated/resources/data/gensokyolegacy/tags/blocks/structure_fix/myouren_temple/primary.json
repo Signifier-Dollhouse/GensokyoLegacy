@@ -1,0 +1,121 @@
+{
+  "values": [
+    "minecraft:stripped_dark_oak_log",
+    "minecraft:stripped_spruce_log",
+    "minecraft:stripped_spruce_wood",
+    "minecraft:stripped_oak_log",
+    "minecraft:cherry_log",
+    "minecraft:spruce_planks",
+    "minecraft:dark_oak_planks",
+    "minecraft:oak_planks",
+    "minecraft:bamboo_mosaic",
+    "minecraft:spruce_slab",
+    "minecraft:spruce_stairs",
+    "minecraft:spruce_fence",
+    "minecraft:spruce_fence_gate",
+    "minecraft:spruce_trapdoor",
+    "minecraft:smooth_quartz",
+    "minecraft:smooth_quartz_slab",
+    "minecraft:quartz_stairs",
+    "minecraft:quartz_slab",
+    "minecraft:calcite",
+    "minecraft:diorite",
+    "minecraft:polished_diorite",
+    "minecraft:polished_diorite_slab",
+    "minecraft:stone",
+    "minecraft:stone_bricks",
+    "minecraft:mossy_stone_bricks",
+    "minecraft:cracked_stone_bricks",
+    "minecraft:stone_brick_slab",
+    "minecraft:mossy_stone_brick_slab",
+    "minecraft:stone_stairs",
+    "minecraft:stone_slab",
+    "minecraft:cobblestone",
+    "minecraft:cobblestone_stairs",
+    "minecraft:cobblestone_slab",
+    "minecraft:mossy_cobblestone",
+    "minecraft:andesite",
+    "minecraft:andesite_wall",
+    "minecraft:andesite_slab",
+    "minecraft:polished_andesite",
+    "minecraft:polished_andesite_slab",
+    "minecraft:polished_andesite_stairs",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone_slab",
+    "minecraft:oxidized_cut_copper",
+    "minecraft:oxidized_cut_copper_slab",
+    "minecraft:oxidized_cut_copper_stairs",
+    "minecraft:deepslate",
+    "minecraft:cobbled_deepslate",
+    "minecraft:moss_block",
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "minecraft:coarse_dirt",
+    "minecraft:podzol",
+    "minecraft:rooted_dirt",
+    "minecraft:gravel",
+    "minecraft:dirt_path",
+    "gensokyolegacy:locust_log",
+    "gensokyolegacy:locust_wood",
+    "gensokyolegacy:locust_hollow_log",
+    "gensokyolegacy:stripped_locust_log",
+    "gensokyolegacy:stripped_locust_wood",
+    "gensokyolegacy:locust_planks",
+    "gensokyolegacy:locust_wall",
+    "gensokyolegacy:locust_leaves",
+    "gensokyolegacy:pink_cherry_leaves",
+    "gensokyolegacy:myouren_fence",
+    {
+      "id": "gensokyolegacy:cyan_tiles",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:cyan_tiles_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:cyan_tiles_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:myouren_bricks",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:myouren_brick_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:myouren_brick_stairs",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:myouren_brick_vertical_slab",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:dark_oak_plank_wall",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_plank_wall",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:oak_plank_wall",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:spruce_sliding_door",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:paper_window_pane",
+      "required": false
+    },
+    {
+      "id": "gensokyolegacy:locust_plaque",
+      "required": false
+    }
+  ]
+}

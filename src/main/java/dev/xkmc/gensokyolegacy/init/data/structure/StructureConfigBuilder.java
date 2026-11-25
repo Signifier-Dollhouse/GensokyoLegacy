@@ -159,6 +159,47 @@ public class StructureConfigBuilder {
 		return new StructureInterior(rooms, nodes);
 	}
 
+	/**
+	 * Myouren Temple is 29 jigsaw parts spanning x -26..62, y -2..24, z -45..51; the interior is the main
+	 * hall plus the five bedroom blocks, copied from the exported root.json. Minamitsu's room is hers alone;
+	 * house boxes cover the root main hall and each bedroom part in root-local coordinates.
+	 */
+	public static StructureConfig.Builder myouren() {
+		return StructureConfig.builder()
+				.interior(myourenInterior())
+				.house(List.of(
+						new BoundingBox(4, 2, 8, 32, 17, 36),
+						new BoundingBox(-14, 0, -19, -7, 10, -7),
+						new BoundingBox(42, 0, -19, 49, 9, -1),
+						new BoundingBox(-26, 0, 7, -13, 13, 34),
+						new BoundingBox(49, 0, 7, 62, 9, 22),
+						new BoundingBox(11, 0, 41, 36, 15, 51)
+				))
+				.primary(GLStructureTagGen.MYOUREN_PRIMARY)
+				.wouldFix(GLStructureTagGen.MYOUREN_FIX);
+	}
+
+	private static StructureInterior myourenInterior() {
+		var rooms = new ArrayList<>(List.of(
+				new InteriorRoom("room_0", new BoundingBox(5, 3, 10, 30, 13, 35)),
+				new InteriorRoom("room_1", new BoundingBox(13, 4, 44, 23, 7, 48)),
+				new InteriorRoom("room_2", new BoundingBox(-22, 3, 22, -17, 8, 32)),
+				new InteriorRoom("room_3", new BoundingBox(-22, 4, 11, -17, 8, 20)),
+				new InteriorRoom("room_4", new BoundingBox(-11, 0, -17, -9, 5, -9)),
+				new InteriorRoom("room_5", new BoundingBox(45, 0, -17, 47, 5, -9)),
+				room("room_6", new BoundingBox(53, 3, 11, 58, 8, 20), GLEntities.MINAMITSU.get())
+		));
+		var nodes = new ArrayList<>(List.of(
+				new InteriorNode(new BlockPos(45, 2, -14), new BlockPos(45, 2, -14), 5, -1),
+				new InteriorNode(new BlockPos(-9, 2, -13), new BlockPos(-9, 2, -13), 4, -1),
+				new InteriorNode(new BlockPos(-16, 4, 16), new BlockPos(-16, 4, 16), 3, -1),
+				new InteriorNode(new BlockPos(-16, 4, 24), new BlockPos(-16, 4, 24), 2, -1),
+				new InteriorNode(new BlockPos(18, 4, 10), new BlockPos(18, 4, 10), 0, -1),
+				new InteriorNode(new BlockPos(52, 4, 15), new BlockPos(52, 4, 15), 6, -1)
+		));
+		return new StructureInterior(rooms, nodes);
+	}
+
 	private static InteriorRoom room(String name, BoundingBox box, @Nullable EntityType<?> owner) {
 		return new InteriorRoom(name, box, owner);
 	}

@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.content.item.debug;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,12 +87,24 @@ public record StructureMirrorData(List<Entry> entries) {
 	}
 
 	/**
-	 * Parent-side jigsaw stored on the child entry, or null.
+	 * Parent-side jigsaw stored on the child entry. Data recorded before the position was stored
+	 * derives it from the child jigsaw: the one neighbour of the child jigsaw inside the parent bound.
 	 */
 	@Nullable
 	public BlockPos parentJigsaw(int index) {
 		if (index < 0 || index >= entries.size()) return null;
-		return entries.get(index).parentJigsaw();
+		var entry = entries.get(index);
+		if (entry.parentJigsaw() != null) return entry.parentJigsaw();
+		if (entry.childJigsaw() == null || entry.parent() < 0 || entry.parent() >= entries.size()) return null;
+		BoundingBox parent = entries.get(entry.parent()).bound();
+		BlockPos found = null;
+		for (Direction dir : Direction.values()) {
+			BlockPos candidate = entry.childJigsaw().relative(dir);
+			if (!parent.isInside(candidate)) continue;
+			if (found != null) return null;
+			found = candidate;
+		}
+		return found;
 	}
 
 	/**
@@ -102,7 +116,10 @@ public record StructureMirrorData(List<Entry> entries) {
 			var entry = entries.get(i);
 			if (entry.parent() < 0 || entry.childJigsaw() == null) continue;
 			boolean match = entry.childJigsaw().equals(pos);
-			if (!match && entry.parentJigsaw() != null) match = entry.parentJigsaw().equals(pos);
+			if (!match) {
+				BlockPos parentJig = parentJigsaw(i);
+				match = parentJig != null && parentJig.equals(pos);
+			}
 			if (!match) continue;
 			if (found >= 0) return -2;
 			found = i;
@@ -111,9 +128,19 @@ public record StructureMirrorData(List<Entry> entries) {
 	}
 
 	public StructureMirrorData addChild(int parent, BoundingBox bound, BlockPos block,
-	                                    BlockPos parentJigsaw, BlockPos childJigsaw) {
+	                                    BlockPos parentJigsaw, BlockPos childJigsaw,
+	                                    ResourceLocation name) {
 		List<Entry> list = new ArrayList<>(entries);
-		list.add(new Entry(bound, block, parent, parentJigsaw, childJigsaw));
+		list.add(new Entry(bound, block, parent, parentJigsaw, childJigsaw, name));
+		return new StructureMirrorData(list);
+	}
+
+	/**
+	 * Replaces the recorded name of one piece, used when a structure block is renamed.
+	 */
+	public StructureMirrorData withName(int index, ResourceLocation name) {
+		List<Entry> list = new ArrayList<>(entries);
+		list.set(index, list.get(index).withName(name));
 		return new StructureMirrorData(list);
 	}
 
@@ -128,13 +155,15 @@ public record StructureMirrorData(List<Entry> entries) {
 			var entry = entries.get(i);
 			int parent = entry.parent();
 			if (parent > index) parent--;
-			list.add(new Entry(entry.bound(), entry.block(), parent, entry.parentJigsaw(), entry.childJigsaw()));
+			list.add(new Entry(entry.bound(), entry.block(), parent,
+					entry.parentJigsaw(), entry.childJigsaw(), entry.name()));
 		}
 		return new StructureMirrorData(list);
 	}
 
 	public record Entry(BoundingBox bound, BlockPos block, int parent,
-	                    @Nullable BlockPos parentJigsaw, @Nullable BlockPos childJigsaw) {
+	                    @Nullable BlockPos parentJigsaw, @Nullable BlockPos childJigsaw,
+	                    @Nullable ResourceLocation name) {
 
 		public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
 				BoundingBox.CODEC.fieldOf("bound").forGetter(Entry::bound),
@@ -143,14 +172,25 @@ public record StructureMirrorData(List<Entry> entries) {
 				BlockPos.CODEC.optionalFieldOf("parent_jigsaw")
 						.forGetter(e -> Optional.ofNullable(e.parentJigsaw())),
 				BlockPos.CODEC.optionalFieldOf("child_jigsaw")
-						.forGetter(e -> Optional.ofNullable(e.childJigsaw()))
-		).apply(i, (bound, block, parent, parentJigsaw, childJigsaw) ->
-				new Entry(bound, block, parent, parentJigsaw.orElse(null), childJigsaw.orElse(null))));
+						.forGetter(e -> Optional.ofNullable(e.childJigsaw())),
+				ResourceLocation.CODEC.optionalFieldOf("name")
+						.forGetter(e -> Optional.ofNullable(e.name()))
+		).apply(i, (bound, block, parent, parentJigsaw, childJigsaw, name) ->
+				new Entry(bound, block, parent, parentJigsaw.orElse(null), childJigsaw.orElse(null),
+						name.orElse(null))));
 
 		public boolean contains(BlockPos pos) {
 			return pos.getX() >= bound.minX() && pos.getX() <= bound.maxX()
 					&& pos.getY() >= bound.minY() && pos.getY() <= bound.maxY()
 					&& pos.getZ() >= bound.minZ() && pos.getZ() <= bound.maxZ();
+		}
+
+		public Entry withName(ResourceLocation name) {
+			return new Entry(bound, block, parent, parentJigsaw, childJigsaw, name);
+		}
+
+		public Entry withParentJigsaw(BlockPos parentJigsaw) {
+			return new Entry(bound, block, parent, parentJigsaw, childJigsaw, name);
 		}
 
 		public long volume() {

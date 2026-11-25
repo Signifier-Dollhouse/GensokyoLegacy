@@ -66,6 +66,14 @@ Scan every recorded pair and validate both jigsaw blocks: block present, front/t
 pool, joint type and final state. Invalid pairs are re-placed and re-configured. Report the number of valid,
 fixed and failed pairs, with a reason per pair, to chat and the log.
 
+Validation also compares each piece's stored name with the name its structure block has now. Every piece
+that was renamed has all of its connectors rewritten from the new name (both the pairs where it is the parent
+and the pairs where it is the child), so `name`, `target` and `pool` follow the rename. Each rename is reported
+with its entry index, old name and new name.
+
+If two recorded pieces carry the same structure name, validation warns about it (with both entry indices):
+their templates would overwrite each other on save, and a jigsaw pool cannot tell them apart.
+
 ### 1.5 Right-click bedrock outside every bound
 
 Right-clicking a bedrock block that lies outside every recorded bound triggers a vanilla structure-block **save**
@@ -102,7 +110,8 @@ record Entry(
     BlockPos block,             // structure block position (piece identity)
     int parent,                 // index of the parent entry; -1 for the root
     @Nullable BlockPos parentJigsaw, // jigsaw off the parent's bound face on the parent link
-    @Nullable BlockPos childJigsaw   // jigsaw inside this piece on the parent link
+    @Nullable BlockPos childJigsaw,  // jigsaw inside this piece on the parent link
+    @Nullable ResourceLocation name  // structure name when recorded; the old name after a rename
 )
 ```
 
@@ -110,8 +119,15 @@ The root has `parent = -1` and both jigsaws null. Ordering is parent-before-chil
 list describes a tree. Both connector positions are stored: the pair sits in the air between the two bounds, so
 neither position can be derived from the other plus a bound.
 
-The piece name is not stored; it is read from the structure block at `block` when the chunk is loaded.
-Authoring always happens with the structure blocks loaded.
+The piece name is read from the structure block at `block` when the chunk is loaded; that is the authoritative
+name for building connectors. The stored `name` is the name the piece had when it was recorded (or last
+validated), so validation can tell a rename apart from a pair that was merely corrupted, and update every
+connector that references the piece. Old items without the field keep working: the name is backfilled on the
+next validation and rename detection starts from there.
+
+Entries recorded before `parent_jigsaw` was stored (older items) derive the parent connector instead: it is the
+only neighbour of the child jigsaw that lies inside the parent bound. Validation backfills the derived
+position, and deletion uses the same fallback to remove the parent jigsaw.
 
 ## 3. Plan
 

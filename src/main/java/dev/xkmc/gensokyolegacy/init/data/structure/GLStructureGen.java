@@ -37,6 +37,7 @@ public class GLStructureGen {
 	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
 	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
 	public static final ResourceLocation ALICE_HOUSE = GensokyoLegacy.loc("alice_house");
+	public static final ResourceLocation MYOUREN_TEMPLE = GensokyoLegacy.loc("myouren_temple");
 
 	// Marisa's house and Kourindou share one structure set: every region picks one of 4 slots (FlatCheckStructure
 	// setIndex/setCount gate), so they never spawn too close; slots 2-3 are reserved and the total must never change.
@@ -143,6 +144,50 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("backyard", true, List.of())
 						), Map.of(), 5, 80, 8),
 						FOREST_HOUSES
+				),
+				// Myouren Temple, the barrens' only structure (assembled 89x27x97 from 29 jigsaw parts): the
+				// main hall and its wings, the bedroom blocks, the gate and bell tower, the wall ring and the
+				// pond. All parts use RIGID projection so their assembled offsets are preserved.
+				new StructStructure(
+						MYOUREN_TEMPLE, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
+						StructureConfigBuilder.myouren(),
+						List.of(new StructBed(
+								GLEntities.MINAMITSU,
+								CharacterConfig.forStructure(6000, 12000, 16, 30),
+								GLBlocks.Beds.MINAMITSU.holder()
+						)),
+						new StructFlatJigsawBuilding(6, List.of(
+								new StructFlatJigsawBuilding.Part("root", true, List.of()),
+								new StructFlatJigsawBuilding.Part("gate", true, List.of()),
+								new StructFlatJigsawBuilding.Part("path", true, List.of()),
+								new StructFlatJigsawBuilding.Part("pond", true, List.of()),
+								new StructFlatJigsawBuilding.Part("bell", true, List.of()),
+								new StructFlatJigsawBuilding.Part("roof", true, List.of()),
+								new StructFlatJigsawBuilding.Part("roof_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("room_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("side_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("stair_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("stair_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("tree_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_0", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_1", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_2", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_3", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_4", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_5", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_6", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_7", true, List.of()),
+								new StructFlatJigsawBuilding.Part("wall_8", true, List.of())
+						), Map.of(), 5, 96, 8),
+						MYOUREN_TEMPLE
 				)
 		);
 	}
