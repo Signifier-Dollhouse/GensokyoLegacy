@@ -151,6 +151,9 @@ set's primaries.
   - mirrors `StructFlatJigsawBuilding`: one template pool per part at `<id>/<part>`, generation from the root part,
     and registers `FallbackStructure` with `StructBuilding.setRef(context)`.
   - no beds, no home config and no `safety_radius` of its own.
+- `init/data/structure/helper/StructFallbackSingleBuilding.java`
+  - the same fallback with one template, mirroring `StructFlatBuilding`: the pool is registered under the structure
+    id, but its sole element points at a separate template id, so a biome plot can stay under `biome/...`.
 
 ### Changed
 
@@ -172,9 +175,10 @@ set's primaries.
     spacing/attempts check now runs over every member, plus a `safety_radius` check over the primary members, and a
     set without primaries is rejected;
   - `dataMap`: skips `Role.TINY` members (no beds, rooms or visits, nothing to register);
-  - example entry: one fallback in `magical_forest_houses` (its own template), one in the `hakurei_shrine` /
-    `cirno_nest` sets once their fallback assets exist. The fallback's biome tag is the union of the set's flat
-    tags; the forest houses all use `magical_forest`, so that tag is reused as is.
+  - first entry: `small_graveyard` in the `myouren_temple` set, template
+    `gensokyolegacy:biome/graveyard/small_graveyard` from `structure/biome/graveyard/small_graveyard.nbt`,
+    `UniformHeightCheck(5)`, no home config. It shares the barrens tag with the temple and fills the candidates the
+    temple's own fit rejected; the barrens' pools, groves and tombs avoid both members.
 - `doc/design/structure/placement.md`: one line in §1 pointing here.
 
 ## 6. Edge cases

@@ -80,7 +80,7 @@ spawn table copied in beside them.
 |---|---|---|
 | `muenzuka` | `forest`, **minus `trees_birch_and_oak`** | a burial grove: half locust over the markers, a quarter of the purple cherry, the rest the oak and birch that grew here before — see §2.2 |
 | `plain_of_the_past` | `plains` | open, already tilled-looking, plus its pumpkin and sugar cane patches |
-| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them, kept clear of the temple's wall ring |
+| `myouren_temple_barrens` | `badlands` | the dry dead-bush and coarse-dirt look, with the locust that stands over the temple's markers, and the temple's own pools with the mod's lilies on them, kept clear of the temple's wall ring and its graveyard fallback |
 | `bamboo_forest_of_the_lost` | `snowy_taiga` | spruce understorey, so the grove reads as a winter one — though the biome itself no longer snows, §6 |
 | `hill_of_the_nameless` | `meadow` | open flowered hill with no canopy to hide in |
 | `untrodden_valley` | `taiga`, **minus `trees_taiga`** | half maple, half oak and birch: the grove is the reason the valley reads as untrodden rather than as cold — see §2.2 |
@@ -552,7 +552,8 @@ The barrens' tomb is not a patch at all. It is a hand-built NBT plot placed by `
 structure-side twin of the magical forest's `template` feature: same terrain checks and random rotation, but the blocks
 are placed as authored instead of being blended into vegetation. The three `biome/graveyard/tomb_0*` templates carry a
 grave, its lanterns and the offerings left on it; the plot needs flat dirt (`max_slope` 0) and clears the plants it
-stands on rather than being refused by them.
+stands on rather than being refused by them. Like the pools and the groves, the plots keep their clearance from both
+structures in the biome: the temple and its graveyard fallback.
 
 `barrens_golden_lotus` is drawn by a feature of its own, `gensokyolegacy:golden_lotus`. The lotus grows through three
 sizes as one block and only the large size is a double plant, with halves named `part` rather than `half`, so

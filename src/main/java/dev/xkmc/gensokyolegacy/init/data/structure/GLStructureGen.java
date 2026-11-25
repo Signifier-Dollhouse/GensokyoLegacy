@@ -33,14 +33,15 @@ import java.util.function.Supplier;
 
 public class GLStructureGen {
 
-	// Structure ids, public because visit chat is written per host: a guest says
-	// different things at each of these, so the QDGen classes name them.
+	// Structure ids, public because other classes name them: visit chat is written per
+	// host, so a guest says different things at each, and the barrens' features avoid them.
 	public static final ResourceLocation CIRNO_NEST = GensokyoLegacy.loc("cirno_nest");
 	public static final ResourceLocation HAKUREI_SHRINE = GensokyoLegacy.loc("hakurei_shrine");
 	public static final ResourceLocation MARISA_HOUSE = GensokyoLegacy.loc("marisa_house");
 	public static final ResourceLocation MORICHIKA_SHOP = GensokyoLegacy.loc("morichika_shop");
 	public static final ResourceLocation ALICE_HOUSE = GensokyoLegacy.loc("alice_house");
 	public static final ResourceLocation MYOUREN_TEMPLE = GensokyoLegacy.loc("myouren_temple");
+	public static final ResourceLocation SMALL_GRAVEYARD = GensokyoLegacy.loc("small_graveyard");
 
 	// Marisa's house and Kourindou share one structure set: every region picks one of 4 slots (FlatCheckStructure
 	// setIndex/setCount gate), so they never spawn too close; slots 2-3 are reserved and the total must never change.
@@ -191,6 +192,16 @@ public class GLStructureGen {
 								new StructFlatJigsawBuilding.Part("wall_8", true, List.of())
 						), Map.of(), new BastionHeightCheck(GensokyoLegacy.loc("myouren_temple/gate"), 4,
 								Blocks.COBBLESTONE.defaultBlockState()), 96, 8),
+						MYOUREN_TEMPLE
+				),
+				// The barrens' fallback (template 12x8x20): it fills the candidates the temple's own fit rejected,
+				// and yields to the temple's start. It shares the temple's set and biome tag, but is no home.
+				new StructStructure(
+						SMALL_GRAVEYARD, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
+						StructureConfig.builder(), List.of(),
+						new StructFallbackSingleBuilding(
+								GensokyoLegacy.loc("biome/graveyard/small_graveyard"),
+								List.of(), Map.of(), new UniformHeightCheck(5), 32),
 						MYOUREN_TEMPLE
 				)
 		);

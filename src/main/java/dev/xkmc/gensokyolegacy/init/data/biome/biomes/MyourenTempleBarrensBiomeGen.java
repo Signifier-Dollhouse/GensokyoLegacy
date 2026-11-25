@@ -55,6 +55,9 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	/** The widest locust template is 13 blocks across, so its crown reaches six blocks from the trunk. */
 	private static final int LOCUST_CLEARANCE = 6;
 
+	/** The widest tomb template is 4 blocks across, so it reaches two blocks from its anchor. */
+	private static final int TOMB_CLEARANCE = 2;
+
 	private static final ResourceKey<ConfiguredFeature<?, ?>> BARRENS_SCRUB = cf("barrens_scrub");
 	private static final ResourceKey<PlacedFeature> BARRENS_SCRUB_PF = pf("barrens_scrub");
 	private static final ResourceKey<ConfiguredFeature<?, ?>> TOMB = cf("barrens_tomb");
@@ -134,7 +137,7 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 				avoid(reg, LOCUST_CLEARANCE));
 		reg.cover(BARRENS_SCRUB_PF, reg.feature(BARRENS_SCRUB), CountPlacement.of(8));
 		reg.cover(GOLDEN_LOTUS_PF, reg.feature(GOLDEN_LOTUS),RarityFilter.onAverageOnceEvery(8));
-		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12));
+		reg.floor(TOMB_PF, reg.feature(TOMB), RarityFilter.onAverageOnceEvery(12), avoid(reg, TOMB_CLEARANCE));
 		// the pool, dug into the waste: a rarer pond than the magical forest's, because the barrens is a wide dry place
 		reg.placed(LAKE_PF, reg.feature(LAKE), RarityFilter.onAverageOnceEvery(3), InSquarePlacement.spread(),
 				avoid(reg, LAKE_CLEARANCE),
@@ -143,9 +146,10 @@ public class MyourenTempleBarrensBiomeGen extends AbstractBiomeGen {
 	}
 
 	private static AvoidStructuresFilter avoid(Registrar reg, int clearance) {
-		var temple = reg.ctx().lookup(Registries.STRUCTURE)
-				.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GLStructureGen.MYOUREN_TEMPLE));
-		return new AvoidStructuresFilter(HolderSet.direct(temple), clearance);
+		var lookup = reg.ctx().lookup(Registries.STRUCTURE);
+		var temple = lookup.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GLStructureGen.MYOUREN_TEMPLE));
+		var graveyard = lookup.getOrThrow(ResourceKey.create(Registries.STRUCTURE, GLStructureGen.SMALL_GRAVEYARD));
+		return new AvoidStructuresFilter(HolderSet.direct(temple, graveyard), clearance);
 	}
 
 }
