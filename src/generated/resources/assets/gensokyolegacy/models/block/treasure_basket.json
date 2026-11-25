@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/utensil/sealing_pot",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/utensil/sealing_pot"
+  }
+}

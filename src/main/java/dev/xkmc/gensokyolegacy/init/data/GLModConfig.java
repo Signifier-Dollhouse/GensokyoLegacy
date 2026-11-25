@@ -49,6 +49,8 @@ public class GLModConfig {
 		public final ForgeConfigSpec.IntValue hauntingSkillCost;
 
 		public final ForgeConfigSpec.IntValue sealingPotRadius;
+		public final ForgeConfigSpec.IntValue treasureBasketRadius;
+		public final ForgeConfigSpec.IntValue treasureBasketExpirySpeed;
 		public final ForgeConfigSpec.DoubleValue jizoXpRatio;
 
 		public final ForgeConfigSpec.IntValue partyScanDistance;
@@ -76,6 +78,10 @@ public class GLModConfig {
 			{
 				sealingPotRadius = builder.text("Radius in chunks of the area around sealing pot that prevents hostile natural mob spawning")
 						.defineInRange("sealingPotRadius", 4, 1, 8);
+				treasureBasketRadius = builder.text("Radius in chunks of the area around a treasure basket that catches expiring items")
+						.defineInRange("treasureBasketRadius", 7, 1, 15);
+				treasureBasketExpirySpeed = builder.text("Ticks an item ages per game tick for each treasure basket covering its chunk; 1 disables the acceleration")
+						.defineInRange("treasureBasketExpirySpeed", 10, 1, 100);
 				jizoXpRatio = builder.text("Spiritual power a Jizo restores per experience point when it takes one level and the current progress; 0.1 restores 10%")
 						.defineInRange("jizoXpRatio", 2d, 0, 100);
 			}

@@ -47,5 +47,7 @@
 	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml.title": "东方幻想绮谈服务器配置",
 	"gensokyolegacy.configuration.suwako_hat": "诹访子的帽子",
 	"gensokyolegacy.configuration.title": "东方幻想绮谈配置",
+	"gensokyolegacy.configuration.treasureBasketRadius": "宝物篮截留超时物品的半径（区块）",
+	"gensokyolegacy.configuration.treasureBasketRadius.tooltip": " 默认：7\n 范围：1 ~ 15",
 	"gensokyolegacy.configuration.worldgen": "世界生成"
 }
