@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * Everything glove-specific lives behind these four members - how far it looks, whether a wall vetoes the
  * shot, what it accepts, what colour its marker glows - so both sides run the same trace and check.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public interface GloveTargeting {
 

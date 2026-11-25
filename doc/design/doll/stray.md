@@ -361,7 +361,7 @@ Refresh three effects on the owner every second, all with `AURA_DURATION`:
 | `MobEffects.MOVEMENT_SPEED` | 1 | Speed II |
 | `GLEffects.LIVELY` | 0 | Lively I (20% faster item cooldowns) |
 
-`LIVELY` is already implemented through `LivelySource`/`CooldownClock` (cooldown.md), so this is a
+`LIVELY` is already implemented through `LivelySource`/`CooldownClock` (`doc/design/item/cooldown.md`), so this is a
 real benefit, not a decorative icon. A stronger external potion effect is not downgraded: vanilla's
 `addEffect` keeps the stronger amplifier/duration.
 

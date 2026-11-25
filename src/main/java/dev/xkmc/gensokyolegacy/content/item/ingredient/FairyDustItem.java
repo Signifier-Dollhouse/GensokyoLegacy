@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
  * ({@link FairyDustSearch}). Nothing of the right kind within reach: the mote scatters and the
  * dust is dropped back where it was sprinkled, which reads as "there is nothing here".
  *
- * @see "doc/design/fairy_dust.md"
+ * @see "doc/design/structure/fairy_dust.md"
  */
 public class FairyDustItem extends Item {
 

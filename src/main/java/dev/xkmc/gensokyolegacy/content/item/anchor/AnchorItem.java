@@ -55,7 +55,7 @@ import java.util.UUID;
  * Minamitsu's anchor: a pickaxe that also throws itself. The mode picks what a throw does, and every
  * storm throw pays spiritual power from the pool the item carries.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorItem extends SpiritualDanmakuItem {
 

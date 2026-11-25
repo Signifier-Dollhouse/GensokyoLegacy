@@ -6,7 +6,7 @@ and of the hand-written `StructureConfigBuilder` interiors. The wand records an 
 vanilla structure block's bound, edits rooms and waypoints in the world, and exports the
 template-local `interior` JSON.
 
-Related: [interior_rework.md](interior_rework.md), [mirror_stick.md](mirror_stick.md).
+Related: [interior.md](interior.md), [mirror_stick.md](mirror_stick.md).
 
 ## 1. Item data
 

@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
  * A thrown weapon is not a danmaku: it keeps full opacity at every range and is never hidden from
  * its own thrower, so the throw is visible from the first tick.
  *
- * @see "doc/design/nue_trident.md"
+ * @see "doc/design/item/nue_trident.md"
  */
 public class NoFadeBulletRenderer<T extends ItemBulletEntity> extends ItemBulletRenderer<T> {
 

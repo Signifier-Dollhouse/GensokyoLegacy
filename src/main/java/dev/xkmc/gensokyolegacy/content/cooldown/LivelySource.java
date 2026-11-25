@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
  * <p>
  * Level one is 1.2 and level two is 1.4, so a second level is worth as much as the first.
  *
- * @see "doc/design/cooldown.md"
+ * @see "doc/design/item/cooldown.md"
  */
 public class LivelySource implements CooldownSource {
 

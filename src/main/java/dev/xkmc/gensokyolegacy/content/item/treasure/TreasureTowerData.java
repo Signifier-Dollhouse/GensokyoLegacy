@@ -16,7 +16,7 @@ import java.util.Map;
  * The finished recipe list, read by the item and by JEI. Small enough that a lookup is a scan over
  * the recipes of one gem rather than a per-block index, which would need the stone tags expanded.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public final class TreasureTowerData {
 

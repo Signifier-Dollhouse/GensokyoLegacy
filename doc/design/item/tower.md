@@ -216,7 +216,7 @@ Add:
 
 - `content/item/treasure/TreasureTower.java` — the item, charge and release, beam, tooltip.
 - `content/item/treasure/OreRecipe.java` — the recipe (gem, ore, tags, blocks), plus `matches(BlockState)`.
-- `content/item/treasure/TreasureTowerData.java` — the recipe list and per-gem index, `@see "doc/design/tower.md"`.
+- `content/item/treasure/TreasureTowerData.java` — the recipe list and per-gem index, `@see "doc/design/item/tower.md"`.
 - `content/item/treasure/TreasureTowerManager.java` — §3 end to end, plus `TagsUpdatedEvent` clearing.
 - `content/item/treasure/TreasureTowerClient.java` — client cache.
 - `content/item/treasure/network/TreasureTowerToClient.java` — the sync packet.

@@ -398,7 +398,7 @@ public List<Ingredient> getHints(Level level, BlockPos pos) {
 
 ---
 
-## 11. File / Registration Checklist (when implementation starts)
+## 11. Files
 
 - `content/block/functional/alchemypot/AlchemyPotBlock.java`
 - `content/block/functional/alchemypot/AlchemyPotBlockEntity.java` + `AlchemyItemContainer.java`
@@ -430,4 +430,4 @@ Owner answers applied (see §3). Remaining design considerations:
 
  - **Potion NBT sensitivity**: use `PotionIngredient` from `l2core` (`dev.xkmc.l2core.init.reg.ingredient.PotionIngredient`) for `DataComponents.POTION_CONTENTS`-aware matching; `ItemStack` hashing in hint dedup includes `componentsPatch` (as YH does). Example JSON: `{ "type":"l2core:potion", "potion":"minecraft:strong_healing" }` (check L2Core codec exact field).
 
-All other prior open questions are resolved; proceed to implementation.
+All other prior open questions are resolved; the implementation follows this section.

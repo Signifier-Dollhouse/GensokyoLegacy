@@ -299,7 +299,7 @@ strange glasses or holds a sealing pot (otherwise empty). The generic side of th
 
 ---
 
-## 10. Follow-ups
+## 10. Known gaps
 
 - Replace the forcefield-texture placeholder with proper per-pot visual art/volume once designed.
 - Radius config changes don't live-update existing pots (re-place to apply).

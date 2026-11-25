@@ -2,7 +2,7 @@
 
 This document reflects the current implementation in `content/entity/youkai/` (base entities, plus `impl/` and `renderer/`), `content/entity/foundation/`, `content/attachment/character/`, `content/entity/behavior/` (brain/sensor/task/move/combat, plus `module/` and `visit/`) and `init/registrate/`.
 
-Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md), [reputation.md](reputation.md), [character_visit.md](character_visit.md), [party/](party/).
+Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md), [reputation.md](reputation.md), [character_visit.md](character_visit.md), [party/](../party/).
 
 ## 1. Components
 
@@ -334,4 +334,6 @@ board.build(); // must be last
 - `tickTargeting` nearestPlayer scan `level.getNearestPlayer(this,32)` runs at most once per 20 ticks and only when `noTargetTime>100`.
 - Sensors throttled: `NearbyPlayerSensor` every 5t, `NearbyLiving` 10/20t adaptive, `YoukaiUpdateHomeSensor` 80t.
 - `SmartBrain.tick` is per-youkai server tick; keep `TaskBoard` behaviours cheap; avoid `level.getEntities` inside behaviours — use sensor memories `NEAREST_PLAYERS/MEM_PREY/MEM_ITEMS`.
+- `CharacterAttachment.tick` walks the player's character map once per settlement (dawn), not per tick. Cheap at the current ≤14 entries, but `O(C)` in the number of characters.
+- **Open:** the `TaskBoard` priority scale (100 apart, with `PARTY 400` / `NAP 500` / `VISITING 600` / `HUNT 700` between `TALK` and the scheduled activities) is written above the activity constants in `GLBrains` and shown in §3.3, but there is no debug overlay line comparing `getActivity()` with the active non-core brain activity. Adding one would catch drift between the two.
 

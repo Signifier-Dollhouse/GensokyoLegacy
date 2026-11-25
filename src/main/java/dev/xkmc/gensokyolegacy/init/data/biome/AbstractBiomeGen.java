@@ -61,7 +61,7 @@ import java.util.*;
  * No biome spawns a mob. Natural spawning in Gensokyo belongs to the mod's own entities, added by biome modifier, not
  * to a vanilla spawn table copied in beside them.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public abstract class AbstractBiomeGen {
 

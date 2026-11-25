@@ -17,7 +17,7 @@ import java.util.Optional;
  * Selector listener for the anchor's mode, mirroring the fan's. Every mode is always listed, so the
  * list never changes shape.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorSelectionListener extends IItemSelector implements WheelAdaptor.Provider {
 

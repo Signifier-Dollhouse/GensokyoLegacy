@@ -16,7 +16,7 @@ import java.util.Locale;
  * Item model generation for the anchor: one flat GUI icon per mode over the same Blockbench base,
  * plus one flat wheel icon per mode, both selected by {@link AnchorItem#displayPredicate}.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorModel {
 

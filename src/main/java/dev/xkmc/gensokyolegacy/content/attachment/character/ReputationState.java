@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 /**
  * How a character feels about the player, from the {@link ReputationConstants} thresholds.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/structure/reputation.md"
  */
 public enum ReputationState {
 	FRIEND, STRANGER, JERK, ENEMY;

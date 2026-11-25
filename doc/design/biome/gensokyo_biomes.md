@@ -1,8 +1,7 @@
 # Gensokyo biomes (`init/data/biome/`)
 
-Every biome the Gensokyo dimension can select: the twelve of `gensokyo_dimension_biome_guide.md` §3 and §4, the two that
-were already there (`magical_forest`, `sakura_forest`), and the four fixed locations of
-`gensokyolegacy_fixed_biomes_guide.md` plus the one it does not name.
+Every biome the Gensokyo dimension can select: twelve band biomes, two that were already there (`magical_forest`,
+`sakura_forest`), and four fixed locations plus one split (`secret_heaven_cliff`).
 
 Each biome is a class of its own in `biomes/`, extending `AbstractBiomeGen`: `MuenzukaBiomeGen` is the Muenzuka biome's whole
 registration, and `BiomeGen.KEY` on it is the key the climate grid, the tags and the structures ask for. The shared
@@ -16,16 +15,16 @@ so two branches editing two different biomes never open the same one.
 
 The seventeen split four ways:
 
-- **twelve band biomes** (§1) — the guide's lower ground / upper ground / Mountain / Underground, each with its own written-out feature list.
+- **twelve band biomes** (§1) — the lower ground / upper ground / Mountain / Underground bands, each with its own written-out feature list.
 - **two established** — `magical_forest` and `sakura_forest`, which predate this and are left alone.
 - **four fixed locations** (§7) — Misty Lake, its shore, the Tengu Settlement and the summit above it.
 - **one split** — `secret_heaven_cliff`, the dry half of the settlement's band (§7).
 
-The guide's own Y bands (64–80 / 80–96 / 96–128) are **not** what the grid uses. `gensokyo_dimension.md` §3 replaced
-them with continentalness quantiles, so the guide's "lower ground / upper ground / Mountain" labels are kept here as
-*band names* and mapped onto the height bands that actually exist:
+The original Y bands (64–80 / 80–96 / 96–128) are **not** what the grid uses. `gensokyo_dimension.md` §3 replaced
+them with continentalness quantiles, so the band names "lower ground / upper ground / Mountain" are kept here as labels
+and mapped onto the height bands that actually exist:
 
-| guide band | grid region | surface y | share |
+| band | grid region | surface y | share |
 |---|---|---|---|
 | lower ground | region 2, low erosion half | 66 … 96 | 28.0% |
 | upper ground | region 2, high erosion half | 66 … 96 | 19.9% |
@@ -37,9 +36,8 @@ them on erosion instead of on height, so each of the eight appears at every heig
 512 × 512 chunks at seed −1838080655014084215, and both halves move with the seed for the reason
 `gensokyo_dimension.md` §4 gives.
 
-The guide gives four biomes per band and classifies them **hot humid, cold humid, hot dry, cold dry**, in that order.
-So does the grid: temperature and humidity are each cut once, at 0, and the four cells of a band are filled in the
-guide's order. Nothing is repeated and nothing is left over.
+The four cells of a band are classified **hot humid, cold humid, hot dry, cold dry**, in that order, and the grid fills
+them in the same order. Nothing is repeated and nothing is left over.
 
 | band | hot humid | cold humid | hot dry | cold dry |
 |---|---|---|---|---|
@@ -303,7 +301,7 @@ biome that keeps **vanilla's** climate and special effects rather than Gensokyo'
 `#3F76E4`, fog `#C0D8FF`, sky `#78A7FF`, and no grass or foliage override. It was a verbatim vanilla copy until the
 feature lists were written out, and a sunflower field is a plains — nothing about sunflowers changes what the grass
 looks like. Only its features are ours.
-There is no snowy biome: the guide gives a band its four, and the one genuinely cold cell of the whole dimension is
+There is no snowy biome: each band gets its four, and the one genuinely cold cell of the whole dimension is
 `bamboo_forest_of_the_lost`, which is snow-covered anyway.
 
 ---
@@ -341,7 +339,7 @@ deep, and the run of them into a rim. See §1.
 **One chamber** — `gensokyolegacy:ravine_cave`, which cuts the ravine itself: a quarter ellipsoid with a flat floor
 and a domed ceiling, cut into the face of a cliff, and lined in basalt — floor, walls and roof. It is the ravine's first
 feature, because everything else in the ravine is laid on the ground it makes. See
-`doc/design/genbu_ravine_cave.md`.
+`doc/design/biome/genbu_ravine_cave.md`.
 
 **Water lilies** — `gensokyo_biome/lilies`, which every Gensokyo lake grows in place of the vanilla lily pad: the mod's
 own small pad and the large one, each in its own facing, and the large one in each of its seven looks. The mix is one
@@ -452,9 +450,9 @@ per column and the gen is left a walk over what it settled.
 The magical forest's pond and this are the same feature (`gensokyolegacy:lake`) with the same ellipsoid maker; they
 differ in `mode` and in what the mode checks. See `magical_forest_vegetation.md` §6.5 for the pond.
 
-The guide's §7 order — surface palette, common vegetation, ground accents, water, structures, atmosphere — was not
-followed literally, because a biome's identity here comes mostly from its base and its colours. Every list in the
-guide is a suggestion of what *can* be there, and the palette table below is what was taken from it.
+The palette order — surface palette, common vegetation, ground accents, water, structures, atmosphere — was not
+followed literally, because a biome's identity here comes mostly from its base and its colours. Each list is a
+suggestion of what *can* be there, and the palette table below is what was taken from it.
 
 ### 2.2 The mod's own trees, and the leaves under them
 
@@ -516,7 +514,7 @@ The maple belt runs `youkai_mountain_foothills` → `tengu_settlement` → `untr
 wind. `sakura_forest` is outside it and replaces `minecraft:trees_cherry` outright; nothing else in the dimension
 plants vanilla cherry any more. `untrodden_valley` is the one grove the maples do not have to themselves, and
 `muenzuka` is the same shape with the locust: a burial grove is half the tree that grows back over a grave, a quarter
-the purple cherry the guide asks for as the graveyard's purple-blossomed tree, and the rest the oak and birch that
+the purple cherry serves as the graveyard's purple-blossomed tree, and the rest the oak and birch that
 grew there before, at the four a chunk that keeps the ground reading as a graveyard.
 
 The two cherry colours are split between the two biomes and neither is in both: the pink cherry is the sakura
@@ -615,7 +613,7 @@ thing to change.
 
 - **No structures.** Every structure in the mod is either a character home (magical forest, sakura forest) or Cirno's
   nest. A village biome with no houses in it is a gap, not a bug, but filling it is a separate job.
-- **No custom fluids.** The guide's blood pools and lava chapter both say to use a real red fluid or to use a clearly
+- **No custom fluids.** The blood pools and lava both call for a real red fluid or a clearly
   recognisable block palette. `hell_of_blood_pools` takes the second option: a red palette of netherrack, crimson
   nylium and redstone ore, and the pools stay water.
 - **No ambient particles or music.** `GLLang` and `BiomeSpecialEffects` both support them; no sound event for any of
@@ -668,7 +666,7 @@ python3 tools/terrain.py gensokyolegacy:gensokyo
 ## 4. Surface rules
 
 `GensokyoDimension.surfaceRules` is `SurfaceRuleData.overworld()` with four biome branches in front of it, one per
-underground biome, and nothing else changed. This is the guide's §6 split: shared material stays dimension-wide, and a
+underground biome, and nothing else changed. This is the split: shared material stays dimension-wide, and a
 biome branch is only for a palette that genuinely differs.
 
 | biome | floor | 3 blocks under it | the rest of the column |
@@ -704,11 +702,11 @@ opposite shape from the hell palettes above, and the difference is the whole tri
 | unmatched positions | impossible — would swallow the deepslate | fall through to the next entry, to the overworld tree |
 
 Because they only filter, they are three separate entries in the sequence rather than one branch per biome, and none of
-them can shadow the dimension's grass and dirt. In the guide's §6 priority order:
+them can shadow the dimension's grass and dirt. In priority order:
 
 1. **lake bed** (`misty_lake` + `misty_lake_shore`) — sand on the underwater floor, stone where the bank is steep,
    gravel through the two blocks under it. Shared across both biomes so the bed palette is continuous where water
-   crosses the boundary, which is the guide's own instruction.
+   crosses the boundary, which is deliberate.
 2. **summit** (`youkai_mountain_summit`) — stone where it is steep, gravel where `summit_surface` noise is low, stone
    everywhere else. The soil pockets are *not* a third state here; they are the grass disk in the tail, which is the
    cheaper place for them.
@@ -719,7 +717,7 @@ them can shadow the dimension's grass and dirt. In the guide's §6 priority orde
 5. the four hell palettes.
 6. `SurfaceRuleData.overworld()`.
 
-`tengu_settlement` has no branch at all, which is also the guide's instruction: its paths are
+`tengu_settlement` has no branch at all, which is also deliberate: its paths are
 `settlement_paths`, a placed feature, because a surface rule would paint the whole biome floor. Its topsoil is the
 dimension's. `secret_heaven_cliff` takes the `steep()` half of the summit's branch and none of its palette, which is
 the point of it being a *cliff* and the limit of what it is meant to be.
@@ -733,7 +731,7 @@ also get sand, which is the same trade vanilla's own ocean makes. And `UNDER_BED
 
 ## 5. Climate grid
 
-Every cell of `GensokyoDimension.SURFACE` that used to be a vanilla copy now names a guide biome. `REGION_EDGES`, the
+Every cell of `GensokyoDimension.SURFACE` that used to be a vanilla copy now names a mod biome. `REGION_EDGES`, the
 offset spline and every height share are untouched, so `terrain.py` still reports the same bands — only the labels
 changed. Measured on 256 × 256 chunks at seed 0:
 
@@ -755,7 +753,7 @@ in `gensokyo_dimension.md` §4, which is to say the erosion cut moved the share 
 changing the share of the plain itself.
 
 The four underground biomes never appear on this map: `terrain.py` samples one column per chunk at the surface, and the
-underground bands only win more than 128 blocks down. Their placement is `doc/design/gensokyo_dimension.md` §9.
+underground bands only win more than 128 blocks down. Their placement is `doc/design/biome/gensokyo_dimension.md` §9.
 
 `UNDERGROUND` is **one continentalness row split by temperature and humidity**, not one cell per region. It used to be
 keyed on how far the surface above it sat — blood under the water table and the coast, the animal realm under the lower
@@ -836,15 +834,15 @@ anything else is safe. The margin is what the column is for: the altitude loss i
 snows in the top few blocks of its band and only in the coldest few of those. `myouren_temple_barrens` owes its 0.02 to
 the plain merge: before it, the lower ground stopped at y 80 and lost no altitude at all, so the cell had 0.05 in hand
 and now has to hold it across the upper half of the band. `secret_heaven_cliff` is the tightest of the ones added
-since the guide, at 0.09, and it is the second half of a band that already has a colder neighbour, so it is the first
+since the original threshold, at 0.09, and it is the second half of a band that already has a colder neighbour, so it is the first
 thing to re-check if anything moves.
 The six biomes the grid puts in a cold cell declare 0.2 to 0.35, comfortably warm, because a cold *cell* is a
-place on the climate map and not a licence to freeze — `bamboo_forest_of_the_lost` is the clearest case, where the guide
-sits a winter bamboo grove in a cold corner and the map should not put snow on the ground.
+place on the climate map and not a licence to freeze — `bamboo_forest_of_the_lost` is the clearest case, where a winter
+bamboo grove sits in a cold corner and the map should not put snow on the ground.
 
 **Nothing in Gensokyo snows.** `grove` used to: it was a verbatim vanilla copy at −0.2, and it was the one biome the
-snow line caught. `gensokyolegacy_fixed_biomes_guide.md` replaced it with `youkai_mountain_summit`, which is declared
-0.4, so the exception is gone with it. `sunflower_plains` is the only vanilla copy left, and it is at 0.8.
+snow line caught. `youkai_mountain_summit` replaced it, declared 0.4, so the exception is gone with it.
+`sunflower_plains` is the only vanilla copy left, and it is at 0.8.
 
 Two other routes to ice were checked and do not fire here. `SurfaceRules.temperature()` reads the *climate sample*
 rather than a biome, and `SurfaceRuleData.overworld()` only uses it inside the frozen-ocean branch — there is no
@@ -855,8 +853,8 @@ registers uses it.
 
 ## 7. The fixed locations
 
-`gensokyolegacy_fixed_biomes_guide.md` names Misty Lake, Misty Lake Shore, the Tengu Settlement and the Youkai Mountain
-Summit. They are not a fifth through eighth band: each one takes **the whole plane of a single height band**, so what
+The four fixed locations are Misty Lake, Misty Lake Shore, the Tengu Settlement and the Youkai Mountain Summit.
+They are not a fifth through eighth band: each one takes **the whole plane of a single height band**, so what
 selects them is continentalness and nothing else. That is also why they slot into the four slots the vanilla copies used
 to hold, one for one, and why the grid needed no new machinery.
 
@@ -867,7 +865,7 @@ to hold, one for one, and why the grid needed no new machinery.
 | region 5 | 128 … 192 | 12.34% | `grove` (copy) | **tengu_settlement** |
 | region 6 | 192 … 220 | 5.49% | `peak` (two-source copy) | **youkai_mountain_summit** |
 
-`secret_heaven_cliff` is the exception and is not in the guide. It is the **dry half of the settlement's band**, so
+`secret_heaven_cliff` is the exception and is the exception. It is the **dry half of the settlement's band**, so
 continentalness still fixes the height and humidity alone splits it off: `tengu_settlement` takes `HUMID` over the full
 temperature span and `secret_heaven_cliff` takes `DRY`. Both halves are in the same region, so the pair measures 8.66%
 and 7.28% of the map over 256 × 256 chunks at seed −1838080655014084215, against the band's 13.25%.
@@ -883,13 +881,13 @@ confirms it: `misty_lake` measures 10.84% against 10.55% under water, the same n
 
 | biome | base | why |
 |---|---|---|
-| `misty_lake` | `river`, **minus `trees_water`** | a freshwater lake. `minecraft:ocean` was the obvious base and is wrong: both it and `river` carry water trees, and mangroves in a freshwater lake are exactly the swamp the guide rules out |
-| `misty_lake_shore` | `beach` | already the sand-and-gravel shoreline; the guide's waterline and coves are added on top |
+| `misty_lake` | `river`, **minus `trees_water`** | a freshwater lake. `minecraft:ocean` was the obvious base and is wrong: both it and `river` carry water trees, and mangroves in a freshwater lake are exactly the swamp this design rules out |
+| `misty_lake_shore` | `beach` | already the sand-and-gravel shoreline; the waterline and coves are added on top |
 | `tengu_settlement` | `forest` | a wooded settlement edge, and distinct from `youkai_mountain_foothills`, which is `windswept_hills` |
 | `secret_heaven_cliff` | `windswept_forest` | the barer neighbour of `forest`, and a third base in the mountain band so the three stay distinguishable: sparse spruce and `patch_grass_badlands` against forest's birches, oaks and flowers, and nothing like the foothills' `windswept_hills` |
-| `youkai_mountain_summit` | `stony_peaks` | literally the exposed-rock biome, and its emerald and amethyst veins are the guide's "soil pockets" |
+| `youkai_mountain_summit` | `stony_peaks` | literally the exposed-rock biome, and its emerald and amethyst veins are "soil pockets" |
 
-The water itself comes from terrain and aquifers, not from features, as the guide requires — and in Gensokyo that is
+The water itself comes from terrain and aquifers, not from features, as the design requires — and in Gensokyo that is
 already true, because region 0 *is* the drowned set. There is no lake feature to write.
 
 ### Climate
@@ -897,7 +895,7 @@ already true, because region 0 *is* the drowned set. There is no lake feature to
 All four follow the same rule as §6: nothing here freezes. The summit is the awkward one, since it is the highest
 ground in the dimension and y 192 … 220 costs up to 0.19 of altitude-adjusted temperature, so it declares 0.4 rather
 than something that would read as alpine. Its altitude is carried by the palette — stone, scree, no trees, sparse
-moss — and not by its temperature field, which is only a visual dial. The guide makes snow conditional on "if this
+moss — and not by its temperature field, which is only a visual dial. The plan makes snow conditional on "if this
 biome should be cold enough", so this is the branch where that question was answered.
 
 ### Tails
@@ -928,10 +926,10 @@ and gravel: `onGround(tries, palette, blocks...)` is the general form, and `onDi
 
 ### Not done
 
-The guide asks for the Scarlet Devil Mansion and the tengu buildings as structures, with terrain validity and
+The plan asks for the Scarlet Devil Mansion and the tengu buildings as structures, with terrain validity and
 spacing. No such templates exist — the mod's only structures are the character homes and Cirno's nest — so both
 settlements land as the natural ground they sit on, exactly as `plain_of_the_past` does. That is a separate job with a
-separate template budget, and the guide is explicit that these must not be faked with random placed features.
+separate template budget, and these must not be faked with random placed features.
 
 ---
 
@@ -968,5 +966,33 @@ freshwater lake, and anything that branches on an ocean tag would bring the ocea
 `biome.gensokyolegacy.<id>` one rather than the usual `gensokyolegacy.*` scheme, because that is the key the F3 biome
 readout and the locator item look up.
 
-Every one of the seventeen has a display name. `sunflower_plains` keeps a name that reads like the vanilla biome it
-copies, which is deliberate: it is the same grass.
+Every one of the seventeen surface biomes has a display name. `sunflower_plains` keeps a name that reads like the vanilla
+biome it copies, which is deliberate: it is the same grass.
+
+| band | English | zh_cn | id |
+|---|---|---|---|
+| lower ground | Sunflower Plains | 向日葵平原 | `sunflower_plains` |
+| lower ground | Muenzuka | 无缘冢 | `muenzuka` |
+| lower ground | Plain of the Past | 旧日平原 | `plain_of_the_past` |
+| lower ground | Myouren Temple Barrens | 圣辇之地 | `myouren_temple_barrens` |
+| upper ground | Forest of Magic | 魔法森林 | `magical_forest` |
+| upper ground | Bamboo Forest of the Lost | 迷途竹林 | `bamboo_forest_of_the_lost` |
+| upper ground | Sakura Forest | 樱花森林 | `sakura_forest` |
+| upper ground | Hill of the Nameless | 无名之丘 | `hill_of_the_nameless` |
+| Mountain | Untrodden Valley | 未踏溪谷 | `untrodden_valley` |
+| Mountain | Genbu Ravine | 玄武之泽 | `genbu_ravine` |
+| Mountain | Youkai Mountain Foothills | 妖怪山麓 | `youkai_mountain_foothills` |
+| Mountain | Sanctuary | 圣域 | `sanctuary` |
+| underground | Hell of Blood Pools | 血池地狱 | `hell_of_blood_pools` |
+| underground | Animal Realm | 畜生界 | `animal_realm` |
+| underground | Hell of Blazing Fires | 灼热地狱 | `hell_of_blazing_fires` |
+| underground | Former Hell | 旧地狱 | `former_hell` |
+| fixed | Misty Lake | 雾之湖 | `misty_lake` |
+| fixed | Misty Lake Shore | 雾之湖畔 | `misty_lake_shore` |
+| fixed | Tengu Settlement | 天狗聚落 | `tengu_settlement` |
+| fixed | Secret Heaven Cliff | 秘封崖 | `secret_heaven_cliff` |
+| fixed | Youkai Mountain Summit | 妖怪山顶 | `youkai_mountain_summit` |
+| interior | Mountain Interior | 虹龙洞 | `mountain_interior` |
+
+`Mountain Interior` is not part of the climate grid: it is the rock inside the mountain, registered for the caves and
+selected by depth rather than by the surface table (`gensokyo_dimension.md` §9).

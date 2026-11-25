@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * Large-chest layout for the treasure basket: the vanilla 6-row texture, no extra widgets.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 public class TreasureBasketScreen extends AbstractContainerScreen<TreasureBasketMenu> {
 

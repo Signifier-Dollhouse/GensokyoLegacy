@@ -36,7 +36,7 @@ import java.util.UUID;
  * The one food item the gravestone serves. Storage and pickup are the plate's; the difference is
  * that food handing back a container is allowed, since the gravestone displays instead of eating.
  *
- * @see "doc/design/gravestone.md"
+ * @see "doc/design/item/gravestone.md"
  */
 @SerialClass
 public class GravestoneBlockEntity extends PlateBlockEntity implements TickableBlockEntity {

@@ -301,3 +301,5 @@ how the `GLSinglePiece`/`SinglePoolElement` mismatch from §4.2 was found.
 - **Structure-level `height_tolerance` retired.** It had no reader outside the rule, and two predicates
   with different knobs should not share one field name in the structure JSON. Structures live in the
   jar, not in world data, so no released save depends on the old field.
+- **The terrain-predicate debug tool is temporary.** Remove it once Myouren Temple generation is fully working and
+  has been tested in a live world.

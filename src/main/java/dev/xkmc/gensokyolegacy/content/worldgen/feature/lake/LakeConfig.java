@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @see LakeFeature
  * @see LakeMaker
- * @see "doc/design/gensokyo_biomes.md" §2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2
  */
 public record LakeConfig(Mode mode, int clearance, Shape shape, Material material, List<Deco> decorations)
 		implements FeatureConfiguration {

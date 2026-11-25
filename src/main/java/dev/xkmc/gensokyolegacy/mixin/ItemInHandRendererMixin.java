@@ -69,7 +69,7 @@ public abstract class ItemInHandRendererMixin {
 	 * The anchor is in the world, not in the hand: while its stack carries the hook's UUID, skip the
 	 * held-item draw. The client trusts the UUID alone; the server clears it when the hook is gone.
 	 *
-	 * @see "doc/design/minamitsu_anchor.md §3.3"
+	 * @see "doc/design/item/minamitsu_anchor.md §3.3"
 	 */
 	@Inject(method = "renderItem", at = @At("HEAD"), cancellable = true)
 	private void gensokyolegacy$hideThrownAnchor(LivingEntity entity, ItemStack stack, ItemDisplayContext context,

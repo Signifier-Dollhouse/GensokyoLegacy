@@ -18,7 +18,7 @@ On top of those, three changes of their own:
    hold one at all — §12.
 
 Everything else — sea level 63, the aquifer's fluid-level noises, ore veins, spawn target, dimension type — is
-vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/gensokyo_biomes.md` §4.
+vanilla's. Surface rules are vanilla's with four underground biome branches in front; see `doc/design/biome/gensokyo_biomes.md` §4.
 
 ---
 
@@ -216,14 +216,14 @@ actually is, and where each band sits on it, is §9.
 | 0.329 … 0.595 | 128 … 192 | 13.25% | tengu_settlement | tengu_settlement | **secret_heaven_cliff** | **secret_heaven_cliff** |
 | 0.595 … 1.00 | 192 … 220 | 4.79% | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit | youkai_mountain_summit |
 
-The four columns are the climate classification `gensokyo_dimension_biome_guide.md` §2 gives for a band, in the order it
-lists them: **hot humid, cold humid, hot dry, cold dry**. Temperature and humidity are therefore cut in two each, at
+The four columns are the climate classification of the biome plan, in the order it lists them: **hot humid, cold humid,
+hot dry, cold dry**. Temperature and humidity are therefore cut in two each, at
 0, rather than in three — `COLD`/`HOT` and `DRY`/`HUMID` are `[-1, −0.01]` and `[0.01, 1]`. Cutting two ways
-instead of three is also why each band holds exactly the four biomes the guide gives it, with nothing repeated.
+instead of three is also why each band holds exactly four biomes, with nothing repeated.
 
 ### The plain is one band cut three ways
 
-The plain is the guide's **lower ground and upper ground merged into a single region**, y 66 … 96, and erosion is what
+The plain is the **lower ground and upper ground merged into a single region**, y 66 … 96, and erosion is what
 tells them apart: the lower four claim `[-1, −0.01]` and the upper four `[0.01, 1]`, the same cut and the same 0.01
 gap the temperature and humidity axes are cut with. Eight cells where there were two regions of four, and the
 surface half of the list is still 17 points.
@@ -237,7 +237,7 @@ Three things follow, and none of them is free.
 
 **The two grounds interleave instead of stacking.** Before, the lower ground was everything below y 80 and the upper
 ground everything above it, so the height said which one you were in. Now it is erosion, and the same height carries
-both — `plain_of_the_past` reaches y 96 and `magical_forest` comes down to y 66. The guide's own bands (64–80 / 80–96)
+both — `plain_of_the_past` reaches y 96 and `magical_forest` comes down to y 66. The original bands (64–80 / 80–96)
 survive as *names*, and `gensokyo_biomes.md` maps them here.
 
 **Erosion is one of the four `*_small` axes, not vanilla's.** It is `gensokyolegacy:erosion_small` — vanilla's
@@ -293,14 +293,14 @@ are 6.96 / 5.32 / 4.16 / 3.45 %, against a plain share of 47.90% measured and 49
 on erosion leaves its total alone — the same ~47.9% the two separate bands held before the merge — and moves it all
 between the two halves.
 
-The first two and the last rows give each region its whole plane to one biome. Those three are the fixed locations
-of `gensokyolegacy_fixed_biomes_guide.md` — `misty_lake` and its shore at the waterline and the summit above the
+The first two and the last rows give each region its whole plane to one biome. Those three are fixed locations —
+`misty_lake` and its shore at the waterline and the summit above the
 mountain — and they are selected by continentalness alone, not by climate at all.
 `youkai_mountain_summit` ends at the top of the spline, where continentalness is flat at 1.2227 and the terrain stops
 rising, so y 192 … 220 is the whole of it.
 
 The settlement band is the one row that does not tile all four columns, and it is where the fourth fixed location went.
-`secret_heaven_cliff` is not in the guide: it is the dry half of the Tengu Settlement's band, so continentalness still
+`secret_heaven_cliff` is the exception: it is the dry half of the Tengu Settlement's band, so continentalness still
 fixes the height and humidity alone splits the row — `tengu_settlement` on `HUMID`, `secret_heaven_cliff` on `DRY`,
 both over the full temperature span. Since humidity is one field cut once at 0, the split is the same cut the four
 columns are made of, and the two halves come out roughly even: measured over 256 × 256 chunks at seed
@@ -308,7 +308,7 @@ columns are made of, and the two halves come out roughly even: measured over 256
 order of the two cells matters for anything, since a value in the 0.01 gap between them is equidistant and the tie
 falls to list order.
 
-Which biomes fill these cells, and where each one's features come from, is `doc/design/gensokyo_biomes.md`.
+Which biomes fill these cells, and where each one's features come from, is `doc/design/biome/gensokyo_biomes.md`.
 
 Underground is **not** one cell per region. It is one continentalness row split by temperature and humidity, plus a
 second, deeper row under the mountain for the ruins alone, plus the mountain's own interior rock. That is §9, and it is
@@ -326,12 +326,12 @@ Every biome the dimension may select is mod-owned (a `AbstractBiomeGen` subclass
 friends. The mod's own structure sets survive because their tags already name `gensokyolegacy:magical_forest` /
 `sakura_forest`, and the `has_structure/*` and `has_spawn/*` tags are ours for the same reason — nothing here is added
 to a vanilla or common biome tag, and the classification tags (`is_forest`, `is_mountain`, …) are
-`gensokyolegacy:` copies rather than the shared ones. See `doc/design/gensokyo_biomes.md` §8.
+`gensokyolegacy:` copies rather than the shared ones. See `doc/design/biome/gensokyo_biomes.md` §8.
 
 Every one of the seventeen now writes its feature list out rather than copying it, so there is no copy step left to
 describe: `BiomeGen.Layers` sets the two carvers and each call names its own steps. `sunflower_plains` is the same
 story as the rest now — `plains` plus `patch_sunflower`, written out like every other biome. The two established
-biomes are still left alone. See `doc/design/gensokyo_biomes.md` §1.
+biomes are still left alone. See `doc/design/biome/gensokyo_biomes.md` §1.
 
 ### What every biome drops
 
@@ -350,7 +350,7 @@ An amethyst geode every few chunks is a lot of treasure for something with no pl
 monster room is difficulty and loot the map never asked for — neither is terrain, and neither could be tuned per biome
 without a biome modifier, which is a worse answer than not having them.
 
-`misty_lake` drops `minecraft:trees_water` on top of those, for the reason in `doc/design/gensokyo_biomes.md` §7.
+`misty_lake` drops `minecraft:trees_water` on top of those, for the reason in `doc/design/biome/gensokyo_biomes.md` §7.
 
 ---
 
@@ -811,7 +811,7 @@ Each column's biome *is* blended across the boundary, so the practical effect of
 `mountain_interior` is the one rock band that is not a climate region: a single cell over the whole temperature and
 humidity plane, keyed on continentalness and depth only. It takes `Biomes.DEEP_DARK` as its base, an empty tail, and
 plain stone as its surface rule — it only ever sits between the two rock bands, so there is no deepslate below it to
-grade into and no floor worth giving a different material. `former_hell` is the guide's own biome; the other three
+grade into and no floor worth giving a different material. `former_hell` is the underground band's own biome; the other three
 underground biomes keep the palettes of §4.
 
 ---

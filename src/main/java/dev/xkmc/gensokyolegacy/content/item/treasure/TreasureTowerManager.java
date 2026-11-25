@@ -28,7 +28,7 @@ import java.util.Map;
  * Derives the ore recipe from the datapack: ores from {@code #c:ores}, gems from what they smelt to,
  * stones from the rule tests of the ore features. An ore no feature places is not a target.
  *
- * @see "doc/design/tower.md"
+ * @see "doc/design/item/tower.md"
  */
 public final class TreasureTowerManager {
 

@@ -22,7 +22,7 @@ import net.minecraftforge.entity.PartEntity;
  * The copy Nue's trident throws: it flies the vanilla trident arc, hits once, and leaves a UFO in
  * the target's hand where its item used to be.
  *
- * @see "doc/design/nue_trident.md"
+ * @see "doc/design/item/nue_trident.md"
  */
 @SerialClass
 public class NueTridentProjectile extends ItemBulletEntity {

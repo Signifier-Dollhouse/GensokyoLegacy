@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
  * {@code gift_dialog} threshold rather than a number in here, so a character with no datamap entry
  * (or one set to 0) simply never qualifies.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public record GiftReturnCondition() implements QuestCondition<GiftReturnCondition> {
 

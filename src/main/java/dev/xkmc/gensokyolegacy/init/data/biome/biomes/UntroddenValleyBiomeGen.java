@@ -22,14 +22,14 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The hot humid cell of the mountain band in {@code doc/design/gensokyo_dimension_biome_guide.md}: the untrodden
+ * The hot humid cell of the mountain band in {@code doc/design/biome/gensokyo_biomes.md}: the untrodden
  * valley, taiga ground and loose stone and nothing else.
  * <p>
  * The maple grove the mountain band is built around, and the densest of the three: the conifers the taiga ground
  * carries are gone and the valley floor is half maple, half the oak and birch that grew here before it, at the ten
  * per chunk the pines used to be.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class UntroddenValleyBiomeGen extends AbstractBiomeGen {
 

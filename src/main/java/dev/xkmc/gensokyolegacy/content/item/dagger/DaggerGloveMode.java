@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * three shapes are written out one loop each rather than folded together, because fan and homing agree on
  * nothing but that speed - homing interleaves left and right and gives each pair its own turn tick.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public enum DaggerGloveMode {
 	/**

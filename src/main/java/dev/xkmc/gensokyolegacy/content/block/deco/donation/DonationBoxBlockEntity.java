@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * Donation box bound to a character's bed. Trades gold for reputation under the same soft cap as
  * feeding, so a fortune of emeralds cannot stand in for quest progress.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/structure/reputation.md"
  */
 @SerialClass
 public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebugInfoBlockEntity {

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Trail, burst and area damage shared by the unbound storm anchors.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public final class AnchorStorm {
 

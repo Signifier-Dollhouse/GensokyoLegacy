@@ -23,7 +23,7 @@ import java.util.List;
  * Effect payload of the treasure basket: a 54-slot item buffer kept in the level attachment, so
  * contents survive and stay reachable while the owner chunk is unloaded, without a block entity.
  *
- * @see "doc/design/treasure_basket.md"
+ * @see "doc/design/item/treasure_basket.md"
  */
 @SerialClass
 public class TreasureBasketEffectData extends EffectData {

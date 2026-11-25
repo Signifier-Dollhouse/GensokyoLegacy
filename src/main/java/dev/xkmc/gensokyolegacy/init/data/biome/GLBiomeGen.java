@@ -24,7 +24,7 @@ import net.minecraft.world.level.biome.Biomes;
  * A biome still does not list itself in either half. {@code *BiomeGen.KEY} is where a biome says what it is, this
  * file says which categories it belongs to, and {@link AbstractBiomeGen#build} is what writes the biome out.
  *
- * @see "doc/design/gensokyo_biomes.md" §8
+ * @see "doc/design/biome/gensokyo_biomes.md" §8
  */
 public class GLBiomeGen {
 

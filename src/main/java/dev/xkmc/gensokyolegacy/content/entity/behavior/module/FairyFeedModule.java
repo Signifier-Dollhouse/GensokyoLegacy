@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  * It is also what she asks for: the bubble over her head is this module's own, since what a fairy is thinking
  * about is what she eats and nothing else on her would know the answer.
  *
- * @see "doc/design/want_bubble.md"
+ * @see "doc/design/youkai/want_bubble.md"
  */
 @SerialClass
 public class FairyFeedModule extends AbstractBubbleModule {

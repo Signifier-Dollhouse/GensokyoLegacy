@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
  * The clock is advanced before vanilla ticks it, so a cooldown that runs out during this tick is
  * removed in it rather than the next one.
  *
- * @see "doc/design/cooldown.md"
+ * @see "doc/design/item/cooldown.md"
  */
 public class CooldownClock {
 

@@ -30,8 +30,8 @@ import java.util.List;
  * same {@code gift_preference} datamap entry (spirits and strong magic refused, a frozen frog taken
  * at twice worth), and Cirno layers her own on top of it.
  *
- * @see "doc/design/want_bubble.md"
- * @see "doc/design/gift.md"
+ * @see "doc/design/youkai/want_bubble.md"
+ * @see "doc/design/structure/gift.md"
  */
 @SerialClass
 public class FairyEntity extends GeneralYoukaiEntity {

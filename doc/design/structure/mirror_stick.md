@@ -129,22 +129,22 @@ Entries recorded before `parent_jigsaw` was stored (older items) derive the pare
 only neighbour of the child jigsaw that lies inside the parent bound. Validation backfills the derived
 position, and deletion uses the same fallback to remove the parent jigsaw.
 
-## 3. Plan
+## 3. Files and wiring
 
-1. `content/item/debug/StructureMirrorData.java`: entries, codec, tree helpers (bounds hit test, parent
-   direction, parent jigsaw, leaf test, add/remove).
-2. `content/item/debug/StructureMirrorHelper.java`: loaded-chunk structure-block scan, bound computation
-   (rotation/mirror included), name lookup, connector naming, pair placement, validation and repair, tree
-   description.
-3. `content/item/debug/StructureMirrorStick.java`: `use` (tree / repair), `useOn` (root / attach / save),
-   tooltip.
-4. `StructureMirrorStick.canAttackBlock`: server-side delete on left-click, always refusing the break so the
-   block is never destroyed.
-5. `content/client/debug/StructureMirrorOutlineRenderer.java`: red bound outline while the stick is held, wired
-   in `GLClientEventHandlers` at `AFTER_BLOCK_ENTITIES`.
-6. Register the item and data component in `GLItems`; tag it as a debug item.
-7. Add `GLLang.ItemDebug` messages and zh_cn translations; run `organize.ResourceOrganizer`.
-8. Run datagen for the item model and English lang, then build.
+The stick is split across these files:
+- `content/item/debug/StructureMirrorData.java` — entries, codec, tree helpers (bounds hit test, parent
+  direction, parent jigsaw, leaf test, add/remove).
+- `content/item/debug/StructureMirrorHelper.java` — loaded-chunk structure-block scan, bound computation
+  (rotation/mirror included), name lookup, connector naming, pair placement, validation and repair, tree
+  description.
+- `content/item/debug/StructureMirrorStick.java` — `use` (tree / repair), `useOn` (root / attach / save),
+  tooltip, and `canAttackBlock` (server-side delete on left-click, always refusing the break so the block
+  is never destroyed).
+- `content/client/debug/StructureMirrorOutlineRenderer.java` — red bound outline while the stick is held, wired
+  in `GLClientEventHandlers` at `AFTER_BLOCK_ENTITIES`.
+- `GLItems` registers the item and its data component and tags it as a debug item.
+- `GLLang.ItemDebug` carries the messages; the zh_cn translations are merged by `organize.ResourceOrganizer`.
+- Datagen writes the item model and English lang.
 
 All world access is server-side. The stick never force-loads chunks: a structure block in an unloaded chunk is
 reported as unavailable, not loaded.

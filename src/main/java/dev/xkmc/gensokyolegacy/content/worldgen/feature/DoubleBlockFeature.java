@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
  * Vanilla's {@code simple_block} writes the bottom half only, and a top half with nothing under it drops off on the
  * first neighbour update, so a patch of them has to write both or the patch comes apart as it generates.
  *
- * @see "doc/design/gensokyo_biomes.md" §2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2
  */
 public class DoubleBlockFeature extends SimpleBlockFeature {
 

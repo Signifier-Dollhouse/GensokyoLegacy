@@ -18,13 +18,13 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import java.util.List;
 
 /**
- * The hot humid cell of the underground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the hell of blood
+ * The hot humid cell of the underground in {@code doc/design/biome/gensokyo_biomes.md}: the hell of blood
  * pools.
  * <p>
  * Soul sand valley: a basin of souls is the only thing in the nether that reads as a pool, and the basalt pillars are
  * what stands a blood pool up out of the floor.
  *
- * @see "doc/design/gensokyo_biomes.md" §2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2
  */
 public class HellOfBloodPoolsBiomeGen extends AbstractBiomeGen {
 

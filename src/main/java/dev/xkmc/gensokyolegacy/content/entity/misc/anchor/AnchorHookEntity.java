@@ -40,7 +40,7 @@ import java.util.UUID;
  * One bounded anchor: it flies out, comes home, or hangs and drags its owner. It is a plain
  * projectile, not a danmaku, so the server owns its position and it can stop flush on a block face.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorHookEntity extends ThrowableProjectile implements ItemSupplier, IEntityAdditionalSpawnData {
 

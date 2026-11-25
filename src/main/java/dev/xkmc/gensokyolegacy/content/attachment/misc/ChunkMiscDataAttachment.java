@@ -13,7 +13,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 /**
  * Miscellaneous per-chunk state, currently the ghost summon's start and finish timestamps.
  *
- * @see "doc/design/gravestone.md"
+ * @see "doc/design/item/gravestone.md"
  */
 @SerialClass
 public class ChunkMiscDataAttachment extends GeneralCapabilityTemplate<LevelChunk, ChunkMiscDataAttachment> {

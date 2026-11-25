@@ -15,10 +15,10 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The hot dry cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the fields around the
+ * The hot dry cell of the lower ground in {@code doc/design/biome/gensokyo_biomes.md}: the fields around the
  * temple, a little flowered and not tilled.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class PlainOfThePastBiomeGen extends AbstractBiomeGen {
 

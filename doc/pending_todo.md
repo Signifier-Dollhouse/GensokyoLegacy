@@ -1,3 +1,0 @@
-- Fix dialog texture rendering
-- coke
-- doll improvements, bag

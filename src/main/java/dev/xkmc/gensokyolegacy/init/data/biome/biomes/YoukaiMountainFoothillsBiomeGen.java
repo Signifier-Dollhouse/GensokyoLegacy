@@ -12,13 +12,13 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The hot dry cell of the mountain band in {@code doc/design/gensokyo_dimension_biome_guide.md}: the windswept foot of
+ * The hot dry cell of the mountain band in {@code doc/design/biome/gensokyo_biomes.md}: the windswept foot of
  * the youkai mountain, which is what makes it a foothill and not a second cliff.
  * <p>
  * The first maple grove up the mountain, and the thinnest of the three: the wind is what thins it, so the maples here
  * stand a long way apart and the litter under them is mostly grass.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class YoukaiMountainFoothillsBiomeGen extends AbstractBiomeGen {
 

@@ -19,12 +19,12 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The strip above the Misty Lake waterline, of {@code doc/design/gensokyolegacy_fixed_biomes_guide.md}.
+ * The strip above the Misty Lake waterline, of {@code doc/design/biome/gensokyo_biomes.md}.
  * <p>
  * Its reeds are the lake's own cattails at a denser count, planted by a placed feature of its own so the two bands
  * can be tuned apart.
  *
- * @see "doc/design/gensokyo_biomes.md" §7
+ * @see "doc/design/biome/gensokyo_biomes.md" §7
  */
 public class MistyLakeShoreBiomeGen extends AbstractBiomeGen {
 

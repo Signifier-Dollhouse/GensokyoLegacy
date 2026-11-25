@@ -1,8 +1,8 @@
-# Implementation Checklist
+# Registration and files
 
 Consolidated file/registration checklist for the doll system. Items marked **(done)** exist in code today; the rest are planned. See the individual docs for the reasoning.
 
-## 1. Files to create
+## 1. Files
 
 Core (all done):
 - `content/attachment/doll/DollState.java`, `DollData.java`, `DollAttachment.java`, `DollHost.java`
