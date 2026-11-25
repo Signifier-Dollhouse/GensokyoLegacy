@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init.data.structure.helper;
 
 import dev.xkmc.gensokyolegacy.compat.l2lib.DataGenHolder;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.FallbackStructure;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -20,6 +21,14 @@ public interface StructBuilding {
 	void registerProcessors(BootstapContext<StructureProcessorList> ctx, ResourceLocation id);
 
 	void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set);
+
+	/**
+	 * Chunk radius around this structure kept free of {@link FallbackStructure} starts. Only set members count; a set
+	 * must use one value across all of them.
+	 */
+	default int safetyRadius() {
+		return 0;
+	}
 
 	/**
 	 * Reference to the set placing the structure. Datagen has no structure-set registry to bind against and never reads

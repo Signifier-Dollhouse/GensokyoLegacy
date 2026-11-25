@@ -167,6 +167,10 @@ public class GLStructureGen {
 		var entities = new DataMapConfigs.Characters();
 		var structures = new DataMapConfigs.Structures();
 		for (var e : STRUCTURES.get()) {
+			// A fallback is not a home: it has no bed, no resident and no visit table.
+			if (e.building() instanceof StructFallbackBuilding) {
+				continue;
+			}
 			var config = e.config();
 			for (var bedData : e.beds()) {
 				for (var bed : bedData.bed())
@@ -207,17 +211,32 @@ public class GLStructureGen {
 			var groups = groups();
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				e.building().registerStructure(ctx, e.id(), biome, SetContext.of(e, groups.get(e.set()), setTotal(e.set(), groups.get(e.set()))));
+				var flats = flats(groups.get(e.set()));
+				var set = e.building() instanceof StructFallbackBuilding
+						? SetContext.fallback(e)
+						: SetContext.of(e, flats, setTotal(e.set(), flats));
+				e.building().registerStructure(ctx, e.id(), biome, set);
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
 			for (var entry : groups().entrySet()) {
 				var members = entry.getValue();
-				var first = members.get(0);
+				var flats = flats(members);
+				if (flats.isEmpty()) {
+					throw new IllegalStateException("structures sharing set " + entry.getKey() +
+							" must include at least one flat member");
+				}
+				var first = flats.get(0);
 				for (var e : members) {
 					if (e.spacing() != first.spacing() || e.attempts() != first.attempts()) {
 						throw new IllegalStateException("structures sharing set " + entry.getKey() +
 								" must use the same spacing/attempts");
+					}
+				}
+				for (var e : flats) {
+					if (e.building().safetyRadius() != first.building().safetyRadius()) {
+						throw new IllegalStateException("flat structures sharing set " + entry.getKey() +
+								" must use the same safety radius");
 					}
 				}
 				var entries = members.stream()
@@ -236,6 +255,10 @@ public class GLStructureGen {
 			groups.computeIfAbsent(e.set(), k -> new ArrayList<>()).add(e);
 		}
 		return groups;
+	}
+
+	private static List<StructStructure> flats(List<StructStructure> members) {
+		return members.stream().filter(e -> !(e.building() instanceof StructFallbackBuilding)).toList();
 	}
 
 	private static int setTotal(ResourceLocation set, List<StructStructure> members) {

@@ -2,7 +2,8 @@
 
 How a gensokyo legacy structure reaches a start position, and why the placement values live in only one place.
 
-Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md).
+Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md),
+[fallback.md](fallback.md).
 
 ## 1. The pair
 

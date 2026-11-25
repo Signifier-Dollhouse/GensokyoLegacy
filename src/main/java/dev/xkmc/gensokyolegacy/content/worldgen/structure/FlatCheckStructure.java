@@ -5,26 +5,21 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.*;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Port of YoukaiHomecoming 1.20.1 FlatStructure, paired with {@link MultiSpreadPlacement}. Every check is a pure
@@ -173,139 +168,55 @@ public class FlatCheckStructure extends Structure {
 	 * safety at the provisional height, then the speculative jigsaw layout with tree checks.
 	 */
 	private Optional<GenerationStub> checkCandidate(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
-		Prefilter pre = prefilter(ctx, chunkpos);
+		JigsawCheck check = check();
+		JigsawCheck.Prefilter pre = check.prefilter(ctx, chunkpos);
 		if (!pre.pass()) {
 			return Optional.empty();
 		}
 		if (!this.checkMarginSafe(ctx, chunkpos, placement)) {
 			return Optional.empty();
 		}
-		Validated v = this.validateLayout(ctx, chunkpos, pre.y());
+		JigsawCheck.Validated v = check.validateLayout(ctx, chunkpos, pre.y());
 		if (!v.pass()) {
 			return Optional.empty();
 		}
 		return Optional.of(v.stub());
 	}
 
-	private record Validated(boolean pass, int spawnY, GenerationStub stub, String reason) {
-
-		static Validated fail(String reason) {
-			return new Validated(false, 0, null, reason);
-		}
-
+	/**
+	 * Shared eligibility of the template this structure points at.
+	 */
+	private JigsawCheck check() {
+		return new JigsawCheck(startPool, maxDepth, useExpansionHack, maxDistanceFromCenter, flatTolerance, biomes());
 	}
 
 	/**
-	 * Builds the jigsaw layout speculatively (provisional Y only fixes XZ; the root rigid group is shifted to the
-	 * footprint average afterwards) and runs the biome, root-footprint, rigid and joint checks. On success returns a
-	 * stub serving the already-shifted pieces.
+	 * Whether this structure would generate at {@code chunkpos}, ignoring the region pick. Used by
+	 * {@link FallbackStructure} to learn that this candidate is free.
 	 */
-	private Validated validateLayout(GenerationContext ctx, ChunkPos chunkpos, int provY) {
-		int sea = ctx.chunkGenerator().getSeaLevel();
-		BlockPos start = new BlockPos(chunkpos.getMinBlockX(), provY, chunkpos.getMinBlockZ());
-		Optional<GenerationStub> layout = JigsawPlacement.addPieces(ctx, this.startPool, Optional.empty(), this.maxDepth, start,
-				this.useExpansionHack, Optional.empty(), this.maxDistanceFromCenter);
-		if (layout.isEmpty()) {
-			return Validated.fail("no-layout");
-		}
-		List<PoolElementStructurePiece> pieces = new ArrayList<>();
-		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
-			if (p instanceof PoolElementStructurePiece pool) {
-				pieces.add(pool);
-			}
-		}
-		if (pieces.isEmpty()) {
-			return Validated.fail("no-layout");
-		}
-		PieceTree tree = PieceTree.build(pieces);
-		// Total-bound biome check: 4 union-box corners + 4 edge centers.
-		BoundingBox union = tree.unionBox();
-		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
-		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
-		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
-				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
-		for (int[] q : biomePts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
-			if (!biomes().contains(biome)) {
-				return Validated.fail("biome");
-			}
-		}
-		// Root footprint check: corners + edge centers + center of start box.
-		BoundingBox rootBox = pieces.get(0).getBoundingBox();
-		int rx0 = rootBox.minX(), rz0 = rootBox.minZ(), rx1 = rootBox.maxX(), rz1 = rootBox.maxZ();
-		int rcx = (rx0 + rx1) / 2, rcz = (rz0 + rz1) / 2;
-		int[][] rootPts = {{rx0, rz0}, {rx0, rz1}, {rx1, rz0}, {rx1, rz1},
-				{rcx, rz0}, {rcx, rz1}, {rx0, rcz}, {rx1, rcz}, {rcx, rcz}};
-		int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-		for (int[] q : rootPts) {
-			int h = freeHeight(ctx, q[0], q[1]);
-			if (h <= sea) {
-				return Validated.fail("sea");
-			}
-			if (h < min) min = h;
-			if (h > max) max = h;
-		}
-		if (max - min > 2 * this.flatTolerance) {
-			return Validated.fail("height[%d-%d]".formatted(min, max));
-		}
-		int spawn = (max + min) / 2;
-		// Shift the start rigid group (assumes a rigid start piece) so its
-		// ground sits on the footprint average.
-		int delta = tree.shiftStartGroupToGround(spawn);
-		// Rigid check: center terrain within tolerance of placed ground.
-		for (int i = 0; i < tree.size(); i++) {
-			if (!tree.isRigid(i)) continue;
-			BoundingBox b = tree.piece(i).getBoundingBox();
-			int h = freeHeight(ctx, (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2);
-			if (h <= sea) {
-				return Validated.fail("rigid-sea-%d".formatted(i));
-			}
-			int g = tree.groundOf(i);
-			if (Math.abs(h - g) > this.flatTolerance) {
-				return Validated.fail("rigid-%d[%d-vs-%d]".formatted(i, h, g));
-			}
-		}
-		// Joint check: per connected non-rigid subgraph, adjacent rigid
-		// group grounds must lie within tolerance of each other.
-		for (Set<Integer> grounds : tree.flexJointGrounds()) {
-			if (grounds.size() < 2) continue;
-			int lo = grounds.stream().mapToInt(Integer::intValue).min().orElse(0);
-			int hi = grounds.stream().mapToInt(Integer::intValue).max().orElse(0);
-			if (hi - lo > this.flatTolerance) {
-				return Validated.fail("joint[%d-%d]".formatted(lo, hi));
-			}
-		}
-		BlockPos pos = layout.get().position().offset(0, delta, 0);
-		GenerationStub stub = new GenerationStub(pos, b -> pieces.forEach(b::addPiece));
-		return new Validated(true, spawn, stub, "pass");
-	}
-
-	private static int freeHeight(GenerationContext ctx, int x, int z) {
-		return ctx.chunkGenerator().getFirstFreeHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, ctx.heightAccessor(), ctx.randomState());
+	boolean passesCandidate(GenerationContext ctx, ChunkPos chunkpos, MultiSpreadPlacement placement) {
+		return checkCandidate(ctx, chunkpos, placement).isPresent();
 	}
 
 	/**
-	 * Cheap middle-column sea/biome gate. Rejects unsuitable candidates
-	 * before the speculative jigsaw layout is built.
+	 * Whether the prefilter passes at {@code chunkpos}, with a context seeded for that chunk.
 	 */
-	private record Prefilter(boolean pass, int y, String reason) {
+	boolean prefilterAt(GenerationContext ctx, ChunkPos chunkpos) {
+		return check().prefilter(ctxFor(ctx, chunkpos), chunkpos).pass();
 	}
 
-	private Prefilter prefilter(GenerationContext ctx, ChunkPos chunkpos) {
-		int y = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
-		if (y <= ctx.chunkGenerator().getSeaLevel()) {
-			return new Prefilter(false, y, "sea");
-		}
-		var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
-				QuartPos.fromBlock(chunkpos.getMiddleBlockX()), QuartPos.fromBlock(y),
-				QuartPos.fromBlock(chunkpos.getMiddleBlockZ()), ctx.randomState().sampler());
-		if (!biomes().contains(biome)) {
-			return new Prefilter(false, y, "biome");
-		}
-		return new Prefilter(true, y, "pass");
+	int setIndex() {
+		return setIndex;
 	}
+
+	int setCount() {
+		return setCount;
+	}
+
+	int safetyRadius() {
+		return safetyRadius;
+	}
+
 
 	/**
 	 * A candidate within {@code safetyRadius} chunks of its region border is rejected when a neighbouring region hosts
@@ -354,7 +265,7 @@ public class FlatCheckStructure extends Structure {
 					}
 					GenerationContext sctx = this.ctxFor(ctx.registryAccess(), ctx.chunkGenerator(),
 							ctx.randomState(), ctx.structureTemplateManager(), ctx.seed(), c, ctx.heightAccessor());
-					if (this.prefilter(sctx, c).pass()) {
+					if (this.check().prefilter(sctx, c).pass()) {
 						return false;
 					}
 				}
@@ -374,6 +285,14 @@ public class FlatCheckStructure extends Structure {
 		random.setLargeFeatureSeed(seed, pos.x, pos.z);
 		return new GenerationContext(registries, generator, generator.getBiomeSource(), randomState,
 				templates, random, seed, pos, heightAccessor, this.biomes()::contains);
+	}
+
+	/**
+	 * Context for another chunk, seeded as vanilla seeds the one it hands to {@link #findGenerationPoint}.
+	 */
+	GenerationContext ctxFor(GenerationContext ctx, ChunkPos pos) {
+		return ctxFor(ctx.registryAccess(), ctx.chunkGenerator(), ctx.randomState(),
+				ctx.structureTemplateManager(), ctx.seed(), pos, ctx.heightAccessor());
 	}
 
 	/**
@@ -423,7 +342,7 @@ public class FlatCheckStructure extends Structure {
 		int prePassed = 0;
 		for (ChunkPos c : cands) {
 			GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, c, heightAccessor);
-			if (this.prefilter(ctx, c).pass()) prePassed++;
+			if (this.check().prefilter(ctx, c).pass()) prePassed++;
 		}
 		lines.add("  prefilter: %d/%d passed".formatted(prePassed, cands.size()));
 		int pick = pickForRegion(seed, regionX, regionZ, placement.salt(), this.setCount);
@@ -448,7 +367,7 @@ public class FlatCheckStructure extends Structure {
 			} else {
 				tried++;
 				GenerationContext ctx = this.ctxFor(registries, generator, randomState, templates, seed, me, heightAccessor);
-				var prefilter = this.prefilter(ctx, me);
+				var prefilter = this.check().prefilter(ctx, me);
 				if (!prefilter.pass()) {
 					verdict = "place-" + prefilter.reason();
 					stage = 0;
@@ -459,7 +378,7 @@ public class FlatCheckStructure extends Structure {
 						stage = 1;
 					} else {
 						mar++;
-						var v = this.validateLayout(ctx, me, prefilter.y());
+						var v = this.check().validateLayout(ctx, me, prefilter.y());
 						if (!v.pass()) {
 							verdict = "place-" + v.reason();
 							stage = stageOf(v.reason());

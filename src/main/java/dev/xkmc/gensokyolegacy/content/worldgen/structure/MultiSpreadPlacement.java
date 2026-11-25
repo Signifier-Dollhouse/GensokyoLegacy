@@ -95,6 +95,23 @@ public class MultiSpreadPlacement extends RandomSpreadStructurePlacement {
 		return candidates(seed, chunkX, chunkZ, this.spacing, this.spreadType, this.salt(), this.attempts);
 	}
 
+	/**
+	 * Chunk distance from the nearest edge of the region containing {@code pos}.
+	 */
+	public static int borderDistance(ChunkPos pos, int spacing) {
+		int minX = Math.floorDiv(pos.x, spacing) * spacing;
+		int minZ = Math.floorDiv(pos.z, spacing) * spacing;
+		int maxX = minX + spacing - 1;
+		int maxZ = minZ + spacing - 1;
+		return Math.min(Math.min(pos.x - minX, maxX - pos.x), Math.min(pos.z - minZ, maxZ - pos.z));
+	}
+
+	public static long distanceSquared(ChunkPos a, ChunkPos b) {
+		long dx = (long) a.x - b.x;
+		long dz = (long) a.z - b.z;
+		return dx * dx + dz * dz;
+	}
+
 	@Override
 	public ChunkPos getPotentialStructureChunk(long seed, int regionX, int regionZ) {
 		return this.getPotentialChunks(seed, regionX, regionZ).get(0);
