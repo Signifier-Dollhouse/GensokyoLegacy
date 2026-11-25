@@ -140,7 +140,9 @@
 		"lettered_red_lantern": "带字红灯笼",
 		"lettered_white_lantern": "带字白灯笼",
 		"green_frame_lantern": "绿框灯笼",
+		"paper_lantern": "纸灯笼",
 		"stone_lantern": "石灯笼",
+		"censer": "香炉",
 		"wrought_iron_bars": "铁艺护栏",
 		"wrought_iron_pillar": "铁艺立柱",
 		"neiton_noren": "霓吞町门帘",
@@ -160,7 +162,13 @@
 		"jizo_myouren": "命莲寺地藏",
 		"jizo_narumi": "矢田寺成美地藏",
 		"gravestone": "墓碑",
-		"locust_plaque": "槐木牌匾"
+		"locust_plaque": "槐木牌匾",
+		"scroll_empty": "空白画卷",
+		"scroll_cloud": "云纹画卷",
+		"scroll_mountain": "山纹画卷",
+		"scroll_sun": "日纹画卷",
+		"scroll_temple": "寺纹画卷",
+		"scroll_text": "文字画卷"
 	},
 	"item.gensokyolegacy": {
 		"doll": "人形",

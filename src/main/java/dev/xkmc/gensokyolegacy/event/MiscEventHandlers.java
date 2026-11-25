@@ -15,17 +15,21 @@ import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLDamageTypes;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
@@ -36,6 +40,22 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class MiscEventHandlers {
+
+	/**
+	 * Paper deco is fuel: the 1.20.1 stand-in for the 1.21 {@code furnace_fuels} data map.
+	 */
+	@SubscribeEvent
+	public static void onFuel(FurnaceFuelBurnTimeEvent event) {
+		Item item = event.getItemStack().getItem();
+		if (item == GLFurniture.PAPER_LANTERN.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_EMPTY.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_CLOUD.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_MOUNTAIN.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_SUN.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_TEMPLE.get().asItem()
+				|| item == GLDecoBlocks.SCROLL_TEXT.get().asItem())
+			event.setBurnTime(100);
+	}
 
 	/** Umbrella craft */
 	@SubscribeEvent

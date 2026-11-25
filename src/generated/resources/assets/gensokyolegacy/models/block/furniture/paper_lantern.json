@@ -1,0 +1,7 @@
+{
+  "parent": "gensokyolegacy:custom/furniture/paper_lantern",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/furniture/paper_lantern"
+  }
+}
