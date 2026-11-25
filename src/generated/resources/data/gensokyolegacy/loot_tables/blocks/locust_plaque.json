@@ -20,6 +20,15 @@
               }
             }
           ],
+          "functions": [
+            {
+              "block": "gensokyolegacy:locust_plaque",
+              "function": "minecraft:copy_state",
+              "properties": [
+                "alternate"
+              ]
+            }
+          ],
           "name": "gensokyolegacy:locust_plaque"
         }
       ],

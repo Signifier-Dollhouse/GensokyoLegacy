@@ -1,0 +1,8 @@
+{
+  "parent": "gensokyolegacy:custom/deco/locust_plaque",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "gensokyolegacy:block/deco/locust_plaque_3",
+    "particle": "gensokyolegacy:block/deco/locust_plaque_3"
+  }
+}

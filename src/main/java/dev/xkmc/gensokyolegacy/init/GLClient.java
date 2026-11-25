@@ -1,6 +1,7 @@
 package dev.xkmc.gensokyolegacy.init;
 
 import dev.xkmc.fastprojectileapi.render.ProjectileRenderHelper;
+import dev.xkmc.gensokyolegacy.content.block.deco.misc.PlaqueItem;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.AlchemyHintOverlay;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileClientTooltip;
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.overlay.TileTooltip;
@@ -26,6 +27,7 @@ import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import dev.xkmc.l2tabs.tabs.core.TabRegistry;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLDecoBlocks;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.FrogRenderer;
@@ -60,6 +62,8 @@ public class GLClient {
 			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"), AnchorItem::displayPredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_mode"), YuyukoFanItem::modePredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"), YuyukoFanItem::displayPredicate);
+			ItemProperties.register(GLDecoBlocks.LOCUST_PLAQUE.asItem(), PlaqueItem.ALTERNATE_MODEL,
+					(stack, level, entity, seed) -> PlaqueItem.isAlternate(stack) ? 1 : 0);
 
 			CuriosRendererRegistry.register(GLItems.STRAW_HAT.get(), TouhouHatRenderer::new);
 			CuriosRendererRegistry.register(GLItems.SUWAKO_HAT.get(), TouhouHatRenderer::new);
