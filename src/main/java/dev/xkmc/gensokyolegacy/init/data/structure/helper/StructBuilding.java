@@ -23,6 +23,14 @@ public interface StructBuilding {
 	void registerStructure(BootstapContext<Structure> ctx, ResourceLocation id, HolderSet.Named<Biome> biome, SetContext set);
 
 	/**
+	 * Tier of this member in its set. The tiny tier has no region pick; primaries and secondaries each have their own
+	 * index space.
+	 */
+	default Role role() {
+		return Role.PRIMARY;
+	}
+
+	/**
 	 * Chunk radius around this structure kept free of {@link FallbackStructure} starts. Only set members count; a set
 	 * must use one value across all of them.
 	 */

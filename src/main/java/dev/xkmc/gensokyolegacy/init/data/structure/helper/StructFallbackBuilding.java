@@ -35,6 +35,11 @@ public record StructFallbackBuilding(
 ) implements StructBuilding {
 
 	@Override
+	public Role role() {
+		return Role.TINY;
+	}
+
+	@Override
 	public void registerTemplatePools(BootstapContext<StructureTemplatePool> ctx, ResourceLocation id) {
 		for (var e : parts) {
 			var pid = id.withSuffix("/" + e.id());

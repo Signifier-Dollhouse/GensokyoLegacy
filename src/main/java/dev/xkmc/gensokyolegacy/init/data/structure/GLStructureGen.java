@@ -167,8 +167,8 @@ public class GLStructureGen {
 		var entities = new DataMapConfigs.Characters();
 		var structures = new DataMapConfigs.Structures();
 		for (var e : STRUCTURES.get()) {
-			// A fallback is not a home: it has no bed, no resident and no visit table.
-			if (e.building() instanceof StructFallbackBuilding) {
+			// A tiny structure is not a home: it has no bed, no resident and no visit table.
+			if (e.building().role() == Role.TINY) {
 				continue;
 			}
 			var config = e.config();
@@ -211,31 +211,33 @@ public class GLStructureGen {
 			var groups = groups();
 			for (var e : STRUCTURES.get()) {
 				var biome = ctx.lookup(Registries.BIOME).getOrThrow(e.biomes());
-				var flats = flats(groups.get(e.set()));
-				var set = e.building() instanceof StructFallbackBuilding
-						? SetContext.fallback(e)
-						: SetContext.of(e, flats, setTotal(e.set(), flats));
+				var role = e.building().role();
+				var members = groups.get(e.set());
+				var sameTier = ofRole(members, role);
+				var set = role == Role.TINY
+						? SetContext.tiny(e)
+						: SetContext.of(e, sameTier, setTotal(e.set(), role, sameTier));
 				e.building().registerStructure(ctx, e.id(), biome, set);
 			}
 		});
 		init.add(Registries.STRUCTURE_SET, ctx -> {
 			for (var entry : groups().entrySet()) {
 				var members = entry.getValue();
-				var flats = flats(members);
-				if (flats.isEmpty()) {
+				var primaries = ofRole(members, Role.PRIMARY);
+				if (primaries.isEmpty()) {
 					throw new IllegalStateException("structures sharing set " + entry.getKey() +
-							" must include at least one flat member");
+							" must include at least one primary member");
 				}
-				var first = flats.get(0);
+				var first = primaries.get(0);
 				for (var e : members) {
 					if (e.spacing() != first.spacing() || e.attempts() != first.attempts()) {
 						throw new IllegalStateException("structures sharing set " + entry.getKey() +
 								" must use the same spacing/attempts");
 					}
 				}
-				for (var e : flats) {
+				for (var e : primaries) {
 					if (e.building().safetyRadius() != first.building().safetyRadius()) {
-						throw new IllegalStateException("flat structures sharing set " + entry.getKey() +
+						throw new IllegalStateException("primary structures sharing set " + entry.getKey() +
 								" must use the same safety radius");
 					}
 				}
@@ -257,12 +259,12 @@ public class GLStructureGen {
 		return groups;
 	}
 
-	private static List<StructStructure> flats(List<StructStructure> members) {
-		return members.stream().filter(e -> !(e.building() instanceof StructFallbackBuilding)).toList();
+	private static List<StructStructure> ofRole(List<StructStructure> members, Role role) {
+		return members.stream().filter(e -> e.building().role() == role).toList();
 	}
 
-	private static int setTotal(ResourceLocation set, List<StructStructure> members) {
-		if (set.equals(FOREST_HOUSES)) {
+	private static int setTotal(ResourceLocation set, Role role, List<StructStructure> members) {
+		if (set.equals(FOREST_HOUSES) && role == Role.PRIMARY) {
 			if (members.size() > FOREST_HOUSES_TOTAL) {
 				throw new IllegalStateException("forest houses exceed reserved total " + FOREST_HOUSES_TOTAL);
 			}

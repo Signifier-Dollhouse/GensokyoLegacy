@@ -13,6 +13,7 @@ import dev.xkmc.gensokyolegacy.content.item.treasure.network.TreasureTowerToClie
 import dev.xkmc.gensokyolegacy.content.rpg.core.ServerCharacterDialogManager;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestLootToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.LootReader;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.RegionMemo;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +26,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
 import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
@@ -40,6 +42,7 @@ public class GLMetaEventHandlers {
 		if (sp == null) {
 			ServerCharacterDialogManager.clearCache();
 			FoodResultCache.invalidate();
+			RegionMemo.clearAll();
 		}
 		if (server == null) return;
 		if (sp != null) {
@@ -52,6 +55,11 @@ public class GLMetaEventHandlers {
 		if (sp != null) GensokyoLegacy.HANDLER.toClientPlayer(tower, sp);
 		else for (ServerPlayer player : event.getPlayerList().getPlayers())
 			GensokyoLegacy.HANDLER.toClientPlayer(tower, player);
+	}
+
+	@SubscribeEvent
+	public static void onServerStopped(ServerStoppedEvent event) {
+		RegionMemo.clearAll();
 	}
 
 	@SubscribeEvent

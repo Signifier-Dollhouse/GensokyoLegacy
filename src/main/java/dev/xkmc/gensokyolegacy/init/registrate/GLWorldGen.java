@@ -24,6 +24,7 @@ import dev.xkmc.gensokyolegacy.content.worldgen.placement.*;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FallbackStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.SecondaryStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.SetDataProcessor;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.compat.l2lib.CdcReg;
@@ -59,6 +60,7 @@ public class GLWorldGen {
 
 	private static final SR<StructureType<?>> STRUCTURES = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_TYPE);
 	public static final Val<StructureType<FlatCheckStructure>> FLAT = STRUCTURES.reg("flat_check", () -> () -> FlatCheckStructure.CODEC);
+	public static final Val<StructureType<SecondaryStructure>> SECONDARY = STRUCTURES.reg("secondary", () -> () -> SecondaryStructure.CODEC);
 	public static final Val<StructureType<FallbackStructure>> FALLBACK = STRUCTURES.reg("fallback", () -> () -> FallbackStructure.CODEC);
 
 	private static final SR<StructurePlacementType<?>> PLACEMENTS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PLACEMENT);
