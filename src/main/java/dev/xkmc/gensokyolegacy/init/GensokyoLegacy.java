@@ -170,7 +170,6 @@ public class GensokyoLegacy {
 		GLStructureGen.init(init);
 		new GLDamageTypes(out, event.getLookupProvider(), helper, MODID)
 				.generate(event.includeServer(), gen);
-		gen.addProvider(event.includeClient(), new GLFurnitureModelGen(out, helper));
 
 		var reimu = new ReimuQDGen();
 		var marisa = new MarisaQDGen();
