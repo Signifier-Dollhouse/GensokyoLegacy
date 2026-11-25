@@ -151,15 +151,25 @@ public class GLStructureGen {
 				),
 				// Myouren Temple, the barrens' only structure (assembled 89x27x97 from 29 jigsaw parts): the
 				// main hall and its wings, the bedroom blocks, the gate and bell tower, the wall ring and the
-				// pond. All parts use RIGID projection so their assembled offsets are preserved.
+				// pond. All parts use RIGID projection so their assembled offsets are preserved. Byakuren
+				// lives in the temple's bedchamber; Nue only visits, so she has no bed of her own here.
 				new StructStructure(
 						MYOUREN_TEMPLE, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
 						StructureConfigBuilder.myouren(),
-						List.of(new StructBed(
-								GLEntities.MINAMITSU,
-								CharacterConfig.forStructure(6000, 12000, 16, 30),
-								GLBlocks.Beds.MINAMITSU.holder()
-						)),
+						List.of(
+								new StructBed(
+										GLEntities.MINAMITSU,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.MINAMITSU.holder()
+								),
+								new StructBed(
+										GLEntities.HIJIRI_BYAKUREN,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.BYAKUREN.holder()
+								)
+						),
+						visits(Map.of(
+								GLEntities.HOUJUU_NUE.get(), visit(0.50f, 6000, 6000))),
 						new StructFlatJigsawBuilding(6, List.of(
 								new StructFlatJigsawBuilding.Part("root", true, List.of()),
 								new StructFlatJigsawBuilding.Part("gate", true, List.of()),
