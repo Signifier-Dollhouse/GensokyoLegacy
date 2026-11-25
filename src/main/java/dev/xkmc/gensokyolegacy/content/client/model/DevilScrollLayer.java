@@ -53,7 +53,7 @@ public class DevilScrollLayer<T extends LivingEntity, M extends EntityModel<T>> 
 		pose.pushPose();
 		// the same flip as the wings layer: cancels the entity model's (-1, -1, 1), with the scroll's
 		// own z = 0 plane pushed out to the back like the wings' z = 4 rig
-		pose.translate(0, 12 / 16D, 4 / 16D);
+		pose.translate(0, 0, 4 / 16D);
 		pose.mulPose(Axis.ZN.rotationDegrees(180));
 		ResourceLocation texture = texture(mode);
 		RenderType renderType = getRenderType(animatable, texture, buffer, partialTick);

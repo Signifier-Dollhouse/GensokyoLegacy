@@ -372,7 +372,7 @@ The superhuman and devil icons are **copies**, not references to the items they 
 | mode | texture | source |
 |---|---|---|
 | Passive | `item/tool/devils_scroll.png` | new scroll art |
-| Superhuman | `item/tool/devils_scroll_superhuman.png` | copied from `item/gift/magic_book.png` (the obscure magic book) |
+| Superhuman | `item/tool/devils_scroll_superhuman.png` | new open-scroll art |
 | Devil | `item/tool/devils_scroll_devil.png` | copied from vanilla `item/enchanted_book.png` |
 
 Keeping the art local rather than pointing the model at `item/gift/magic_book` or
