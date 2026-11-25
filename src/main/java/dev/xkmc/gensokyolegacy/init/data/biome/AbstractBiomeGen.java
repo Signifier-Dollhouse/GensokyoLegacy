@@ -355,11 +355,18 @@ public abstract class AbstractBiomeGen {
 		/**
 		 * A tree run: {@code count} of the feature's trees, spread over the chunk and rooted on the terrain surface.
 		 * The water filter is the one vanilla's own tree placements carry, and it is what keeps a grove out of a lake.
+		 * Extra filters run on the spread position, before the heightmap picks a surface for it.
 		 */
 		public void trees(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
-						  PlacementModifier count) {
-			placed(key, feature, count, InSquarePlacement.spread(),
-					SurfaceWaterDepthFilter.forMaxDepth(0), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
+						  PlacementModifier count, PlacementModifier... filters) {
+			List<PlacementModifier> list = new ArrayList<>();
+			list.add(count);
+			list.add(InSquarePlacement.spread());
+			list.addAll(List.of(filters));
+			list.add(SurfaceWaterDepthFilter.forMaxDepth(0));
+			list.add(PlacementUtils.HEIGHTMAP_WORLD_SURFACE);
+			list.add(BiomeFilter.biome());
+			placed(key, feature, list);
 		}
 
 		/**
