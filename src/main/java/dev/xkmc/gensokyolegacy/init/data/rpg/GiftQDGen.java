@@ -82,6 +82,12 @@ public class GiftQDGen extends QuestDialogData {
 				"I've no use for this aboard a ship. Keep it.",
 				"Here — I hauled this up a while back. It's yours.",
 				"Thanks. I'll take it.");
+		pair("nue", GLEntities.HOUJUU_NUE.get(), leave, YoukaiAnim.TALK_03, 10,
+				"Thank you. I'll take it.",
+				"A gift for me? I suppose I'll take it.",
+				"I can't make anything of this. You keep it.",
+				"Take this. Don't ask me where it came from.",
+				"Mm. I'll take it.");
 	}
 
 	/**

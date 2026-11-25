@@ -117,10 +117,11 @@ public class GLEntities {
 	static {
 
 		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
-				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU;
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU, TASTE_NUE;
 
 		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
-				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_FAIRY;
+				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_NUE,
+				GIFT_FAIRY;
 
 		// taste
 		{
@@ -134,6 +135,7 @@ public class GLEntities {
 			TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
 			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 			TASTE_MINAMITSU = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_NUE = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
 			// she only ever turns up for a lavish spread
@@ -202,6 +204,12 @@ public class GLEntities {
 					GiftType.TOOL, 0.0
 			));
 			GIFT_MINAMITSU = GiftPreference.of(Map.of(
+					GiftType.ALCOHOL, 2.0,
+					GiftType.FOOD, 1.5,
+					GiftType.COLLECTION, 1.5,
+					GiftType.TOOL, 1.0
+			));
+			GIFT_NUE = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 2.0,
 					GiftType.FOOD, 1.5,
 					GiftType.COLLECTION, 1.5,
@@ -487,6 +495,7 @@ public class GLEntities {
 					.loot(EntityLootGen::noLoot)
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
+			dataMap(HOUJUU_NUE, TASTE_NUE, GIFT_NUE);
 		}
 
 	}
