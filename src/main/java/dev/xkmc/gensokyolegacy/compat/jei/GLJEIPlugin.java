@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.compat.jei;
 
 import dev.xkmc.gensokyolegacy.content.block.functional.alchemypot.recipe.AlchemyRecipe;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.module.EntityInteractions;
+import dev.xkmc.gensokyolegacy.content.item.treasure.OreRecipe;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTowerClient;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.Quest;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
@@ -45,6 +47,8 @@ public class GLJEIPlugin implements IModPlugin {
 			RecipeType.create(GensokyoLegacy.MODID, "interaction", Wrappers.cast(EntityType.class));
 	public static final RecipeType<Holder<Item>> SHELF_OFFER =
 			RecipeType.create(GensokyoLegacy.MODID, "shelf_offer", Wrappers.cast(Holder.class));
+	public static final RecipeType<OreRecipe> TREASURE_TOWER =
+			RecipeType.create(GensokyoLegacy.MODID, "treasure_tower", OreRecipe.class);
 
 	@Override
 	public ResourceLocation getPluginUid() {
@@ -60,7 +64,8 @@ public class GLJEIPlugin implements IModPlugin {
 				new QuestRewardCategory().init(helper),
 				new PartyGiftCategory().init(helper),
 				new EntityInteractionCategory().init(helper),
-				new ShelfOfferCategory().init(helper));
+				new ShelfOfferCategory().init(helper),
+				new TreasureTowerCategory().init(helper));
 	}
 
 	@Override
@@ -89,6 +94,8 @@ public class GLJEIPlugin implements IModPlugin {
 		// still sold, at the default price and stock
 		registration.addRecipes(SHELF_OFFER, BuiltInRegistries.ITEM.getTag(GLTagGen.MORICHIKA_OFFERS)
 				.stream().flatMap(set -> set.stream()).toList());
+		// derived on the server and sent over its own packet; the client copy is all JEI needs to draw
+		registration.addRecipes(TREASURE_TOWER, TreasureTowerClient.get().recipes());
 	}
 
 	@Override
@@ -99,6 +106,7 @@ public class GLJEIPlugin implements IModPlugin {
 		registration.addRecipeCatalyst(GLItems.INVITATION_LETTER.asStack(), GIFT);
 		registration.addRecipeCatalyst(Items.COOKIE.getDefaultInstance(), INTERACTION);
 		registration.addRecipeCatalyst(GLFurniture.SHELF.asStack(), SHELF_OFFER);
+		registration.addRecipeCatalyst(GLItems.TREASURE_TOWER.asStack(), TREASURE_TOWER);
 	}
 
 }

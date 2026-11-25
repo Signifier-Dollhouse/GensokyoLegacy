@@ -47,6 +47,7 @@ import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
 import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTower;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
@@ -107,6 +108,7 @@ public class GLItems {
 	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
+	public static final ItemEntry<TreasureTower> TREASURE_TOWER;
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
@@ -520,6 +522,14 @@ public class GLItems {
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 
 					.lang("Cat Bell").register();
+
+			// no art yet: the sealing pot's icon stands in until the tower gets one
+			TREASURE_TOWER = reg.item("treasure_tower", TreasureTower::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/utensil/sealing_pot")))
+					.lang("Treasure Tower")
+					.tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
+					.register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
 					.model((ctx, pvd) -> {
