@@ -2,17 +2,25 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.core.Holder;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.core.Holder;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import org.jetbrains.annotations.Nullable;
 
@@ -309,6 +317,20 @@ public class FallbackStructure extends Structure {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		return JigsawCheck.adaptation(this.terrain, super.terrainAdaptation());
 	}
 
 	@Override

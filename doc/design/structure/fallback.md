@@ -66,7 +66,7 @@ datagen rejects that configuration.
    s = the picked secondary's start (memo, -1 when its gate fails); reject me when it is within flatRadius of
    cand[p] or cand[s] in this region, and for every neighbouring region when me is closer to that border than
    the radius
-9. fallback's own layout check (jigsaw, root height tolerance, rigid/joint) -> stub or empty
+9. fallback's own layout check (jigsaw, biome gate, terrain predicate) -> stub or empty
 ```
 
 A reserved region owns no start: steps 4-7 and 9 still run, and step 8 finds nothing to yield to, so every candidate
@@ -93,7 +93,7 @@ answer per candidate and needs no region-wide simulation.
 The context handed to step 9 must seed its random like the flat's own: vanilla's `GenerationContext` constructor
 already does `setLargeFeatureSeed(seed, chunkX, chunkZ)`, and `FlatCheckStructure#ctxFor(ctx, pos)` does the same, so
 the fallback builds one for `me` through the flat and passes that. The flat check reads the flat's `biomes()`,
-`startPool` and tolerance from the instance, not from the context.
+`startPool` and the terrain predicate from the instance, not from the context.
 
 ### Fallback spacing is greedy, not verified
 
@@ -141,11 +141,12 @@ set's primaries.
   - `resolve()` reads placement, primary and secondary members, fallback members and this member's fallback index from
     the set;
   - static `pickForPosition`, `spacingBlocked` (step 5), `nearStart` and `nearNeighbourStart` (step 8);
-  - port `FlatCheckStructure`'s `verifyRange` guard (`max_distance_from_center + 12 <= 128`).
+  - port `FlatCheckStructure`'s `verifyRange` guard (`max_distance_from_center + 12 <= 128`);
+  - no `LocatableStructure`: the tiny tier has no region pick, so the dev locate tools reject it.
 - `content/worldgen/structure/JigsawCheck.java`
-  - moved `validateLayout` + `prefilter` + `freeHeight` + `Prefilter` + `Validated` out of `FlatCheckStructure`
-    into a record parameterised by start pool, depth, expansion hack, max distance, tolerance and biome holder;
-    both structures call it, and `FlatCheckStructure#diagnoseRegion` keeps working through `check()`.
+  - moved `validateLayout` + `prefilter` + `Prefilter` + `Validated` out of `FlatCheckStructure`
+    into a record parameterised by start pool, depth, expansion hack, max distance, `TerrainPredicate` and biome
+    holder; all three structures call it, and `FlatCheckStructure#diagnoseRegion` keeps working through `check()`.
 - `init/data/structure/helper/StructFallbackBuilding.java`
   - mirrors `StructFlatJigsawBuilding`: one template pool per part at `<id>/<part>`, generation from the root part,
     and registers `FallbackStructure` with `StructBuilding.setRef(context)`.
@@ -190,11 +191,11 @@ set's primaries.
 - **Candidate near a region border:** skipped below half the flat's `safety_radius`, which keeps fallback pairs
   in adjacent regions more than one radius apart without checking the neighbour's kept points.
 - **`/locate`:** the mixin already walks every candidate and asks each member; a fallback is found when its own
-  `findGenerationPoint` passes. Locating a flat cannot return a fallback, because `getStructureGeneratingAt` only
-  reports starts of the requested holders.
-- **Cost:** roughly one extra flat layout per candidate in a region where the flat passes early, roughly two
-  layouts per candidate where it never passes. If profiling shows this, memoise the flat verdict per
-  `(seed, chunk)`; a per-thread bounded cache is enough because a region is usually walked by one thread.
+  `findGenerationPoint` passes. Locating a primary or secondary cannot return a fallback, because
+  `getStructureGeneratingAt` only reports starts of the requested holders.
+- **Cost:** a memoised higher-tier verdict per region, not per candidate: the first tiny candidate of a region that
+  needs the picked primary's or secondary's start scans that region once, and every later candidate of the region (and
+  the higher tiers' own candidates) read the same entry. No speculative flat layout is built per tiny candidate.
 
 ## 7. Verification
 

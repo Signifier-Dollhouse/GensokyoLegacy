@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.command;
 
-import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.LocatableStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.LevelBounds;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import net.minecraft.commands.CommandSourceStack;
@@ -60,7 +60,7 @@ public final class StructureScan {
 	private final CommandSourceStack source;
 	private final ServerPlayer player;
 	private final ResourceLocation id;
-	private final FlatCheckStructure flat;
+	private final LocatableStructure loc;
 	private final int radius;
 	private final boolean first;
 	private final long seed;
@@ -76,7 +76,7 @@ public final class StructureScan {
 	private volatile boolean cancelled;
 	private long lastReport;
 
-	private StructureScan(CommandSourceStack source, FlatCheckStructure flat, ResourceLocation id,
+	private StructureScan(CommandSourceStack source, LocatableStructure loc, ResourceLocation id,
 			int radius, boolean first) {
 		ServerLevel level = source.getLevel();
 		this.origin = BlockPos.containing(source.getPosition());
@@ -85,7 +85,7 @@ public final class StructureScan {
 		this.source = source;
 		this.player = source.getPlayer();
 		this.id = id;
-		this.flat = flat;
+		this.loc = loc;
 		this.radius = radius;
 		this.first = first;
 		this.seed = level.getSeed();
@@ -94,16 +94,16 @@ public final class StructureScan {
 		this.randomState = level.getChunkSource().randomState();
 		this.templates = level.getStructureManager();
 		this.height = LevelBounds.of(level);
-		this.centerX = Math.floorDiv(center.x, flat.spacing());
-		this.centerZ = Math.floorDiv(center.z, flat.spacing());
+		this.centerX = Math.floorDiv(center.x, loc.spacing());
+		this.centerZ = Math.floorDiv(center.z, loc.spacing());
 	}
 
 	/**
 	 * Starts a scan off-thread. {@code false} when one is already running.
 	 */
-	static boolean start(CommandSourceStack source, FlatCheckStructure flat, ResourceLocation id,
+	static boolean start(CommandSourceStack source, LocatableStructure loc, ResourceLocation id,
 			int radius, boolean first) {
-		StructureScan scan = new StructureScan(source, flat, id, radius, first);
+		StructureScan scan = new StructureScan(source, loc, id, radius, first);
 		if (!RUNNING.compareAndSet(null, scan)) return false;
 		EXECUTOR.submit(scan::run);
 		return true;
@@ -119,7 +119,7 @@ public final class StructureScan {
 		try {
 			long begin = System.nanoTime();
 			lastReport = begin;
-			List<FlatCheckStructure.Located> hits = first ? searchFirst(begin) : searchAll(begin);
+			List<LocatableStructure.Located> hits = first ? searchFirst(begin) : searchAll(begin);
 			if (!cancelled) report(hits, (System.nanoTime() - begin) / 1_000_000);
 		} catch (Exception e) {
 			GensokyoLegacy.LOGGER.error("Structure scan failed", e);
@@ -132,9 +132,9 @@ public final class StructureScan {
 	/**
 	 * Rings outward from the source, stopping at the first ring that has a start.
 	 */
-	private List<FlatCheckStructure.Located> searchFirst(long begin) {
+	private List<LocatableStructure.Located> searchFirst(long begin) {
 		for (int ring = 0; ring <= radius; ring++) {
-			List<FlatCheckStructure.Located> hits = scanRing(ring);
+			List<LocatableStructure.Located> hits = scanRing(ring);
 			if (cancelled) return List.of();
 			if (!hits.isEmpty()) {
 				hits.sort(nearestFirst());
@@ -148,8 +148,8 @@ public final class StructureScan {
 	/**
 	 * The whole {@code (2r+1)^2} square, printed nearest-first.
 	 */
-	private List<FlatCheckStructure.Located> searchAll(long begin) {
-		List<FlatCheckStructure.Located> hits = new ArrayList<>();
+	private List<LocatableStructure.Located> searchAll(long begin) {
+		List<LocatableStructure.Located> hits = new ArrayList<>();
 		int rows = 2 * radius + 1;
 		for (int dz = -radius; dz <= radius; dz++) {
 			for (int dx = -radius; dx <= radius; dx++) {
@@ -162,8 +162,8 @@ public final class StructureScan {
 		return hits;
 	}
 
-	private List<FlatCheckStructure.Located> scanRing(int ring) {
-		List<FlatCheckStructure.Located> hits = new ArrayList<>();
+	private List<LocatableStructure.Located> scanRing(int ring) {
+		List<LocatableStructure.Located> hits = new ArrayList<>();
 		for (int dx = -ring; dx <= ring; dx++) {
 			for (int dz = -ring; dz <= ring; dz++) {
 				if (Math.max(Math.abs(dx), Math.abs(dz)) != ring) continue;
@@ -174,8 +174,8 @@ public final class StructureScan {
 		return hits;
 	}
 
-	private Optional<FlatCheckStructure.Located> locate(int dx, int dz) {
-		return flat.locateRegion(seed, centerX + dx, centerZ + dz, registries, generator,
+	private Optional<LocatableStructure.Located> locate(int dx, int dz) {
+		return loc.locateRegion(seed, centerX + dx, centerZ + dz, registries, generator,
 				randomState, templates, height);
 	}
 
@@ -187,11 +187,11 @@ public final class StructureScan {
 				first ? "rings" : "rows", hits, (now - begin) / 1_000_000_000L)));
 	}
 
-	private void report(List<FlatCheckStructure.Located> hits, long elapsed) {
+	private void report(List<LocatableStructure.Located> hits, long elapsed) {
 		List<String> lines = new ArrayList<>();
 		lines.add("%s: %d start(s) within %d region rings (%d ms)"
 				.formatted(id, hits.size(), radius, elapsed));
-		for (FlatCheckStructure.Located hit : hits) {
+		for (LocatableStructure.Located hit : hits) {
 			lines.add("region [%d, %d] chunk [%d, %d] at [%d, ~, %d] (%.0f blocks away)"
 					.formatted(hit.regionX(), hit.regionZ(), hit.chunk().x, hit.chunk().z,
 							hit.pos().getX(), hit.pos().getZ(),
@@ -208,7 +208,7 @@ public final class StructureScan {
 		});
 	}
 
-	private Comparator<FlatCheckStructure.Located> nearestFirst() {
+	private Comparator<LocatableStructure.Located> nearestFirst() {
 		return Comparator.comparingDouble(hit -> horizontalDistSqr(origin, hit.pos()));
 	}
 

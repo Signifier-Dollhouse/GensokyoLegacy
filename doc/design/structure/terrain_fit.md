@@ -32,7 +32,8 @@ So the rule becomes a field of the structure instead of code, with two implement
 | `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
 | `GLBeardedPiece` | `content/worldgen/structure/GLBeardedPiece.java` | `PoolElementStructurePiece` with a per-piece `PieceBeardifierModifier` adjustment, persisted under its own `StructurePieceType` so it survives a start reload. |
 
-`FlatCheckStructure` replaces its `height_tolerance` field with `TerrainPredicate terrain`:
+All three tiers (`FlatCheckStructure`, `SecondaryStructure`, `FallbackStructure`) carry a `TerrainPredicate terrain`
+field in place of the old `height_tolerance` int, so a secondary or a tiny can use a non-flat rule too:
 
 ```json
 "terrain": {"type": "gensokyolegacy:uniform_height", "height_tolerance": 5}
@@ -55,14 +56,15 @@ datagen ordering constraint.
 
 ## 3. The pipeline
 
-Unchanged up to the layout:
+The pipeline lives in `JigsawCheck`, the record the three structures build from their own fields, so a primary,
+a secondary and a tiny run one copy of it:
 
 ```
 findGenerationPoint
   └─ candidate stream (MultiSpreadPlacement) → region pick
-       └─ checkCandidate
+       └─ JigsawCheck#checkCandidate
             ├─ prefilter           middle column: above sea, biome in tag
-            ├─ checkMarginSafe     neighbouring regions' candidates
+            ├─ marginSafe          neighbouring regions' candidates
             └─ validateLayout
                  ├─ JigsawPlacement.addPieces at the provisional Y
                  ├─ PieceTree.build
@@ -72,7 +74,9 @@ findGenerationPoint
 
 `validateLayout` no longer knows heights: it builds the tree, runs the biome gate, then calls
 `this.terrain.fit(new TerrainFit(ctx, tree, seaLevel))`. A failing `FitResult` is returned as the
-candidate's failure reason; a passing one supplies the applied `delta`, added to the stub position.
+candidate's failure reason; a passing one supplies the applied `delta`, added to the stub position. The structures
+forward `afterPlace` to the same predicate, and advertise the predicate's `needsBeardifier()` through
+`terrainAdaptation`.
 
 The layout is normally built once, with the start rotation drawn from the candidate's own random. A predicate
 with `triesAllRotations` set rebuilds it with each of the four rotations in a shuffled order and keeps the
@@ -230,8 +234,8 @@ Consequences for the design:
 
 ## 7. Datagen
 
-`StructFlatBuilding` and `StructFlatJigsawBuilding` trade `int heightTolerance` for a
-`TerrainPredicate`, forwarded into `FlatCheckStructure`. Call sites:
+`StructFlatBuilding`, `StructFlatJigsawBuilding` and `StructFallbackBuilding` trade `int heightTolerance` for a
+`TerrainPredicate`, forwarded into the structure they build. Call sites:
 
 | structure | predicate |
 |---|---|
@@ -260,8 +264,9 @@ with the code.
 
 `TerrainPredicate#describe` prints the numbers behind a failing fit — one line per ring sample and per
 rigid piece — and defaults to nothing, so only the rule that has numbers to show implements it.
-`FlatCheckStructure#diagnoseRegion` mirrors `findGenerationPoint` without placing, one line per candidate;
-`#diagnoseAt` picks the region from a chunk. In game:
+`JigsawCheck#validateLayout` hands the trace back to the caller, and `FlatCheckStructure#diagnoseRegion` mirrors
+`findGenerationPoint` without placing, one line per candidate; `LocatableStructure#diagnoseAt` (default method) picks
+the region from a chunk. In game:
 
 ```
 /gensokyo structure diagnose <structure> [<regionX> <regionZ>]

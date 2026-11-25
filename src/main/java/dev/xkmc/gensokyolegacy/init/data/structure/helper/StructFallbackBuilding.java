@@ -69,7 +69,8 @@ public record StructFallbackBuilding(
 		var pool = ctx.lookup(Registries.TEMPLATE_POOL)
 				.getOrThrow(ResourceKey.create(Registries.TEMPLATE_POOL, id.withSuffix("/" + parts().get(0).id())));
 		ctx.register(ResourceKey.create(Registries.STRUCTURE, id), new FallbackStructure(
-				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN),
+				new Structure.StructureSettings(biome, spawns(), GenerationStep.Decoration.UNDERGROUND_DECORATION,
+						terrain().needsBeardifier() ? TerrainAdjustment.NONE : TerrainAdjustment.BEARD_THIN),
 				pool, maxDepth(), false, maxDistanceFromCenter(), terrain(),
 				StructBuilding.setRef(set)
 		));

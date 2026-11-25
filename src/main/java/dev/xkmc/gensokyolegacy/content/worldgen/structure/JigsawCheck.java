@@ -9,15 +9,17 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -45,10 +47,6 @@ public record JigsawCheck(
 		int safetyRadius
 ) {
 
-	public static int freeHeight(Structure.GenerationContext ctx, int x, int z) {
-		return TerrainFit.height(ctx, x, z);
-	}
-
 	public record Prefilter(boolean pass, int y, String reason) {
 
 	}
@@ -69,7 +67,7 @@ public record JigsawCheck(
 	 * Cheap middle-column sea/biome gate, run before the speculative layout.
 	 */
 	public Prefilter prefilter(Structure.GenerationContext ctx, ChunkPos chunkpos) {
-		int y = freeHeight(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
+		int y = TerrainFit.height(ctx, chunkpos.getMiddleBlockX(), chunkpos.getMiddleBlockZ());
 		if (y <= ctx.chunkGenerator().getSeaLevel()) {
 			return new Prefilter(false, y, "sea");
 		}
@@ -93,7 +91,7 @@ public record JigsawCheck(
 
 	/**
 	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int)}, but a non-null {@code trace} collects the
-	 * predicate's numbers when the fit fails, and a predicate that so asks tries all four start rotations.
+	 * predicate's numbers when the fit fails.
 	 */
 	public Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace) {
 		if (!this.terrain.triesAllRotations()) {
@@ -113,10 +111,11 @@ public record JigsawCheck(
 	}
 
 	/**
-	 * As above, but {@code rotation >= 0} forces the start rotation instead of the one drawn from {@code ctx.random()}.
+	 * As {@link #validateLayout(Structure.GenerationContext, ChunkPos, int, List)}, but {@code rotation >= 0} forces the
+	 * start rotation instead of the one drawn from {@code ctx.random()}.
 	 */
-	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY, List<String> trace,
-									 int rotation) {
+	private Validated validateLayout(Structure.GenerationContext ctx, ChunkPos chunkpos, int provY,
+									 List<String> trace, int rotation) {
 		if (rotation >= 0) {
 			ctx = ctxForRotation(ctx, rotation);
 		}
@@ -128,7 +127,7 @@ public record JigsawCheck(
 			return Validated.fail("no-layout");
 		}
 		List<PoolElementStructurePiece> pieces = new ArrayList<>();
-		for (var p : layout.get().getPiecesBuilder().build().pieces()) {
+		for (StructurePiece p : layout.get().getPiecesBuilder().build().pieces()) {
 			if (p instanceof PoolElementStructurePiece pool) {
 				TerrainAdjustment adjustment = this.terrain.beardAdjustment(pool);
 				pieces.add(adjustment == null ? pool
@@ -140,13 +139,13 @@ public record JigsawCheck(
 		}
 		PieceTree tree = PieceTree.build(pieces);
 		// Total-bound biome check: 4 union-box corners + 4 edge centers.
-		var union = tree.unionBox();
+		BoundingBox union = tree.unionBox();
 		int ux0 = union.minX(), uz0 = union.minZ(), ux1 = union.maxX(), uz1 = union.maxZ();
 		int ucx = (ux0 + ux1) / 2, ucz = (uz0 + uz1) / 2;
 		int[][] biomePts = {{ux0, uz0}, {ux0, uz1}, {ux1, uz0}, {ux1, uz1},
 				{ucx, uz0}, {ucx, uz1}, {ux0, ucz}, {ux1, ucz}};
 		for (int[] q : biomePts) {
-			int h = freeHeight(ctx, q[0], q[1]);
+			int h = TerrainFit.height(ctx, q[0], q[1]);
 			var biome = ctx.chunkGenerator().getBiomeSource().getNoiseBiome(
 					QuartPos.fromBlock(q[0]), QuartPos.fromBlock(h), QuartPos.fromBlock(q[1]), ctx.randomState().sampler());
 			if (!biomes.contains(biome)) {
@@ -235,6 +234,16 @@ public record JigsawCheck(
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * The Beardifier drops structures whose adaptation is NONE before it reads any piece, so a sparse-beard rule
+	 * advertises BEARD_THIN here while each piece still reports its own adjustment. The configured JSON value stays
+	 * NONE: only the gate keeps a beard.
+	 */
+	public static TerrainAdjustment adaptation(TerrainPredicate terrain, TerrainAdjustment configured) {
+		return configured == TerrainAdjustment.NONE && terrain.needsBeardifier()
+				? TerrainAdjustment.BEARD_THIN : configured;
 	}
 
 	/**

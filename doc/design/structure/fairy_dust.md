@@ -19,8 +19,9 @@ Related: [placement.md](placement.md), [cooldown.md](../item/cooldown.md).
 | any tulip | `alice_house` |
 | any other flower | `character_homes` (all six homes) |
 
-`start` resolves the tag on the server thread, keeps only `flat_check` structures that a `multi_spread` set places,
-and schedules the ticker with `SchedulerHandler.schedulePersistent`. `FairyDustSearch#isBusy` keeps one cast per
+`start` resolves the tag on the server thread, keeps only `LocatableStructure` members that a `multi_spread` set places
+(primaries and secondaries, never the tiny tier), and schedules the ticker with
+`SchedulerHandler.schedulePersistent`. `FairyDustSearch#isBusy` keeps one cast per
 player in flight; a cast left behind by a stopped server is pruned on the next use.
 
 ## 2. The ticker
@@ -35,7 +36,7 @@ Only one ring is in flight at a time, so a long search is a sequence of short ba
 
 ## 3. Why the search can leave the tick thread
 
-`FlatCheckStructure#locateRegion` is the same pure check worldgen workers already run:
+`LocatableStructure#locateRegion` is the same pure check worldgen workers already run:
 `ChunkStatusTasks.generateStructureStarts` calls `ChunkGenerator#createStructures` on the worker pool, which calls
 `Structure#findGenerationPoint`. `locateRegion` walks a region's candidate stream in order and returns the least-index
 candidate passing `checkCandidate`, exactly as `findGenerationPoint` does, and reads no chunk and no stored start.
@@ -48,7 +49,7 @@ Everything it touches is immutable or per-call, captured before the worker start
 | `ChunkGenerator` / `BiomeSource` / `RandomState` | stateless density trees |
 | `StructureTemplateManager` | `ConcurrentMap` + `computeIfAbsent` |
 | `LevelHeightAccessor` | a `LevelBounds` record of the two bounds, not the `ServerLevel` |
-| `FlatCheckStructure` | all fields final; `TerrainPredicate` is a record |
+| `LocatableStructure` | all fields final; `TerrainPredicate` is a record |
 | candidate random | a fresh `WorldgenRandom` per candidate |
 
 The dust does not use `ServerLevel#findNearestMapStructure`: that path reads `StructureCheck`'s plain maps and the
@@ -70,10 +71,10 @@ search. Casts from different players queue on that thread instead of competing w
 
 ## 6. Region cache
 
-`FlatCheckStructure#locateRegion` is memoised by `StructureLocateCache` per `(structure, generator, seed, region)`,
+`LocatableStructure#locateRegion` is memoised by `RegionMemo` per `(structure, generator, seed, region)`,
 misses included, so a second cast over the same ground only pays for regions neither cast has seen. The cache is
 shared with `/gensokyo structure scan` (see [placement.md](placement.md) §5), bounded, and
-cleared on server stop.
+cleared on server stop and on datapack reload.
 
 ## 7. Failure and refund
 

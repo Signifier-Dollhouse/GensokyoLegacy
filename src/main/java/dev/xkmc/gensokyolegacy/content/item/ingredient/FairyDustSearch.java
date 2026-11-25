@@ -1,6 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.item.ingredient;
 
-import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.LocatableStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.LevelBounds;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.compat.l2lib.SchedulerHandler;
@@ -74,7 +74,7 @@ public final class FairyDustSearch {
 	private final RandomState randomState;
 	private final StructureTemplateManager templates;
 	private final LevelHeightAccessor height;
-	private final List<FlatCheckStructure> structures;
+	private final List<LocatableStructure> structures;
 	private final ChunkPos center;
 	private final ItemStack refund;
 	private final boolean consume;
@@ -85,7 +85,7 @@ public final class FairyDustSearch {
 	private CompletableFuture<BlockPos> pending;
 	private volatile boolean cancelled;
 
-	private FairyDustSearch(ServerLevel level, BlockPos origin, List<FlatCheckStructure> structures,
+	private FairyDustSearch(ServerLevel level, BlockPos origin, List<LocatableStructure> structures,
 							ItemStack refund, boolean consume, UUID playerId) {
 		this.level = level;
 		this.origin = origin;
@@ -105,16 +105,16 @@ public final class FairyDustSearch {
 
 	/**
 	 * Resolves the tag on the server thread and starts the ticker. {@code false} when nothing in the tag is a
-	 * flat-check structure, in which case the caller refunds immediately.
+	 * locatable primary or secondary, in which case the caller refunds immediately.
 	 */
 	static boolean start(ServerLevel level, BlockPos origin, TagKey<Structure> tag,
 						 ItemStack refund, boolean consume, UUID playerId) {
 		var tagSet = level.registryAccess().registryOrThrow(Registries.STRUCTURE).getTag(tag);
 		if (tagSet.isEmpty()) return false;
-		List<FlatCheckStructure> structures = new ArrayList<>();
+		List<LocatableStructure> structures = new ArrayList<>();
 		for (Holder<Structure> holder : tagSet.get()) {
-			if (holder.value() instanceof FlatCheckStructure flat && flat.spacing() > 0) {
-				structures.add(flat);
+			if (holder.value() instanceof LocatableStructure loc && loc.spacing() > 0) {
+				structures.add(loc);
 			}
 		}
 		if (structures.isEmpty()) return false;
@@ -172,15 +172,15 @@ public final class FairyDustSearch {
 	private BlockPos searchRing(int ring) {
 		BlockPos best = null;
 		double bestDist = Double.MAX_VALUE;
-		for (FlatCheckStructure flat : structures) {
-			int spacing = flat.spacing();
+		for (LocatableStructure loc : structures) {
+			int spacing = loc.spacing();
 			int centerX = Math.floorDiv(center.x, spacing);
 			int centerZ = Math.floorDiv(center.z, spacing);
 			for (int dx = -ring; dx <= ring; dx++) {
 				for (int dz = -ring; dz <= ring; dz++) {
 					if (Math.max(Math.abs(dx), Math.abs(dz)) != ring) continue;
 					if (cancelled) return best;
-					var found = flat.locateRegion(seed, centerX + dx, centerZ + dz,
+					var found = loc.locateRegion(seed, centerX + dx, centerZ + dz,
 							registries, generator, randomState, templates, height);
 					if (found.isEmpty()) continue;
 					double dist = horizontalDistSqr(origin, found.get().pos());

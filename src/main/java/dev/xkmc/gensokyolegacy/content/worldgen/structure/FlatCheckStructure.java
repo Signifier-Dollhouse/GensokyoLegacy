@@ -2,13 +2,13 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -34,9 +34,10 @@ import java.util.Optional;
  * copied here, so the two sides cannot disagree. setCount/setIndex must never change once released.
  *
  * @see "doc/design/structure/placement.md"
+ * @see "doc/design/structure/secondary.md"
  * @see "doc/design/structure/terrain_fit.md"
  */
-public class FlatCheckStructure extends Structure {
+public class FlatCheckStructure extends Structure implements LocatableStructure {
 
 	public static final Codec<FlatCheckStructure> CODEC = ExtraCodecs.validate(RecordCodecBuilder.<FlatCheckStructure>create((i) -> i.group(
 			settingsCodec(i),
@@ -65,7 +66,6 @@ public class FlatCheckStructure extends Structure {
 	private final int safetyRadius;
 	private final int setIndex;
 	private final int setCount;
-	private final RegionMemo memo = new RegionMemo();
 
 	private static DataResult<FlatCheckStructure> verifyRange(FlatCheckStructure s) {
 		byte b0;
@@ -90,7 +90,8 @@ public class FlatCheckStructure extends Structure {
 		return DataResult.success(s);
 	}
 
-	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth, boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
+	public FlatCheckStructure(StructureSettings settings, Holder<StructureTemplatePool> startPool, int maxDepth,
+							  boolean useExpansionHack, int maxDistanceFromCenter, TerrainPredicate terrain,
 							  Holder<StructureSet> set, int safetyRadius, int setIndex, int setCount) {
 		super(settings);
 		this.startPool = startPool;
@@ -157,27 +158,6 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
-	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's jigsaw pieces are placed.
-	 */
-	@Override
-	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
-						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
-		this.terrain.afterPlace(level, box, pieces);
-	}
-
-	/**
-	 * The Beardifier drops structures whose adaptation is NONE before it reads any piece, so a sparse-beard rule
-	 * advertises BEARD_THIN here while each piece still reports its own adjustment. The configured JSON value stays
-	 * NONE: only the gate keeps a beard.
-	 */
-	@Override
-	public TerrainAdjustment terrainAdaptation() {
-		TerrainAdjustment configured = super.terrainAdaptation();
-		return configured == TerrainAdjustment.NONE && this.terrain.needsBeardifier()
-				? TerrainAdjustment.BEARD_THIN : configured;
-	}
-
-	/**
 	 * Index of the first candidate of region {@code (rx, rz)} where the picked primary passes, or {@code -1}. Pure in
 	 * seed, generator and region, so every candidate of the region and the lower tiers share one scan; a member that is
 	 * not picked, or a reserved pick, returns {@code -1} without a scan.
@@ -185,25 +165,24 @@ public class FlatCheckStructure extends Structure {
 	 * @see "doc/design/structure/secondary.md"
 	 */
 	int firstPassInRegion(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
-		Integer cached = memo.get(ctx.chunkGenerator(), ctx.seed(), rx, rz);
-		if (cached != null) {
-			return cached;
+		return RegionMemo.verdict(this, ctx.chunkGenerator(), ctx.seed(), rx, rz,
+				() -> computeFirstPass(ctx, placement, rx, rz));
+	}
+
+	private int computeFirstPass(GenerationContext ctx, MultiSpreadPlacement placement, int rx, int rz) {
+		if (pickForRegion(ctx.seed(), rx, rz, placement.salt(), this.setCount) != this.setIndex) {
+			return -1;
 		}
-		int ans = -1;
-		if (pickForRegion(ctx.seed(), rx, rz, placement.salt(), this.setCount) == this.setIndex) {
-			int spacing = placement.spacing();
-			List<ChunkPos> cands = placement.getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
-			JigsawCheck check = check();
-			for (int i = 0; i < cands.size(); i++) {
-				ChunkPos c = cands.get(i);
-				if (check.checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, placement).isPresent()) {
-					ans = i;
-					break;
-				}
+		int spacing = placement.spacing();
+		List<ChunkPos> cands = placement.getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
+		JigsawCheck check = check();
+		for (int i = 0; i < cands.size(); i++) {
+			ChunkPos c = cands.get(i);
+			if (check.checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, placement).isPresent()) {
+				return i;
 			}
 		}
-		memo.put(ctx.chunkGenerator(), ctx.seed(), rx, rz, ans);
-		return ans;
+		return -1;
 	}
 
 	/**
@@ -232,6 +211,57 @@ public class FlatCheckStructure extends Structure {
 	}
 
 	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		return JigsawCheck.adaptation(this.terrain, super.terrainAdaptation());
+	}
+
+	/**
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
+	 */
+	@Override
+	public int spacing() {
+		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
+	}
+
+	/**
+	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
+	 * the least-index candidate that passes {@link JigsawCheck#checkCandidate} wins, so this agrees with worldgen and
+	 * reads no chunks. Cached per region by {@link RegionMemo}.
+	 */
+	@Override
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		Optional<MultiSpreadPlacement> resolved = this.placement();
+		if (resolved.isEmpty()) {
+			return Optional.empty();
+		}
+		MultiSpreadPlacement placement = resolved.get();
+		int spacing = placement.spacing();
+		List<ChunkPos> cands = placement.getPotentialChunks(seed, regionX * spacing, regionZ * spacing);
+		if (cands.isEmpty()) {
+			return Optional.empty();
+		}
+		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
+				cands.get(0), heightAccessor, biomes());
+		int idx = this.firstPassInRegion(ctx, placement, regionX, regionZ);
+		if (idx < 0) {
+			return Optional.empty();
+		}
+		ChunkPos chunk = cands.get(idx);
+		return Optional.of(new Located(chunk, placement.getLocatePos(chunk), regionX, regionZ));
+	}
+
+	/**
 	 * Per-region funnel counts, cumulative: each bucket counts attempts
 	 * passing that gate and every earlier one.
 	 */
@@ -251,61 +281,13 @@ public class FlatCheckStructure extends Structure {
 	public record RegionReport(List<String> lines, RegionStats stats) {
 	}
 
-	/**
-	 * Dev diagnostic for the region containing {@code chunkpos}; see {@link #diagnoseRegion}.
-	 */
-	public RegionReport diagnoseAt(long seed, ChunkPos chunkpos, RegistryAccess registries, ChunkGenerator generator,
-								   RandomState randomState, StructureTemplateManager templates,
-								   LevelHeightAccessor heightAccessor, boolean detailed) {
-		Optional<MultiSpreadPlacement> resolved = this.placement();
-		if (resolved.isEmpty()) {
-			return new RegionReport(List.of("no multi-spread structure set places this structure"), RegionStats.zero());
-		}
-		int spacing = resolved.get().spacing();
-		return diagnoseRegion(seed, Math.floorDiv(chunkpos.x, spacing), Math.floorDiv(chunkpos.z, spacing),
-				registries, generator, randomState, templates, heightAccessor, detailed);
-	}
-
-	/**
-	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
-	 */
-	public int spacing() {
-		return this.placement().map(MultiSpreadPlacement::spacing).orElse(0);
-	}
-
-	/**
-	 * The single start this structure places in the given region, if any. Mirrors {@link #findGenerationPoint}:
-	 * the least-index candidate that passes {@link #checkCandidate} wins, so this agrees with worldgen and reads
-	 * no chunks. Cached per region by {@link StructureLocateCache}.
-	 */
-	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-										  ChunkGenerator generator, RandomState randomState,
-										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
-		return StructureLocateCache.get(this, generator, seed, regionX, regionZ,
-				() -> computeRegion(seed, regionX, regionZ, registries, generator, randomState, templates, heightAccessor));
-	}
-
-	private Optional<Located> computeRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-											ChunkGenerator generator, RandomState randomState,
-											StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
-		Optional<MultiSpreadPlacement> resolved = this.placement();
-		if (resolved.isEmpty()) return Optional.empty();
-		MultiSpreadPlacement placement = resolved.get();
-		int spacing = placement.spacing();
-		int baseX = regionX * spacing;
-		int baseZ = regionZ * spacing;
-		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
-				new ChunkPos(baseX, baseZ), heightAccessor, biomes());
-		int idx = firstPassInRegion(ctx, placement, regionX, regionZ);
-		if (idx < 0) return Optional.empty();
-		ChunkPos cand = placement.getPotentialChunks(seed, baseX, baseZ).get(idx);
-		return Optional.of(new Located(cand, placement.getLocatePos(cand), regionX, regionZ));
-	}
-
-	/**
-	 * A start returned by {@link #locateRegion}: its chunk, the position {@code /locate} would report, and its region.
-	 */
-	public record Located(ChunkPos chunk, BlockPos pos, int regionX, int regionZ) {
+	@Override
+	public Diagnosis diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+									ChunkGenerator generator, RandomState randomState,
+									StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		RegionReport report = diagnoseRegion(seed, regionX, regionZ, registries, generator, randomState, templates,
+				heightAccessor, true);
+		return new Diagnosis(report.lines(), report.stats().pass());
 	}
 
 	/**
@@ -353,6 +335,7 @@ public class FlatCheckStructure extends Structure {
 		int tried = 0, pre = 0, mar = 0, bio = 0, roo = 0, det = 0, pas = 0;
 		int firstPass = -1;
 		boolean detailUsed = false;
+		JigsawCheck check = check();
 		for (int i = 0; i < cands.size(); i++) {
 			ChunkPos me = cands.get(i);
 			String verdict;
@@ -365,19 +348,19 @@ public class FlatCheckStructure extends Structure {
 				tried++;
 				GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed, me,
 						heightAccessor, biomes());
-				var prefilter = this.check().prefilter(ctx, me);
+				var prefilter = check.prefilter(ctx, me);
 				if (!prefilter.pass()) {
 					verdict = "place-" + prefilter.reason();
 					stage = 0;
 				} else {
 					pre++;
-					if (!this.check().marginSafe(ctx, me, placement)) {
+					if (!check.marginSafe(ctx, me, placement)) {
 						verdict = "margin-fail";
 						stage = 1;
 					} else {
 						mar++;
 						if (detailed && !detailUsed) trace = new ArrayList<>();
-						var v = this.check().validateLayout(ctx, me, prefilter.y(), trace);
+						var v = check.validateLayout(ctx, me, prefilter.y(), trace);
 						if (trace != null && !trace.isEmpty()) detailUsed = true;
 						if (!v.pass()) {
 							verdict = "place-" + v.reason();
@@ -410,8 +393,8 @@ public class FlatCheckStructure extends Structure {
 	 */
 	private static int stageOf(String reason) {
 		if (reason.startsWith("joint[")) return 5;
-		if (reason.startsWith("rigid-")) return 4;
-		if (reason.equals("sea") || reason.startsWith("height[")) return 3;
+		if (reason.startsWith("rigid-") || reason.startsWith("anchor[")) return 4;
+		if (reason.equals("sea") || reason.equals("anchor-sea") || reason.startsWith("height[")) return 3;
 		return 2;
 	}
 

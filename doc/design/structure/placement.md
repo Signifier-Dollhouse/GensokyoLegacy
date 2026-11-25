@@ -91,10 +91,15 @@ its set's grid move in one step.
 ## 5. Listing starts: `/gensokyo structure scan`
 
 `/gensokyo structure scan <structure> <radius> [first|all]` searches the `radius` region rings around the command
-source (`1..100`, the same ring unit as `/locate`). For each region it calls `FlatCheckStructure#locateRegion`, which
+source (`1..100`, the same ring unit as `/locate`). For each region it calls `LocatableStructure#locateRegion`, which
 walks the region's candidate stream in order and returns the least-index candidate passing `checkCandidate` — the same
 rule `findGenerationPoint` applies — so the output is the worldgen answer, not a guess, and no chunks or region files
 are read.
+
+`LocatableStructure` is implemented by the primaries and the secondaries, the two tiers that own a region pick: a
+secondary reports its region only when the picked primary left that region empty (and the secondary pick names it). The
+tiny tier has no region pick, so a scan cannot name it; `/gensokyo structure scan`, `/gensokyo structure diagnose` and
+fairy dust all reject it with "Structure has no region pick to locate".
 
 - `all` (the default) walks the whole `(2r+1)^2` square and prints every start nearest-first.
 - `first` walks rings outward and stops at the first ring that has a start, nearest-first within that ring.
@@ -103,9 +108,10 @@ Both run on the `gensokyo-structure-scan` thread and post their output back thro
 costs no tick time; progress is printed every two seconds. One scan runs at a time — a second command fails with "A
 structure scan is already running" — and a scan still running at server stop is cancelled.
 
-`locateRegion` is memoised per `(structure, generator, seed, region)` by `StructureLocateCache`, misses included, so a
-repeated scan or a fairy-dust cast over the same ground is nearly free. The cache is bounded and cleared on server stop,
-so a long session cannot grow it without limit.
+`locateRegion` is memoised per `(structure, generator, seed, region)` by `RegionMemo`, misses included, so a repeated scan
+or a fairy-dust cast over the same ground is nearly free. The same cache holds the primary's region verdict that the
+secondary and tiny tiers read, so a secondary scan does not rebuild a primary layout per region. The cache is bounded
+and cleared on server stop and on datapack reload, so a long session cannot grow it without limit.
 
 The query describes what the current rules would place. A start already written into a generated chunk by an older
 worldgen can differ: `/locate` reads that stored start first, `scan` recomputes it. Cost is quadratic in the radius

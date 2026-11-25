@@ -33,7 +33,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeData;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
-import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.LocatableStructure;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
@@ -103,8 +103,8 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("A party is planned against a player's reputation"));
 	private static final SimpleCommandExceptionType ERROR_UNKNOWN_STRUCTURE =
 			new SimpleCommandExceptionType(Component.literal("Unknown structure"));
-	private static final SimpleCommandExceptionType ERROR_NOT_FLAT_CHECK =
-			new SimpleCommandExceptionType(Component.literal("Structure is not a gensokyolegacy:flat_check structure"));
+	private static final SimpleCommandExceptionType ERROR_NOT_LOCATABLE =
+			new SimpleCommandExceptionType(Component.literal("Structure has no region pick to locate"));
 	private static final SimpleCommandExceptionType ERROR_NOT_MULTI_SPREAD =
 			new SimpleCommandExceptionType(Component.literal("Structure set is not placed by gensokyolegacy:multi_spread"));
 	private static final SimpleCommandExceptionType ERROR_SCAN_BUSY =
@@ -140,13 +140,13 @@ public class GLCommands {
 	};
 
 	/**
-	 * Flat-check structures only: the ones {@code /gensokyo structure diagnose} can explain.
+	 * Locatable structures only: the primaries and secondaries {@code /gensokyo structure diagnose} can explain.
 	 */
 	private static final SuggestionProvider<CommandSourceStack> SUGGEST_FLAT_STRUCTURES = (ctx, builder) -> {
 		Set<ResourceLocation> ids = new LinkedHashSet<>();
 		var reg = ctx.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE);
 		for (var e : reg.entrySet()) {
-			if (e.getValue() instanceof FlatCheckStructure) ids.add(e.getKey().location());
+			if (e.getValue() instanceof LocatableStructure) ids.add(e.getKey().location());
 		}
 		return SharedSuggestionProvider.suggestResource(ids, builder);
 	};
@@ -414,21 +414,21 @@ public class GLCommands {
 		var holder = src.registryAccess().registryOrThrow(Registries.STRUCTURE)
 				.getHolder(ResourceKey.create(Registries.STRUCTURE, id));
 		if (holder.isEmpty()) throw ERROR_UNKNOWN_STRUCTURE.create();
-		if (!(holder.get().value() instanceof FlatCheckStructure flat)) throw ERROR_NOT_FLAT_CHECK.create();
+		if (!(holder.get().value() instanceof LocatableStructure loc)) throw ERROR_NOT_LOCATABLE.create();
 		ServerLevel level = src.getLevel();
 		ChunkGenerator generator = level.getChunkSource().getGenerator();
 		RandomState randomState = level.getChunkSource().randomState();
 		StructureTemplateManager templates = level.getStructureManager();
-		FlatCheckStructure.RegionReport report = regionX == null || regionZ == null
-				? flat.diagnoseAt(level.getSeed(), new ChunkPos(BlockPos.containing(src.getPosition())),
-				level.registryAccess(), generator, randomState, templates, level, true)
-				: flat.diagnoseRegion(level.getSeed(), regionX, regionZ, level.registryAccess(),
-				generator, randomState, templates, level, true);
+		LocatableStructure.Diagnosis report = regionX == null || regionZ == null
+				? loc.diagnoseAt(level.getSeed(), new ChunkPos(BlockPos.containing(src.getPosition())),
+				level.registryAccess(), generator, randomState, templates, level)
+				: loc.diagnoseRegion(level.getSeed(), regionX, regionZ, level.registryAccess(),
+				generator, randomState, templates, level);
 		for (String line : report.lines()) {
 			src.sendSuccess(() -> Component.literal(line), false);
 			GensokyoLegacy.LOGGER.info("[structure] {}", line);
 		}
-		return report.stats().pass() > 0 ? 1 : 0;
+		return report.passes() > 0 ? 1 : 0;
 	}
 
 	/**
@@ -452,10 +452,10 @@ public class GLCommands {
 		var holder = src.registryAccess().registryOrThrow(Registries.STRUCTURE)
 				.getHolder(ResourceKey.create(Registries.STRUCTURE, id));
 		if (holder.isEmpty()) throw ERROR_UNKNOWN_STRUCTURE.create();
-		if (!(holder.get().value() instanceof FlatCheckStructure flat)) throw ERROR_NOT_FLAT_CHECK.create();
-		if (flat.spacing() <= 0) throw ERROR_NOT_MULTI_SPREAD.create();
+		if (!(holder.get().value() instanceof LocatableStructure loc)) throw ERROR_NOT_LOCATABLE.create();
+		if (loc.spacing() <= 0) throw ERROR_NOT_MULTI_SPREAD.create();
 		int radius = IntegerArgumentType.getInteger(ctx, "radius");
-		if (!StructureScan.start(src, flat, id, radius, first)) throw ERROR_SCAN_BUSY.create();
+		if (!StructureScan.start(src, loc, id, radius, first)) throw ERROR_SCAN_BUSY.create();
 		src.sendSuccess(() -> Component.literal("%s: %s scan of radius %d started off-thread"
 				.formatted(id, first ? "first" : "all", radius)), false);
 		return 1;

@@ -2,17 +2,22 @@ package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.terrain.TerrainPredicate;
 import dev.xkmc.gensokyolegacy.init.registrate.GLWorldGen;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.*;
+import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +32,9 @@ import java.util.Optional;
  * into it, so the tier graph stays acyclic; the radius and margin rule are the primary's.
  *
  * @see "doc/design/structure/secondary.md"
+ * @see "doc/design/structure/terrain_fit.md"
  */
-public class SecondaryStructure extends Structure {
+public class SecondaryStructure extends Structure implements LocatableStructure {
 
 	public static final Codec<SecondaryStructure> CODEC = ExtraCodecs.validate(RecordCodecBuilder.<SecondaryStructure>create((i) -> i.group(
 			settingsCodec(i),
@@ -55,7 +61,6 @@ public class SecondaryStructure extends Structure {
 	private final TerrainPredicate terrain;
 	private final int setIndex;
 	private final int setCount;
-	private final RegionMemo memo = new RegionMemo();
 
 	private static DataResult<SecondaryStructure> verifyRange(SecondaryStructure s) {
 		byte b0;
@@ -127,29 +132,29 @@ public class SecondaryStructure extends Structure {
 	}
 
 	private int startInRegion(GenerationContext ctx, Resolved r, int rx, int rz) {
-		Integer cached = memo.get(ctx.chunkGenerator(), ctx.seed(), rx, rz);
-		if (cached != null) {
-			return cached;
-		}
-		int ans = -1;
+		return RegionMemo.verdict(this, ctx.chunkGenerator(), ctx.seed(), rx, rz,
+				() -> computeStart(ctx, r, rx, rz));
+	}
+
+	private int computeStart(GenerationContext ctx, Resolved r, int rx, int rz) {
 		if (FlatCheckStructure.pickForRegion(ctx.seed(), rx, rz, r.placement().salt() ^ PICK_MIX,
-				r.secondaryCount()) == this.setIndex) {
-			FlatCheckStructure primary = r.primaryFor(FlatCheckStructure.pickForRegion(
-					ctx.seed(), rx, rz, r.placement().salt(), r.primaryCount()));
-			if (primary == null || primary.firstPassInRegion(ctx, r.placement(), rx, rz) == -1) {
-				int spacing = r.placement().spacing();
-				List<ChunkPos> cands = r.placement().getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
-				for (int i = 0; i < cands.size(); i++) {
-					ChunkPos c = cands.get(i);
-					if (checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, r).isPresent()) {
-						ans = i;
-						break;
-					}
-				}
+				r.secondaryCount()) != this.setIndex) {
+			return -1;
+		}
+		FlatCheckStructure primary = r.primaryFor(FlatCheckStructure.pickForRegion(
+				ctx.seed(), rx, rz, r.placement().salt(), r.primaryCount()));
+		if (primary != null && primary.firstPassInRegion(ctx, r.placement(), rx, rz) != -1) {
+			return -1;
+		}
+		int spacing = r.placement().spacing();
+		List<ChunkPos> cands = r.placement().getPotentialChunks(ctx.seed(), rx * spacing, rz * spacing);
+		for (int i = 0; i < cands.size(); i++) {
+			ChunkPos c = cands.get(i);
+			if (checkCandidate(JigsawCheck.ctxFor(ctx, c, biomes()), c, r).isPresent()) {
+				return i;
 			}
 		}
-		memo.put(ctx.chunkGenerator(), ctx.seed(), rx, rz, ans);
-		return ans;
+		return -1;
 	}
 
 	/**
@@ -298,16 +303,67 @@ public class SecondaryStructure extends Structure {
 	}
 
 	/**
+	 * Runs the terrain predicate's foundation pass once per chunk, after that chunk's pieces are placed.
+	 */
+	@Override
+	public void afterPlace(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator,
+						   RandomSource random, BoundingBox box, ChunkPos chunkPos, PiecesContainer pieces) {
+		this.terrain.afterPlace(level, box, pieces);
+	}
+
+	@Override
+	public TerrainAdjustment terrainAdaptation() {
+		return JigsawCheck.adaptation(this.terrain, super.terrainAdaptation());
+	}
+
+	/**
+	 * Chunk spacing of the set that places this structure, or {@code 0} when no multi-spread set places it.
+	 */
+	@Override
+	public int spacing() {
+		Optional<Resolved> resolved = this.resolve();
+		return resolved.map(r -> r.placement().spacing()).orElse(0);
+	}
+
+	/**
+	 * The secondary's start in the given region, if the primary left it empty and this member is the picked secondary.
+	 */
+	@Override
+	public Optional<Located> locateRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+										  ChunkGenerator generator, RandomState randomState,
+										  StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
+		Optional<Resolved> resolved = this.resolve();
+		if (resolved.isEmpty()) {
+			return Optional.empty();
+		}
+		Resolved r = resolved.get();
+		int spacing = r.placement().spacing();
+		List<ChunkPos> cands = r.placement().getPotentialChunks(seed, regionX * spacing, regionZ * spacing);
+		if (cands.isEmpty()) {
+			return Optional.empty();
+		}
+		GenerationContext ctx = JigsawCheck.context(registries, generator, randomState, templates, seed,
+				cands.get(0), heightAccessor, biomes());
+		int idx = startInRegion(ctx, r, regionX, regionZ);
+		if (idx < 0) {
+			return Optional.empty();
+		}
+		ChunkPos chunk = cands.get(idx);
+		return Optional.of(new Located(chunk, r.placement().getLocatePos(chunk), regionX, regionZ));
+	}
+
+	/**
 	 * Dev diagnostic: the primary verdict, the secondary picks and a verdict per candidate, placing nothing.
 	 */
-	public List<String> diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
-									   ChunkGenerator generator, RandomState randomState, StructureTemplateManager templates,
-									   LevelHeightAccessor heightAccessor) {
+	@Override
+	public Diagnosis diagnoseRegion(long seed, int regionX, int regionZ, RegistryAccess registries,
+									ChunkGenerator generator, RandomState randomState,
+									StructureTemplateManager templates, LevelHeightAccessor heightAccessor) {
 		List<String> lines = new ArrayList<>();
 		Optional<Resolved> resolved = this.resolve();
 		if (resolved.isEmpty()) {
 			lines.add("no multi-spread structure set with a primary places this structure");
-			return lines;
+			return new Diagnosis(lines, 0);
 		}
 		Resolved r = resolved.get();
 		MultiSpreadPlacement placement = r.placement();
@@ -342,7 +398,7 @@ public class SecondaryStructure extends Structure {
 			}
 			lines.add("  #%d (%d, %d): %s".formatted(i, c.x, c.z, verdict));
 		}
-		return lines;
+		return new Diagnosis(lines, s >= 0 ? 1 : 0);
 	}
 
 }
