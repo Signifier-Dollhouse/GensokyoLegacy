@@ -2,6 +2,7 @@
   "name": "Treasure Basket",
   "icon": "gensokyolegacy:treasure_basket",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_treasure_basket",
   "sortnum": 21,
   "pages": [
     {

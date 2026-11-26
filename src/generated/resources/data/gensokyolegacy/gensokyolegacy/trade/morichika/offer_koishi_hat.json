@@ -3,7 +3,7 @@
   "conditions": [
     {
       "type": "gensokyolegacy:has_advancement",
-      "advancement": "gensokyolegacy:koishi_hat"
+      "advancement": "gensokyolegacy:main/koishi_hat"
     }
   ],
   "ingredients": [
