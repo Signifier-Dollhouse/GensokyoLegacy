@@ -1,5 +1,19 @@
 {
   "parent": "minecraft:item/handheld",
+  "overrides": [
+    {
+      "model": "gensokyolegacy:item/dowser_left",
+      "predicate": {
+        "gensokyolegacy:dowser_half": 1.0
+      }
+    },
+    {
+      "model": "gensokyolegacy:item/dowser_right",
+      "predicate": {
+        "gensokyolegacy:dowser_half": 2.0
+      }
+    }
+  ],
   "textures": {
     "layer0": "gensokyolegacy:item/tool/dowser"
   }

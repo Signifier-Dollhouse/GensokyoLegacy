@@ -63,8 +63,8 @@ public class GLTagGen {
 	public static final TagKey<Item> DEBUG_ITEMS = item("debug_items");
 
 	/**
-	 * Items the mod website must not list: {@link #DEBUG_ITEMS}, {@link #SPELL_CARD} and the two dowser halves,
-	 * which exist only as the render halves of {@code dowser} and are never obtainable.
+	 * Items the mod website must not list: {@link #DEBUG_ITEMS} and {@link #SPELL_CARD}, which are
+	 * not obtainable in normal play.
 	 */
 	public static final TagKey<Item> WEBSITE_HIDDEN = item("website_hidden");
 
@@ -192,7 +192,7 @@ public class GLTagGen {
 		pvd.addTag(COOKED_MEAT).add(Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_CHICKEN,
 				Items.COOKED_MUTTON, Items.COOKED_RABBIT, Items.COOKED_COD, Items.COOKED_SALMON);
 		addTiles(pvd, TILE_VARIANTS_ITEM);
-		// the two halves are tagged on the items themselves; everything else arrives by whole tags
+		// the debug and spell-card items are tagged on the items themselves; everything else arrives by whole tags
 		pvd.addTag(WEBSITE_HIDDEN).addTag(DEBUG_ITEMS).addTag(SPELL_CARD);
 	}
 

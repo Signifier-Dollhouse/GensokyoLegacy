@@ -21,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.item.glove.client.DollGloveOverlay;
 import dev.xkmc.gensokyolegacy.content.item.glove.client.DollLoadoutTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.ClientHakkeroTooltip;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroTooltip;
+import dev.xkmc.gensokyolegacy.content.item.hexbrew.HexBrew;
+import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestOverlay;
 import dev.xkmc.gensokyolegacy.content.ui.quest.QuestTab;
@@ -60,6 +62,7 @@ public class GLClient {
 			ItemProperties.register(GLItems.DOLL_GLOVE.get(), GensokyoLegacy.loc("glove_display"), DollGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.DAGGER_GLOVE.get(), GensokyoLegacy.loc("dagger_glove_display"), DaggerGloveItem::displayPredicate);
 			ItemProperties.register(GLItems.MINAMITSU_ANCHOR.get(), GensokyoLegacy.loc("anchor_display"), AnchorItem::displayPredicate);
+			ItemProperties.register(GLItems.DOWSER.get(), GensokyoLegacy.loc("dowser_half"), Dowser::halfPredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_mode"), YuyukoFanItem::modePredicate);
 			ItemProperties.register(GLItems.YUYUKO_FAN.get(), GensokyoLegacy.loc("yuyuko_fan_display"), YuyukoFanItem::displayPredicate);
 			ItemProperties.register(GLDecoBlocks.LOCUST_PLAQUE.asItem(), PlaqueItem.ALTERNATE_MODEL,

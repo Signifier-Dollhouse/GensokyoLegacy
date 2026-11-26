@@ -20,5 +20,10 @@ public enum YoukaiFlags {
 	 * Lying down in {@code GLBrains.NAP}. Synced because the pose is a client-side decision and the client
 	 * cannot ask the brain, the same reason {@code isSleeping()} and {@code isPassenger()} are authoritative.
 	 */
-	NAPPING
+	NAPPING,
+	/**
+	 * In {@code Activity.PLAY}. Synced because the render layer draws her default item from it on the
+	 * client, which cannot read the brain. It never touches an equipment slot.
+	 */
+	PLAYING
 }

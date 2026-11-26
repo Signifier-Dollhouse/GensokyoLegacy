@@ -2,6 +2,8 @@ package dev.xkmc.gensokyolegacy.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.xkmc.gensokyolegacy.content.item.tool.Dowser;
+import dev.xkmc.gensokyolegacy.content.item.tool.DowserHalf;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,20 +22,21 @@ public abstract class DowserItemInHandLayerMixin {
 
 	@Unique
 	private static boolean gensokyolegacy$isSplitDowser(LivingEntity entity) {
-		return entity.getMainHandItem().is(GLItems.DOWSER.get()) && entity.getOffhandItem().isEmpty();
+		ItemStack main = entity.getMainHandItem();
+		return main.is(GLItems.DOWSER.get()) && !Dowser.isHalf(main) && entity.getOffhandItem().isEmpty();
 	}
 
 	@WrapOperation(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
 	private ItemStack gensokyolegacy$dowserMainHand(LivingEntity entity, Operation<ItemStack> original) {
-		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_LEFT.asStack();
+		if (gensokyolegacy$isSplitDowser(entity)) return Dowser.ofHalf(DowserHalf.LEFT);
 		return original.call(entity);
 	}
 
 	@WrapOperation(method = "render*", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
 	private ItemStack gensokyolegacy$dowserOffHand(LivingEntity entity, Operation<ItemStack> original) {
-		if (gensokyolegacy$isSplitDowser(entity)) return GLItems.DOWSER_RIGHT.asStack();
+		if (gensokyolegacy$isSplitDowser(entity)) return Dowser.ofHalf(DowserHalf.RIGHT);
 		return original.call(entity);
 	}
 
