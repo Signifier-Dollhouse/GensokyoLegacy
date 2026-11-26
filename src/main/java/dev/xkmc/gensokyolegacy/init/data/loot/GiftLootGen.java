@@ -379,12 +379,22 @@ public class GiftLootGen {
 	}
 
 	/**
-	 * A UFO that opens into one item out of {@link #UFO_LOOT}.
+	 * One UFO of a random colour, each opening into one item out of {@link #UFO_LOOT}. The colour is
+	 * cosmetic, so the weight is split three ways, rounded down.
 	 */
-	private static Entry ufo(int weight) {
+	private static Entry[] ufo(int weight) {
+		int each = Math.max(1, weight / 3);
+		return new Entry[]{
+				ufo(GLItems.BLUE_UFO.get(), each),
+				ufo(GLItems.RED_UFO.get(), each),
+				ufo(GLItems.GREEN_UFO.get(), each)
+		};
+	}
+
+	private static Entry ufo(Item item, int weight) {
 		CompoundTag tag = new CompoundTag();
 		tag.putString(GLItems.UFO_LOOT.key(), UFO_LOOT.toString());
-		return new Entry(GLItems.UFO.get(), weight, SetNbtFunction.setTag(tag));
+		return new Entry(item, weight, SetNbtFunction.setTag(tag));
 	}
 
 }

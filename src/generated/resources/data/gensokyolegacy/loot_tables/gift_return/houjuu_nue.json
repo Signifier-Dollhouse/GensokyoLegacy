@@ -12,8 +12,30 @@
               "tag": "{ufo_loot:\"gensokyolegacy:gift/ufo\"}"
             }
           ],
-          "name": "gensokyolegacy:ufo",
-          "weight": 20
+          "name": "gensokyolegacy:blue_ufo",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{ufo_loot:\"gensokyolegacy:gift/ufo\"}"
+            }
+          ],
+          "name": "gensokyolegacy:red_ufo",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{ufo_loot:\"gensokyolegacy:gift/ufo\"}"
+            }
+          ],
+          "name": "gensokyolegacy:green_ufo",
+          "weight": 6
         }
       ],
       "rolls": 1.0

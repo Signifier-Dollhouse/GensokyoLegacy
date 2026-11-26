@@ -95,7 +95,7 @@ public class NueTridentProjectile extends ItemBulletEntity {
 			held = target.getOffhandItem();
 		}
 		if (held.isEmpty() || held.getItem() instanceof UfoItem) return;
-		target.setItemInHand(hand, UfoItem.wrap(held));
+		target.setItemInHand(hand, UfoItem.wrap(held, target.getRandom()));
 		if (target instanceof Mob mob) {
 			mob.setGuaranteedDrop(hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
 		}

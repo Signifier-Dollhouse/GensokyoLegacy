@@ -145,7 +145,7 @@ The target's **main hand**, falling back to the **offhand** when the main hand i
 happens (beyond the damage) if both are empty, if the held stack is already a UFO, or if the target
 is not a `LivingEntity`. Whatever was held — a sword, a stack of sixteen dirt, a bucket — is moved
 whole into the UFO; the count is preserved because the UFO stores the `ItemStack` itself, not an
-item type.
+item type. The UFO is blue, red or green, picked at random; the colour is cosmetic.
 
 That hand is also made a guaranteed drop for a mob (`Mob#setGuaranteedDrop`), so the UFO — and
 therefore the stolen item — always falls out when the victim dies instead of being rolled against
@@ -164,7 +164,8 @@ A UFO carries at most one of the two: content hands the stored stack back, loot 
 of the named table. Nothing else is stored: the UFO has no clock. It is a wrapper, like a shulker box
 that holds one stack and opens on demand.
 
-A **gift UFO** is the loot-table variant, with `ufo_loot` pointing at `gensokyolegacy:gift/ufo`:
+A **gift UFO** is the loot-table variant, with `ufo_loot` pointing at `gensokyolegacy:gift/ufo`.
+It is also blue, red or green at random, weight split three ways:
 
 | item | weight |
 |---|---|
@@ -216,16 +217,18 @@ which is the point of the weapon.
 
 The registrations below are the current wiring:
 
-* `GLItems`: `NUE_TRIDENT` (`NueTridentItem`, `stacksTo(1)`, `rarity(RARE)`), `UFO` (`UfoItem`,
-  `stacksTo(1)`, generated model), `UFO_CONTENT`.
+* `GLItems`: `NUE_TRIDENT` (`NueTridentItem`, `stacksTo(1)`, `rarity(RARE)`), `BLUE_UFO` /
+  `RED_UFO` / `GREEN_UFO` (`UfoItem`, `stacksTo(1)`, generated model; the colours are cosmetic and
+  chosen at random by both the trident and the gift table), `UFO_CONTENT`.
 * `GLEntities`: `NUE_TRIDENT` projectile, `sized(0.5F, 0.5F)`, `clientTrackingRange(4)`,
   `updateInterval(1 << 16)`, `renderer(NoFadeBulletRenderer::new)` — no fading or near-self hiding.
 * `GLLang`: `ItemLores.NUE_TRIDENT_LORE`, `ItemLores.UFO_LORE`, and an `ItemUfo` group for the
   `Contains <item>` line and the hold hint.
 * `patchouli_books/tools_guide`: `entries/special_tools/nue_trident.json`, en_us and zh_cn.
 * tags: `WEAPON_ENCHANTABLE`, `SHARP_WEAPON_ENCHANTABLE`; creative tab.
-* assets: the three prepared files from §3, plus `textures/item/tool/ufo.png` (new art); the staged
-  originals stay in `temp/` like the other prepared art there, nothing in the mod references them.
+* assets: the three prepared files from §3, plus `textures/item/tool/blue_ufo.png` (new art) and the
+  red and green recolours of it; the staged originals stay in `temp/` like the other prepared art
+  there, nothing in the mod references them.
 * zh_cn: `items.json` names, `tooltip.json` lores — then rerun `organize.ResourceOrganizer`.
 * `./gradlew runData`, commit `src/generated/resources/`.
 * `content/item/nue/package-info.java` and `content/entity/misc/render/package-info.java`

@@ -17,3 +17,4 @@ Debug and testing focus:
 Port merge todos:
 - remove terrain predicate debug tool after myouren temple gen fully working and tested
 
+- fix donation box
