@@ -30,33 +30,36 @@ public class GiftQDGen extends QuestDialogData {
 		var leave = giftLeave();
 		var talk05 = List.of(YoukaiAnim.TALK_05.trigger());
 		var talk03 = List.of(YoukaiAnim.TALK_03.trigger());
-		pair("reimu", GLEntities.REIMU.get(), leave, talk05, 10,
+		// An accepted gift answered with a talk clip rather than her agree clip
+		var talkNeutral = new Variant(null, null, TALK_ANIMS);
+		pair("reimu", GLEntities.REIMU.get(), leave, talkNeutral, talk05, 10,
 				"Why are you giving me things all of a sudden... but I do like it, so I'll keep it.",
-				null,
+				"Didn't expect a gift. Thanks.",
 				"Ugh, what's this? Take it away, take it away.",
 				"Here — this is a thank-you for the gifts. Don't read anything into it.",
 				"...Thanks. I'll take it, then.");
-		pair("marisa", GLEntities.MARISA.get(), leave, TALK_ANIMS, 12,
+		pair("marisa", GLEntities.MARISA.get(), leave, talkNeutral, TALK_ANIMS, 12,
 				"Wow, you really get me. I love this!",
-				null,
+				"Hehe, thanks! I'll take it, then.",
 				"Er, I just remembered something's on the stove. Hold on to this one, will you?",
 				"Ta-da! I picked this out myself. Hope it's useful!",
 				"What a surprise!");
-		pair("morichika", GLEntities.MORICHIKA.get(), leave, TALK_ANIMS, 9,
+		pair("morichika", GLEntities.MORICHIKA.get(), leave, talkNeutral, TALK_ANIMS, 9,
 				"How did you know I liked this? I'll accept your kind offer, then.",
-				null,
+				"You're too kind — bringing a gift to my shop. I'm quite flattered.",
 				"Er, the shop has no room for this. You take it back, customer.",
 				"Thanks for your patronage lately. I picked this out for you — do come again.",
 				"Thank you. I'll be sure to visit.");
-		pair("alice", GLEntities.ALICE.get(), leave, talk05, 12,
-				"What a curious thing. I'll keep it — care for some freshly brewed red tea?",
-				null,
+		pair("alice", GLEntities.ALICE.get(), leave,
+				new Variant("I'll be sure to come by.", "All right, then.", TALK_ANIMS), talk05, 12,
+				"What a curious thing. I'll keep it — you must come try my red tea sometime.",
+				"Thank you for the gift. I'll accept it, then.",
 				"Mm, thank you, but I'm afraid I can't accept this one.",
 				"I've prepared a little something in return. It's not much, but it's yours.",
 				"How thoughtful. Thank you.");
-		pair("sakuya", GLEntities.IZAYOI_SAKUYA.get(), leave, TALK_ANIMS, 8,
+		pair("sakuya", GLEntities.IZAYOI_SAKUYA.get(), leave, talkNeutral, TALK_ANIMS, 8,
 				"This looks like something the young lady would like. I'll take it.",
-				null,
+				"I may have no use for it, but I'll accept your kindness all the same.",
 				"I'm sorry, Scarlet Devil Mansion has no use for this. Please keep it.",
 				"Take this, with the young lady's compliments. It is only a small thing.",
 				"You're too kind.");
@@ -66,7 +69,7 @@ public class GiftQDGen extends QuestDialogData {
 				"I don't like this one. You keep it.",
 				"I found this outside! It's yours now. Come play with me again, okay?",
 				"It's a date! I'll come find you.");
-		pair("suika", GLEntities.IBUKI_SUIKA.get(), leave, TALK_ANIMS, 15,
+		pair("suika", GLEntities.IBUKI_SUIKA.get(), leave, talkNeutral, TALK_ANIMS, 15,
 				"Now you're talking — you know what we like, so I won't be shy about it~",
 				"Looks pretty ordinary, but it's the thought that counts. I'll take it.",
 				"Hey hey, I don't take just anything. Think it over before you hand it over.",
@@ -81,21 +84,31 @@ public class GiftQDGen extends QuestDialogData {
 		pair("minamitsu", GLEntities.MINAMITSU.get(), leave, TALK_ANIMS, 10,
 				"You have a good eye. I'll take it, then.",
 				"A gift? Don't mind if I do.",
-				"I've no use for this aboard a ship. Keep it.",
+				"I've no use for this. You'd better keep it.",
 				"Here — I hauled this up a while back, it's yours.",
 				"You're too kind.");
 		pair("nue", GLEntities.HOUJUU_NUE.get(), leave, talk03, 10,
-				"Thank you. I'll take it.",
-				"A gift for me? I suppose I'll take it.",
-				"I can't make anything of this. You keep it.",
+				"Thank you. I like this one.",
+				"For me? Thank you.",
+				"This is still too much of a mystery to me. You'd better keep it.",
 				"Take this. Don't ask me where it came from.",
 				"Mm. I'll take it.");
 		pair("nazrin", GLEntities.NAZRIN.get(), leave, talk03, 10,
-				"A treasure! You have a good eye. I'll take it.",
-				"Hm, not bad. I suppose I'll keep it.",
-				"I have no use for this. You can keep it.",
+				"Where did you find this treasure? Are you really giving it to me? You're so kind!",
+				"I can feel the thought behind it. I'll take the gift.",
+				"I don't collect this sort of thing. You'd better keep it for yourself.",
 				"Here — I dug this up on the way. It's yours.",
 				"Thanks. I'll take it.");
+	}
+
+	/**
+	 * What one character's reactions say that the shared shape does not: a leave line of her own on a
+	 * reaction, or talk clips instead of her agree clip on a plain acceptance. A null field keeps the
+	 * shared one.
+	 */
+	private record Variant(@Nullable String likeLeave, @Nullable String dislikeLeave,
+						   @Nullable List<String> neutralAnims) {
+		private static final Variant NONE = new Variant(null, null, null);
 	}
 
 	/**
@@ -116,16 +129,25 @@ public class GiftQDGen extends QuestDialogData {
 	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, List<String> returnAnims,
 					  int threshold, String like, @Nullable String neutral, String dislike,
 					  String giveBack, String takeIt) {
+		pair(name, type, leave, Variant.NONE, returnAnims, threshold, like, neutral, dislike, giveBack, takeIt);
+	}
+
+	private void pair(String name, EntityType<?> type, SimpleDialogOption leave, Variant variant,
+					  List<String> returnAnims, int threshold, String like, @Nullable String neutral,
+					  String dislike, String giveBack, String takeIt) {
 		prefix(name + "/gift");
+		var likeLeave = variant.likeLeave() == null ? leave : option("like/leave", variant.likeLeave());
+		var dislikeLeave = variant.dislikeLeave() == null ? leave : option("dislike/leave", variant.dislikeLeave());
+		var neutralAnims = variant.neutralAnims() == null ? List.of(YoukaiAnim.AGREE.trigger())
+				: variant.neutralAnims();
 		// Named rather than inlined: the gift data map holds them as holders, since which of the
 		// three plays is decided by the data map entry, not by the dialog tree.
 		var liked = namedDialogKey("like", rawText(name + "/gift/dialog/like", like),
-				List.of(YoukaiAnim.LIKE.trigger()), leave);
+				List.of(YoukaiAnim.LIKE.trigger()), likeLeave);
 		var plain = neutral == null ? liked : namedDialogKey("neutral",
-				rawText(name + "/gift/dialog/neutral", neutral),
-				List.of(YoukaiAnim.AGREE.trigger()), leave);
+				rawText(name + "/gift/dialog/neutral", neutral), neutralAnims, leave);
 		var disliked = namedDialogKey("dislike", rawText(name + "/gift/dialog/dislike", dislike),
-				List.of(YoukaiAnim.DISLIKE.trigger()), leave);
+				List.of(YoukaiAnim.DISLIKE.trigger()), dislikeLeave);
 		// An override, not a weight: a gift owed is owed whatever the player came to ask about, so she
 		// hands it over on sight and no topic list is shown until the bank is empty again.
 		// All talk clips where the edited data asks for variety; a plain TALK_05 otherwise: Suika's rig

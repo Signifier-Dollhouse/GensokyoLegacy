@@ -3,7 +3,7 @@
     "gensokyolegacy:alice_margatroid": {
       "dislike": "gensokyolegacy:alice/gift/dislike",
       "like": "gensokyolegacy:alice/gift/like",
-      "neutral": "gensokyolegacy:alice/gift/like",
+      "neutral": "gensokyolegacy:alice/gift/neutral",
       "returnTable": "gensokyolegacy:gift_return/alice_margatroid",
       "threshold": 12
     },
@@ -17,7 +17,7 @@
     "gensokyolegacy:hakurei_reimu": {
       "dislike": "gensokyolegacy:reimu/gift/dislike",
       "like": "gensokyolegacy:reimu/gift/like",
-      "neutral": "gensokyolegacy:reimu/gift/like",
+      "neutral": "gensokyolegacy:reimu/gift/neutral",
       "returnTable": "gensokyolegacy:gift_return/hakurei_reimu",
       "threshold": 10
     },
@@ -38,21 +38,21 @@
     "gensokyolegacy:izayoi_sakuya": {
       "dislike": "gensokyolegacy:sakuya/gift/dislike",
       "like": "gensokyolegacy:sakuya/gift/like",
-      "neutral": "gensokyolegacy:sakuya/gift/like",
+      "neutral": "gensokyolegacy:sakuya/gift/neutral",
       "returnTable": "gensokyolegacy:gift_return/izayoi_sakuya",
       "threshold": 8
     },
     "gensokyolegacy:kirisame_marisa": {
       "dislike": "gensokyolegacy:marisa/gift/dislike",
       "like": "gensokyolegacy:marisa/gift/like",
-      "neutral": "gensokyolegacy:marisa/gift/like",
+      "neutral": "gensokyolegacy:marisa/gift/neutral",
       "returnTable": "gensokyolegacy:gift_return/kirisame_marisa",
       "threshold": 12
     },
     "gensokyolegacy:morichika_rinnosuke": {
       "dislike": "gensokyolegacy:morichika/gift/dislike",
       "like": "gensokyolegacy:morichika/gift/like",
-      "neutral": "gensokyolegacy:morichika/gift/like",
+      "neutral": "gensokyolegacy:morichika/gift/neutral",
       "returnTable": "gensokyolegacy:gift_return/morichika_rinnosuke",
       "threshold": 9
     },
