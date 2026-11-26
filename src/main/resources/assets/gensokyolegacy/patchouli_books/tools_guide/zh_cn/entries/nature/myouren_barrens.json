@@ -24,12 +24,9 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": [
-        {"item": "gensokyolegacy:minamitsu_anchor"},
-        {"item": "gensokyolegacy:yuyuko_fan"}
-      ],
+      "item": "tag:gensokyolegacy:spiritual_tools",
       "title": "灵力",
-      "text": "有些物品能够储蓄一定的灵力，以一道青色耐久条显示：$(br2)$(l:special_tools/minamitsu_anchor)村纱水蜜的锚$(/l)$(br)$(l:special_tools/yuyuko_fan)幽幽子的扇子$(/l)",
+      "text": "有些物品能够储蓄一定的灵力，以一道青色耐久条显示：$(br2)$(l:special_tools/minamitsu_anchor)村纱水蜜的锚$(/l)$(br)$(l:special_tools/yuyuko_fan)幽幽子的扇子$(/l)$(br)$(l:special_tools/treasure_tower)宝塔$(/l)",
 	  "_website_marker": true
     },
     {
@@ -57,14 +54,21 @@
     {
       "type": "patchouli:spotlight",
       "item": [
-        {"item": "gensokyolegacy:large_water_lily"},
-        {"item": "gensokyolegacy:small_water_lily"},
-        {"item": "gensokyolegacy:tower_grass_small"},
-        {"item": "gensokyolegacy:tower_grass_large"},
-        {"item": "gensokyolegacy:spooky_bush"},
-        {"item": "gensokyolegacy:locust_sapling"},
-        {"item": "gensokyolegacy:locust_log"},
-        {"item": "gensokyolegacy:locust_hollow_log"}
+        "gensokyolegacy:large_water_lily",
+        "gensokyolegacy:small_water_lily",
+        "gensokyolegacy:tower_grass_small",
+        "gensokyolegacy:tower_grass_large",
+        "gensokyolegacy:spooky_bush",
+        "gensokyolegacy:locust_sapling",
+        "gensokyolegacy:locust_log",
+        "gensokyolegacy:locust_wood",
+        "gensokyolegacy:locust_hollow_log",
+        "gensokyolegacy:stripped_locust_log",
+        "gensokyolegacy:stripped_locust_wood",
+        "gensokyolegacy:locust_planks",
+        "gensokyolegacy:locust_wall",
+        "gensokyolegacy:locust_leaves",
+        "gensokyolegacy:locust_fallen_leaves"
       ],
       "title": "睡莲、塔禾与槐树",
       "text": "右键已放置的睡莲可以依次切换外观，是装饰性景观；塔禾能收获魔法干草；槐树是群系的主题树木。"
