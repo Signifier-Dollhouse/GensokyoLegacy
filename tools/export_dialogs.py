@@ -33,9 +33,9 @@ from collections import OrderedDict, Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/gensokyolegacy")
-DATA_MAP = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/default_dialog.json")
-GIFT_DATA_MAP = os.path.join(ROOT,
-                              "src/generated/resources/data/gensokyolegacy/data_maps/entity_type/gift_dialog.json")
+CONFIG = os.path.join(ROOT, "src/generated/resources/data/gensokyolegacy/gensokyolegacy_config")
+DATA_MAP = os.path.join(CONFIG, "default_dialog/main.json")
+GIFT_DATA_MAP = os.path.join(CONFIG, "gift_dialog/main.json")
 EN_LANG = os.path.join(ROOT, "src/generated/resources/assets/gensokyolegacy/lang/en_us.json")
 ZH_LANG = os.path.join(ROOT, "src/main/resources/assets/gensokyolegacy/lang/zh_cn.json")
 OUT = os.path.join(ROOT, "out")
@@ -154,6 +154,7 @@ LABELS = {
     "act_complete": ("action: completes the quest", "效果：完成任务"),
     "act_effect": ("action: grants %s for %s", "效果：获得 %s，持续 %s"),
     "act_timer": ("action: starts cooldown '%s' (%s)", "效果：开始冷却“%s”（%s）"),
+    "act_give_item": ("action: gives %d × %s", "效果：给予 %d × %s"),
     "act_raw": ("action: ", "效果："),
 
     "gate_home": ("gate: only at her own home", "条件：仅在自己的家中"),
@@ -172,6 +173,8 @@ LABELS = {
     "gate_timer": ("gate: cooldown '%s' elapsed", "条件：冷却“%s”已结束"),
     "gate_has_item": ("gate: player carries", "条件：玩家持有"),
     "gate_any": ("gate: ANY of", "条件：以下任一"),
+    "gate_tower_near": ("gate: tower of '%s' within %d blocks of the character",
+                        "条件：任务“%s”的寻宝塔在角色 %d 格以内"),
     "gate_raw": ("gate: ", "条件："),
 
     "anim_multi": ("[anim] one of these, picked at random:", "[动作] 以下随机播放其一："),
@@ -184,6 +187,8 @@ LABELS = {
     "ends": ("(dialog ends)", "（对话结束）"),
     "ends_no_options": ("(dialog ends here, no further options)", "（对话在此结束，没有后续选项）"),
     "weighted": ("weighted outcome (weight %d):", "加权结果（权重 %d）："),
+    "branch_cond": ("branch when:", "满足以下条件时："),
+    "branch_fallback": ("fallback branch (no conditions):", "回退分支（无条件）："),
     "button_group": ('[button "%s"] > ', "[按钮“%s”] > "),
     "loops": ("(loops back to %s)", "（回到 %s）"),
     "missing_dialog": ("!! missing dialog: %s", "!! 缺失对话：%s"),
@@ -584,6 +589,9 @@ def actions(ctx, items, indent):
                                         ctx.ticks(a.get("duration"))))
         elif t == "gensokyolegacy:set_timer":
             lines.append(indent + ctx.t("act_timer", a["key"], ctx.ticks(a.get("delay"))))
+        elif t == "gensokyolegacy:give_item":
+            lines.append(indent + ctx.t("act_give_item", a.get("count", 1),
+                                        ctx.item_name(a["item"])))
         else:
             lines.append(indent + ctx.t("act_raw") + json.dumps(a, ensure_ascii=False))
     return lines
@@ -621,6 +629,8 @@ def condition(ctx, c, indent):
         for sub in c["conditions"]:
             out += condition(ctx, sub, indent + "  - ")
         return out
+    if t == "gensokyolegacy:missing_tower_near":
+        return [indent + ctx.t("gate_tower_near", loc(c["quest"]), c["radius"])]
     return [indent + ctx.t("gate_raw") + json.dumps(c, ensure_ascii=False)]
 
 
@@ -644,6 +654,18 @@ def option(ctx, o, indent, depth, path):
         lines += conditions(ctx, o.get("conditions"), indent + "  ")
         for e in o.get("entries", []):
             lines.append(indent + "  " + ctx.t("weighted", e.get("weight", 1)))
+            lines += actions(ctx, e.get("actions"), indent + "    ")
+            if e.get("next"):
+                lines.append(indent + "    ->")
+                lines += dialog(ctx, e["next"], indent + "      ", depth + 1, path)
+            else:
+                lines.append(indent + "    " + ctx.t("ends"))
+        return lines
+    if t == "gensokyolegacy:conditional":
+        for e in o.get("entries", []):
+            conds = e.get("conditions") or []
+            lines.append(indent + "  " + ctx.t("branch_cond" if conds else "branch_fallback"))
+            lines += conditions(ctx, conds, indent + "    ")
             lines += actions(ctx, e.get("actions"), indent + "    ")
             if e.get("next"):
                 lines.append(indent + "    ->")

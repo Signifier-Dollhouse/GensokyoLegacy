@@ -3,11 +3,13 @@ package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.action.DialogAction;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +51,7 @@ public record GroupDialogOption(
 	}
 
 	@Override
-	public OptionResult resolve(@Nullable RandomSource random) {
+	public OptionResult resolve(ServerPlayer sp, YoukaiEntity ch, @Nullable RandomSource random) {
 		return this;
 	}
 

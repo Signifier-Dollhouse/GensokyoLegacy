@@ -3,9 +3,11 @@ package dev.xkmc.gensokyolegacy.content.rpg.dialog;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestCondition;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +50,7 @@ public record RandomDialogOption(
 	}
 
 	@Override
-	public @Nullable OptionResult resolve(@Nullable RandomSource random) {
+	public @Nullable OptionResult resolve(ServerPlayer sp, YoukaiEntity ch, @Nullable RandomSource random) {
 		if (random == null) return null;
 		return roll(random);
 	}
