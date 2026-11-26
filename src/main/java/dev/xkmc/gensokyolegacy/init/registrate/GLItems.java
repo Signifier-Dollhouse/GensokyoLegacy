@@ -121,6 +121,9 @@ public class GLItems {
 	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
 	public static final ItemEntry<UfoItem> BLUE_UFO, RED_UFO, GREEN_UFO;
+	public static final ItemEntry<GiftBoxItem> GIFT_BOX;
+
+	public static final ResourceLocation GIFT_BOX_LOOT = GensokyoLegacy.loc("gift_box");
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE, LUCKY_TEA, ZUN_BEER, GOLDEN_LOTUS_TEA;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
@@ -372,7 +375,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Tengu Sake").register();
 
 			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
@@ -382,7 +385,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
@@ -419,7 +422,7 @@ public class GLItems {
 
 					
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Obscure Magic Book").register();
 
 			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
@@ -445,7 +448,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Zun Beer").register();
 
 			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
@@ -456,7 +459,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Magic Candy").register();
 
 			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
@@ -480,8 +483,13 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Fancy Fan").register();
+
+			// the box rolls its loot table on opening; a zero seed means a fresh roll each time
+			GIFT_BOX = reg.item("gift_box", p -> new GiftBoxItem(p.stacksTo(16).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.lang("Gift Box").register();
 		}
 
 		// tools

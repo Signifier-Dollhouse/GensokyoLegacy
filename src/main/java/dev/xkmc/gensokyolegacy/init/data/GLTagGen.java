@@ -48,6 +48,11 @@ public class GLTagGen {
 
 	public static final TagKey<Item> MORICHIKA_OFFERS = item("morichika_offers");
 	/**
+	 * The gifts among {@link #MORICHIKA_OFFERS}: what the gift box can contain.
+	 */
+	public static final TagKey<Item> MORICHIKA_GIFTS = item("morichika_gifts");
+
+	/**
 	 * Items carrying a {@code spiritual_power_max} component, so an advancement can ask for any of them.
 	 */
 	public static final TagKey<Item> SPIRITUAL_TOOLS = item("spiritual_tools");

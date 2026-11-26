@@ -124,7 +124,7 @@ public class GLDecoBlocks {
 
 					
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.tab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, GensokyoLegacy.loc("ingredients")))
 					.build()
 					.register();
