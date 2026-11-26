@@ -41,6 +41,10 @@ public class MissingTowerManager {
 	public static final int MIN_RADIUS = 32;
 	public static final int MAX_RADIUS = 128;
 	public static final int FOLLOW_RANGE = 32;
+	public static final double FOLLOW_DISTANCE = 5;
+	public static final double FOLLOW_SPEED = 0.6;
+	public static final double FOLLOW_ACCEL = 0.2;
+	public static final double FOLLOW_GAIN = 0.25;
 	public static final int CHUNK_ATTEMPTS = 4;
 	public static final int COLUMN_ATTEMPTS = 8;
 

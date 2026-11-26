@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -76,22 +77,42 @@ public class MissingTowerEntity extends Entity {
 			return;
 		}
 		Vec3 at = Vec3.atBottomCenterOf(state.pos()).add(0, 0.35, 0);
+		setDeltaMovement(Vec3.ZERO);
 		if (position().distanceToSqr(at) > 1e-4) setPos(at.x, at.y, at.z);
 	}
 
+	/**
+	 * The target is 0.55 behind the player at shoulder height, but the tower keeps a 5-block
+	 * standoff; it steers with a capped, blended velocity so it glides instead of snapping.
+	 */
 	private void follow(Player player) {
 		Vec3 look = player.getLookAngle();
-		Vec3 flat = new Vec3(look.x, 0, look.z);
-		if (flat.lengthSqr() < 1e-4) flat = Vec3.directionFromRotation(0, player.getYRot());
-		flat = flat.normalize();
-		Vec3 right = new Vec3(-flat.z, 0, flat.x);
+		Vec3 facing = new Vec3(look.x, 0, look.z);
+		if (facing.lengthSqr() < 1e-4) facing = Vec3.directionFromRotation(0, player.getYRot());
+		facing = facing.normalize();
 		Vec3 target = player.position()
-				.add(right.scale(0.55))
-				.add(flat.scale(-0.25))
+				.subtract(facing.scale(0.55))
 				.add(0, player.getEyeHeight() * 0.8, 0);
-		Vec3 next = position().lerp(target, 0.35);
-		setPos(next.x, next.y, next.z);
-		setDeltaMovement(Vec3.ZERO);
+		Vec3 toTarget = target.subtract(position());
+		double dist = toTarget.length();
+		double speed = Math.min(dist * MissingTowerManager.FOLLOW_GAIN, MissingTowerManager.FOLLOW_SPEED);
+		Vec3 wish = dist < 1e-4 ? Vec3.ZERO : toTarget.scale(speed / dist);
+		Vec3 vel = getDeltaMovement().lerp(wish, MissingTowerManager.FOLLOW_ACCEL);
+		Vec3 off = horizontal(position().subtract(player.position()));
+		double ring = off.length();
+		if (ring > 1e-4) {
+			// cap the inward radial speed at the distance left to the 5-block ring
+			Vec3 out = off.scale(1 / ring);
+			double inward = -vel.dot(out);
+			double maxInward = Math.max(0, ring - MissingTowerManager.FOLLOW_DISTANCE);
+			if (inward > maxInward) vel = vel.add(out.scale(inward - maxInward));
+		}
+		setDeltaMovement(vel);
+		move(MoverType.SELF, vel);
+	}
+
+	private static Vec3 horizontal(Vec3 vec) {
+		return new Vec3(vec.x, 0, vec.z);
 	}
 
 	@Override

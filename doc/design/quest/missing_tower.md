@@ -85,9 +85,9 @@ Server tick, in this order:
    the entity's current position; `discard()`. The tower reappears when its chunk loads. A ground
    tower ignores the owner entirely.
 3. Carried: more than 32 blocks from the owner → set ground at the entity's current position and
-   `discard()`. Otherwise follow the player at the off-hand shoulder (right/back/up offset, lerped),
-   and copy the entity's block position into `record.pos` every 10 ticks. That saved position is the
-   recovery spot.
+   `discard()`. Otherwise follow the player: the target is 0.55 behind and at shoulder height, reached
+   with a capped, blended velocity so it glides, while a 5-block horizontal standoff caps the inward
+   speed; copy the entity's block position into `record.pos` every 10 ticks. That is the recovery spot.
 4. Ground: the record must still be `carried == false` and name this entity; otherwise `discard()`
    (the record itself does not change). There is no owner-presence or distance test — the tower hovers
    at `record.pos` for as long as its chunk is loaded (the renderer adds the bob/spin).
@@ -149,7 +149,7 @@ tower's lifetime exactly the chunk's lifetime, with the record as the durable ba
 | event | record | entity |
 |---|---|---|
 | quest start | new record on the ground at the rolled position | spawns when its chunk loads |
-| right-click by the owner | `carried`; `pos` follows | follows the shoulder |
+| right-click by the owner | `carried`; `pos` follows | holds a 5-block standoff |
 | right-click by another quest holder | picker `carried`; original owner re-rolled around `origin` | rebound to the picker |
 | owner dies | ground at the drop point | discarded; respawns when the chunk loads |
 | owner logs out | ground at the last followed position (carried if its entity never ticked) | discarded |
@@ -270,8 +270,11 @@ quest's control.
 - **One missing-tower quest per player.** The map is keyed by UUID. Supporting two would key it by
   `(UUID, quest)`; not needed while one quest exists.
 - **Quest UI.** The requirement line shows `n/1` from the synced quest progress, driven by the existing
-  status packet; no new packet is introduced. If playtesting shows 128 blocks is too hard to search, a
-  future HUD hint (direction and distance) would be a small `toClient` packet and nothing else.
+  status packet; no new packet is introduced. A ground tower in the player's dimension is also what the
+  dowser points at: its use casts a crit-particle line from the eye to the tower (capped at
+  `MAX_RADIUS`), sent only to the holder with the long-distance particle flag, so the record still
+  never reaches the client. A future HUD hint with direction and distance would be a small `toClient`
+  packet and nothing else.
 
 ---
 
@@ -357,6 +360,6 @@ Manual scenarios (there is no JUnit harness; `src/test/java/organize` is a utili
   the giver with the player's position; the call sites are few and the semantics stay honest.
 - **Synced progress, not a new packet.** The client only needs to know whether the tower is in hand,
   and that is one bit the existing quest status packet already carries; the record stays server-side.
-- **No config.** 32 / 128 / 32-block constants are tuning values; if playtests disagree they change in
-  one file. The search radius is the one number most likely to move, and it stays a constant until
-  there is a reason to make it per-server.
+- **No config.** The 32 / 128 / 32 / 5-block constants and the follow speed and acceleration are
+  tuning values; if playtests disagree they change in one file. The search radius is the one number
+  most likely to move, and it stays a constant until there is a reason to make it per-server.
