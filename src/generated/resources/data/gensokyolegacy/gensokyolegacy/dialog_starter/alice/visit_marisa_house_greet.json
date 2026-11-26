@@ -8,7 +8,8 @@
   ],
   "dialog": {
     "animations": [
-      "dialog_agree"
+      "dialog_talk_02",
+      "dialog_talk_03"
     ],
     "options": [
       {

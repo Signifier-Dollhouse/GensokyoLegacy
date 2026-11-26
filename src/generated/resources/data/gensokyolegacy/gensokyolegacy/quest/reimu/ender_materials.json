@@ -11,26 +11,6 @@
       "options": [
         {
           "type": "gensokyolegacy:simple",
-          "actions": [],
-          "conditions": [],
-          "next": {
-            "animations": [
-              "dialog_decline"
-            ],
-            "options": [
-              {
-                "type": "gensokyolegacy:simple",
-                "actions": [],
-                "conditions": [],
-                "text": "gensokyolegacy/reimu/ender_materials/option/complete/reject/end"
-              }
-            ],
-            "text": "gensokyolegacy/reimu/ender_materials/dialog/reimu/ender_materials/complete/reject/dialog_1"
-          },
-          "text": "gensokyolegacy/reimu/ender_materials/option/complete/reject"
-        },
-        {
-          "type": "gensokyolegacy:simple",
           "actions": [
             {
               "type": "gensokyolegacy:complete_quest"
@@ -39,7 +19,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_03"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -71,7 +55,11 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -80,7 +68,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_think"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -105,7 +97,8 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_think",
+        "dialog_think_02"
       ],
       "options": [
         {

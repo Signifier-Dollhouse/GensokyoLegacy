@@ -4,37 +4,38 @@
     "alice": {
       "chat": {
         "greeting": "哦——有客人来了，请进吧，有什么事？",
-        "trade": "我想交易些东西。",
+        "trade": "我想交易些东西",
         "starter": {
-          "start": "你独自住在这儿吗？"
+          "start": "这间宅邸只有你一个人吗？"
         },
         "dialog": {
           "alice": {
             "chat": {
-              "hi": "一个人？也不尽然。有森林和人偶相伴，还有魔法研究——有什么事吗？"
+              "hi": "一个人？也不尽然——有人偶相伴，宅邸里并不孤单。"
             }
           }
         },
         "option": {
-          "hi/end": "暂时没有。"
+          "hi/end": "这样啊"
         },
-        "visit_greeting": "真巧啊，你也来做客。"
+        "visit_greeting": "真巧啊，你也来做客。",
+        "party_greeting": "感谢招待，这些都是你做的吗？真了不得。"
       },
       "chat_star_wand": {
         "starter": {
-          "start": "人偶的攻击手段是什么？"
+          "start": "人偶是怎样进攻的呢？"
         },
         "dialog": {
           "alice": {
             "chat_star_wand": {
               "talk": "人偶是比较精密的魔法道具，单凭自身难以发挥，给你的那柄长枪是我能塞进人偶手里的最简单的东西——像黄蜂一样冲锋，而它也做得到。可你要是更想拉开距离，就得让人偶使用魔杖了。",
-              "where_ans": "同样是魔法森林的住户，雾雨魔法店的店主有在做这种东西，她不怎么招揽客人，可存货一向充足。"
+              "where_ans": "同样住在魔法森林，雾雨魔法店的店主有这种东西，不过得打好关系才行。"
             }
           }
         },
         "option": {
-          "where": "那魔杖怎么获得呢？",
-          "where/end": "那我去见见她。"
+          "where": "魔杖？",
+          "where/end": "（离开）"
         }
       },
       "daily_doll": {
@@ -43,8 +44,8 @@
           "desc": "帮爱丽丝收集人偶用的布料、稻草和铁，还有几种染料。"
         },
         "option": {
-          "complete": "你要的东西我带来了。",
-          "complete/handover": "给你。"
+          "complete": "你要的东西我带来了",
+          "complete/handover": "（交付物品）"
         },
         "dialog": {
           "alice": {
@@ -53,7 +54,7 @@
                 "dialog_1": "我需要些东西来做魔法课题，需求清单我让人偶写给你，帮我收集一趟。作为交换，我可以帮你做一个自己的人偶。"
               },
               "start/accept": {
-                "dialog_1": "那很好，我要的东西在这份清单里。"
+                "dialog_1": "那好，我要的东西在这份清单里。"
               },
               "start/reject": {
                 "dialog_1": "没关系，那就改日再说。"
@@ -80,33 +81,31 @@
           "desc": "把做人偶必需的材料带给爱丽丝。"
         },
         "option": {
-          "start": "这些人偶是手工做的么？",
-          "follow_up": "我想要再看看清单要求。",
-          "complete": "你要的东西我都带来了。",
-          "start/reject": "你自己不收集材料么？",
-          "start/accept": "我去收集材料。",
-          "follow_up/end": "这样啊。",
-          "complete/handover": "给你。",
-          "start/reject/end": "我还有事。",
-          "start/accept/end": "我马上回来。",
-          "complete/reject": "额，好像还缺一些。",
-          "complete/reject/end": "明白了。",
-          "complete/handover/end": "那我就收下了。"
+          "start": "（好奇地打量人偶）",
+          "follow_up": "我想要再看看清单要求",
+          "complete": "你要的东西我都带来了",
+          "start/reject": "只是简单看一下，之后再说吧",
+          "start/accept": "真的吗，那我准备一下材料",
+          "follow_up/end": "这样啊",
+          "complete/handover": "（交付物品）",
+          "start/reject/end": "（离开）",
+          "start/accept/end": "好的",
+          "complete/handover/end": "那我就收下了"
         },
         "dialog": {
           "alice": {
             "first_doll": {
               "start": {
-                "dialog_1": "每一具都是，制作材料简单，但是需要复杂的技术。我的存货已经见底了，帮我带些要用的材料，我来让你见识下人偶的魅力。"
+                "dialog_1": "对人偶感到好奇么？这是我的拿手好戏，平日你帮我许多我可以帮你做一个，不过现在手头缺乏制作材料，帮我带些要用的材料，我来让你见识下人偶的魅力。"
               },
               "start/accept": {
-                "dialog_1": "这是需要的材料，有这些我就能制作人偶了。"
+                "dialog_1": "这是需要的材料，收集完就可以做了。"
               },
               "start/reject": {
-                "dialog_1": "如果真没人帮忙我会自己去的。"
+                "dialog_1": "是这样吗，看来是我会错意了。"
               },
               "follow_up": {
-                "dialog_1": "再给你看看清单，其中一样在森林的树冠比较常见。"
+                "dialog_1": "再给你看看清单，这些素材在魔法森林里其实是比较常见的。"
               },
               "follow_up/end": {
                 "dialog_1": "慢慢来，这几样素材倒也不算棘手。"
@@ -116,9 +115,6 @@
               },
               "complete/handover": {
                 "dialog_1": "感谢帮助，这些是约定好的报酬。"
-              },
-              "complete/reject": {
-                "dialog_1": "不急。等你把东西凑齐，我再开工。"
               }
             }
           }
@@ -131,18 +127,16 @@
         },
         "option": {
           "start": "人偶是如何操控的？",
-          "follow_up": "我好像忘了是哪几种颜色了。",
-          "complete": "七种颜色，每种四份，都在这儿了。",
-          "start/reject": "这之前我有更重要的事情去做。",
+          "follow_up": "我忘了是哪几种颜色了",
+          "complete": "染料收集到了",
+          "start/reject": "（摇头）",
           "start/accept": "包在我身上。",
-          "follow_up/end": "记住了。",
-          "complete/handover": "这是你要的染料。",
+          "follow_up/end": "记住了",
+          "complete/handover": "（交付物品）",
           "start/reject/end": "（离开）",
-          "start/accept/end": "我很快回来。",
-          "complete/reject": "这些好像不是你要的。",
-          "complete/reject/end": "好吧。",
-          "complete/handover/end": "那我可就不客气了。",
-          "follow_up/end/end": "我继续去收集了。"
+          "start/accept/end": "我很快回来",
+          "complete/handover/end": "好的",
+          "follow_up/end/end": "我继续去收集了"
         },
         "dialog": {
           "alice": {
@@ -163,13 +157,10 @@
                 "dialog_1": "森林里从不缺颜色，缺的是持之以恒的心。"
               },
               "complete": {
-                "dialog_1": "染料我拿来了。"
+                "dialog_1": "好，正好到了收尾，材料交给我吧，很快就能完成了。"
               },
               "complete/handover": {
                 "dialog_1": "诺，这是手套、配套人偶和长枪。快去试试吧，我会时不时找你记录一下使用体验的。"
-              },
-              "complete/reject": {
-                "dialog_1": "那我再等等，颜色的准确性比较重要，其它色彩难以替代。"
               }
             }
           }
@@ -180,11 +171,11 @@
           "bye": "（离开）",
           "daily_group": "日常",
           "daily_start": "【日常】需要帮忙吗？",
-          "daily_accept": "交给我吧。",
-          "daily_reject": "这个可能有些困难。",
-          "daily_follow": "【日常】不好意思，我忘了清单内容。",
-          "daily_follow_end": "了解了。",
-          "daily_thanks": "荣幸之至。"
+          "daily_accept": "交给我吧",
+          "daily_reject": "这个可能有些困难...",
+          "daily_follow": "【日常】不好意思，我忘了清单内容",
+          "daily_follow_end": "了解了",
+          "daily_thanks": "（收下酬谢）"
         }
       },
       "visit_marisa_house": {
@@ -193,18 +184,18 @@
             "visit_marisa_house": {
               "call": "日安，我来此是为了些魔法素材，你也是吗？",
               "terms_ans": "是，她不会事事亲为，会发一些委托，炼制魔药，还会时不时弄到些来历不明的道具，不过这部分还是不要过问的好。",
-              "greet": "是啊。我很少出门——但是素材还是要补充的，换个地方走走，感觉也不错。"
+              "greet": "是啊，虽然很少出门，但是素材还是要定期补充，偶尔出来走走感觉也不错。"
             }
           }
         },
         "option": {
           "terms": "听说这里不只售卖素材？",
-          "terms/end": "谢谢你的提醒。",
-          "greet/end": "您请便，我还有事情找她。"
+          "terms/end": "谢谢你的提醒",
+          "greet/end": "那回头再聊"
         },
         "starter": {
           "call": "好巧，你也来找她？",
-          "greet": "这里离你的府邸可真是远。"
+          "greet": "这里离你的住处可真是远。"
         }
       },
       "gift": {
@@ -214,7 +205,7 @@
           "return": "对了，我也有礼物要送给你，希望你能喜欢。"
         },
         "option": {
-          "return/take": "那我不客气了。"
+          "return/take": "那我不客气了"
         }
       }
     }

@@ -6,7 +6,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_greet"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -39,7 +43,8 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_think",
+        "dialog_think_02"
       ],
       "options": [
         {
@@ -48,17 +53,21 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_01"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [],
             "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/follow_up/end/dialog_1"
           },
-          "text": "gensokyolegacy/marisa/shared/option/daily_follow_end"
+          "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up/end"
         }
       ],
       "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/follow_up/dialog_1"
     },
-    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
+    "text": "gensokyolegacy/marisa/daily_mycelium/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
@@ -66,7 +75,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_talk_02"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -97,7 +110,7 @@
             "options": [],
             "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/start/accept/dialog_1"
           },
-          "text": "gensokyolegacy/marisa/shared/option/daily_accept"
+          "text": "gensokyolegacy/marisa/daily_mycelium/option/start/accept"
         }
       ],
       "text": "gensokyolegacy/marisa/daily_mycelium/dialog/marisa/daily_mycelium/start/dialog_1"

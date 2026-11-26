@@ -24,6 +24,7 @@
   ],
   "dialog": {
     "animations": [
+      "dialog_think",
       "dialog_think_02"
     ],
     "options": [
@@ -39,7 +40,11 @@
         "conditions": [],
         "next": {
           "animations": [
-            "dialog_talk_04"
+            "dialog_talk_01",
+            "dialog_talk_02",
+            "dialog_talk_03",
+            "dialog_talk_04",
+            "dialog_talk_05"
           ],
           "options": [
             {

@@ -6,29 +6,13 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_agree"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
-        {
-          "type": "gensokyolegacy:simple",
-          "actions": [],
-          "conditions": [],
-          "next": {
-            "animations": [
-              "dialog_decline"
-            ],
-            "options": [
-              {
-                "type": "gensokyolegacy:simple",
-                "actions": [],
-                "conditions": [],
-                "text": "gensokyolegacy/reimu/talisman_materials/option/complete/reject/end"
-              }
-            ],
-            "text": "gensokyolegacy/reimu/talisman_materials/dialog/reimu/talisman_materials/complete/reject/dialog_1"
-          },
-          "text": "gensokyolegacy/reimu/talisman_materials/option/complete/reject"
-        },
         {
           "type": "gensokyolegacy:simple",
           "actions": [
@@ -71,7 +55,11 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -80,7 +68,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_04"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -105,7 +97,11 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -114,7 +110,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_03"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -138,7 +138,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_02"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {

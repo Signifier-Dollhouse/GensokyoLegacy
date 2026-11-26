@@ -4,7 +4,7 @@
     "yuyuko": {
       "chat": {
         "greeting": "哎呀~好像走得太远，遇到了很有生机的朋友呢。",
-        "party_greeting": "没想到还能收到来自外界的邀请，真期待你会怎样款待我呢"
+        "party_greeting": "没想到还能收到来自外界的邀请，感谢招待"
       },
       "gift": {
         "dialog": {
@@ -14,7 +14,7 @@
           "return": "这个送给你，也希望你能喜欢。"
         },
         "option": {
-          "return/take": "（收下谢礼）"
+          "return/take": "谢谢，我很喜欢"
         }
       }
     }

@@ -19,7 +19,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_02"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -34,9 +38,9 @@
           "text": "gensokyolegacy/reimu/shared/option/daily_handover"
         }
       ],
-      "text": "gensokyolegacy/reimu/shared/dialog/daily_gotem"
+      "text": "gensokyolegacy/reimu/daily_hunt/dialog/reimu/daily_hunt/complete/dialog_1"
     },
-    "text": "gensokyolegacy/reimu/shared/option/daily_complete"
+    "text": "gensokyolegacy/reimu/daily_hunt/option/complete"
   },
   "conditions": [
     {
@@ -51,7 +55,8 @@
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_think",
+        "dialog_think_02"
       ],
       "options": [
         {
@@ -60,7 +65,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_greet"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {
@@ -85,7 +94,11 @@
     "group": "gensokyolegacy/reimu/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -94,7 +107,8 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_think"
+              "dialog_think",
+              "dialog_think_02"
             ],
             "options": [
               {

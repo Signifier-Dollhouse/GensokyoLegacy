@@ -68,12 +68,9 @@ public class ReimuQDGen extends QuestDialogData {
 	private final String dailyGroupKey;
 	private final String dailyStartKey;
 	private final String dailyAcceptKey;
-	private final String dailyRejectKey;
 	private final String dailyFollowKey;
 	private final String dailyFollowEndKey;
-	private final String dailyCompleteKey;
 	private final String dailyHandoverKey;
-	private final String dailyGotemKey;
 
 	public ReimuQDGen() {
 		prefix("reimu/shared");
@@ -83,12 +80,9 @@ public class ReimuQDGen extends QuestDialogData {
 		dailyGroupKey = text("option", "daily_group", "Daily Tasks");
 		dailyStartKey = text("option", "daily_start", "What can I help?");
 		dailyAcceptKey = text("option", "daily_accept", "I'll help.");
-		dailyRejectKey = text("option", "daily_reject", "Later.");
 		dailyFollowKey = text("option", "daily_follow", "Could you go over the task again?");
 		dailyFollowEndKey = text("option", "daily_follow_end", "I'm on it!");
-		dailyCompleteKey = text("option", "daily_complete", "I've got the goods.");
-		dailyHandoverKey = text("option", "daily_handover", "Here you go!");
-		dailyGotemKey = text("dialog", "daily_gotem", "Oh, you got 'em? Let me see!");
+		dailyHandoverKey = text("option", "daily_handover", "(Hand over the items)");
 
 		chats();
 		fortune();
@@ -101,7 +95,8 @@ public class ReimuQDGen extends QuestDialogData {
 		prefix("reimu/chat");
 		defaultDialog(GLEntities.REIMU.get(),
 				"Oh? What brings you to the shrine?",
-				"Oh? Passing through, are we.",
+				"What a coincidence - you can be found here too.",
+				"A good meal is hard to come by. Oh, can I get this boxed up later?",
 				"I've come to ask for ofuda!");
 
 		visitChats();
@@ -110,23 +105,26 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_shrine", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(50, true)),
 				starterText("start", "Where is this place?"),
-				dialog("talk", "Oh, a visitor. This is the Hakurei Shrine — though if you came to worship, you'll have to wait a while. I still haven't figured out what's going on around here.", List.of("dialog_greet"),
-						option("bye", "Got it, bye!")),
+				dialog("talk", "Oh, a visitor. This is the Hakurei Shrine — though if you came to worship, you'll have to wait a while. I still haven't figured out what's going on around here.", TALK_ANIMS,
+						option("bye", "I see.")),
 				CHAT_DEFAULT);
 
 		prefix("reimu/chat_shrine_close");
 		chat("reimu/chat_shrine_close", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(50)),
-				starterText("start", "Tell me more about the shrine."),
-				dialog("talk", "This shrine sits in the middle of nowhere, but back in Gensokyo its fusui was one of a kind. After all, this place is the border between Gensokyo and the outside world — at least, that's what Yukari says... But being this remote has a downside: hardly anyone comes to worship, and lately not even the youkai show up... What am I supposed to do? Moving isn't an option.", List.of("dialog_talk_01"),
-						option("bye", "I'll keep visiting.")),
+				starterText("start", "Tell me about this shrine?"),
+				dialog("talk", "This place is a bit out of the way, but its feng shui is one of a kind — after all, this is "
+						+ "the border between Gensokyo and the outside world, or at least that's what Yukari says... "
+						+ "But being so remote has a downside: hardly anyone comes to worship.", TALK_ANIMS,
+						option("bye", "(I'll visit the shrine more often from now on)")),
 				CHAT_MISC);
 
 		prefix("reimu/chat_duty");
 		chat("reimu/chat_duty", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(100)),
-				starterText("start", "What are your duties, exactly?"),
-				dialog("talk", "Back in Gensokyo, my job was simple, really — keeping Gensokyo in order. Put bluntly: wherever trouble broke out, I'd rush over and beat up whoever started it... Sounds exhausting, right? And it's year-round with no pay.", List.of("dialog_think"),
+				starterText("start", "What are the Hakurei shrine maiden's duties?"),
+				dialog("talk", "To put it simply, I maintain the balance of Gensokyo. Big trouble may need me to step in, "
+						+ "but most days are actually quite leisurely and peaceful.", THINK_ANIMS_ALL,
 						option("bye", "That sounds like important work.")),
 				CHAT_MISC);
 
@@ -134,7 +132,9 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_guests", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "Who usually visits the shrine?"),
-				dialog("talk", "Visitors? Back then it was mostly youkai — I barely saw any humans. A place meant for human worship, yet every day a crowd of youkai gathered to mooch food and drink. Over time the youkai grew more numerous and the humans fewer... Whatever. Donations barely amounted to anything anyway. Whoever comes, at least it's lively.", List.of("dialog_think"),
+				dialog("talk", "Actually, not many guests come to the shrine — just the occasional acquaintance dropping by. "
+						+ "It's very quiet... Whatever. Donations barely amount to anything anyway; it's good enough "
+						+ "that anyone comes at all. At least it's lively.", THINK_ANIMS_ALL,
 						option("bye", "I see.")),
 				CHAT_MISC);
 
@@ -142,15 +142,17 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_power", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(100)),
 				starterText("start", "What are your abilities?"),
-				dialog("talk", "My abilities? Why ask all of a sudden... It's the ability to fly through the sky, of course... Besides that, my intuition is scary accurate. How exactly it works, I couldn't tell you myself.", List.of("dialog_confused"),
-						option("bye", "I see.")),
+				dialog("talk", "My abilities? Differences in strength mean nothing to me — gravity, force, that sort of "
+						+ "thing — so I can fly freely and fight anyone on equal footing.", List.of("dialog_confused"),
+						option("bye", "That's impressive.")),
 				CHAT_MISC);
 
 		prefix("reimu/chat_money");
 		chat("reimu/chat_money", GLEntities.REIMU.get(),
 				List.of(homeBound(), new SelfReputationCondition(100)),
-				starterText("start", "Do you care a lot about money?"),
-				dialog("talk", "Isn't that obvious? Running a shrine nobody visits, I can't even cover basic living expenses. Of course I need money...", List.of("dialog_decline"),
+				starterText("start", "What do you like most?"),
+				dialog("talk", "I don't have anything I like that much. If I had to say, I like anything that can cover my "
+						+ "living needs.", List.of("dialog_decline"),
 						option("bye", "I see.")),
 				CHAT_MISC);
 
@@ -160,20 +162,26 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/chat_frog", GLEntities.REIMU.get(),
 				List.of(homeBound(), hasItem(item(GLItems.STRAW_HAT.get(), 1)), hasQuest(QUEST_OMINOUS_BANNER), timer(FROG_KEY)),
 				starterText("start", "About this straw hat..."),
-				dialog("talk", "That straw hat... it doesn't seem ordinary.", List.of("dialog_think_02"),
-						option("ask", "This straw hat? Now that I have it, it does feel strange.",
+				dialog("talk", "There's the aura of a native god on this hat.", THINK_ANIMS_ALL,
+						option("ask", "I bought it back then because it looked unusual — is there something special about "
+								+ "it?",
 								setTimer(FROG_KEY, FROG_CHAT_COOLDOWN),
-								dialog("idea", "Have you heard the legend of the frog god? They say frogs wearing a hat like that guard the village the way they catch pests, and gather faith by swallowing raiders... though maybe it's only a story. Who knows.", List.of("dialog_talk_04"),
-										option("bye", "Heh, maybe.")))),
+								dialog("idea", "Have you heard the legend of the native god? It is said to appear in the "
+										+ "form of a frog, guarding the village the way a frog catches prey, swallowing "
+										+ "only those who do evil... But there's no way to verify it; it may just be a "
+										+ "folk tale.", TALK_ANIMS,
+										option("bye", "That's awfully detailed for a story.")))),
 				CHAT_SPECIAL);
 
 		prefix("reimu/chat_marisa");
 		chat("reimu/chat_marisa", GLEntities.REIMU.get(),
 				List.of(homeBound(), missingAdv(GLAdvGen.ENTER_MARISA_HOUSE), new SelfReputationCondition(50)),
 				starterText("start", "Which works better, ofuda or potions?"),
-				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of potions — you haven't met Marisa yet, have you? She runs a shop deep in the Magical Forest. Her potions work differently from the usual brewing — go take a look if you're curious.", List.of("dialog_talk_04"),
+				dialog("talk", "Ofuda borrow power from the gods, so they usually come with strings attached. Speaking of "
+						+ "potions — have you met Marisa? She runs a shop deep in the Magical Forest. Her potions work "
+						+ "differently from the usual brewing — go take a look if you're curious.", TALK_ANIMS,
 						option("where", "Where can I find her?",
-								dialog("where_ans", "Her house is deep in the Magical Forest — follow the mushrooms and the explosions, you can't miss her.", List.of("dialog_talk_01"),
+								dialog("where_ans", "Her house is deep in the Magical Forest — follow the mushrooms and the explosions, you can't miss her.", List.of("dialog_talk_01", "dialog_talk_04", "dialog_talk_05"),
 										option("bye", "Thanks for the directions!")))),
 				CHAT_INFO);
 	}
@@ -188,16 +196,16 @@ public class ReimuQDGen extends QuestDialogData {
 		chat("reimu/visit_kourindou_stock", GLEntities.REIMU.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("stock", "This shop has a good deal more in stock than it looks."),
-				dialog("stock", "Huh. Not what I expected - I mostly came for the look, and because there is nothing at the shrine today.", List.of("dialog_think"),
+				dialog("stock", "It's a fairly large secondhand shop, after all — but the goods he sells are pretty unusual.", TALK_ANIMS,
 						option("browse", "Anything worth buying?",
-								dialog("browse_ans", "Hard to say. Most of it is no use to me... and sometimes the shopkeeper doesn't know how to use his own tools either.", List.of("dialog_think_02"),
+								dialog("browse_ans", "Hard to say. Most of it is no use to me... and sometimes the shopkeeper doesn't know how to use his own tools either.", THINK_ANIMS_ALL,
 										option("browse/end", "That sounds... unsettling.")))),
 				CHAT_MISC);
 
 		chat("reimu/visit_kourindou_stay", GLEntities.REIMU.get(),
 				List.of(visitingAt(GLStructureGen.MORICHIKA_SHOP)),
 				starterText("stay", "What a coincidence - you are shopping here too?"),
-				dialog("stay", "Oh? It's you. I have some things to buy - a good deal of what the shrine uses is actually sourced here.", List.of("dialog_greet"),
+				dialog("stay", "Oh? It's you. I have some things to buy - a good deal of what the shrine uses is actually sourced here.", TALK_ANIMS,
 						option("bye", "I see.")),
 				CHAT_DEFAULT);
 	}
@@ -205,19 +213,21 @@ public class ReimuQDGen extends QuestDialogData {
 	private void fortune() {
 		prefix("reimu/chat_fortune");
 		var good = dialog("good",
-				"Great blessing! Even I'm jealous. Take this luck and put it to work — rare drops will find you for a while.", List.of("dialog_talk_03"),
-				option("good_bye", "Lucky!"));
+				"Great blessing! Even I'm jealous. Take this luck — why not try opening a treasure chest?", TALK_ANIMS,
+				option("good_bye", "(Take the fortune slip)"));
 		var mid = dialog("mid",
-				"Middle blessing. Not bad, not great. Your hands will just move faster for a while — don't waste it.", List.of("dialog_think"),
-				option("mid_bye", "I'll take it."));
+				"Small blessing — nothing special. They say heaven rewards the diligent, so don't waste your "
+						+ "time.", List.of("dialog_think"),
+				option("mid_bye", "(Take the fortune slip)"));
 		var bad = dialog("bad",
-				"Ugh, worst fortune. Dark clouds ahead — trouble finds people with luck like this. Keep your head down for a while.", List.of("dialog_think_02"),
-				option("bad_bye", "You've got to be kidding..."));
+				"Ah, a bad slip... try to visit fewer people today and keep a low profile.", THINK_ANIMS_ALL,
+				option("bad_bye", "No way..."));
 		chat("reimu/chat_fortune", GLEntities.REIMU.get(),
 				List.of(homeBound(), hasQuest(QUEST_LOCAL_FOOD), timer(FORTUNE_KEY)),
-				starterText("start", "Draw a fortune stick?"),
+				starterText("start", "[Fortune Slip]"),
 				dialog("talk",
-						"The shrine finally has its own fortune sticks. I blessed them myself, so they actually work. Good luck sticks around, bad luck... also sticks around. One draw per day — the gods get tired too.", List.of("dialog_talk_01"),
+						"You can draw a fortune slip here once a day. It will show your fortune — want to "
+								+ "take a look?", TALK_ANIMS,
 						randomOption("draw", "Draw a fortune.",
 								weighted(2, good,
 										new GiveMobEffectAction(GLEffects.LOOTING.get(), FORTUNE_DURATION, 0),
@@ -233,8 +243,8 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private void quests() {
 		prefix("reimu/local_food");
-		questAnims("start", "dialog_think", "dialog_decline", "dialog_think");
-		questAnims("follow", "dialog_think", "dialog_decline");
+		questAnims("start", TALK_ANIMS, "dialog_decline", TALK_ANIMS);
+		questAnims("follow", THINK_ANIMS_ALL, "dialog_decline");
 		questAnims("complete", "dialog_agree", "dialog_talk_05", "dialog_agree");
 		quest("reimu/local_food", new Quest(GLEntities.REIMU.get(), List.of(),
 				questTitle("Shrine Provisions"), questDesc("Bring Reimu some bread and mushroom stew so she can learn this world's food."),
@@ -246,22 +256,23 @@ public class ReimuQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(50), new ReputationReward(10, 300, 10, 300)),
 				start("Is the food here to your liking?",
-						"Let's not talk about whether I like it — I don't even know what's edible around here. The shrine's stockpiled rations are almost gone. Could you bring me some edible food? If you help out, I can share a little with you — er, as a reward.",
+						"Let's not talk about whether I like it — I don't even know what's edible around "
+								+ "here. The shrine's stockpiled rations are almost gone. Could you bring me some food?",
 						"I'll get some food ready.", "Thanks for the generous aid. I hope you can get it ready before I faint from hunger.", "Hang in there!",
 						"Maybe next time.", "Ah — is that so. Never mind, the shrine's rations should last me a while. I'll figure out what's edible around here myself.", "(Leave)"),
 				follow("What do you like to eat?",
-						"Marisa always shares mushroom dishes at feasts — I kind of miss that taste. Are there any edible mushrooms around here? How about mushroom stew and bread?",
+						"Marisa always shares mushroom dishes at feasts — I kind of miss that taste. Are "
+								+ "there any edible mushrooms around here? How about mushroom stew and bread?",
 						"That shouldn't be hard to find.", "The rations should last a while longer... though they taste awful. I'll wait for good news from you.", "(Leave)"),
 				complete("I'm back.",
-						"Oh, you're back. So, how did it go?",
-						"Something urgent came up — excuse me.", "Hey, the rations are really running out—", "(Leave)",
-						"Here, I brought it.", "Not bad, that was quick. Here, your reward. Don't complain it's small — you know how things are at the shrine these days. There used to be youkai visiting; now there's not even a shadow of one...", "(Take the reward)")
+						"You're back. How did it go?",
+						"Brought it.", "Not bad, that was quick. Here, your reward.", "(Take the reward)")
 		));
 
 		prefix("reimu/hostile_loot");
-		questAnims("start", "dialog_think", "dialog_think_02", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_confused");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_agree");
+		questAnims("start", TALK_ANIMS, TALK_ANIMS, "dialog_agree");
+		questAnims("follow", TALK_ANIMS, "dialog_confused");
+		questAnims("complete", TALK_ANIMS, "dialog_decline", "dialog_agree");
 		quest("reimu/hostile_loot", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)),
 				questTitle("Hostile Analysis"), questDesc("Clear out zombies and skeletons for Reimu and collect their flesh and bones."),
@@ -275,24 +286,23 @@ public class ReimuQDGen extends QuestDialogData {
 				)),
 				List.of(new ExpReward(100), new ReputationReward(20, 300, 10, 300)),
 				start("You look worried — something on your mind?",
-						"Now that you mention it, something's been bothering me lately. It's no incident, but it's annoying — what are those green-skinned things and walking bones? They don't look like youkai, and sweeping them up is boring work. Drive some off for me and I can share a little... reward with you. So, in or out? You look pretty free anyway.",
+						"Speaking of which, those monsters wandering outside don't look like youkai, and "
+								+ "sweeping them up is boring work. If you help drive some off, I can give you a reward "
+								+ "— how about it, will you help?",
 						"Sure.", "Alright, I'm counting on you. Don't mess it up — if you do, I'm not cleaning up after you— Just kidding. Good luck.", "(Leave)",
-						"Maybe next time.", "Ah — really? Fine, forget it. It's not like I was counting on you — I'm just too lazy to move myself.", "(Leave)"),
+						"No.", "Ah — is that so? Never mind if you don't want to.", "(Leave)"),
 				follow("(Check clearing progress)",
-						"How's the zombie and skeleton hunting going?",
+						"How's the monster hunting going?",
 						"Not done yet.", "Oh — I see. While you're driving them off, bring back some of their materials. I want to see what kind of beings they are, so I can work out a better way to deal with them.", "Got it."),
 				complete("I'm back.",
 						"Oh, you're back. How did it go?",
-						"Not quite done yet.", "No rush. But watch yourself while driving them off — healing up is way more trouble than a commission.", "(Leave)",
 						"Done. Here are the materials.", "That was quick. Guess you're no pushover. You didn't get hurt, did you? I wonder how the zombies here differ from the ones I know... With these I can confirm properly.", "(Take the reward)")
 		));
 
 		prefix("reimu/talisman_materials");
-		questAnims("start", "dialog_think", "dialog_talk_03", "dialog_talk_02");
-		questAnims("follow", "dialog_think", "dialog_talk_04");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_talk_04");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_agree");
+		questAnims("start", TALK_ANIMS, TALK_ANIMS, TALK_ANIMS);
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
+		questAnims("complete", TALK_ANIMS, "dialog_decline", "dialog_agree");
 		quest("reimu/talisman_materials", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)),
 				questTitle("Talisman Materials"), questDesc("Bring Reimu paper and redstone for her new-world talismans."),
@@ -308,21 +318,21 @@ public class ReimuQDGen extends QuestDialogData {
 								.withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)))),
 				start("What are these ofuda you mentioned?",
 						"You can't exterminate youkai without ofuda. I bet you've run into some nasty youkai on your travels — blades work, sure, but ofuda drive them off even better. The materials aren't too picky — redstone dust will do. I'm just running short. Wish I had a helper.",
-						"I'll gather the materials for you.", "Alright, I'll leave it to you. Once the materials are gathered, I'll draw some ofuda for you as a reward.", "(Leave)",
+						"I'll gather the materials for you.", "Alright, I'll leave it to you. Once the materials are gathered, I'll draw some ofuda "
+								+ "as a reward.", "(Leave)",
 						"If it's not picky, why not red dye?", "Because it takes natural ore to commune with the gods. The best ofuda are dotted with cinnabar — dye just won't cut it.", "That sounds pretty picky."),
 				follow("(Check gathering progress)",
 						"You're back. How's the progress?",
 						"Still gathering.", "Then I'll wait for good news.", "(Take my leave)"),
 				complete("I'm back.",
 						"You're back. Got all the materials?",
-						"Not yet.", "No problem. Come find me once the materials are ready, and I'll draw the ofuda for you.", "(Leave)",
 						"Here's what you asked for.", "So reliable. With these the shrine's ofuda stock is much fuller... Don't worry, I haven't forgotten your share. Here, take these.", "(Take the reward)")
 		));
 
 		prefix("reimu/ender_materials");
-		questAnims("start", "dialog_think", "dialog_decline", "dialog_agree");
-		questAnims("follow", "dialog_think", "dialog_think");
-		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_talk_03");
+		questAnims("start", THINK_ANIMS_ALL, "dialog_decline", "dialog_agree");
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
+		questAnims("complete", "dialog_agree", "dialog_decline", TALK_ANIMS);
 		quest("reimu/ender_materials", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)),
 				questTitle("Ender Materials"), questDesc("Bring Reimu an ender pearl and an ender eye for her gap research."),
@@ -333,22 +343,23 @@ public class ReimuQDGen extends QuestDialogData {
 								item(Items.ENDER_EYE, 1)))
 				)),
 				List.of(new ExpReward(150), new ReputationReward(10, 300, 0, 300)),
-				start("The village says you reach them almost instantly when exterminating — are you some kind of enderman?",
-						"You mean those black creatures that fear water and being stared at? I travel through gaps — borrowed power from Yukari. It resonates with this world's ender pearls to anchor places. Bring me one of each — I can teach you how to use it.",
+				start("The village says you arrive almost instantly when exterminating — how do you do it?",
+						"I travel through gaps, anchoring two places to each other. Bring me the medium it "
+								+ "needs — I can teach you how to use it too.",
 						"I'll go look for them.", "One pearl and one eye, then. They're not easy for me to get — danmaku doesn't do much against them.", "(Leave)",
 						"I've got other things to do.", "No worries. We can talk when you're free.", "(Leave)"),
 				follow("(Check gathering progress)",
 						"Found any ender materials yet?",
 						"Still looking.", "I hear they're common in a place called the warped forest. Give it a try.", "(Leave)"),
 				complete("I'm back.",
-						"Let's see what you've brought.",
-						"I need them for something else.", "No rush. Just bring spares when you have them.", "(Leave)",
-						"The pearl and eye you asked for.", "With these I can anchor a gap and shorten the road greatly. I'll teach you how to use it too.", "(Take the reward)")
+						"Did you get them?",
+						"The pearl and eye you asked for", "Once placed, this gate will produce a linked gate in your hand. Place it elsewhere "
+								+ "and it's done.", "(Take the reward)")
 		));
 
 		prefix("reimu/ominous_banner");
-		questAnims("start", "dialog_think", "dialog_talk_03", "dialog_talk_04");
-		questAnims("follow", "dialog_think", "dialog_talk_02");
+		questAnims("start", THINK_ANIMS_ALL, TALK_ANIMS, TALK_ANIMS);
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
 		questAnims("complete", "dialog_agree", "dialog_decline", "dialog_agree");
 		quest("reimu/ominous_banner", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_HOSTILE_LOOT)),
@@ -363,20 +374,19 @@ public class ReimuQDGen extends QuestDialogData {
 								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
 				start("Is it true what the raiders preach about defiling souls?",
 						"I've exterminated them before — nothing special. They're upsetting the balance. If you're willing, bring me one of their banners. I don't think it's just a symbol.",
-						"I'll go get one.", "Good. Bring the banner back — but be careful, they'll mark you with an ominous brand.", "I'll be careful.",
-						"Maybe next time.", "Fine. They're just heretics anyway — I can handle them myself.", "(Leave)"),
+						"I'll go get one.", "Good. Bring the banner back, and be careful.", "I'll be careful.",
+						"Maybe when I have time.", "Fine. They're just heretics anyway — I can handle them myself.", "(Leave)"),
 				follow("(Check gathering progress)",
 						"Found the banner yet?",
 						"Not yet.", "Check outposts and patrols. That's where you're most likely to find one.", "Got it."),
 				complete("I'm back.",
 						"Got it? Let me see the banner.",
-						"One moment.", "Take your time. I'll be here.", "(Leave)",
-						"Here, the banner.", "That's it. I'll study the calamity behind these raiders, and put an end to their balance-breaking.", "(Leave)")
+						"Here's the banner.", "That's it. I'll study the calamity behind these raiders, and put an end to their balance-breaking.", "(Leave)")
 		));
 
 		prefix("reimu/raid");
-		questAnims("start", "dialog_think", "dialog_confused", "dialog_talk_01");
-		questAnims("follow", "dialog_talk_04", "dialog_talk_05");
+		questAnims("start", TALK_ANIMS, "dialog_confused", TALK_ANIMS);
+		questAnims("follow", TALK_ANIMS, TALK_ANIMS);
 		quest("reimu/raid", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_OMINOUS_BANNER)),
 				questTitle("Repel the Raid"), questDesc("Enter a village carrying Reimu's mark and repel the raiders."),
@@ -402,7 +412,7 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private void dailyQuests() {
 		prefix("reimu/daily_food");
-		questAnims("dailyEx", "dialog_think", "dialog_decline", "dialog_talk_03", "dialog_think", "dialog_think", "dialog_agree", "dialog_agree");
+		questAnims("dailyEx", TALK_ANIMS, "dialog_decline", TALK_ANIMS, TALK_ANIMS, TALK_ANIMS, TALK_ANIMS, "dialog_agree");
 		var foodTable = requestTable("daily_food", LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(2))
 						.add(LootItem.lootTableItem(Items.WHITE_WOOL).apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 8))))
@@ -414,16 +424,16 @@ public class ReimuQDGen extends QuestDialogData {
 		dailyEx("reimu/daily_food", "Shrine Provisions", "Bring Reimu a few supplies for the shrine.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_LOCAL_FOOD)), 60, 10, 150, 0, 150,
 				"The offering box is bone dry — at this rate I won't eat. Bring me a few things the shrine can use.",
-				"Great. I need these things.", "Then I'll think of something — maybe mooch a meal off her.",
+				"I have other things to do.", "Great. I need these things.", "Then I'll think of something — maybe mooch a meal off her.",
 				"The donation box is empty again — bring a decent haul of supplies, remember.",
 				"Okay.", "Don't forget.", "(Leave)",
-				"Just what was needed. Thanks.",
+				"I've got the goods.", "Oh, you got 'em? Let me see!", "Just what was needed. Thanks.",
 				new TreeMap<>(Map.of(
 						"a-supplies", rollItem(foodTable))),
 				LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 1)));
 
 		prefix("reimu/daily_hunt");
-		questAnims("dailyEx", "dialog_think", "dialog_think", "dialog_agree", "dialog_think", "dialog_greet", "dialog_agree", "dialog_talk_02");
+		questAnims("dailyEx", TALK_ANIMS, THINK_ANIMS_ALL, "dialog_agree", THINK_ANIMS_ALL, TALK_ANIMS, "dialog_agree", TALK_ANIMS);
 		var huntTable = requestTable("daily_hunt", LootTable.lootTable()
 				.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
 						.add(LootItem.lootTableItem(Items.ROTTEN_FLESH).apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 8))))
@@ -440,26 +450,27 @@ public class ReimuQDGen extends QuestDialogData {
 				List.of(new ExpReward(80), new ReputationReward(10, 150, 5, 120),
 						loot("reimu/daily_hunt", LootTable.lootTable().withPool(lootItem(GLItems.COIN.get(), 3)))),
 				groupKey(dailyGroupKey, dailyStartKey,
-						dialog("start/dialog_1", "Something's always stirring trouble near the shrine. Clear out those monsters and bring back their loot.", THINK_ANIMS,
-								option("start/reject", "Later.",
-										dialog("start/reject/dialog_1", "Ugh, looks like I'll have to fight them myself.", List.of("dialog_think"), option("start/reject/end", "(Leave)"))),
+						dialog("start/dialog_1", "Something's always stirring trouble near the shrine. Clear out those monsters and bring back their loot.", TALK_ANIMS,
+								option("start/reject", "I have other things to do.",
+										dialog("start/reject/dialog_1", "Ugh, looks like I'll have to fight them myself.", List.of("dialog_think", "dialog_think_02"), option("start/reject/end", "(Leave)"))),
 								option("start/accept", "I'll handle it.", new StartQuestAction(),
-										dialog("start/accept/dialog_1", "That's the spirit. Go clear them out.", List.of("dialog_agree"), option("start/accept/end", "(Leave)"))))),
+										dialog("start/accept/dialog_1", "Good, go clear them out.", List.of("dialog_agree"), option("start/accept/end", "(Leave)"))))),
 				dailyFollowEx("Something's been stirring near the shrine again — thin them out and bring back their loot, remember.",
-						"Okay.", "Stay careful out there. I need you in one piece.", "(Leave)"),
-				dailyCompleteEx("Another peaceful night's sleep. Thanks.")
+						"Okay.", "Be careful out there.", "(Leave)"),
+				dailyCompleteEx("I've got the goods.", "Oh, you got 'em? Let me see!",
+						"Finally, I can get a peaceful night's sleep.")
 		));
 
 		prefix("reimu/daily_talisman");
-		questAnims("dailyEx", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_think", "dialog_agree", "dialog_talk_02");
+		questAnims("dailyEx", TALK_ANIMS, "dialog_decline", "dialog_agree", TALK_ANIMS, TALK_ANIMS, "dialog_agree", TALK_ANIMS);
 		dailyEx("reimu/daily_talisman", "Talisman Restock", "Bring Reimu paper and redstone to restock her talismans.",
 				new QuestRecurrence(24000), List.of(new HasQuestCompletedCondition(QUEST_TALISMAN_MATERIALS)), 60, 10, 150, 0, 150,
 				"Ofuda stock is running low again — paper and redstone, same as before. Gather some for me?",
-				"Good. Restock me and I'll keep a steady supply of ofuda.",
+				"Forget it.", "Good. Restock me and I'll keep a steady supply of ofuda.",
 				"There's still a little left. We'll talk when you're free.",
 				"Ofuda stock is low again — paper and redstone, remember.",
 				"Got it.", "The stock is almost empty.", "I'll be right back.",
-				"Good. That'll last a while. Here's your share.",
+				"I've got the goods.", "Let me see.", "Good. That'll last a while. Here's your share.",
 				new TreeMap<>(Map.of(
 						"a-supplies", new SubmitItemRequirement(List.of(
 								item(Items.PAPER, 16),
@@ -467,7 +478,7 @@ public class ReimuQDGen extends QuestDialogData {
 				LootTable.lootTable().withPool(lootItem(GLTalismans.HEAL_TALISMAN.get(), 2)));
 
 		prefix("reimu/daily_raid");
-		questAnims("dailyEx", "dialog_think", "dialog_decline", "dialog_agree", "dialog_think", "dialog_agree", "dialog_agree", null);
+		questAnims("dailyEx", TALK_ANIMS, "dialog_decline", "dialog_agree", TALK_ANIMS, "dialog_agree", "dialog_agree", null);
 		quest("reimu/daily_raid", new Quest(GLEntities.REIMU.get(),
 				List.of(new HasQuestCompletedCondition(QUEST_RAID)),
 				questTitle("Raid Defense"), questDesc("Win a raid with Reimu's mark to protect a village."),
@@ -479,14 +490,15 @@ public class ReimuQDGen extends QuestDialogData {
 						loot("reimu/daily_raid", LootTable.lootTable()
 								.withPool(lootItem(GLTalismans.SHELTER_TALISMAN.get(), 2)))),
 				groupKey(dailyGroupKey, dailyStartKey,
-						dialog("start/dialog_1", "Another village needs protecting. I've got the bait ready — up for another cleanup?", THINK_ANIMS,
-								option("start/reject", "Later.",
+						dialog("start/dialog_1", "Another village has caught the eye of a raider band. I've got the bait ready — up "
+								+ "for another cleanup?", TALK_ANIMS,
+								option("start/reject", "Not ready yet.",
 										dialog("start/reject/dialog_1", "The mark will keep. We'll talk when you're ready.", List.of("dialog_decline"), option("start/reject/end", "(Leave)"))),
 								option("start/accept", "I'll help.",
 										List.of(new StartQuestAction(), new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0)),
 										dialog("start/accept/dialog_1", "Same as before — lure them in, hold the line, drive them out.", List.of("dialog_agree"), option("start/accept/end", "(Leave)"))))),
 				groupOption(dailyGroupKey, "follow_up", "My mark seems gone?",
-						dialog("follow_up/dialog_1", "Is that so? I can set a fresh one on you.", THINK_ANIMS,
+						dialog("follow_up/dialog_1", "Is that so? I can set a fresh one on you.", TALK_ANIMS,
 								option("follow_up/end", "Please do.", new GiveMobEffectAction(MobEffects.BAD_OMEN, BAD_OMEN_DURATION, 0),
 										dialog("follow_up/end/dialog_1", "There. Same plan — I'll wait for good news.", List.of("dialog_agree"), option("follow_up/end/leave", "(Leave)"))))),
 				option("complete", "The cleanup went well.",
@@ -616,6 +628,15 @@ public class ReimuQDGen extends QuestDialogData {
 	}
 
 	private SimpleDialogOption complete(String button, String intro,
+										String complete, String completeLine, String completeEnd) {
+		return option("complete", button,
+				dialog("complete/dialog_1", intro, anims("complete", 0, AGREE_ANIMS),
+						option("complete/handover", complete, new CompleteQuestAction(),
+								dialog("complete/handover/dialog_1", completeLine,
+										anims("complete", 2, List.of()), option("complete/handover/end", completeEnd)))));
+	}
+
+	private SimpleDialogOption complete(String button, String intro,
 										String reject, String rejectLine, String rejectEnd,
 										String complete, String completeLine, String completeEnd) {
 		return option("complete", button,
@@ -635,9 +656,9 @@ public class ReimuQDGen extends QuestDialogData {
 
 	private void dailyEx(String id, String title, String desc, QuestRecurrence rec,
 						 List<QuestCondition<?>> conditions, int exp, int rep, int softCap, int capIncrease, int maxCap,
-						 String intro, String acceptLine, String rejectLine, String followLine,
+						 String intro, String reject, String acceptLine, String rejectLine, String followLine,
 						 String followOpt, String optLine, String optEnd,
-						 String completeLine,
+						 String complete, String gotem, String completeLine,
 						 Map<String, QuestRequirement<?, ?>> reqs, LootTable.Builder loot) {
 		quest(id, new Quest(GLEntities.REIMU.get(), conditions,
 				questTitle(title), questDesc(desc),
@@ -647,14 +668,14 @@ public class ReimuQDGen extends QuestDialogData {
 						loot(id, loot)),
 				groupKey(dailyGroupKey, dailyStartKey,
 						dialog("start/dialog_1", intro, anims("dailyEx", 0, THINK_ANIMS),
-								groupKey(dailyGroupKey, dailyRejectKey,
+								groupOption(dailyGroupKey, "start/reject", reject,
 										dialog("start/reject/dialog_1", rejectLine,
 												anims("dailyEx", 1, List.of()), option("start/reject/end", "(Leave)"))),
 								groupKey(dailyGroupKey, dailyAcceptKey, new StartQuestAction(),
 										dialog("start/accept/dialog_1", acceptLine,
 												anims("dailyEx", 2, List.of()), option("start/accept/end", "(Leave)"))))),
 				dailyFollowEx(followLine, followOpt, optLine, optEnd),
-				dailyCompleteEx(completeLine)));
+				dailyCompleteEx(complete, gotem, completeLine)));
 	}
 
 	private GroupDialogOption dailyFollowEx(String followLine, String followOpt, String optLine, String optEnd) {
@@ -665,9 +686,9 @@ public class ReimuQDGen extends QuestDialogData {
 										anims("dailyEx", 4, List.of()), option("follow_up/end/leave", optEnd)))));
 	}
 
-	private GroupDialogOption dailyCompleteEx(String completeLine) {
-		return groupKey(dailyGroupKey, dailyCompleteKey,
-				dialogKey("complete/dialog_1", dailyGotemKey, anims("dailyEx", 5, AGREE_ANIMS),
+	private GroupDialogOption dailyCompleteEx(String complete, String gotem, String completeLine) {
+		return groupOption(dailyGroupKey, "complete", complete,
+				dialog("complete/dialog_1", gotem, anims("dailyEx", 5, AGREE_ANIMS),
 						optionKey(dailyHandoverKey, new CompleteQuestAction(),
 								dialog("complete/handover/dialog_1", completeLine,
 										anims("dailyEx", 6, List.of()), option("complete/handover/end", "(Take the reward)")))));

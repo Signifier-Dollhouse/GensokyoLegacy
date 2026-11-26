@@ -6,29 +6,13 @@
     "conditions": [],
     "next": {
       "animations": [
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
         "dialog_talk_05"
       ],
       "options": [
-        {
-          "type": "gensokyolegacy:simple",
-          "actions": [],
-          "conditions": [],
-          "next": {
-            "animations": [
-              "dialog_think"
-            ],
-            "options": [
-              {
-                "type": "gensokyolegacy:simple",
-                "actions": [],
-                "conditions": [],
-                "text": "gensokyolegacy/marisa/first_mushroom/option/complete/reject/end"
-              }
-            ],
-            "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/complete/reject/dialog_1"
-          },
-          "text": "gensokyolegacy/marisa/first_mushroom/option/complete/reject"
-        },
         {
           "type": "gensokyolegacy:simple",
           "actions": [
@@ -66,7 +50,11 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_talk_02"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -75,14 +63,16 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_greet"
+              "dialog_talk_01",
+              "dialog_talk_03",
+              "dialog_talk_04"
             ],
             "options": [
               {
                 "type": "gensokyolegacy:simple",
                 "actions": [],
                 "conditions": [],
-                "text": "gensokyolegacy/marisa/shared/option/bye"
+                "text": "gensokyolegacy/marisa/first_mushroom/option/follow_up/end/end"
               }
             ],
             "text": "gensokyolegacy/marisa/first_mushroom/dialog/marisa/first_mushroom/follow_up/end/dialog_1"
@@ -100,7 +90,9 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_greet"
+        "dialog_talk_01",
+        "dialog_talk_03",
+        "dialog_talk_04"
       ],
       "options": [
         {
