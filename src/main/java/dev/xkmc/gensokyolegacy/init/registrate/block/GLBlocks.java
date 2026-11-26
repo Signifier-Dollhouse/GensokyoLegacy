@@ -162,7 +162,7 @@ public class GLBlocks {
 					.build()
 					.register();
 
-			// 宝物篮：截留范围内超时消失的物品
+			// 百宝篮：截留范围内超时消失的物品
 			TREASURE_BASKET = GensokyoLegacy.REGISTRATE.block("treasure_basket",
 					p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, new TreasureBasketShape(),
 							new TreasureBasketBlock(), TreasureBasketBlock.BE))

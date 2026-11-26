@@ -1,8 +1,8 @@
 {
   "name": "Hosting a Banquet",
   "icon": "gensokyolegacy:invitation_letter",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 1,
+  "category": "gensokyolegacy:character",
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:spotlight",

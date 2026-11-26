@@ -1,8 +1,8 @@
 {
   "name": "客人的回礼",
   "icon": "gensokyolegacy:sturdy_teddy_bear",
-  "category": "gensokyolegacy:banquet",
-  "sortnum": 4,
+  "category": "gensokyolegacy:character",
+  "sortnum": 6,
   "pages": [
     {
       "type": "patchouli:spotlight",
