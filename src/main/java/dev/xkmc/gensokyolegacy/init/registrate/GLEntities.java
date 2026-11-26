@@ -39,6 +39,7 @@ import dev.xkmc.gensokyolegacy.content.entity.misc.*;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorBulletEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.anchor.AnchorHookEntity;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.AnchorHookRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.misc.render.MissingTowerRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.NoFadeBulletRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.misc.render.TreasureTowerRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.BossYoukaiEntity;
@@ -95,6 +96,7 @@ public class GLEntities {
 	public static final EntityEntry<AnchorBulletEntity> ANCHOR_BULLET;
 	public static final EntityEntry<NueTridentProjectile> NUE_TRIDENT;
 	public static final EntityEntry<TreasureTowerEntity> TREASURE_TOWER;
+	public static final EntityEntry<MissingTowerEntity> MISSING_TOWER;
 
 	// Authored beside each character so the config generator can emit both data maps without
 	// restating the entity list a second time. The entry is kept unresolved: {@code get()} is
@@ -349,6 +351,13 @@ public class GLEntities {
 					.<TreasureTowerEntity>entity("treasure_tower", TreasureTowerEntity::new, MobCategory.MISC)
 					.properties(p -> p.sized(0.4F, 0.4F).clientTrackingRange(10).updateInterval(1))
 					.renderer(() -> TreasureTowerRenderer::new)
+					.register();
+
+			// the quest tower is a plain world object, not the cast projectile
+			MISSING_TOWER = GensokyoLegacy.REGISTRATE
+					.<MissingTowerEntity>entity("missing_treasure_tower", MissingTowerEntity::new, MobCategory.MISC)
+					.properties(p -> p.sized(0.45F, 0.45F).clientTrackingRange(12).updateInterval(2))
+					.renderer(() -> MissingTowerRenderer::new)
 					.register();
 		}
 

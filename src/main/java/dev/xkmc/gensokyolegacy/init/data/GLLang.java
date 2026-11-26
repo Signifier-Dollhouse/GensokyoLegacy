@@ -152,6 +152,53 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Missing Tower ==========
+	public enum MissingTower implements LangEntry {
+		PICKUP("You lift the missing treasure tower"),
+		CARRIED("You are already carrying a tower"),
+		NOT_STARTED("You have no reason to take this tower");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		MissingTower(String def) {
+			this(def, 0);
+		}
+
+		MissingTower(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		MissingTower(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".missing_tower." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Info ==========
 	public enum Info implements LangEntry {
 		LOADING("Loading..."),
@@ -1621,7 +1668,7 @@ public final class GLLang {
 
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
-				Quest.values(), Info.values(), Trade.values(), Misc.values(), Biome.values(),
+				Quest.values(), MissingTower.values(), Info.values(), Trade.values(), Misc.values(), Biome.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),

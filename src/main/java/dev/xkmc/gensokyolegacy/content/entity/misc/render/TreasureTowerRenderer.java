@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemDisplayContext;
  */
 public class TreasureTowerRenderer extends EntityRenderer<TreasureTowerEntity> {
 
-	private static final float SCALE = 1.6F;
+	private static final float SCALE = 1F;
 	private static final float BOB = 0.08F;
 	private static final float SPIN = 6F;
 
