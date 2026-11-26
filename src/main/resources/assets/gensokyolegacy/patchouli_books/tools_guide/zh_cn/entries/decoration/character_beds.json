@@ -8,9 +8,18 @@
     {
       "type": "patchouli:spotlight",
       "item": [
+        {"item": "gensokyolegacy:cirno_bed"},
         {"item": "gensokyolegacy:reimu_bed"},
+        {"item": "gensokyolegacy:morichika_bed"},
         {"item": "gensokyolegacy:marisa_bed"},
-        {"item": "gensokyolegacy:morichika_bed"}
+        {"item": "gensokyolegacy:alice_bed"},
+        {"item": "gensokyolegacy:minamitsu_bed"},
+        {"item": "gensokyolegacy:nue_bed"},
+        {"item": "gensokyolegacy:byakuren_bed"},
+        {"item": "gensokyolegacy:kyouko_bed"},
+        {"item": "gensokyolegacy:ichirin_bed"},
+        {"item": "gensokyolegacy:nazrin_bed"},
+        {"item": "gensokyolegacy:shou_bed"}
       ],
       "title": "私人订制",
       "text": "自然生成的角色都有她专属的床，没有床的角色会在玩家看不到的地方消失。玩家无法使用角色床，也无法设置重生点。"
