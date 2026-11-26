@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export character greeting / chat / quest dialogs as plain text for human review.
+Export character greeting / gift / chat / quest dialogs as plain text for human review.
 
 Reads the datagen output under
 src/generated/resources/data/gensokyolegacy/gensokyolegacy and the lang files,
@@ -71,6 +71,13 @@ LABELS = {
     "greet_visit": ("while visiting", "作为客人来访时"),
     "greet_party": ("as a party guest", "在宴会中"),
     "greet_trade": ("trade button", "交易按钮"),
+
+    "section_gifts": ("## GIFTS", "## 送礼反应"),
+    "gift_like": ("likes it (factor above the category's neutral)", "喜欢（因子高于该类中性值）"),
+    "gift_neutral": ("takes it at face value (any other accepted gift)", "照单收下（其余被接受的礼物）"),
+    "gift_dislike": ("turns it down (favor <= 0)", "婉拒（好感 ≤ 0）"),
+    "gift_same": ("(same dialog as above)", "（与上一段相同）"),
+    "gift_none": ("(no gift reactions defined)", "（未定义送礼反应）"),
 
     "section_anims": ("## DIALOG ANIMATIONS", "## 对话动画选项"),
     "anim_how1": ("A dialog may carry `animations`, a list of trigger names. The line plays one of",
@@ -705,6 +712,14 @@ def dialog(ctx, dialog_id, indent, depth, path):
     return lines
 
 
+def gift_reactions(ctx, char_id):
+    """(reaction, dialog id) for a character, in like / neutral / dislike order."""
+    entry = ctx.gift_dialogs.get("gensokyolegacy:" + char_id)
+    if not entry:
+        return []
+    return [(f, entry[f]) for f in ("like", "neutral", "dislike") if entry.get(f)]
+
+
 def requirement(ctx, key, r):
     t = r.get("type", "?")
     head = "    [%s] " % key
@@ -751,7 +766,7 @@ def rule(char="=", n=78):
 CODE_ONLY_SLOTS = ("USE_MAINHAND", "OUTDOOR_IDLE", "SKILL_01", "SKILL_02", "SKILL_03", "EAT", "HURT")
 
 
-def collect_anims(ctx, starters, quests):
+def collect_anims(ctx, char_id, starters, quests):
     """{trigger: dialogs naming it} plus how many dialogs this character reaches."""
     counts = Counter()
     seen, total = set(), 0
@@ -778,6 +793,8 @@ def collect_anims(ctx, starters, quests):
 
     for s in starters.values():
         walk(s["dialog"])
+    for _, did in gift_reactions(ctx, char_id):
+        walk(did)
     for q in quests.values():
         for field in ("initialDialog", "followUpDialog", "completionDialog"):
             if q[field].get("next"):
@@ -884,11 +901,8 @@ def audit(ctx, char_id, starters, quests):
     for s in starters.values():
         used_keys.add(s.get("text", ""))
         walk(s["dialog"])
-    for entry in ctx.gift_dialogs.values():
-        for which in ("like", "neutral", "dislike"):
-            did = plain_loc(entry.get(which, ""))
-            if did.startswith(char_id + "/"):
-                walk(did)
+    for did in dict.fromkeys(d for _, d in gift_reactions(ctx, char_id)):
+        walk(did)
     for q in quests.values():
         used_keys.add(q["title"])
         used_keys.add(q["description"])
@@ -957,7 +971,7 @@ def render_character(ctx, char_id, display):
     a(rule("="))
     a("")
 
-    counts, total = collect_anims(ctx, starters, quests)
+    counts, total = collect_anims(ctx, char_id, starters, quests)
     out.extend(render_anim_section(ctx, ctx.rig, counts, total))
 
     a(ctx.t("section_greetings"))
@@ -970,6 +984,22 @@ def render_character(ctx, char_id, display):
                 out.extend(ctx.text(cfg[field], indent="    "))
             else:
                 a('    ""')
+    a("")
+
+    a(ctx.t("section_gifts"))
+    a("")
+    reactions = gift_reactions(ctx, char_id)
+    if reactions:
+        shown = {}
+        for field, did in reactions:
+            a("  %s: %s" % (ctx.t("gift_" + field), loc(did)))
+            if did in shown:
+                a("    " + ctx.t("gift_same"))
+                continue
+            shown[did] = field
+            out.extend(dialog(ctx, did, "    ", 0, set()))
+    else:
+        a("  " + ctx.t("gift_none"))
     a("")
 
     a(ctx.t("section_chats", len(starters)))
