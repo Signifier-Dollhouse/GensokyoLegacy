@@ -24,7 +24,9 @@
 			"doors_to_close": "待关闭的门（%s）：",
 			"youkai_avoid": "%s可能暂时不想见你",
 			"entity_party_eaten": "宴席上：已吃 %s／%s 饱食量",
-			"entity_party_appeal": "宴席上：已吃下 %s 吸引力"
+			"entity_party_appeal": "宴席上：已吃下 %s 吸引力",
+			"donation_credit": "赛钱进度：%s / %s",
+			"donation_wrong_structure": "这个赛钱箱不在它所属的结构内"
 		},
 		"msg": {
 			"reset": "角色已重置",

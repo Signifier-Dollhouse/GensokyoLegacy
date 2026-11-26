@@ -214,6 +214,8 @@ public final class GLLang {
 		ENTITY_GIFT("Gift cool down: %s", 1),
 		ENTITY_PARTY_EATEN("At the party: eaten %s of %s hunger", 2),
 		ENTITY_PARTY_APPEAL("At the party: appeal eaten %s", 1),
+		DONATION_CREDIT("Donation credit: %s / %s", 2),
+		DONATION_WRONG_STRUCTURE("This donation box is not inside the structure it belongs to"),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),
 		STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 		DOORS_TO_CLOSE("Doors to close (%s):", 1);

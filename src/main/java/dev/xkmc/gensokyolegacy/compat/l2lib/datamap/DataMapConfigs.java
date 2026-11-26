@@ -5,6 +5,7 @@ import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.BedData;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyFood;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyTaste;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxData;
 import dev.xkmc.gensokyolegacy.content.block.deco.shelf.MorichikaOfferData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftItemData;
 import dev.xkmc.gensokyolegacy.content.item.gift.GiftPreference;
@@ -129,6 +130,18 @@ public final class DataMapConfigs {
 
 		@Override
 		public LinkedHashMap<ResourceLocation, GiftItemData> values() {
+			return values;
+		}
+	}
+
+	@SerialClass
+	public static final class DonationBoxes extends DataMapConfig<DonationBoxData> {
+		@SerialClass.SerialField
+		@ConfigCollect(CollectType.MAP_OVERWRITE)
+		public LinkedHashMap<ResourceLocation, DonationBoxData> values = new LinkedHashMap<>();
+
+		@Override
+		public LinkedHashMap<ResourceLocation, DonationBoxData> values() {
 			return values;
 		}
 	}
