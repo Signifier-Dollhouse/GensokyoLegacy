@@ -1,3 +1,7 @@
+1.0.8
+- add myouren temple, byakuren, nazrin, nue, minamitsu
+- add treasure basket, treasure tower, nue trident, minamitsu anchor
+- throw coins into donation box to gain effects
 - add gift box that can be opened into one random gift
 - fix trade stock limit not working
 - tweak portal gap and chat bubble rendering
