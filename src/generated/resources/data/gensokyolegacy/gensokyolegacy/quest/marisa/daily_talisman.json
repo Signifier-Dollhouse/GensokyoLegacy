@@ -6,7 +6,9 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_greet"
+        "dialog_talk_01",
+        "dialog_talk_03",
+        "dialog_talk_04"
       ],
       "options": [
         {
@@ -51,7 +53,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_talk_04"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -60,7 +66,9 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_greet"
+              "dialog_talk_01",
+              "dialog_talk_03",
+              "dialog_talk_04"
             ],
             "options": [],
             "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/follow_up/end/dialog_1"
@@ -70,7 +78,7 @@
       ],
       "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/follow_up/dialog_1"
     },
-    "text": "gensokyolegacy/marisa/shared/option/daily_follow"
+    "text": "gensokyolegacy/marisa/daily_talisman/option/follow_up"
   },
   "initialDialog": {
     "type": "gensokyolegacy:group",
@@ -78,7 +86,11 @@
     "group": "gensokyolegacy/marisa/shared/option/daily_group",
     "next": {
       "animations": [
-        "dialog_talk_03"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
         {
@@ -104,12 +116,16 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_agree"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [],
             "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/start/accept/dialog_1"
           },
-          "text": "gensokyolegacy/marisa/shared/option/daily_accept"
+          "text": "gensokyolegacy/marisa/daily_talisman/option/start/accept"
         }
       ],
       "text": "gensokyolegacy/marisa/daily_talisman/dialog/marisa/daily_talisman/start/dialog_1"

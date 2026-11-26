@@ -13,7 +13,7 @@
         {"tag": "gensokyolegacy:long_noren"}
       ],
       "title": "Noren Curtains",
-      "text": "Noren are the split curtains that hang in doorways. Four patterns exist — plain, striped, wavy and long — in all 16 wool colors."
+      "text": "Noren come in four patterns — plain, striped, wavy and long — each in all 16 colors."
     },
     {
       "type": "patchouli:spotlight",
@@ -21,16 +21,18 @@
         {"item": "gensokyolegacy:red_lantern"},
         {"item": "gensokyolegacy:white_lantern"},
         {"item": "gensokyolegacy:lettered_red_lantern"},
-        {"item": "gensokyolegacy:lettered_white_lantern"}
+        {"item": "gensokyolegacy:lettered_white_lantern"},
+        {"item": "gensokyolegacy:paper_lantern"},
+        {"item": "gensokyolegacy:green_frame_lantern"}
       ],
       "title": "Lanterns",
-      "text": "Four paper lanterns, red and white, plain or lettered, each bright enough on its own to light a whole room."
+      "text": "Six variants, for decorative lighting."
     },
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:stone_lantern",
       "title": "Stone Lantern",
-      "text": "A garden lantern cut from stone, two blocks tall. It is solid stone all the way through, so it gives out no light of its own."
+      "text": "A two-block stone garden lantern, solid all through, giving no light of its own."
     },
     {
       "type": "patchouli:spotlight",
@@ -40,7 +42,7 @@
         {"item": "gensokyolegacy:candlestick"}
       ],
       "title": "Wrought Iron Railings",
-      "text": "Blackened ironwork, which lends a room some weight."
+      "text": "Blackened ironwork that lends a room some weight."
     },
     {
       "type": "patchouli:spotlight",
@@ -51,13 +53,13 @@
         {"item": "gensokyolegacy:paper_window_pane"}
       ],
       "title": "Paper Goods",
-      "text": "Two paper-made building blocks, each in a solid and a thin pane form."
+      "text": "Two paper-made building blocks, each in a solid and a thin pane form. They let light through rather than blocking it, so a room sealed with them stays bright, and they burn as fuel too."
     },
     {
       "type": "patchouli:spotlight",
       "item": "tag:gensokyolegacy:plank_wall",
       "title": "Plank Walls",
-      "text": "Plank walls come in every wood type"
+      "text": "Plank walls come in every wood type, and are cheap to make."
     },
     {
       "type": "patchouli:spotlight",
@@ -75,6 +77,22 @@
       ],
       "title": "Ice Bricks",
       "text": "Thematic bricks made from packed ice, with stairs, slabs and vertical slabs. Suitable for snowy environments."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        "gensokyolegacy:myouren_bricks",
+        "gensokyolegacy:myouren_brick_stairs",
+        "gensokyolegacy:myouren_brick_slab",
+        "gensokyolegacy:myouren_brick_vertical_slab",
+        "gensokyolegacy:myouren_fence",
+        "gensokyolegacy:myouren_flag",
+        "gensokyolegacy:flagpole",
+        "gensokyolegacy:myouren_donation_box",
+        "gensokyolegacy:locust_plaque"
+      ],
+      "title": "Myouren Temple Blocks",
+      "text": "Four diorite around one soul soil make four white bricks, with stairs, a slab and a vertical slab. The fence is a whole block wide and does not join its neighbours. The two-block flag and the three-block donation box are the temple's own. A locust plaque hangs two blocks high on a wall; in creative, right-clicking air with the item flips it between its two faces."
     }
   ]
 }

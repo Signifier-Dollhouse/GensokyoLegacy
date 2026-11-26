@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * The selector wheel for the anchor: one entry per mode, every mode always listed.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorModeWheel implements PersistentWheel<ItemWheelEntry> {
 

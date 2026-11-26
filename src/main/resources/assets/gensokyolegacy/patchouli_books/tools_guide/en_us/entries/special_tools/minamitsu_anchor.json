@@ -2,13 +2,14 @@
   "name": "Minamitsu's Anchor",
   "icon": "gensokyolegacy:minamitsu_anchor",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_anchor",
   "sortnum": 12,
   "pages": [
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:minamitsu_anchor",
-      "title": "An Anchor That Always Comes Back",
-      "text": "Minamitsu's anchor is a diamond pickaxe that can also be thrown. Hold the selection key to open its mode wheel (X by default): the mode decides what a throw does, and the hotbar icon shows it. Only the two storm throws cost spiritual power."
+      "title": "The Anchor",
+      "text": "Minamitsu's anchor both breaks blocks and deals damage. Hold the selection key to open the mode wheel (X by default): the current mode decides what a throw does, and the hotbar icon changes with it. Only storm mode spends spiritual power."
     },
     {
       "type": "patchouli:text",
@@ -20,7 +21,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)One anchor at a time$()$(br)While the anchor is out, the hand looks empty and refuses another throw. A stuck Voyage anchor waits for you: right click within 3 blocks to call it home, or from farther away to be pulled in again.$(br2)$(bold)The power pool$()$(br)A Jizo will trade one experience level for spiritual power stored in the anchor. Without it the storm throws refuse to fire."
+      "text": "$(bold)One at a time$()$(br)While the anchor is out or stuck, you cannot throw it again.$(br2)$(bold)Gaining power$()$(br)Killing undead restores spiritual power; a Jizo consumes experience and turns it into power in the anchor."
     }
   ]
 }

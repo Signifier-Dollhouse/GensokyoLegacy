@@ -32,7 +32,7 @@ import java.util.List;
  * texel, and the model must stay parentless since {@code ModelBakery} discards {@code elements} for anything ending at
  * {@code builtin/generated}.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class IronDaggerItem extends DanmakuItem {
 

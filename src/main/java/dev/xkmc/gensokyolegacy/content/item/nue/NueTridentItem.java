@@ -40,7 +40,7 @@ import java.util.List;
  * Nue's trident: the throw sends a copy and never spends the stack, and the copy turns whatever it
  * hits into a UFO. A throw is charged like the vanilla trident's.
  *
- * @see "doc/design/nue_trident.md"
+ * @see "doc/design/item/nue_trident.md"
  */
 public class NueTridentItem extends DanmakuItem {
 

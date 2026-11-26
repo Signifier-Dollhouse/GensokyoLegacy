@@ -21,8 +21,11 @@ import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateReplace
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateStructureFeature;
 import dev.xkmc.gensokyolegacy.content.worldgen.feature.template.TemplateStructureProcessor;
 import dev.xkmc.gensokyolegacy.content.worldgen.placement.*;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.FallbackStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.FlatCheckStructure;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.GLBeardedPiece;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.MultiSpreadPlacement;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.SecondaryStructure;
 import dev.xkmc.gensokyolegacy.content.worldgen.structure.SetDataProcessor;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.compat.l2lib.CdcReg;
@@ -39,6 +42,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.feature.configurations.VegetationPatchConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
@@ -58,6 +62,11 @@ public class GLWorldGen {
 
 	private static final SR<StructureType<?>> STRUCTURES = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_TYPE);
 	public static final Val<StructureType<FlatCheckStructure>> FLAT = STRUCTURES.reg("flat_check", () -> () -> FlatCheckStructure.CODEC);
+	public static final Val<StructureType<SecondaryStructure>> SECONDARY = STRUCTURES.reg("secondary", () -> () -> SecondaryStructure.CODEC);
+	public static final Val<StructureType<FallbackStructure>> FALLBACK = STRUCTURES.reg("fallback", () -> () -> FallbackStructure.CODEC);
+
+	private static final SR<StructurePieceType> PIECES = SR.of(GensokyoLegacy.REG, BuiltInRegistries.STRUCTURE_PIECE);
+	public static final Val<StructurePieceType> BEARDED = PIECES.reg("bearded", () -> GLBeardedPiece::new);
 
 	private static final SR<StructurePlacementType<?>> PLACEMENTS = SR.of(GensokyoLegacy.REG, Registries.STRUCTURE_PLACEMENT);
 	public static final Val<StructurePlacementType<MultiSpreadPlacement>> MULTI_SPREAD = PLACEMENTS.reg("multi_spread", () -> () -> MultiSpreadPlacement.CODEC);

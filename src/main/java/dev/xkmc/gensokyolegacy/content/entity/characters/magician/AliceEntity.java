@@ -10,7 +10,9 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.GeneralYoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2serial.serialization.SerialClass;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
@@ -60,6 +62,11 @@ public class AliceEntity extends GeneralYoukaiEntity implements GeoYoukaiAnim, D
 
 	public AliceEntity(EntityType<? extends GeneralYoukaiEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
+	}
+
+	@Override
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_MATURE.get();
 	}
 
 	@Override

@@ -13,3 +13,8 @@ Debug and testing focus:
 - block interaction
 - capability persistence and sync
 - item data component
+
+Port merge todos:
+- remove terrain predicate debug tool after myouren temple gen fully working and tested
+
+- fix donation box

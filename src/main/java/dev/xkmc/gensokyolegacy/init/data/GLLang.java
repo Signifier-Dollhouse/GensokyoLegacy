@@ -152,6 +152,53 @@ public final class GLLang {
 		}
 	}
 
+	// ========== Missing Tower ==========
+	public enum MissingTower implements LangEntry {
+		PICKUP("You lift the missing treasure tower"),
+		CARRIED("You are already carrying a tower"),
+		NOT_STARTED("You have no reason to take this tower");
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		MissingTower(String def) {
+			this(def, 0);
+		}
+
+		MissingTower(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		MissingTower(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".missing_tower." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	// ========== Info ==========
 	public enum Info implements LangEntry {
 		LOADING("Loading..."),
@@ -167,6 +214,8 @@ public final class GLLang {
 		ENTITY_GIFT("Gift cool down: %s", 1),
 		ENTITY_PARTY_EATEN("At the party: eaten %s of %s hunger", 2),
 		ENTITY_PARTY_APPEAL("At the party: appeal eaten %s", 1),
+		DONATION_CREDIT("Donation credit: %s / %s", 2),
+		DONATION_WRONG_STRUCTURE("This donation box is not inside the structure it belongs to"),
 		STRUCTURE_SCANNING("Scanning Structure...", 0),
 		STRUCTURE_ABNORMAL("Found %s invalid blocks", 1),
 		DOORS_TO_CLOSE("Doors to close (%s):", 1);
@@ -470,7 +519,81 @@ public final class GLLang {
 		PARTY_WAND_TOTALS("hunger: %s   appeal: %s", 2),
 		PARTY_WAND_NOBODY("Nobody would come"),
 		PARTY_WAND_GUEST("  %s", 1),
-		PARTY_WAND_STALE("(taken away from that table - may be out of date)");
+		PARTY_WAND_STALE("(taken away from that table - may be out of date)"),
+		MIRROR_ROOT("Recorded root piece %s", 1),
+		MIRROR_LINKED("Linked %s -> %s", 2),
+		MIRROR_TREE("Structure mirror tree: %s pieces, %s links", 2),
+		MIRROR_TREE_EMPTY("Structure mirror tree is empty", 0, ChatFormatting.GRAY),
+		MIRROR_REPAIR_OK("All %s jigsaw pairs are valid", 1),
+		MIRROR_REPAIR_SUMMARY("Jigsaw pairs: %s total, %s valid, %s fixed, %s failed", 4),
+		MIRROR_RENAMED("Structure piece #%s renamed %s -> %s", 3, ChatFormatting.GREEN),
+		MIRROR_DUPLICATE("Duplicate structure name: %s", 1, ChatFormatting.RED),
+		MIRROR_SAVE_OK("Saved all %s pieces", 1, ChatFormatting.GREEN),
+		MIRROR_SAVE_SUMMARY("Saved %s of %s pieces", 2),
+		MIRROR_SAVE_FAILED("Could not save %s", 1),
+		MIRROR_DELETED("Removed pair and entry #%s", 1),
+		MIRROR_NO_STRUCTURE("No structure block bounds contain this block", 0, ChatFormatting.RED),
+		MIRROR_NO_PARENT_NAME("Structure block at %s is missing, unloaded or unnamed", 1, ChatFormatting.RED),
+		MIRROR_NOT_RECORDED("This block is not inside a recorded piece", 0, ChatFormatting.RED),
+		MIRROR_NOT_FACE("This block is not on a bound face", 0, ChatFormatting.RED),
+		MIRROR_CORNER("This block is on an edge or corner (%s out-of-bound neighbours)", 1, ChatFormatting.RED),
+		MIRROR_NO_CHILD("No structure block bounds contain the counterpart cell at %s", 1, ChatFormatting.RED),
+		MIRROR_ALREADY("Both pieces are already recorded; a piece has exactly one parent", 0, ChatFormatting.RED),
+		MIRROR_JIGSAW("A jigsaw already exists at %s", 1, ChatFormatting.RED),
+		MIRROR_STRUCTURE_BLOCK("A structure block occupies %s", 1, ChatFormatting.RED),
+		MIRROR_NOT_AIR("Block at %s is not air; a jigsaw may only replace air", 1, ChatFormatting.RED),
+		MIRROR_PLACE_FAILED("Could not place the jigsaw pair", 0, ChatFormatting.RED),
+		MIRROR_NO_DATA("No structure data recorded", 0, ChatFormatting.RED),
+		MIRROR_NOT_PAIR("This jigsaw is not part of a recorded pair", 0, ChatFormatting.RED),
+		MIRROR_AMBIGUOUS("Multiple recorded pairs share this jigsaw", 0, ChatFormatting.RED),
+		MIRROR_NOT_LEAF("Entry #%s is not a leaf piece (%s children); delete its children first", 2, ChatFormatting.RED),
+		MIRROR_USE_HINT("Click a block inside a structure bound to record the root", 0, ChatFormatting.GRAY),
+		MIRROR_LINK_HINT("Click a face block to link the adjacent piece", 0, ChatFormatting.GRAY),
+		MIRROR_DELETE_HINT("Left-click a jigsaw to delete its pair and leaf child", 0, ChatFormatting.GRAY),
+		MIRROR_AIR_HINT("Right-click air to print the tree; shift-right-click to repair", 0, ChatFormatting.GRAY),
+		MIRROR_SAVE_HINT("Right-click bedrock outside the bounds to save every piece", 0, ChatFormatting.GRAY),
+		MIRROR_PIECES("%s pieces recorded", 1, ChatFormatting.DARK_AQUA),
+		INTERIOR_ORIGIN("Recorded structure origin %s", 1),
+		INTERIOR_NO_STRUCTURE("No structure block bounds contain this block", 0, ChatFormatting.RED),
+		INTERIOR_NO_DATA("No interior data recorded", 0, ChatFormatting.RED),
+		INTERIOR_CLEARED("Cleared interior data", 0, ChatFormatting.GRAY),
+		INTERIOR_MODE("Mode: %s", 1, ChatFormatting.GRAY),
+		INTERIOR_MODE_BOUND("Bound"),
+		INTERIOR_MODE_BOUND_EDIT("Bound Edit"),
+		INTERIOR_MODE_WAYPOINT("Waypoint"),
+		INTERIOR_MODE_DUAL_WAYPOINT("Dual Waypoint"),
+		INTERIOR_MODE_EXPORT("Export"),
+		INTERIOR_BOUND_START("Bound start at %s; right-click the opposite corner", 1),
+		INTERIOR_BOUND_ADDED("Added bound #%s", 1),
+		INTERIOR_BOUND_DELETED("Deleted bound #%s", 1),
+		INTERIOR_NOT_IN_BOUND("That block is not inside a bound", 0, ChatFormatting.RED),
+		INTERIOR_BOUND_SELECTED("Selected bound #%s", 1),
+		INTERIOR_DESELECTED("Deselected bound", 0),
+		INTERIOR_BOUND_EXPANDED("Expanded bound #%s toward %s", 2),
+		INTERIOR_BOUND_SHRUNK("Shrunk bound #%s toward %s", 2),
+		INTERIOR_BOUND_TOO_SMALL("Cannot shrink bound #%s further", 1, ChatFormatting.RED),
+		INTERIOR_ROOM_A("Selected room A: bound #%s", 1),
+		INTERIOR_ROOM_B("Selected room B: bound #%s", 1),
+		INTERIOR_ROOM_EXIT("Selected room B: exit (outside every bound)", 0),
+		INTERIOR_FIRST_BOUND("Right-click inside a bound first", 0, ChatFormatting.RED),
+		INTERIOR_SAME_BOUND("Select two different bounds", 0, ChatFormatting.RED),
+		INTERIOR_DUAL_EXIT("Dual waypoint needs two bounds; use waypoint mode for an exit", 0, ChatFormatting.RED),
+		INTERIOR_WAYPOINT_A("First waypoint at %s; right-click the second", 1),
+		INTERIOR_NODE_ADDED("Added node #%s between room %s and %s", 3),
+		INTERIOR_NODE_DELETED("Deleted node #%s", 1),
+		INTERIOR_NO_NODE("No waypoint at this position", 0, ChatFormatting.RED),
+		INTERIOR_EXPORT_HEADER("Interior of %s: %s rooms, %s nodes (template-local)", 3),
+		INTERIOR_EXPORT_NO_BLOCK("Structure block missing or unloaded; assuming no rotation", 0, ChatFormatting.GOLD),
+		INTERIOR_EXPORT_OK("Wrote interior JSON to %s", 1, ChatFormatting.GREEN),
+		INTERIOR_EXPORT_FAILED("Could not write interior JSON: %s", 1, ChatFormatting.RED),
+		INTERIOR_COUNTS("%s rooms, %s nodes recorded", 2, ChatFormatting.DARK_AQUA),
+		INTERIOR_USE_HINT("Right-click a block inside a structure bound to record its origin", 0, ChatFormatting.GRAY),
+		INTERIOR_BOUND_HINT("Bound: right-click two corners; left-click a bound to delete", 0, ChatFormatting.GRAY),
+		INTERIOR_EDIT_HINT("Bound edit: right-click to select/expand, left-click to shrink", 0, ChatFormatting.GRAY),
+		INTERIOR_WAYPOINT_HINT("Waypoint: right-click two bounds, then a block off the face", 0, ChatFormatting.GRAY),
+		INTERIOR_DUAL_HINT("Dual waypoint: two bounds, then two blocks off faces", 0, ChatFormatting.GRAY),
+		INTERIOR_EXPORT_HINT("Export: right-click to write out/interior/<name>.json", 0, ChatFormatting.GRAY),
+		INTERIOR_AIR_HINT("Right-click air to preview the JSON; shift-right-click to clear", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -488,7 +611,7 @@ public final class GLLang {
 		ItemDebug(String def, int argn, @Nullable ChatFormatting format) {
 			this.def = def;
 			this.argn = argn;
-			this.key = GensokyoLegacy.MODID + ".item." + name().toLowerCase(Locale.ROOT);
+			this.key = GensokyoLegacy.MODID + ".debug." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -586,7 +709,8 @@ public final class GLLang {
 		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY),
 		MINAMITSU_ANCHOR_LORE("Heavy enough to stop a ship, and it still comes back.", 0, ChatFormatting.GRAY),
 		NUE_TRIDENT_LORE("The one you throw is never the one you keep.", 0, ChatFormatting.GRAY),
-		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY);
+		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY),
+		GIFT_BOX_LORE("Whatever Morichika had spare, tied up with string.", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -879,7 +1003,8 @@ public final class GLLang {
 		QUEST("jei.gensokyolegacy.quest", "Quest Rewards"),
 		GIFT("jei.gensokyolegacy.gift", "Party Gifts"),
 		INTERACTION("jei.gensokyolegacy.interaction", "Entity Interaction"),
-		SHELF_OFFER("jei.gensokyolegacy.shelf_offer", "Morichika Shelf Offers");
+		SHELF_OFFER("jei.gensokyolegacy.shelf_offer", "Morichika Shelf Offers"),
+		TREASURE_TOWER("jei.gensokyolegacy.treasure_tower", "Treasure Tower");
 
 		private final String def;
 		private final int argn;
@@ -931,6 +1056,10 @@ public final class GLLang {
 		REWARD_EXP("%s experience", 1),
 		REWARD_REPUTATION("%s reputation", 1),
 		REWARD_LOOT("Loot table: %s", 1),
+		REWARD_ALL("All of the following rewards", 0),
+		REWARD_RANDOM("Any of the following rewards (loot table randomization)", 0),
+		REWARD_CHOICE("Any of the following rewards of your choice", 0),
+		REWARD_MIXED("Complex drop with mixed rule", 0),
 		GIFT_BAND("< %s", 1),
 		GIFT_BAND_TOP("%s+", 1),
 		GIFT_CHANCE("Chance: %s%%", 1),
@@ -941,7 +1070,9 @@ public final class GLLang {
 		FEED_NOTE("Right-click her with it; the thank-you only lands once she no longer counts you an enemy, and feeding on its own caps at %s reputation", 1),
 		SHELF_PRICE("Price: %s", 1),
 		SHELF_STOCK("Stock: %s", 1),
-		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0);
+		SHELF_NOTE("Morichika restocks shelves at random; the shelf rolls the price and stock each time", 0),
+		TREASURE_TOWER_TAG("Stone tag: #%s", 1),
+		TREASURE_TOWER_NOTE("The gem is spent; the tower flies out and returns to the hand", 0);
 
 		private final String def;
 		private final int argn;
@@ -1318,9 +1449,55 @@ public final class GLLang {
 		}
 	}
 
+	public enum ItemTreasureTower implements LangEntry {
+		NEED_POWER("The tower needs at least %s spiritual power", 1, ChatFormatting.RED),
+		TOOLTIP("Right-click at stone to send the tower out; it turns the stone and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemTreasureTower(String def) {
+			this(def, 0, null);
+		}
+
+		ItemTreasureTower(String def, int argn) {
+			this(def, argn, null);
+		}
+
+		ItemTreasureTower(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".treasure_tower." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
 	public enum ItemUfo implements LangEntry {
 		CONTAINS("Contains %s", 1),
-		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY);
+		HOLD("Hold right-click for two seconds to take it back", 0, ChatFormatting.GRAY),
+		OPEN("Hold right-click for two seconds to open", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1339,6 +1516,42 @@ public final class GLLang {
 			this.def = def;
 			this.argn = argn;
 			this.key = GensokyoLegacy.MODID + ".ufo." + name().toLowerCase(Locale.ROOT);
+			this.format = format;
+		}
+
+		@Override
+		public String key() {
+			return key;
+		}
+
+		@Override
+		public String def() {
+			return def;
+		}
+
+		@Override
+		public int argn() {
+			return argn;
+		}
+
+		@Override
+		public @Nullable ChatFormatting format() {
+			return format;
+		}
+	}
+
+	public enum ItemGiftBox implements LangEntry {
+		OPEN("Hold right-click for half a second to open", 0, ChatFormatting.GRAY);
+
+		private final String def;
+		private final int argn;
+		private final String key;
+		private final @Nullable ChatFormatting format;
+
+		ItemGiftBox(String def, int argn, @Nullable ChatFormatting format) {
+			this.def = def;
+			this.argn = argn;
+			this.key = GensokyoLegacy.MODID + ".gift_box." + name().toLowerCase(Locale.ROOT);
 			this.format = format;
 		}
 
@@ -1498,11 +1711,11 @@ public final class GLLang {
 
 	public static void genLang(RegistrateLangProvider pvd) {
 		for (var group : new LangEntry[][]{
-				Quest.values(), Info.values(), Trade.values(), Misc.values(), Biome.values(),
+				Quest.values(), MissingTower.values(), Info.values(), Trade.values(), Misc.values(), Biome.values(),
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
-				ItemAnchor.values(), ItemUfo.values(),
+				ItemAnchor.values(), ItemUfo.values(), ItemTreasureTower.values(), ItemGiftBox.values(),
 				Jizo.values(), Gravestone.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());

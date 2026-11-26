@@ -13,6 +13,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.move.YoukaiNodeEvaluatorR
 import dev.xkmc.gensokyolegacy.content.entity.misc.FairyIce;
 import dev.xkmc.gensokyolegacy.content.entity.misc.FrozenFrog;
 import dev.xkmc.gensokyolegacy.content.entity.misc.HexBrewBottleEntity;
+import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.anchor.AnchorSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveSelectionListener;
 import dev.xkmc.gensokyolegacy.content.item.ghost.YuyukoFanSelectionListener;
@@ -28,6 +30,7 @@ import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLBiomeModifierGen;
 import dev.xkmc.gensokyolegacy.init.data.biome.GLOverworldRegion;
 import dev.xkmc.gensokyolegacy.init.data.loot.GLGLMProvider;
+import dev.xkmc.gensokyolegacy.init.data.loot.GiftBoxLootGen;
 import dev.xkmc.gensokyolegacy.init.data.loot.GiftLootGen;
 import dev.xkmc.gensokyolegacy.init.data.rpg.*;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
@@ -125,6 +128,7 @@ public class GensokyoLegacy {
 			DollGloveSelectionListener.register();
 			DaggerGloveSelectionListener.register();
 			YuyukoFanSelectionListener.register();
+			InteriorWandSelectionListener.register();
 			AnchorSelectionListener.register();
 			CooldownRates.register(new LivelySource());
 
@@ -158,6 +162,7 @@ public class GensokyoLegacy {
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE, GLRecipeGen::genRecipe);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GLStructureLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftLootGen::genLoot);
+		REGISTRATE.addDataGenerator(ProviderType.LOOT, GiftBoxLootGen::genLoot);
 		REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, GLAdvGen::genAdv);
 		REGISTRATE.addDataGenerator(ProviderType.LANG, GLLang::genLang);
 		var gen = event.getGenerator();
@@ -180,11 +185,12 @@ public class GensokyoLegacy {
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
 		var minamitsu = new MinamitsuQDGen();
+		var nazrin = new NazrinQDGen();
 		var gift = new GiftQDGen();
 		QuestDialogData.build(init,
-				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift);
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, nazrin, gift);
 		gen.addProvider(event.includeServer(), new GLConfigGen(gen,
-				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift));
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, nazrin, gift));
 
 		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
 		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, event.getLookupProvider()));

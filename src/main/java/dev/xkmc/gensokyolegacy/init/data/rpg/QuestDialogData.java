@@ -53,7 +53,10 @@ public class QuestDialogData {
 	 * the list empty so a random talk clip is picked at play time (see {@code GeoYoukaiAnim}).
 	 */
 	protected static final List<String> THINK_ANIMS = List.of(YoukaiAnim.THINK.trigger());
+	protected static final List<String> THINK_ANIMS_ALL = List.of(YoukaiAnim.THINK.trigger(),
+			YoukaiAnim.THINK_02.trigger());
 	protected static final List<String> AGREE_ANIMS = List.of(YoukaiAnim.AGREE.trigger());
+	protected static final List<String> TALK_ANIMS = YoukaiAnim.TALKS.stream().map(YoukaiAnim::trigger).toList();
 
 	private final Map<ResourceKey<Dialog>, DataGenHolder<Dialog>> dialogRegistry = new LinkedHashMap<>();
 	private final Map<ResourceKey<DialogStarter>, DataGenHolder<DialogStarter>> starterRegistry = new LinkedHashMap<>();
@@ -61,7 +64,7 @@ public class QuestDialogData {
 	private final Map<ResourceKey<TradeOffer>, DataGenHolder<TradeOffer>> tradeRegistry = new LinkedHashMap<>();
 	private final Map<EntityType<?>, DialogConfig> defaultDialogMap = new LinkedHashMap<>();
 	private final Map<EntityType<?>, GiftDialogData> giftDialogMap = new LinkedHashMap<>();
-	private final Map<String, List<String>> questAnims = new LinkedHashMap<>();
+	private final Map<String, List<List<String>>> questAnims = new LinkedHashMap<>();
 
 	private String prefix = "";
 
@@ -110,12 +113,19 @@ public class QuestDialogData {
 	 * <p>
 	 * {@code start("dialog_think", "dialog_decline", "dialog_agree")} reads the {@code start} helper's
 	 * three dialogs in the order it emits them — opener, refusal, acceptance — and {@code follow} and
-	 * {@code complete} likewise. A helper with no entry here keeps its default, which is why the
-	 * per-dialog choices below do not have to restate the ones that were already right.
+	 * {@code complete} likewise. A slot may also be a {@code List<String>} to play several clips in
+	 * turn. A helper with no entry here keeps its default, which is why the per-dialog choices below do
+	 * not have to restate the ones that were already right.
 	 */
-	protected void questAnims(String helper, String... triggers) {
-		// List.of rejects nulls, and a null slot is how a section says "leave this one alone"
-		questAnims.put(prefix + "/" + helper, Arrays.asList(triggers));
+	protected void questAnims(String helper, Object... slots) {
+		// A null slot is how a section says "leave this one alone"; a list says play several in turn
+		questAnims.put(prefix + "/" + helper, Arrays.stream(slots).map(QuestDialogData::animsOf).toList());
+	}
+
+	private static List<String> animsOf(Object slot) {
+		if (slot == null) return null;
+		if (slot instanceof List<?> list) return list.stream().map(String.class::cast).toList();
+		return List.of((String) slot);
 	}
 
 	/**
@@ -124,9 +134,9 @@ public class QuestDialogData {
 	 * a section can fill in only the slots it cares about.
 	 */
 	protected List<String> anims(String helper, int slot, List<String> fallback) {
-		var triggers = questAnims.get(prefix + "/" + helper);
-		if (triggers == null || slot >= triggers.size() || triggers.get(slot) == null) return fallback;
-		return List.of(triggers.get(slot));
+		var slots = questAnims.get(prefix + "/" + helper);
+		if (slots == null || slot >= slots.size() || slots.get(slot) == null) return fallback;
+		return slots.get(slot);
 	}
 
 	public String starterText(String id, String text) {

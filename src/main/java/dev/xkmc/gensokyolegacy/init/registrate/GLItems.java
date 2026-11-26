@@ -26,6 +26,11 @@ import dev.xkmc.gensokyolegacy.content.item.dagger.DaggerGloveModel;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugGlasses;
 import dev.xkmc.gensokyolegacy.content.item.debug.DebugWand;
 import dev.xkmc.gensokyolegacy.content.item.debug.DoorDebugItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandData;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandItem;
+import dev.xkmc.gensokyolegacy.content.item.debug.InteriorWandMode;
+import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorData;
+import dev.xkmc.gensokyolegacy.content.item.debug.StructureMirrorStick;
 import dev.xkmc.gensokyolegacy.content.item.debug.StructureWand;
 import dev.xkmc.gensokyolegacy.content.item.doll.*;
 import dev.xkmc.gensokyolegacy.content.item.ghost.BoneFluteItem;
@@ -47,6 +52,7 @@ import dev.xkmc.gensokyolegacy.content.item.nue.NueTridentItem;
 import dev.xkmc.gensokyolegacy.content.item.nue.UfoItem;
 import dev.xkmc.gensokyolegacy.content.item.talisman.core.GLTalismans;
 import dev.xkmc.gensokyolegacy.content.item.tool.*;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTower;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.BorderUmbrellaItem;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaMode;
 import dev.xkmc.gensokyolegacy.content.item.umbrella.data.BorderUmbrellaSlots;
@@ -104,9 +110,9 @@ public class GLItems {
 	public static final ItemEntry<Hakkero> MINI_HAKKERO;
 	public static final ItemEntry<CentiPickaxe> CENTIPICKAXE;
 	public static final ItemEntry<Dowser> DOWSER;
-	public static final ItemEntry<Item> DOWSER_LEFT, DOWSER_RIGHT;
 	public static final ItemEntry<MermaidPearl> MERMAID_PEARL;
 	public static final ItemEntry<CatBell> CAT_BELL;
+	public static final ItemEntry<TreasureTower> TREASURE_TOWER;
 	public static final ItemEntry<IronDaggerItem> IRON_DAGGER;
 	public static final ItemEntry<DaggerGloveItem> DAGGER_GLOVE;
 
@@ -114,7 +120,10 @@ public class GLItems {
 	public static final ItemEntry<DanmakuItem> ANCHOR_WET;
 	public static final ItemEntry<DropletDanmakuItem> DROPLET;
 	public static final ItemEntry<NueTridentItem> NUE_TRIDENT;
-	public static final ItemEntry<UfoItem> UFO;
+	public static final ItemEntry<UfoItem> BLUE_UFO, RED_UFO, GREEN_UFO;
+	public static final ItemEntry<GiftBoxItem> GIFT_BOX;
+
+	public static final ResourceLocation GIFT_BOX_LOOT = GensokyoLegacy.loc("gift_box");
 
 	public static final ItemEntry<DrinkGiftItem> TENGU_SAKE, GHOST_SAKE, LUCKY_TEA, ZUN_BEER, GOLDEN_LOTUS_TEA;
 	public static final ItemEntry<GourdItem> IBUKI_GOURD;
@@ -126,6 +135,8 @@ public class GLItems {
 	public static final ItemEntry<DebugGlasses> DEBUG_GLASSES;
 	public static final ItemEntry<DebugWand> DEBUG_WAND;
 	public static final ItemEntry<StructureWand> STRUCTURE_WAND;
+	public static final ItemEntry<StructureMirrorStick> STRUCTURE_MIRROR_STICK;
+	public static final ItemEntry<InteriorWandItem> INTERIOR_WAND;
 	public static final ItemEntry<DoorDebugItem> DOOR_DEBUG_WAND;
 	public static final ItemEntry<PartyWand> PARTY_WAND;
 
@@ -189,8 +200,15 @@ public class GLItems {
 	public static final DCVal<AnchorMode> ANCHOR_MODE =
 			DC.enumVal("anchor_mode", EnumCodec.of(AnchorMode.class, AnchorMode.values()));
 	public static final DCVal<UUID> ANCHOR_LINK = DC.uuid("anchor_link");
+	public static final DCVal<DowserHalf> DOWSER_HALF =
+			DC.enumVal("dowser_half", EnumCodec.of(DowserHalf.class, DowserHalf.values()));
 	public static final DCVal<DCStack> UFO_CONTENT = DC.stack("ufo_content");
+	public static final DCVal<ResourceLocation> UFO_LOOT = DC.loc("ufo_loot");
 	public static final DCVal<PartyWandData> PARTY_WAND_DATA = DC.reg("party_wand", PartyWandData.CODEC, false);
+	public static final DCVal<StructureMirrorData> STRUCTURE_MIRROR = DC.reg("structure_mirror", StructureMirrorData.CODEC, false);
+	public static final DCVal<InteriorWandData> INTERIOR_WAND_DATA = DC.reg("interior_wand", InteriorWandData.CODEC, false);
+	public static final DCVal<InteriorWandMode> INTERIOR_WAND_MODE =
+			DC.enumVal("interior_wand_mode", EnumCodec.of(InteriorWandMode.class, InteriorWandMode.values()));
 
 
 	static {
@@ -357,7 +375,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Tengu Sake").register();
 
 			// amplifiers are 0-based, so strength III is 2 and resistance I is 0
@@ -367,7 +385,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Ghost Sake").register();
 
 			// Suika's gourd: the ghost sake poured into something with no bottom. Same drink and effects, and
@@ -404,7 +422,7 @@ public class GLItems {
 
 					
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Obscure Magic Book").register();
 
 			// Reimu's own lucky tea: the only DRINK gift, so a character who spurns spirits can still
@@ -430,7 +448,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Zun Beer").register();
 
 			// The two food gifts are actual meals, so they carry nutrition and the player can eat them
@@ -441,7 +459,7 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Magic Candy").register();
 
 			KAPPA_BENTO = reg.item("kappa_bento", p -> new Item(p
@@ -465,8 +483,13 @@ public class GLItems {
 					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
 
 					.tag(GLTagGen.MORICHIKA_OFFERS)
-
+					.tag(GLTagGen.MORICHIKA_GIFTS)
 					.lang("Fancy Fan").register();
+
+			// the box rolls its loot table on opening; a zero seed means a fresh roll each time
+			GIFT_BOX = reg.item("gift_box", p -> new GiftBoxItem(p.stacksTo(16).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/gift/" + ctx.getName())))
+					.lang("Gift Box").register();
 		}
 
 		// tools
@@ -492,22 +515,21 @@ public class GLItems {
 					.lang("Centipeck").register();
 
 			DOWSER = reg.item("dowser", Dowser::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.model((ctx, pvd) -> {
+						var base = pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName()));
+						// both halves are the same item: the component picks the model, emitted ascending for the bake
+						for (var half : DowserHalf.values()) {
+							String name = half.name().toLowerCase(Locale.ROOT);
+							base.override()
+									.predicate(GensokyoLegacy.loc("dowser_half"), half.ordinal() + 1)
+									.model(pvd.withExistingParent("item/" + ctx.getName() + "_" + name, "item/handheld")
+											.texture("layer0", pvd.modLoc("item/tool/" + ctx.getName() + "_" + name)))
+									.end();
+						}
+					})
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 
 					.lang("Nazrin's Dowser").register();
-
-			DOWSER_LEFT = reg.item("dowser_left", Item::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.removeTab(TAB.key())
-					.tag(GLTagGen.WEBSITE_HIDDEN)
-					.lang("Nazrin's Dowser (Left Half)").register();
-
-			DOWSER_RIGHT = reg.item("dowser_right", Item::new)
-					.model((ctx, pvd) -> pvd.handheld(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.removeTab(TAB.key())
-					.tag(GLTagGen.WEBSITE_HIDDEN)
-					.lang("Nazrin's Dowser (Right Half)").register();
 
 			MERMAID_PEARL = reg.item("mermaid_pearl", MermaidPearl::new)
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
@@ -520,6 +542,13 @@ public class GLItems {
 					.tag(GLTagGen.MORICHIKA_OFFERS)
 
 					.lang("Cat Bell").register();
+
+			TREASURE_TOWER = reg.item("treasure_tower", TreasureTower::new)
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Treasure Tower")
+					.tab(TAB.key())
+					.tag(L2ISTagGen.SELECTABLE, GLTagGen.SPIRITUAL_TOOLS)
+					.register();
 
 			BORDER_UMBRELLA = reg.item("border_umbrella", BorderUmbrellaItem::new)
 					.model((ctx, pvd) -> {
@@ -774,9 +803,21 @@ public class GLItems {
 					.lang("Nue's Trident").tab(TAB.key())
 					.register();
 
-			UFO = reg.item("ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+			// the three colours are cosmetic: one wrapper class, one set of components, one tooltip
+			BLUE_UFO = reg.item("blue_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
-					.lang("UFO").tab(TAB.key())
+					.lang("Blue UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
+					.register();
+			RED_UFO = reg.item("red_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Red UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
+					.register();
+			GREEN_UFO = reg.item("green_ufo", p -> new UfoItem(p.stacksTo(1).rarity(Rarity.UNCOMMON)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/tool/" + ctx.getName())))
+					.lang("Green UFO").tab(TAB.key())
+					.tag(GLTagGen.UFO)
 					.register();
 
 			STRANGE_GLASSES = reg.item("strange_glasses", p -> new StrangeGlassesItem(p.rarity(Rarity.UNCOMMON)))
@@ -838,6 +879,17 @@ public class GLItems {
 			STRUCTURE_WAND = reg.item("structure_wand", p -> new StructureWand(p.stacksTo(1)))
 					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/" + ctx.getName())))
 					.tag(GLTagGen.DEBUG_ITEMS)
+					.defaultLang().register();
+
+			STRUCTURE_MIRROR_STICK = reg.item("structure_mirror_stick", p -> new StructureMirrorStick(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
+					.defaultLang().register();
+
+			INTERIOR_WAND = reg.item("interior_wand", p -> new InteriorWandItem(p.stacksTo(1)))
+					.model((ctx, pvd) -> pvd.generated(ctx, pvd.modLoc("item/debug/debug_wand")))
+					.tag(GLTagGen.DEBUG_ITEMS)
+					.tag(L2ISTagGen.SELECTABLE)
 					.defaultLang().register();
 
 			DOOR_DEBUG_WAND = reg.item("door_debug_wand", p -> new DoorDebugItem(p.stacksTo(1)))

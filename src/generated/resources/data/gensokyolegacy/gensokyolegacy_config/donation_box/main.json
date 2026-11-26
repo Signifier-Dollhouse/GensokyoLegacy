@@ -1,0 +1,44 @@
+{
+  "values": {
+    "gensokyolegacy:donation_box": {
+      "effects": [
+        {
+          "effect": "gensokyolegacy:looting",
+          "level": 1,
+          "weight": 1
+        },
+        {
+          "effect": "gensokyolegacy:spiritual",
+          "level": 1,
+          "weight": 1
+        },
+        {
+          "effect": "minecraft:resistance",
+          "level": 1,
+          "weight": 1
+        }
+      ],
+      "structure": "gensokyolegacy:hakurei_shrine"
+    },
+    "gensokyolegacy:myouren_donation_box": {
+      "effects": [
+        {
+          "effect": "gensokyolegacy:spiritual",
+          "level": 1,
+          "weight": 1
+        },
+        {
+          "effect": "gensokyolegacy:lively",
+          "level": 1,
+          "weight": 1
+        },
+        {
+          "effect": "minecraft:speed",
+          "level": 2,
+          "weight": 1
+        }
+      ],
+      "structure": "gensokyolegacy:myouren_temple"
+    }
+  }
+}

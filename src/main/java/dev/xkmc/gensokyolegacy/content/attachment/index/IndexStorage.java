@@ -5,10 +5,16 @@ import dev.xkmc.gensokyolegacy.compat.l2lib.BaseSavedData;
 import dev.xkmc.l2serial.serialization.codec.TagCodec;
 import dev.xkmc.l2serial.serialization.SerialClass;
 import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @SerialClass
 public class IndexStorage extends BaseSavedData<IndexStorage> {
@@ -29,6 +35,9 @@ public class IndexStorage extends BaseSavedData<IndexStorage> {
 	@SerialField
 	private final LinkedHashMap<StructureKey, StructureRefData> structureData = new LinkedHashMap<>();
 
+	@SerialField
+	private final LinkedHashMap<UUID, MissingTowerState> missingTowers = new LinkedHashMap<>();
+
 	public IndexStorage() {
 		super(IndexStorage.class);
 	}
@@ -39,6 +48,30 @@ public class IndexStorage extends BaseSavedData<IndexStorage> {
 
 	public void remove(StructureKey key) {
 		structureData.remove(key);
+	}
+
+	public Map<UUID, MissingTowerState> towers() {
+		return Collections.unmodifiableMap(missingTowers);
+	}
+
+	@Nullable
+	public MissingTowerState getTower(UUID id) {
+		return missingTowers.get(id);
+	}
+
+	/**
+	 * Rolls a tower for this player, or returns the existing one unchanged.
+	 */
+	public MissingTowerState createTower(UUID id, ResourceLocation quest, ServerLevel level, BlockPos origin) {
+		return missingTowers.computeIfAbsent(id, k -> MissingTowerManager.create(quest, level, origin));
+	}
+
+	public void putTower(UUID id, MissingTowerState state) {
+		missingTowers.put(id, state);
+	}
+
+	public void removeTower(UUID id) {
+		missingTowers.remove(id);
 	}
 
 }

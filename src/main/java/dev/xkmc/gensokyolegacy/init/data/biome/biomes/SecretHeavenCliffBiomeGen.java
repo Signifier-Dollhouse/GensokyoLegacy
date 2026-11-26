@@ -18,14 +18,14 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import java.util.List;
 
 /**
- * The dry half of the settlement's band, which {@code doc/design/gensokyolegacy_fixed_biomes_guide.md} does not name.
+ * The dry half of the settlement's band, which {@code doc/design/biome/gensokyo_biomes.md} does not name.
  * <p>
  * It is the only one of the fixed locations that humidity picks at all: continentalness still fixes its height, and
  * humidity alone splits it from the settlement beside it. It is a cliff ledge rather than a second town. The stone is
  * carried by the surface rule's steep test in the dimension rather than by a palette here, and precipitation stays on,
  * which is what keeps it off the snow line.
  *
- * @see "doc/design/gensokyo_biomes.md" §7
+ * @see "doc/design/biome/gensokyo_biomes.md" §7
  */
 public class SecretHeavenCliffBiomeGen extends AbstractBiomeGen {
 

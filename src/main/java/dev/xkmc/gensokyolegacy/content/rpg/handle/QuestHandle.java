@@ -36,7 +36,7 @@ public record QuestHandle(Holder<Quest> quest, DialogOption<?> dialog, Kind kind
 
 	@Override
 	public void open(ServerPlayer sp, YoukaiEntity character) {
-		var result = dialog.resolve(sp.getRandom());
+		var result = dialog.resolve(sp, character, sp.getRandom());
 		if (result == null) return;
 		// The topic option is a conversation step like any other, so its actions run on click - a
 		// quest may start here rather than from an option inside the first dialog.

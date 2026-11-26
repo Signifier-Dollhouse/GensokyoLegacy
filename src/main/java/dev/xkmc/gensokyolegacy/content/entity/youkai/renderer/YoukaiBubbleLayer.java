@@ -38,7 +38,7 @@ import org.joml.Vector3f;
  * camera at the player looking at her - {@code +x} right, {@code +y} down, {@code +z} away from the player, one
  * unit to a sheet pixel.
  *
- * @see "doc/design/want_bubble.md"
+ * @see "doc/design/youkai/want_bubble.md"
  */
 public class YoukaiBubbleLayer<T extends YoukaiEntity & GeoYoukaiAnim> extends GeoRenderLayer<T> {
 

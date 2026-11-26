@@ -17,13 +17,13 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold dry cell of the mountain band in {@code doc/design/gensokyo_dimension_biome_guide.md}: the sanctuary,
+ * The cold dry cell of the mountain band in {@code doc/design/biome/gensokyo_biomes.md}: the sanctuary,
  * a cherry grove in forest ground.
  * <p>
  * Forest rather than meadow: the mountain's own grove wants birch and oak under it and the hill's open flower meadow
  * beside it, and the cherry tail lands on a canopy instead of on bare grass.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class SanctuaryBiomeGen extends AbstractBiomeGen {
 

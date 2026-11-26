@@ -2,13 +2,14 @@
   "name": "Yuyuko's Fan",
   "icon": "gensokyolegacy:yuyuko_fan",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_yuyuko_fan",
   "sortnum": 11,
   "pages": [
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:yuyuko_fan",
-      "title": "A Fan Full of Ghosts",
-      "text": "Yuyuko's fan stores the spiritual power of ghosts in one pool, and spends it on the ghosts that follow you or on a fan of butterfly danmaku. Hold the selection key to open its mode wheel (X by default), then right-click to use the chosen mode."
+      "title": "Yuyuko's Fan",
+      "text": "Yuyuko's fan stores the spiritual power it draws from ghosts, and spends it to command ghosts or to fire butterfly danmaku."
     },
     {
       "type": "patchouli:text",
@@ -16,7 +17,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)The power pool$()$(br)Right-click a ghost to absorb its spiritual power. This works in every mode.$(br2)$(bold)A full fan$()$(br)Absorbing an owned ghost with a full fan releases it instead.$(br2)A Jizo will trade one experience level for spiritual power stored in the fan."
+      "text": "$(bold)The power pool$()$(br)Right-click a ghost to absorb its spiritual power; this works in every mode.$(br2)$(bold)A full fan$()$(br)When the fan is full, any extra power dissipates and the ghost is released instead.$(br2)A Jizo will trade one experience level for spiritual power stored in the fan."
     },
     {
       "type": "patchouli:text",

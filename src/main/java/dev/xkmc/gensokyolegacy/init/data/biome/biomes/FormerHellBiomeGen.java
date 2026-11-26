@@ -19,12 +19,12 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 /**
- * The cold humid cell of the underground in {@code doc/design/gensokyo_dimension_biome_guide.md}: former hell, a
+ * The cold humid cell of the underground in {@code doc/design/biome/gensokyo_biomes.md}: former hell, a
  * crimson-forest ruin with standing water in the flooded hall.
  * <p>
  * Crimson forest: roots and weeping vines growing back through a ruin is the whole idea of the place.
  *
- * @see "doc/design/gensokyo_biomes.md" §2.3
+ * @see "doc/design/biome/gensokyo_biomes.md" §2.3
  */
 public class FormerHellBiomeGen extends AbstractBiomeGen {
 

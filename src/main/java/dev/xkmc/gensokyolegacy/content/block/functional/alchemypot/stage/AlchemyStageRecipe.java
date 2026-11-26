@@ -16,7 +16,7 @@ import java.util.List;
  * Visual-only intermediate: matches the pot contents, tints the fluid and says which items it
  * would consume, but produces nothing itself.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 @SerialClass
 public abstract class AlchemyStageRecipe<T extends AlchemyStageRecipe<T>> extends BaseRecipe<T, AlchemyStageRecipe<?>, AlchemyInv> {

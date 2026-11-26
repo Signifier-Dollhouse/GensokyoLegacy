@@ -27,16 +27,16 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import java.util.List;
 
 /**
- * The cold humid cell of the lower ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: podzol underfoot, a
+ * The cold humid cell of the lower ground in {@code doc/design/biome/gensokyo_biomes.md}: podzol underfoot, a
  * stone marker now and then, lilies of the valley gone to seed.
  * <p>
  * The soil disk runs in the ore step, which is what puts the podzol under the grass rather than on top of it.
  * <p>
  * A burial grove: the locust is half of what grows here, because it is the one tree that grows back over a grave,
- * the purple cherry is the guide's purple-blossomed tree, and the oak and birch that grew here before it make up
+ * the purple cherry is the plan's purple-blossomed tree, and the oak and birch that grew here before it make up
  * the rest. It is thin enough at four a chunk that the ground still reads as a graveyard rather than as a wood.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class MuenzukaBiomeGen extends AbstractBiomeGen {
 

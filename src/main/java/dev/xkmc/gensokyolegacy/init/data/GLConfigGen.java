@@ -1,15 +1,22 @@
 package dev.xkmc.gensokyolegacy.init.data;
 
 import dev.xkmc.gensokyolegacy.compat.l2lib.datamap.DataMapConfigs;
+import dev.xkmc.gensokyolegacy.content.block.deco.donation.DonationBoxData;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.rpg.QuestDialogData;
 import dev.xkmc.gensokyolegacy.init.data.structure.GLStructureGen;
 import dev.xkmc.gensokyolegacy.init.registrate.GLEntities;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItemDataMaps;
 import dev.xkmc.gensokyolegacy.init.registrate.GLMeta;
+import dev.xkmc.gensokyolegacy.init.registrate.GLEffects;
+import dev.xkmc.gensokyolegacy.init.registrate.block.GLFurniture;
 import dev.xkmc.l2library.serial.config.ConfigDataProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+
+import java.util.List;
 
 /**
  * Emits the 1.20.1 data maps as l2library configs. The file layout is
@@ -57,6 +64,24 @@ public class GLConfigGen extends ConfigDataProvider {
 		});
 		collector.add(GLMeta.GIFT_DATA.entry(), GensokyoLegacy.loc("main"), giftItems);
 		collector.add(GLMeta.MORICHIKA_OFFER.entry(), GensokyoLegacy.loc("main"), offers);
+
+		var donation = new DataMapConfigs.DonationBoxes();
+		donation.values.put(BuiltInRegistries.BLOCK.getKey(GLFurniture.DONATION_BOX.get()),
+				new DonationBoxData(GLStructureGen.HAKUREI_SHRINE, List.of(
+						effect(GLEffects.LOOTING.get(), 1),
+						effect(GLEffects.SPIRITUAL.get(), 1),
+						effect(MobEffects.DAMAGE_RESISTANCE, 1))));
+		donation.values.put(BuiltInRegistries.BLOCK.getKey(GLFurniture.MYOUREN_DONATION_BOX.get()),
+				new DonationBoxData(GLStructureGen.MYOUREN_TEMPLE, List.of(
+						effect(GLEffects.SPIRITUAL.get(), 1),
+						effect(GLEffects.LIVELY.get(), 1),
+						effect(MobEffects.MOVEMENT_SPEED, 2))));
+		collector.add(GLMeta.DONATION_DATA.entry(), GensokyoLegacy.loc("main"), donation);
 	}
+
+	private static DonationBoxData.DonationEffect effect(MobEffect effect, int level) {
+		return new DonationBoxData.DonationEffect(effect, level, 1);
+	}
+
 
 }

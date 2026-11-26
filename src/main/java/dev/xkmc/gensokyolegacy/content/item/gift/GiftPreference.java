@@ -16,7 +16,7 @@ import java.util.TreeMap;
  * {@code GLEntities}. An entity type named in several entries would not merge, so a character with
  * tastes of her own (Cirno) states both in a single entry.
  *
- * @see "doc/design/gift.md"
+ * @see "doc/design/structure/gift.md"
  */
 public record GiftPreference(LinkedHashMap<GiftType, Double> preference, LinkedHashMap<Item, Double> override) {
 

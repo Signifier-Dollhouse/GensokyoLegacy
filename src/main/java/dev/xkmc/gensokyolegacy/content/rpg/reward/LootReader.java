@@ -22,8 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * What a loot table can drop, read off the table rather than rolled, so a constant count is exact, not merely
- * observed. Conditions go entirely: every branch counts, the point of a page describing what <i>can</i> come out.
+ * What a quest's loot tables can drop, read off the tables rather than rolled, so a constant count is exact, not
+ * merely observed. Conditions go entirely: every branch counts, the point of a page describing what <i>can</i> come
+ * out. The pools also say whether the items come together or a roll picks one, which is the quest's reward rule.
+ *
+ * @see "doc/design/quest/rewards.md"
  */
 public class LootReader {
 
@@ -31,17 +34,26 @@ public class LootReader {
 	}
 
 	/**
-	 * Every loot table a quest reward names, read. Only those: this is all a client is told, and
-	 * a page for a quest is the only thing that needs them.
+	 * Every item a quest hands out through loot, read. Only those: this is all a client is told,
+	 * and a page for a quest is the only thing that needs them.
 	 */
-	public static LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> questRewards(MinecraftServer server) {
+	public static LinkedHashMap<ResourceLocation, QuestLoot> questRewards(MinecraftServer server) {
 		var registries = server.getLootData();
-		Set<ResourceLocation> tables = new LinkedHashSet<>();
-		for (var quest : CodecRegistry.QUEST.getAll(server.registryAccess()).toList())
+		LinkedHashMap<ResourceLocation, QuestLoot> ans = new LinkedHashMap<>();
+		for (var quest : CodecRegistry.QUEST.getAll(server.registryAccess()).toList()) {
+			var key = quest.unwrapKey().orElse(null);
+			if (key == null) continue;
+			List<RewardRule> rules = new ArrayList<>();
+			ArrayList<LootDrop> drops = new ArrayList<>();
 			for (QuestReward<?> reward : quest.value().rewards())
-				if (reward instanceof LootTableReward loot) tables.add(loot.table());
-		LinkedHashMap<ResourceLocation, ArrayList<LootDrop>> ans = new LinkedHashMap<>();
-		for (var table : tables) ans.put(table, of(table, registries));
+				if (reward instanceof LootTableReward loot) {
+					var table = of(loot.table(), registries);
+					rules.add(table.rule());
+					drops.addAll(table.drops());
+				}
+			if (!rules.isEmpty())
+				ans.put(key.location(), new QuestLoot(RewardRule.combine(rules), drops));
+		}
 		return ans;
 	}
 
@@ -49,12 +61,26 @@ public class LootReader {
 	 * Everything the table {@code id} names can drop, one entry per item, its count folded in
 	 * from however many pools, rolls and functions ask for it.
 	 */
-	public static ArrayList<LootDrop> of(ResourceLocation id, LootDataResolver registries) {
+	private static TableLoot of(ResourceLocation id, LootDataResolver registries) {
 		var table = registries.getLootTable(id);
-		if (table == LootTable.EMPTY) return new ArrayList<>();
+		if (table == LootTable.EMPTY) return new TableLoot(RewardRule.MIXED, new ArrayList<>());
 		ArrayList<LootDrop> drops = new ArrayList<>();
 		for (LootPool pool : table.pools) readPool(pool, drops);
-		return drops;
+		return new TableLoot(rule(table), drops);
+	}
+
+	/**
+	 * Several pools of one entry each hand out all of their items; one pool of several entries
+	 * rolls for one of them. Anything else mixes the two.
+	 */
+	private static RewardRule rule(LootTable table) {
+		if (table.pools.isEmpty()) return RewardRule.MIXED;
+		if (table.pools.size() > 1) {
+			for (LootPool pool : table.pools)
+				if (pool.entries.length > 1) return RewardRule.MIXED;
+			return RewardRule.ALL;
+		}
+		return table.pools.get(0).entries.length > 1 ? RewardRule.RANDOM : RewardRule.ALL;
 	}
 
 	private static void readPool(LootPool pool, List<LootDrop> drops) {
@@ -150,6 +176,12 @@ public class LootReader {
 	 * a span of whole numbers, inclusive
 	 */
 	private record Range(int min, int max) {
+	}
+
+	/**
+	 * One table's drops and the rule its pools imply, before the quest's tables are combined.
+	 */
+	private record TableLoot(RewardRule rule, ArrayList<LootDrop> drops) {
 	}
 
 }

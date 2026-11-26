@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
  * Pays reputation for a quest, and optionally opens the relationship up further: {@code softCap} is the point
  * past which the gain counts half, {@code capIncrease} raises the cap towards {@code maxCap}, 0 disabling either.
  *
- * @see "doc/design/reputation.md"
+ * @see "doc/design/structure/reputation.md"
  */
 public record ReputationReward(
 		int reputation, int softCap, int capIncrease, int maxCap

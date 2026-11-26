@@ -36,7 +36,7 @@ import java.util.List;
  * places the loose stone through a placed feature of its own, because it lays its floor first and the shared one
  * sits in seven other biomes' tails.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class GensokyoBiomeFeatures {
 

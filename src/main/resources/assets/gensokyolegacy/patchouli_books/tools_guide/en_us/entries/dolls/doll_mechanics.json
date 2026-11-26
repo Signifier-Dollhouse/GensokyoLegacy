@@ -7,7 +7,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Your little army$(br2)A doll has 20 health and is bound to you. You can have up to 8 dolls active at once. They follow you, fight using the equipment in their loadouts, and heal their own allies when they are holding a talisman."
+      "text": "Your dolls$(br2)A doll has 20 health and is bound to you. You can have up to 8 dolls active at once. They follow you, fight with the equipment in their loadouts when ordered, and can heal their own allies while holding a talisman — but attacks and other orders still have to come from you."
     },
     {
       "type": "patchouli:text",

@@ -2,15 +2,20 @@
 
 How a gensokyo legacy structure reaches a start position, and why the placement values live in only one place.
 
-Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md).
+Related: [home_index.md](home_index.md), [structure_bed_entity.md](structure_bed_entity.md),
+[secondary.md](secondary.md), [fallback.md](fallback.md), [terrain_fit.md](terrain_fit.md).
 
 ## 1. The pair
 
 | Class | File | Role |
 |---|---|---|
 | `MultiSpreadPlacement` | `content/worldgen/structure/MultiSpreadPlacement.java` | `minecraft:random_spread` sibling registered as `gensokyolegacy:multi_spread`. Yields `attempts` uniform candidates per `spacing x spacing` region from one salted random (`getPotentialChunks`), and hooks `getPotentialStructureChunk` / `isPlacementChunk` so vanilla `/locate` and `ChunkGeneratorStructureState` drive off the attempt-0 candidate. `separation` is unused and never written. `salt()` is widened to public for the structure holding it. |
-| `FlatCheckStructure` | `content/worldgen/structure/FlatCheckStructure.java` | The structure itself. Decides, per candidate chunk, whether a start is placed: prefilter (sea/biome at the middle column) → margin safety against neighbouring regions → speculative jigsaw layout with biome/root-height/rigid/joint checks. Only the least-index passing candidate of a region survives. |
+| `FlatCheckStructure` | `content/worldgen/structure/FlatCheckStructure.java` | The structure itself. Decides, per candidate chunk, whether a start is placed: prefilter (sea/biome at the middle column) → margin safety against neighbouring regions → speculative jigsaw layout with a biome gate and a `TerrainPredicate` (uniform height or bastion height + cobblestone foundation, see [terrain_fit.md](terrain_fit.md)). Only the least-index passing candidate of a region survives. |
 | `ChunkGeneratorMultiSpreadMixin` | `mixin/ChunkGeneratorMultiSpreadMixin.java` | Vanilla `findNearestMapStructure` and `getNearestGeneratedStructure` both route to one ring walk: region rings from the centre out, every `attempts` candidate per region, stopping at the first ring with a start. Candidates whose middle column samples no biome in the set's biome tag are pre-filtered. |
+
+A set may hold three tiers: primaries (`FlatCheckStructure`, one per region), secondaries (`SecondaryStructure`,
+one per region and only where the picked primary placed nothing) and tinies (`FallbackStructure`, several per region).
+Priority is primary > secondary > tiny, enforced by abstention. See [secondary.md](secondary.md).
 
 Both sides must agree on the candidate grid, which is a function of
 `(seed, chunkX, chunkZ, spacing, spreadType, salt, attempts)`.
@@ -82,3 +87,33 @@ salt 162382118 — its `abs(hash("gensokyolegacy:cirno_nest"))`.
 `set_index` / `set_count` decide which member of a set a region picks, and both live in the structure entry, so they still
 must never change once released. Datagen writes them together with `set` (`init/data/structure/`), so a member's index and
 its set's grid move in one step.
+
+## 5. Listing starts: `/gensokyo structure scan`
+
+`/gensokyo structure scan <structure> <radius> [first|all]` searches the `radius` region rings around the command
+source (`1..100`, the same ring unit as `/locate`). For each region it calls `LocatableStructure#locateRegion`, which
+walks the region's candidate stream in order and returns the least-index candidate passing `checkCandidate` — the same
+rule `findGenerationPoint` applies — so the output is the worldgen answer, not a guess, and no chunks or region files
+are read.
+
+`LocatableStructure` is implemented by the primaries and the secondaries, the two tiers that own a region pick: a
+secondary reports its region only when the picked primary left that region empty (and the secondary pick names it). The
+tiny tier has no region pick, so a scan cannot name it; `/gensokyo structure scan` and fairy dust both reject it with
+"Structure has no region pick to locate".
+
+- `all` (the default) walks the whole `(2r+1)^2` square and prints every start nearest-first.
+- `first` walks rings outward and stops at the first ring that has a start, nearest-first within that ring.
+
+Both run on the `gensokyo-structure-scan` thread and post their output back through the server queue, so a large radius
+costs no tick time; progress is printed every two seconds. One scan runs at a time — a second command fails with "A
+structure scan is already running" — and a scan still running at server stop is cancelled.
+
+`locateRegion` is memoised per `(structure, generator, seed, region)` by `RegionMemo`, misses included, so a repeated scan
+or a fairy-dust cast over the same ground is nearly free. The same cache holds the primary's region verdict that the
+secondary and tiny tiers read, so a secondary scan does not rebuild a primary layout per region. The cache is bounded
+and cleared on server stop and on datapack reload, so a long session cannot grow it without limit.
+
+The query describes what the current rules would place. A start already written into a generated chunk by an older
+worldgen can differ: `/locate` reads that stored start first, `scan` recomputes it. Cost is quadratic in the radius
+(about a minute at radius 20 on the dev world, before the cache), and the jigsaw layout is only built for candidates
+that pass the height/biome prefilter.

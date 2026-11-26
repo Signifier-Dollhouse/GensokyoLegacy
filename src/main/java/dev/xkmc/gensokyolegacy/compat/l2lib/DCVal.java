@@ -26,6 +26,13 @@ public final class DCVal<T> {
 		this.ser = ser;
 	}
 
+	/**
+	 * The NBT key this value is stored under, for loot functions that write it without an item instance.
+	 */
+	public String key() {
+		return name;
+	}
+
 	@Nullable
 	public T get(ItemStack stack) {
 		CompoundTag tag = stack.getTag();

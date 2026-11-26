@@ -1,0 +1,18 @@
+{
+  "placement": {
+    "type": "gensokyolegacy:multi_spread",
+    "attempts": 24,
+    "salt": 579865253,
+    "spacing": 32
+  },
+  "structures": [
+    {
+      "structure": "gensokyolegacy:myouren_temple",
+      "weight": 1
+    },
+    {
+      "structure": "gensokyolegacy:small_graveyard",
+      "weight": 1
+    }
+  ]
+}

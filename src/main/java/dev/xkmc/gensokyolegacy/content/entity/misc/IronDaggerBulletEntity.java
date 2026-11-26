@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * The thrown form of {@link IronDaggerItem}: hands the dagger back instead of just vanishing. Whether it comes
  * back is settled by the thrower via {@link #setReturnable}, the only moment that knows whether it was paid for.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 @SerialClass
 public class IronDaggerBulletEntity extends ItemBulletEntity {

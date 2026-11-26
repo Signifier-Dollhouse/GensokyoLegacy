@@ -22,7 +22,7 @@ import org.joml.Vector3f;
  * Draws the bounded anchor with its fixed throw orientation, and the chain that ties it back to the
  * thrower.
  *
- * @see "doc/design/minamitsu_anchor.md"
+ * @see "doc/design/item/minamitsu_anchor.md"
  */
 public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 
@@ -115,7 +115,7 @@ public class AnchorHookRenderer extends EntityRenderer<AnchorHookEntity> {
 	 * throw direction. Tip it a quarter turn and cancel the {@code translate(-0.5)} the item
 	 * renderer applies anyway, so the transform matches the danmaku renderer's exactly.
 	 *
-	 * @see "doc/design/minamitsu_anchor.md §5.4"
+	 * @see "doc/design/item/minamitsu_anchor.md §5.4"
 	 */
 	private static void layFlat(PoseStack pose) {
 		pose.mulPose(Axis.XP.rotationDegrees(90));

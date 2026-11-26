@@ -9,7 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
  * instead of extra daggers: a stateless server-side singleton, added as an implementation here plus a
  * {@link DaggerGloveRunes} line.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public interface DaggerGloveRune {
 

@@ -19,7 +19,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
  * the middle of it.
  *
  * @see RavineCaveFeature
- * @see "doc/design/genbu_ravine_cave.md"
+ * @see "doc/design/biome/genbu_ravine_cave.md"
  */
 public record RavineCaveConfig(int gap, int width, int height, int depth, BlockState floor, BlockState pool)
 		implements FeatureConfiguration {

@@ -11,23 +11,23 @@
           "root_depth": 3,
           "templates": [
             {
-              "data": "gensokyolegacy:magical_forest/tree/locust_1",
+              "data": "gensokyolegacy:biome/tree/locust_1",
               "weight": 1
             },
             {
-              "data": "gensokyolegacy:magical_forest/tree/locust_2",
+              "data": "gensokyolegacy:biome/tree/locust_2",
               "weight": 1
             },
             {
-              "data": "gensokyolegacy:magical_forest/tree/locust_3",
+              "data": "gensokyolegacy:biome/tree/locust_3",
               "weight": 1
             },
             {
-              "data": "gensokyolegacy:magical_forest/tree/locust_4",
+              "data": "gensokyolegacy:biome/tree/locust_4",
               "weight": 1
             },
             {
-              "data": "gensokyolegacy:magical_forest/tree/locust_5",
+              "data": "gensokyolegacy:biome/tree/locust_5",
               "weight": 1
             }
           ]

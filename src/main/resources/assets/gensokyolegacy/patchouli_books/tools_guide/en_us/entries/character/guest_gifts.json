@@ -1,0 +1,24 @@
+{
+  "name": "Guest Gifts",
+  "icon": "gensokyolegacy:sturdy_teddy_bear",
+  "category": "gensokyolegacy:character",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [
+        {"item": "gensokyolegacy:sturdy_teddy_bear"},
+        {"item": "gensokyolegacy:magic_candy"},
+        {"item": "gensokyolegacy:kappa_bento"},
+        {"item": "gensokyolegacy:ghost_dango"},
+        {"item": "gensokyolegacy:lucky_tea"},
+        {"item": "gensokyolegacy:tengu_sake"},
+        {"item": "gensokyolegacy:ghost_sake"},
+        {"item": "gensokyolegacy:zun_beer"},
+        {"item": "gensokyolegacy:magic_book"},
+        {"item": "gensokyolegacy:fancy_fan"}
+      ],
+      "text": "Every guest who ate from your table leaves something behind. The quality of the gift is judged by the appeal — the total saturation of the different dishes she ate. See JEI for the details."
+    }
+  ]
+}

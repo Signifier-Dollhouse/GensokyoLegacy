@@ -23,10 +23,10 @@ import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import java.util.List;
 
 /**
- * The cold humid cell of the upper ground in {@code doc/design/gensokyo_dimension_biome_guide.md}: the bamboo grove,
+ * The cold humid cell of the upper ground in {@code doc/design/biome/gensokyo_biomes.md}: the bamboo grove,
  * mud underfoot.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public class BambooForestOfTheLostBiomeGen extends AbstractBiomeGen {
 

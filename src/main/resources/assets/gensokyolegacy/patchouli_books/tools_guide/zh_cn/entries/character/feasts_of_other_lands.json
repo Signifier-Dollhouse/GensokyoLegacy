@@ -1,0 +1,16 @@
+{
+  "name": "选菜指南",
+  "icon": "minecraft:cake",
+  "category": "gensokyolegacy:character",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "除了本体提供的盘子，宴会餐桌上还可兼容那些可放置的食物，最基础的比如蛋糕；对其他模组的支持包括：乐事及其众多附属，森罗物语，妖怪们的飨宴，以及自定义三明治。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "需要容器盛装的食物也在此列，因此不用担心客人无法品尝。$(br2)妖怪们的飨宴中，盘装/碗装/锅装/竹筒装/料理台/蒸笼内的食物也照样可以检测到。"
+    }
+  ]
+}

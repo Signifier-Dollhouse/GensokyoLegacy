@@ -26,10 +26,10 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import java.util.List;
 
 /**
- * The top band of {@code doc/design/gensokyolegacy_fixed_biomes_guide.md}: the summit, the one place the mountain's
+ * The top band of {@code doc/design/biome/gensokyo_biomes.md}: the summit, the one place the mountain's
  * own rock reaches daylight.
  *
- * @see "doc/design/gensokyo_biomes.md" §7
+ * @see "doc/design/biome/gensokyo_biomes.md" §7
  */
 public class YoukaiMountainSummitBiomeGen extends AbstractBiomeGen {
 

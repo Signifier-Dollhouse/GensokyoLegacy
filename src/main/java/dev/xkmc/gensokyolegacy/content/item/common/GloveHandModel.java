@@ -17,7 +17,7 @@ import net.minecraftforge.client.model.generators.loaders.SeparateTransformsMode
  * <p>Vanilla replaces the <em>whole</em> item model when an override predicate matches, so per-mode
  * overrides are separate-transforms models too: a flat override would drop the hand while in hand.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class GloveHandModel {
 

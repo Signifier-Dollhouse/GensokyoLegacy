@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Places the carpet on the ground as usual, and on the surface of a still water source the way a lily pad does.
  *
- * @see "doc/design/fallen_leaves.md"
+ * @see "doc/design/biome/fallen_leaves.md"
  */
 public class FallenLeavesItem extends BlockItem {
 

@@ -17,11 +17,13 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.content.item.ingredient.FrozenFrogItem;
 import dev.xkmc.gensokyolegacy.init.registrate.GLBrains;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.gensokyolegacy.compat.l2lib.SyncedData;
 import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -102,6 +104,11 @@ public class CirnoEntity extends FairyEntity implements GeoYoukaiAnim {
 
 	public CirnoEntity(EntityType<? extends CirnoEntity> type, Level level) {
 		super(type, level);
+	}
+
+	@Override
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_YOUNG.get();
 	}
 
 	@Override

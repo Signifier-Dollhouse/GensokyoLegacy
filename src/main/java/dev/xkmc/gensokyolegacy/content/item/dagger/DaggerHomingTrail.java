@@ -24,7 +24,7 @@ import java.util.UUID;
  * aimed at where the target is <em>now</em>. The stage boundary is what turns the dagger — two straight legs at
  * constant speed, so only the bend is a server decision. The target is held by UUID, never a recyclable network id.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 @SerialClass
 public class DaggerHomingTrail extends TrailAction {

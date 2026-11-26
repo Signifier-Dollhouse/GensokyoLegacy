@@ -1,0 +1,20 @@
+{
+  "name": "Notes on Inviting Guests",
+  "icon": "minecraft:golden_carrot",
+  "category": "gensokyolegacy:character",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The total saturation of the dishes decides how many guests will come, while their variety and quality decide whether a rare guest is willing to come.$(br2)The higher a dish's saturation, the more appeal it carries, and appeal decides the quality of the gift after the meal. Note that the same dish only ever counts once toward appeal."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Every guest has her own threshold. A single cake is enough to invite Cirno, while Suika wants a grand buffet.$(br2)You can put out more food partway through; once a guest has eaten her fill, her pace drops sharply and she may leave early.$(br2)Aim the invitation letter at the table nearest the centre, or the farther tables may see no visitors; the number of seats decides how many guests can come at once."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Higher favour will not bring a guest who does not qualify; it only raises the share of those who do.$(br2)After the meal every guest leaves a gift, and its quality depends on the appeal of the food she ate."
+    }
+  ]
+}

@@ -16,7 +16,7 @@ import java.util.List;
  * Stage that fires when a potion item is in the pot and tints the fluid with the average potion
  * colour, so mixed potions blend instead of picking one of their colours.
  *
- * @see "doc/design/alchemy_pot.md"
+ * @see "doc/design/item/alchemy_pot.md"
  */
 @SerialClass
 public class PotionStageRecipe extends AlchemyStageRecipe<PotionStageRecipe> {

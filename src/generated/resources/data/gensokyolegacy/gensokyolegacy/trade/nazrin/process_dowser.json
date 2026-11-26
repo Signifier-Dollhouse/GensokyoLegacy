@@ -1,0 +1,26 @@
+{
+  "character": "gensokyolegacy:nazrin",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:self_reputation",
+      "reputation": 51
+    }
+  ],
+  "ingredients": [
+    {
+      "count": 6,
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "recurrence": {
+    "maxStock": 1,
+    "restockTime": 24000
+  },
+  "result": {
+    "Count": 1,
+    "id": "gensokyolegacy:dowser",
+    "tag": {
+      "Damage": 0
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,fill=0": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 90
+    },
+    "facing=east,fill=1": {
+      "model": "gensokyolegacy:block/treasure_basket_1",
+      "y": 90
+    },
+    "facing=east,fill=2": {
+      "model": "gensokyolegacy:block/treasure_basket_2",
+      "y": 90
+    },
+    "facing=north,fill=0": {
+      "model": "gensokyolegacy:block/treasure_basket"
+    },
+    "facing=north,fill=1": {
+      "model": "gensokyolegacy:block/treasure_basket_1"
+    },
+    "facing=north,fill=2": {
+      "model": "gensokyolegacy:block/treasure_basket_2"
+    },
+    "facing=south,fill=0": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 180
+    },
+    "facing=south,fill=1": {
+      "model": "gensokyolegacy:block/treasure_basket_1",
+      "y": 180
+    },
+    "facing=south,fill=2": {
+      "model": "gensokyolegacy:block/treasure_basket_2",
+      "y": 180
+    },
+    "facing=west,fill=0": {
+      "model": "gensokyolegacy:block/treasure_basket",
+      "y": 270
+    },
+    "facing=west,fill=1": {
+      "model": "gensokyolegacy:block/treasure_basket_1",
+      "y": 270
+    },
+    "facing=west,fill=2": {
+      "model": "gensokyolegacy:block/treasure_basket_2",
+      "y": 270
+    }
+  }
+}

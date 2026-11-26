@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * <p>
  * What a renderer asks for. The clock and the state behind these are {@link AbstractBubbleModule}'s.
  *
- * @see "doc/design/want_bubble.md"
+ * @see "doc/design/youkai/want_bubble.md"
  */
 public interface IBubbleModule {
 

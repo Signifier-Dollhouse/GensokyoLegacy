@@ -6,29 +6,13 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_talk_02"
+        "dialog_talk_01",
+        "dialog_talk_02",
+        "dialog_talk_03",
+        "dialog_talk_04",
+        "dialog_talk_05"
       ],
       "options": [
-        {
-          "type": "gensokyolegacy:simple",
-          "actions": [],
-          "conditions": [],
-          "next": {
-            "animations": [
-              "dialog_decline"
-            ],
-            "options": [
-              {
-                "type": "gensokyolegacy:simple",
-                "actions": [],
-                "conditions": [],
-                "text": "gensokyolegacy/marisa/hakkero/option/complete/reject/end"
-              }
-            ],
-            "text": "gensokyolegacy/marisa/hakkero/dialog/marisa/hakkero/complete/reject/dialog_1"
-          },
-          "text": "gensokyolegacy/marisa/hakkero/option/complete/reject"
-        },
         {
           "type": "gensokyolegacy:simple",
           "actions": [
@@ -39,6 +23,10 @@
           "conditions": [],
           "next": {
             "animations": [
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
               "dialog_talk_05"
             ],
             "options": [
@@ -74,7 +62,8 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_think",
+        "dialog_think_02"
       ],
       "options": [
         {
@@ -90,7 +79,7 @@
                 "type": "gensokyolegacy:simple",
                 "actions": [],
                 "conditions": [],
-                "text": "gensokyolegacy/marisa/shared/option/bye"
+                "text": "gensokyolegacy/marisa/hakkero/option/follow_up/end/end"
               }
             ],
             "text": "gensokyolegacy/marisa/hakkero/dialog/marisa/hakkero/follow_up/end/dialog_1"
@@ -108,7 +97,8 @@
     "conditions": [],
     "next": {
       "animations": [
-        "dialog_think"
+        "dialog_think",
+        "dialog_think_02"
       ],
       "options": [
         {
@@ -141,7 +131,11 @@
           "conditions": [],
           "next": {
             "animations": [
-              "dialog_talk_04"
+              "dialog_talk_01",
+              "dialog_talk_02",
+              "dialog_talk_03",
+              "dialog_talk_04",
+              "dialog_talk_05"
             ],
             "options": [
               {

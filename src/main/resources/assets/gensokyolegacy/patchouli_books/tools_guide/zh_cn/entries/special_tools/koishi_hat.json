@@ -2,6 +2,7 @@
   "name": "帽子先生",
   "icon": "gensokyolegacy:koishi_hat",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/koishi_hat",
   "sortnum": 20,
   "pages": [
     {

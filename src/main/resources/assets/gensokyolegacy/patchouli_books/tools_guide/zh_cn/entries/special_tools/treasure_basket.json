@@ -1,0 +1,19 @@
+{
+  "name": "百宝篮",
+  "icon": "gensokyolegacy:treasure_basket",
+  "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/obtain_treasure_basket",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "gensokyolegacy:treasure_basket",
+      "title": "接住将要消失的东西",
+      "text": "一只宽口浅篮，能在物品消失之前把它们接住。只要物品在篮子覆盖的区块里超时，就会被收进篮中，而不是就地消失。$(br2)默认情况下，篮子向四周各覆盖七个区块——也就是一片十五区块见方的范围；同一片范围内不能再放第二只篮子。两片范围在边缘相接时，由距离更近的篮子收走物品。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "右键百宝篮即可打开，它有大箱子那样多的格子；即使所在区块未加载，里面的东西也会保留。拆掉篮子会把所有物品洒在地上，如果在意掉落位置，记得先清空。$(br2)在篮子的照料下，掉落物会更快“变老”，因此遗失的一叠物品会更快被接住，而不必熬过完整的消失时间。不会自然消失的物品则不受影响。$(br2)戴上 $(l:special_tools/strange_glasses)奇怪的眼镜$(/l)，或任一只手拿着百宝篮，就能看见范围的边界。"
+    }
+  ]
+}

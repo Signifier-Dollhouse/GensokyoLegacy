@@ -61,7 +61,7 @@ import java.util.*;
  * No biome spawns a mob. Natural spawning in Gensokyo belongs to the mod's own entities, added by biome modifier, not
  * to a vanilla spawn table copied in beside them.
  *
- * @see "doc/design/gensokyo_biomes.md"
+ * @see "doc/design/biome/gensokyo_biomes.md"
  */
 public abstract class AbstractBiomeGen {
 
@@ -345,21 +345,34 @@ public abstract class AbstractBiomeGen {
 		 * the biome's trees are up it returns the crown and anything placed with it lands on the roof; the no-leaves
 		 * heightmap returns the floor instead, which is both where a standing deco belongs and the only height at
 		 * which the block underneath is the ground the biome's surface rule actually laid down.
+		 * Extra filters run on the spread position, before the heightmap picks a surface for it.
 		 */
 		public void floor(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
-						  PlacementModifier count) {
-			placed(key, feature, count, InSquarePlacement.spread(),
-					HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES), BiomeFilter.biome());
+						  PlacementModifier count, PlacementModifier... filters) {
+			List<PlacementModifier> list = new ArrayList<>();
+			list.add(count);
+			list.add(InSquarePlacement.spread());
+			list.addAll(List.of(filters));
+			list.add(HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES));
+			list.add(BiomeFilter.biome());
+			placed(key, feature, list);
 		}
 
 		/**
 		 * A tree run: {@code count} of the feature's trees, spread over the chunk and rooted on the terrain surface.
 		 * The water filter is the one vanilla's own tree placements carry, and it is what keeps a grove out of a lake.
+		 * Extra filters run on the spread position, before the heightmap picks a surface for it.
 		 */
 		public void trees(ResourceKey<PlacedFeature> key, Holder<ConfiguredFeature<?, ?>> feature,
-						  PlacementModifier count) {
-			placed(key, feature, count, InSquarePlacement.spread(),
-					SurfaceWaterDepthFilter.forMaxDepth(0), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
+						  PlacementModifier count, PlacementModifier... filters) {
+			List<PlacementModifier> list = new ArrayList<>();
+			list.add(count);
+			list.add(InSquarePlacement.spread());
+			list.addAll(List.of(filters));
+			list.add(SurfaceWaterDepthFilter.forMaxDepth(0));
+			list.add(PlacementUtils.HEIGHTMAP_WORLD_SURFACE);
+			list.add(BiomeFilter.biome());
+			placed(key, feature, list);
 		}
 
 		/**

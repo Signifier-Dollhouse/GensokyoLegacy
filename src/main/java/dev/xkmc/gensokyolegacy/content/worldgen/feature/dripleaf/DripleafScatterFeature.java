@@ -24,7 +24,7 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
  * The small one is not used, because it lives on clay or moss block only and would not take to mud.
  *
  * @see DripleafScatterConfig
- * @see "doc/design/gensokyo_biomes.md" §1
+ * @see "doc/design/biome/gensokyo_biomes.md" §1
  */
 public class DripleafScatterFeature extends Feature<DripleafScatterConfig> {
 

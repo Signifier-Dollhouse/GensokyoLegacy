@@ -1,5 +1,8 @@
 package dev.xkmc.gensokyolegacy.content.command;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -12,6 +15,8 @@ import dev.xkmc.gensokyolegacy.content.attachment.character.CharacterData;
 import dev.xkmc.gensokyolegacy.content.attachment.character.ReputationConstants;
 import dev.xkmc.gensokyolegacy.content.attachment.home.core.IHomeHolder;
 import dev.xkmc.gensokyolegacy.content.attachment.home.datamap.StructureConfig;
+import dev.xkmc.gensokyolegacy.content.attachment.index.IndexStorage;
+import dev.xkmc.gensokyolegacy.content.attachment.index.MissingTowerManager;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartyAttachment;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.PartySend;
 import dev.xkmc.gensokyolegacy.content.attachment.party.item.PartyMessage;
@@ -20,6 +25,8 @@ import dev.xkmc.gensokyolegacy.content.entity.behavior.module.VisitModule;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitScheduler;
 import dev.xkmc.gensokyolegacy.content.entity.behavior.visit.VisitTable;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
+import dev.xkmc.gensokyolegacy.content.item.treasure.OreRecipe;
+import dev.xkmc.gensokyolegacy.content.item.treasure.TreasureTowerManager;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecRegistry;
 import dev.xkmc.gensokyolegacy.content.rpg.network.QuestStatusToClient;
 import dev.xkmc.gensokyolegacy.content.rpg.network.TradeStatusToClient;
@@ -28,6 +35,7 @@ import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.reward.ReputationReward;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeData;
 import dev.xkmc.gensokyolegacy.content.rpg.trade.TradeOffer;
+import dev.xkmc.gensokyolegacy.content.worldgen.structure.LocatableStructure;
 import dev.xkmc.gensokyolegacy.init.GensokyoLegacy;
 import dev.xkmc.gensokyolegacy.init.data.GLLang;
 import dev.xkmc.gensokyolegacy.init.data.GLModConfig;
@@ -45,7 +53,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -55,10 +65,14 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = GensokyoLegacy.MODID)
 public class GLCommands {
@@ -85,6 +99,14 @@ public class GLCommands {
 			new SimpleCommandExceptionType(Component.literal("There is no party here"));
 	private static final SimpleCommandExceptionType ERROR_NO_PARTY_PLAYER =
 			new SimpleCommandExceptionType(Component.literal("A party is planned against a player's reputation"));
+	private static final SimpleCommandExceptionType ERROR_UNKNOWN_STRUCTURE =
+			new SimpleCommandExceptionType(Component.literal("Unknown structure"));
+	private static final SimpleCommandExceptionType ERROR_NOT_LOCATABLE =
+			new SimpleCommandExceptionType(Component.literal("Structure has no region pick to locate"));
+	private static final SimpleCommandExceptionType ERROR_NOT_MULTI_SPREAD =
+			new SimpleCommandExceptionType(Component.literal("Structure set is not placed by gensokyolegacy:multi_spread"));
+	private static final SimpleCommandExceptionType ERROR_SCAN_BUSY =
+			new SimpleCommandExceptionType(Component.literal("A structure scan is already running"));
 
 	/**
 	 * How far {@code /gensokyo party} will look for the table being aimed at.
@@ -111,6 +133,18 @@ public class GLCommands {
 			if (config == null) continue;
 			for (var guest : config.visitors().keySet())
 				ids.add(BuiltInRegistries.ENTITY_TYPE.getKey(guest));
+		}
+		return SharedSuggestionProvider.suggestResource(ids, builder);
+	};
+
+	/**
+	 * Locatable structures only: the primaries and secondaries {@code /gensokyo structure scan} can find.
+	 */
+	private static final SuggestionProvider<CommandSourceStack> SUGGEST_FLAT_STRUCTURES = (ctx, builder) -> {
+		Set<ResourceLocation> ids = new LinkedHashSet<>();
+		var reg = ctx.getSource().registryAccess().registryOrThrow(Registries.STRUCTURE);
+		for (var e : reg.entrySet()) {
+			if (e.getValue() instanceof LocatableStructure) ids.add(e.getKey().location());
 		}
 		return SharedSuggestionProvider.suggestResource(ids, builder);
 	};
@@ -295,7 +329,36 @@ public class GLCommands {
 								.then(Commands.literal("end")
 										.executes(GLCommands::executePartyEnd))
 								.then(Commands.literal("info")
-										.executes(GLCommands::executePartyInfo)))));
+										.executes(GLCommands::executePartyInfo))))
+				.then(Commands.literal("structure")
+						.then(Commands.literal("scan")
+								.then(Commands.argument("structure", ResourceLocationArgument.id())
+										.suggests(SUGGEST_FLAT_STRUCTURES)
+										.then(Commands.argument("radius", IntegerArgumentType.integer(1, 100))
+												.executes(GLCommands::executeStructureScanAll)
+												.then(Commands.literal("first")
+														.executes(GLCommands::executeStructureScanFirst))
+												.then(Commands.literal("all")
+														.executes(GLCommands::executeStructureScanAll))))))
+				.then(Commands.literal("missing_tower")
+						.then(Commands.literal("list")
+								.executes(GLCommands::executeMissingTowerList))
+						.then(Commands.literal("locate")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerLocate)))
+						.then(Commands.literal("reset")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerReset)))
+						.then(Commands.literal("spawn")
+								.then(Commands.argument("player", EntityArgument.player())
+										.executes(GLCommands::executeMissingTowerSpawn))))
+				.then(Commands.literal("treasure_tower")
+						.then(Commands.literal("stats")
+								.executes(GLCommands::executeTreasureTowerStats))
+						.then(Commands.literal("dump")
+								.executes(ctx -> executeTreasureTowerDump(ctx, false))
+								.then(Commands.literal("json")
+										.executes(ctx -> executeTreasureTowerDump(ctx, true))))));
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> literal(String str) {
@@ -330,6 +393,38 @@ public class GLCommands {
 
 	private static ResourceLocation tradeId(Holder<TradeOffer> offer) {
 		return offer.unwrapKey().orElseThrow().location();
+	}
+
+	// --- structure scan ---
+
+	/**
+	 * Every start of one flat-check structure within {@code radius} region rings of the source, measured in the
+	 * structure set's own spacing. Runs off-thread; {@link StructureScan} reports the hits nearest-first.
+	 */
+	private static int executeStructureScanAll(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		return structureScan(ctx, false);
+	}
+
+	/**
+	 * The first ring outward that has a start, nearest-first within that ring. Runs off-thread.
+	 */
+	private static int executeStructureScanFirst(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		return structureScan(ctx, true);
+	}
+
+	private static int structureScan(CommandContext<CommandSourceStack> ctx, boolean first) throws CommandSyntaxException {
+		CommandSourceStack src = ctx.getSource();
+		ResourceLocation id = ResourceLocationArgument.getId(ctx, "structure");
+		var holder = src.registryAccess().registryOrThrow(Registries.STRUCTURE)
+				.getHolder(ResourceKey.create(Registries.STRUCTURE, id));
+		if (holder.isEmpty()) throw ERROR_UNKNOWN_STRUCTURE.create();
+		if (!(holder.get().value() instanceof LocatableStructure loc)) throw ERROR_NOT_LOCATABLE.create();
+		if (loc.spacing() <= 0) throw ERROR_NOT_MULTI_SPREAD.create();
+		int radius = IntegerArgumentType.getInteger(ctx, "radius");
+		if (!StructureScan.start(src, loc, id, radius, first)) throw ERROR_SCAN_BUSY.create();
+		src.sendSuccess(() -> Component.literal("%s: %s scan of radius %d started off-thread"
+				.formatted(id, first ? "first" : "all", radius)), false);
+		return 1;
 	}
 
 	private static CharDataHolder charHolder(ServerPlayer sp, EntityType<?> type) {
@@ -479,6 +574,139 @@ public class GLCommands {
 		src.sendSuccess(() -> GLLang.Party.INFO_APPEAL.get(party.appealServed()), false);
 		src.sendSuccess(() -> GLLang.Party.INFO_GUESTS.get(party.seatsUsed()), false);
 		return 1;
+	}
+
+	// --- missing tower ---
+
+	private static int executeMissingTowerList(CommandContext<CommandSourceStack> ctx) {
+		var src = ctx.getSource();
+		var towers = IndexStorage.get(src.getServer().overworld()).towers();
+		if (towers.isEmpty()) {
+			src.sendSuccess(() -> Component.literal("No missing towers"), false);
+			return 0;
+		}
+		for (var e : towers.entrySet()) {
+			var state = e.getValue();
+			var player = src.getServer().getPlayerList().getPlayer(e.getKey());
+			String name = player == null ? e.getKey().toString() : player.getGameProfile().getName();
+			src.sendSuccess(() -> Component.literal(name + ": " + state.quest()
+					+ (state.carried() ? " carried at " : " on the ground at ") + state.pos()
+					+ " in " + state.dim() + " (entity " + state.entity() + ")"), false);
+		}
+		return towers.size();
+	}
+
+	private static int executeMissingTowerLocate(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		var state = IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID());
+		if (state == null) {
+			ctx.getSource().sendFailure(Component.literal(
+					sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		boolean here = state.dim().equals(sp.level().dimension().location());
+		long dist = here ? (long) Math.sqrt(sp.blockPosition().distSqr(state.pos())) : -1;
+		String name = sp.getGameProfile().getName();
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				(state.carried() ? "carried by " : "on the ground for ") + name
+						+ " at " + state.pos() + " in " + state.dim()
+						+ (here ? ", " + dist + " blocks away" : ", another dimension")), false);
+		return 1;
+	}
+
+	private static int executeMissingTowerReset(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		if (IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID()) == null) {
+			ctx.getSource().sendFailure(Component.literal(
+					sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		MissingTowerManager.complete(sp);
+		ctx.getSource().sendSuccess(() -> Component.literal(
+				"Removed the missing tower of " + sp.getGameProfile().getName()), true);
+		return 1;
+	}
+
+	private static int executeMissingTowerSpawn(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer sp = EntityArgument.getPlayer(ctx, "player");
+		var src = ctx.getSource();
+		var state = IndexStorage.get(sp.serverLevel()).getTower(sp.getUUID());
+		if (state == null) {
+			src.sendFailure(Component.literal(sp.getGameProfile().getName() + " has no missing tower"));
+			return 0;
+		}
+		ServerLevel level = src.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, state.dim()));
+		if (level == null) {
+			src.sendFailure(Component.literal("Dimension " + state.dim() + " is not loaded"));
+			return 0;
+		}
+		level.getChunk(state.pos());
+		MissingTowerManager.ensureEntity(level, sp.getUUID(), state);
+		src.sendSuccess(() -> Component.literal("Spawned the missing tower of "
+				+ sp.getGameProfile().getName() + " at " + state.pos() + " in " + state.dim()), true);
+		return 1;
+	}
+
+	// --- treasure tower ---
+
+	private static int executeTreasureTowerStats(CommandContext<CommandSourceStack> ctx) {
+		var src = ctx.getSource();
+		var data = TreasureTowerManager.get(src.getServer());
+		int tags = data.recipes().stream().mapToInt(e -> e.tags().size()).sum();
+		int stones = data.recipes().stream().mapToInt(e -> e.stones().size()).sum();
+		src.sendSuccess(() -> Component.literal("Treasure tower: " + data.recipes().size()
+				+ " recipes, " + tags + " tag ids, " + stones + " loose blocks"), false);
+		src.sendSuccess(() -> Component.literal("Last build: "
+				+ String.format("%.2f", TreasureTowerManager.lastBuildNanos() / 1e6) + " ms"), false);
+		return data.recipes().size();
+	}
+
+	private static int executeTreasureTowerDump(CommandContext<CommandSourceStack> ctx, boolean json) {
+		var src = ctx.getSource();
+		var data = TreasureTowerManager.get(src.getServer());
+		if (!json) {
+			for (var recipe : data.recipes())
+				src.sendSuccess(() -> Component.literal(BuiltInRegistries.ITEM.getKey(recipe.gem())
+						+ " -> " + BuiltInRegistries.BLOCK.getKey(recipe.ore()) + " " + describe(recipe)), false);
+			return data.recipes().size();
+		}
+		var root = new JsonArray();
+		for (var recipe : data.recipes()) {
+			var obj = new JsonObject();
+			obj.addProperty("gem", BuiltInRegistries.ITEM.getKey(recipe.gem()).toString());
+			obj.addProperty("ore", BuiltInRegistries.BLOCK.getKey(recipe.ore()).toString());
+			var tags = new JsonObject();
+			for (var id : recipe.tags()) {
+				var members = new JsonArray();
+				BuiltInRegistries.BLOCK.getTag(TagKey.create(Registries.BLOCK, id)).ifPresent(set ->
+						set.forEach(e -> members.add(BuiltInRegistries.BLOCK.getKey(e.value()).toString())));
+				tags.add("#" + id, members);
+			}
+			obj.add("tags", tags);
+			var stones = new JsonArray();
+			for (var block : recipe.stones())
+				stones.add(BuiltInRegistries.BLOCK.getKey(block).toString());
+			obj.add("stones", stones);
+			root.add(obj);
+		}
+		var path = Path.of("out", "treasure_tower.json");
+		try {
+			Files.createDirectories(path.getParent());
+			Files.writeString(path, new GsonBuilder().setPrettyPrinting().create().toJson(root));
+		} catch (IOException e) {
+			src.sendFailure(Component.literal("Could not write " + path + ": " + e));
+			return 0;
+		}
+		src.sendSuccess(() -> Component.literal("Wrote " + data.recipes().size() + " entries to " + path), false);
+		return data.recipes().size();
+	}
+
+	private static String describe(OreRecipe recipe) {
+		var tags = recipe.tags().stream().map(id -> "#" + id).collect(Collectors.joining(", "));
+		var stones = recipe.stones().stream()
+				.map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
+				.collect(Collectors.joining(", "));
+		return tags + (tags.isEmpty() || stones.isEmpty() ? "" : " ") + stones;
 	}
 
 	/**
@@ -973,8 +1201,15 @@ public class GLCommands {
 		ResourceLocation id = questId(quest);
 		var data = GLMeta.QUEST.type().getOrCreate(sp).getData(id);
 		data.started = true;
+		YoukaiEntity ch = null;
+		for (var e : sp.level().getEntitiesOfClass(YoukaiEntity.class, sp.getBoundingBox().inflate(32))) {
+			if (e.getType() == quest.value().character()) {
+				ch = e;
+				break;
+			}
+		}
 		for (var e : quest.value().requirements().entrySet()) {
-			e.getValue().start(data, sp, e.getKey());
+			e.getValue().start(data, sp, ch, e.getKey());
 		}
 		GensokyoLegacy.HANDLER.toClientPlayer(new QuestStatusToClient(id, data, QuestStatusToClient.Reason.START), sp);
 	}

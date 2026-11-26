@@ -21,6 +21,13 @@
       "structure": "gensokyolegacy:hakurei_shrine",
       "wanderRadius": 16
     },
+    "gensokyolegacy:hijiri_byakuren": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:myouren_temple",
+      "wanderRadius": 16
+    },
     "gensokyolegacy:kirisame_marisa": {
       "discardTime": 6000,
       "noPlayerVanishTime": 30,
@@ -39,8 +46,15 @@
       "discardTime": 6000,
       "noPlayerVanishTime": 30,
       "respawnTime": 12000,
-      "structure": "gensokyolegacy:empty",
-      "wanderRadius": 12
+      "structure": "gensokyolegacy:myouren_temple",
+      "wanderRadius": 16
+    },
+    "gensokyolegacy:nazrin": {
+      "discardTime": 6000,
+      "noPlayerVanishTime": 30,
+      "respawnTime": 12000,
+      "structure": "gensokyolegacy:myouren_temple",
+      "wanderRadius": 16
     }
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "Choosing the Menu",
+  "icon": "minecraft:cake",
+  "category": "gensokyolegacy:character",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Beyond the plates the mod itself provides, a banquet table also takes any food that can be placed as a block — cake is the simplest. Other mods are supported too: Farmer's Delight and its many addons, Kaleidoscope Cookery, Youkai's Feasts, and Some Assembly Required."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Food that needs a container counts as well, so there is no need to worry that guests cannot taste it.$(br2)In Youkai's Feasts, food on plates, in bowls, in pots and in bamboo tubes, on the cuisine board or inside a steam rack is all detected just the same."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "character": "gensokyolegacy:houjuu_nue",
+  "conditions": [
+    {
+      "type": "gensokyolegacy:gift_return"
+    }
+  ],
+  "dialog": {
+    "animations": [
+      "dialog_talk_03"
+    ],
+    "options": [
+      {
+        "type": "gensokyolegacy:simple",
+        "actions": [
+          {
+            "type": "gensokyolegacy:gift_return"
+          }
+        ],
+        "conditions": [],
+        "text": "gensokyolegacy/nue/gift/option/return/take"
+      }
+    ],
+    "text": "gensokyolegacy/nue/gift/dialog/return"
+  },
+  "override": true
+}

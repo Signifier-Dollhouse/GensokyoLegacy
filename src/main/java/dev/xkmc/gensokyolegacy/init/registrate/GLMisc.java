@@ -3,6 +3,8 @@ package dev.xkmc.gensokyolegacy.init.registrate;
 import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.xkmc.gensokyolegacy.compat.l2lib.*;
 import dev.xkmc.gensokyolegacy.content.attachment.party.core.AppealConsumedCondition;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketMenu;
+import dev.xkmc.gensokyolegacy.content.block.functional.treasure.TreasureBasketScreen;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutMenu;
 import dev.xkmc.gensokyolegacy.content.entity.dolls.menu.DollLoadoutScreen;
 import dev.xkmc.gensokyolegacy.content.item.hakkero.HakkeroMenu;
@@ -42,6 +44,8 @@ public class GLMisc {
 	public static final MenuEntry<HakkeroMenu> MINI_HAKKERO = GensokyoLegacy.REGISTRATE.menu("mini_hakkero",
 			HakkeroMenu::fromNetwork, () -> HakkeroScreen::new).register();
 
+	public static final MenuEntry<TreasureBasketMenu> TREASURE_BASKET = GensokyoLegacy.REGISTRATE.menu("treasure_basket",
+			TreasureBasketMenu::fromNetwork, () -> TreasureBasketScreen::new).register();
 	public static void register() {
 
 	}

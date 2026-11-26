@@ -2,6 +2,7 @@
   "name": "Suwako Hat",
   "icon": "gensokyolegacy:suwako_hat",
   "category": "gensokyolegacy:special_tools",
+  "advancement": "gensokyolegacy:main/suwako_hat",
   "sortnum": 19,
   "pages": [
     {

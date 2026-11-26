@@ -1,5 +1,6 @@
 package dev.xkmc.gensokyolegacy.content.rpg.requirement;
 
+import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.gensokyolegacy.content.rpg.core.CodecElement;
 import dev.xkmc.gensokyolegacy.content.rpg.quest.QuestData;
 import dev.xkmc.gensokyolegacy.content.rpg.trigger.QuestTrigger;
@@ -7,6 +8,7 @@ import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ public interface QuestRequirement<
 		return 0;
 	}
 
-	default void start(QuestData data, ServerPlayer sp, String key) {
+	default void start(QuestData data, ServerPlayer sp, @Nullable YoukaiEntity ch, String key) {
 
 	}
 

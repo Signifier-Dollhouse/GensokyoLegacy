@@ -19,10 +19,10 @@ public class MinamitsuQDGen extends QuestDialogData {
 	public MinamitsuQDGen() {
 		prefix("minamitsu/chat");
 		defaultDialog(GLEntities.MINAMITSU.get(),
-				"You're on my deck now. State your business.",
-				"A guest far from the sea. What do you want?",
-				"A feast? Fine — I'll leave the ship for one night.",
-				"What do you need from me?");
+				"Welcome to Myouren Temple. What brings you here?",
+				"What a coincidence. I'm out running errands — what do you need?",
+				"It's lively here. Thank you for inviting me to eat.",
+				"Do you have anything for sale?");
 		trades();
 	}
 

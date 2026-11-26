@@ -31,7 +31,7 @@ import java.util.List;
  * that are roofed, tall enough and floored by solid rock are the sites it can choose from.
  *
  * @see LakeConfig
- * @see "doc/design/gensokyo_biomes.md" §2
+ * @see "doc/design/biome/gensokyo_biomes.md" §2
  */
 public class LakeFeature extends Feature<LakeConfig> {
 

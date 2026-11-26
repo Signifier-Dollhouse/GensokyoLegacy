@@ -1,7 +1,10 @@
 package dev.xkmc.gensokyolegacy.content.worldgen.structure;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.*;
@@ -102,47 +105,49 @@ public class PieceTree {
 		return rigidRoot.get(find(rigidId, i));
 	}
 
-	public int rigidGroupCount() {
-		return rigidRoot.size();
-	}
-
-	public int flexGroupCount() {
-		Set<Integer> seen = new HashSet<>();
-		for (int i = 0; i < pieces.size(); i++) {
-			if (!isRigid(i)) seen.add(find(flexId, i));
-		}
-		return seen.size();
-	}
-
 	/**
-	 * One-line topology + placed grounds for diagnostics. Call after
-	 * shifting so grounds are final.
+	 * Shifts the rigid group containing {@code piece} so its ground sits on spawn.
+	 * No-op when that piece is non-rigid. Returns the applied delta.
 	 */
-	public String describe() {
-		StringBuilder sb = new StringBuilder("pieces=%d rigidGroups=%d flexGroups=%d".formatted(
-				pieces.size(), rigidGroupCount(), flexGroupCount()));
+	public int shiftRigidGroupToGround(int piece, int spawn) {
+		if (!isRigid(piece)) return 0;
+		int delta = spawn - groundOf(piece);
+		int group = find(rigidId, piece);
 		for (int i = 0; i < pieces.size(); i++) {
-			BoundingBox b = pieces.get(i).getBoundingBox();
-			sb.append(" #%d:%s p=%d g=%d c=(%d,%d)".formatted(i, isRigid(i) ? "R" : "F",
-					parent[i], groundOf(i), (b.minX() + b.maxX()) / 2, (b.minZ() + b.maxZ()) / 2));
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Shifts the start piece's rigid group so its ground sits on spawn.
-	 * No-op when the start piece is non-rigid. Returns the applied delta.
-	 */
-	public int shiftStartGroupToGround(int spawn) {
-		if (!isRigid(0)) return 0;
-		int delta = spawn - groundOf(0);
-		int startGroup = find(rigidId, 0);
-		for (int i = 0; i < pieces.size(); i++) {
-			if (isRigid(i) && find(rigidId, i) == startGroup) {
+			if (isRigid(i) && find(rigidId, i) == group) {
 				pieces.get(i).move(0, delta, 0);
 			}
 		}
 		return delta;
+	}
+
+	/**
+	 * Shifts the start piece's rigid group (a delegate to {@link #shiftRigidGroupToGround} with piece 0).
+	 */
+	public int shiftStartGroupToGround(int spawn) {
+		return shiftRigidGroupToGround(0, spawn);
+	}
+
+	/**
+	 * Template id of a pool element, or null when the element is not a single template.
+	 */
+	public static ResourceLocation templateId(StructurePoolElement element) {
+		if (element instanceof SinglePoolElement single) {
+			return single.template.left().orElse(null);
+		}
+		return null;
+	}
+
+	/**
+	 * Index of the piece generated from template {@code id}, or -1.
+	 */
+	public int findPiece(ResourceLocation id) {
+		for (int i = 0; i < pieces.size(); i++) {
+			if (id.equals(templateId(pieces.get(i).getElement()))) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**

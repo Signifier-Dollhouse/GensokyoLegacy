@@ -11,6 +11,10 @@
 	"gensokyolegacy.configuration.danmakuPlayerPHPDamage": "妖怪弹幕对玩家造成的最低伤害",
 	"gensokyolegacy.configuration.danmakuPlayerPHPDamage.tooltip": " 默认：0.1\n 范围：0.0 ~ 1.0",
 	"gensokyolegacy.configuration.danmaku_battle": "弹幕战",
+	"gensokyolegacy.configuration.donationEffectDuration": "赛钱箱给予的效果持续时间（刻）",
+	"gensokyolegacy.configuration.donationEffectDuration.tooltip": " 默认：3600\n 范围：1 ~ 1000000",
+	"gensokyolegacy.configuration.donationRegenDuration": "赛钱箱给予的生命恢复 III 的持续时间（刻）",
+	"gensokyolegacy.configuration.donationRegenDuration.tooltip": " 默认：200\n 范围：1 ~ 1000000",
 	"gensokyolegacy.configuration.foodieDecayInterval": "美食幽灵每次流失力量之间的间隔（刻）",
 	"gensokyolegacy.configuration.foodieDecayInterval.tooltip": " 默认：100\n 范围：1 ~ 1000000",
 	"gensokyolegacy.configuration.frogEatCountForHat": "青蛙掉落诹访子帽子需要吃掉的不同种类灾厄村民数量",
@@ -47,5 +51,7 @@
 	"gensokyolegacy.configuration.section.l2configs.gensokyolegacy.server.toml.title": "东方幻想绮谈服务器配置",
 	"gensokyolegacy.configuration.suwako_hat": "诹访子的帽子",
 	"gensokyolegacy.configuration.title": "东方幻想绮谈配置",
+	"gensokyolegacy.configuration.treasureBasketRadius": "百宝篮截留超时物品的半径（区块）",
+	"gensokyolegacy.configuration.treasureBasketRadius.tooltip": " 默认：7\n 范围：1 ~ 15",
 	"gensokyolegacy.configuration.worldgen": "世界生成"
 }

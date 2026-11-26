@@ -14,7 +14,7 @@ import java.util.Locale;
  * Item model generation for the dagger glove, built per mode: the held half wraps {@link GloveHandModel}
  * around the per-mode-skinned {@code dagger_glove_hand} model; {@link DaggerGloveItem#iconStack} icons stay flat.
  *
- * @see "doc/design/dagger_glove.md"
+ * @see "doc/design/item/dagger_glove.md"
  */
 public class DaggerGloveModel {
 

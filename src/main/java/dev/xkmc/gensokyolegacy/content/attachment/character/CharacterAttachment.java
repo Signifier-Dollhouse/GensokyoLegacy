@@ -9,6 +9,7 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.YoukaiEntity;
 import dev.xkmc.l2library.capability.player.PlayerCapabilityTemplate;
 import dev.xkmc.l2serial.serialization.SerialClass;
 import dev.xkmc.l2serial.serialization.SerialClass.SerialField;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -44,6 +45,12 @@ public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttac
 
 	@SerialField
 	private final Map<EntityType<?>, CharacterData> characterData = new LinkedHashMap<>();
+
+	/**
+	 * Coins banked toward the next effect at each donation box structure.
+	 */
+	@SerialField
+	private final Map<ResourceLocation, Integer> donationCredits = new LinkedHashMap<>();
 
 	@Override
 	public void tick() {
@@ -86,6 +93,20 @@ public class CharacterAttachment extends PlayerCapabilityTemplate<CharacterAttac
 	public CharDataHolder getUnbounded(Player player, EntityType<?> e) {
 		var val = characterData.computeIfAbsent(e, k -> new CharacterData());
 		return new CharDataHolder(val, player, e, null);
+	}
+
+	public int getDonation(ResourceLocation structure) {
+		return donationCredits.getOrDefault(structure, 0);
+	}
+
+	public int addDonation(ResourceLocation structure, int coins) {
+		int credit = getDonation(structure) + coins;
+		donationCredits.put(structure, credit);
+		return credit;
+	}
+
+	public void setDonation(ResourceLocation structure, int credit) {
+		donationCredits.put(structure, credit);
 	}
 
 	public void replace(EntityType<?> target, CharacterData data) {
