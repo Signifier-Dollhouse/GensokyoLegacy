@@ -1715,7 +1715,7 @@ public final class GLLang {
 				ItemDebug.values(), ItemFurnace.values(), ItemLores.values(), ItemCommon.values(), ItemUmbrella.values(), ItemGlove.values(), ItemDaggerGlove.values(), Alchemy.values(), Jei.values(), JeiExtra.values(),
 				Talisman.values(), Doll.values(), Party.values(), ItemSekibankiHead.values(),
 				Spiritual.values(), Ghost.values(), ItemBoneFlute.values(), ItemYuyukoFan.values(),
-				ItemAnchor.values(), ItemUfo.values(), ItemGiftBox.values(), ItemTreasureTower.values(),
+				ItemAnchor.values(), ItemUfo.values(), ItemTreasureTower.values(), ItemGiftBox.values(),
 				Jizo.values(), Gravestone.values()}) {
 			for (var e : group) {
 				pvd.add(e.key(), e.def());
