@@ -1,3 +1,6 @@
 {
-  "parent": "gensokyolegacy:block/treasure_basket"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gensokyolegacy:item/utensil/treasure_basket"
+  }
 }
