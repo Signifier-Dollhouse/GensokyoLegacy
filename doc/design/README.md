@@ -10,7 +10,7 @@ tables, measurements and worked examples stay in the matching document.
 | [structure/](structure/) | character homes, beds, the interior graph, placement, terrain fit, visits and reputation |
 | [doll/](doll/) | the doll pairing ledger, entities, loadout, control and the glove |
 | [party/](party/) | party areas, food, guest selection and the guest state machine |
-| [quest/](quest/) | quest mechanics that need world state, such as the missing treasure tower |
+| [quest/](quest/) | quest mechanics that need world state, and how a quest's rewards are shown |
 | [youkai/](youkai/) | the youkai entity facets and its client-side bubbles |
 | `area_effect.md` | the chunk/level area-effect framework shared by the sealing pot and the treasure basket |
 
