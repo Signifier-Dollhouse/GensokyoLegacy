@@ -6,11 +6,11 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(bold)A stolen hand$()$(br)A creature hit by the copy takes trident damage, and whatever it was holding is replaced by a UFO. Mobs always drop that UFO when they die, so the stolen item is never lost."
+      "text": "$(bold)A Stolen Hand$()$(br)A creature hit by the trident has whatever it is holding replaced by a UFO, which it always drops on death; the stolen item is never lost."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Opening a UFO$()$(br)Hold right-click with the UFO for two seconds to get the stored stack back, count and all."
+      "text": "$(bold)Opening a UFO$()$(br)Hold right-click with the UFO for two seconds to get the stored item back."
     }
   ]
 }

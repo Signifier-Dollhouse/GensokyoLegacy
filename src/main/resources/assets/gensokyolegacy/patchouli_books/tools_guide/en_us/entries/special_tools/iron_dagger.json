@@ -12,7 +12,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Each throw spends one dagger, and it is back in your hand after landing. The $(bold)Dagger Glove$() is the same blade with more ways to throw it.$(br2)A thrown dagger returns to your inventory, or drops at your feet when you have no room for it, as soon as it hits a block, hits a creature, or has flown its full two seconds."
+      "text": "Each throw spends one dagger, and it is back in your hand a second later. The $(bold)Dagger Glove$() is the same blade with more ways to throw it.$(br2)A thrown dagger returns to your inventory, or drops at your feet when you have no room for it, as soon as it hits a block, hits a creature, or has flown its full two seconds. The throw itself never costs you the dagger."
     }
   ]
 }
