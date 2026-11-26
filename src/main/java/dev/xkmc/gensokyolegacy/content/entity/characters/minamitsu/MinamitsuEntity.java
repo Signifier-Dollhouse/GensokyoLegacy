@@ -5,7 +5,9 @@ import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.GeoYoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiAnim;
 import dev.xkmc.gensokyolegacy.content.entity.youkai.impl.YoukaiFlags;
 import dev.xkmc.gensokyolegacy.init.registrate.GLItems;
+import dev.xkmc.gensokyolegacy.init.registrate.GLSounds;
 import dev.xkmc.l2serial.serialization.SerialClass;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +47,11 @@ public class MinamitsuEntity extends BossYoukaiEntity implements GeoYoukaiAnim {
 
 	public MinamitsuEntity(EntityType<? extends BossYoukaiEntity> pEntityType, Level pLevel) {
 		super(pEntityType, pLevel);
+	}
+
+	@Override
+	public SoundEvent getDialogChatSound() {
+		return GLSounds.DIALOG_CHAT_YOUNG.get();
 	}
 
 	public PlayState stateAnimController(AnimationState<?> event) {
