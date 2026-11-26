@@ -181,12 +181,12 @@ public class StructureConfigBuilder {
 
 	private static StructureInterior myourenInterior() {
 		var rooms = new ArrayList<>(List.of(
-				new InteriorRoom("room_0", new BoundingBox(5, 3, 10, 30, 13, 35)),
+				new InteriorRoom("room_0", new BoundingBox(5, 3, 10, 30, 13, 35)), // main hall, public
 				room("room_1", new BoundingBox(13, 4, 44, 23, 7, 48), GLEntities.HIJIRI_BYAKUREN.get()),
-				new InteriorRoom("room_2", new BoundingBox(-22, 3, 22, -17, 8, 32)),
-				new InteriorRoom("room_3", new BoundingBox(-22, 4, 11, -17, 8, 20)),
-				new InteriorRoom("room_4", new BoundingBox(-11, 0, -17, -9, 5, -9)),
-				new InteriorRoom("room_5", new BoundingBox(45, 0, -17, 47, 5, -9)),
+				new InteriorRoom("room_2", new BoundingBox(-22, 3, 22, -17, 8, 32)), // Shou, no entity yet
+				new InteriorRoom("room_3", new BoundingBox(-22, 4, 11, -17, 8, 20)), // Ichirin, no entity yet
+				room("room_4", new BoundingBox(-11, 0, -17, -9, 5, -9), GLEntities.NAZRIN.get()),
+				new InteriorRoom("room_5", new BoundingBox(45, 0, -17, 47, 5, -9)), // Kyouko, no entity yet
 				room("room_6", new BoundingBox(53, 3, 11, 58, 8, 20), GLEntities.MINAMITSU.get())
 		));
 		var nodes = new ArrayList<>(List.of(

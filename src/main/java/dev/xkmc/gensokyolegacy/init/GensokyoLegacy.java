@@ -183,11 +183,12 @@ public class GensokyoLegacy {
 		var cirno = new CirnoQDGen();
 		var yuyuko = new YuyukoQDGen();
 		var minamitsu = new MinamitsuQDGen();
+		var nazrin = new NazrinQDGen();
 		var gift = new GiftQDGen();
 		QuestDialogData.build(init,
-				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift);
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, nazrin, gift);
 		gen.addProvider(event.includeServer(), new GLConfigGen(gen,
-				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, gift));
+				reimu, marisa, morichika, alice, sakuya, suika, cirno, yuyuko, minamitsu, nazrin, gift));
 
 		gen.addProvider(event.includeServer(), new GLGLMProvider(out));
 		gen.addProvider(event.includeServer(), new GLSlotGen(out, helper, event.getLookupProvider()));

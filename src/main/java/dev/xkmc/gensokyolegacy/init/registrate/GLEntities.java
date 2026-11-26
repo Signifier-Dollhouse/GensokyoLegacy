@@ -21,6 +21,8 @@ import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaEntit
 import dev.xkmc.gensokyolegacy.content.entity.characters.merchant.MorichikaRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.minamitsu.MinamitsuRenderer;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nazrin.NazrinEntity;
+import dev.xkmc.gensokyolegacy.content.entity.characters.nazrin.NazrinRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueEntity;
 import dev.xkmc.gensokyolegacy.content.entity.characters.nue.NueRenderer;
 import dev.xkmc.gensokyolegacy.content.entity.characters.oni.SuikaEntity;
@@ -73,6 +75,7 @@ public class GLEntities {
 	public static final EntityEntry<SuikaEntity> IBUKI_SUIKA;
 	public static final EntityEntry<YuyukoEntity> SAIGYOUJI_YUYUKO;
 	public static final EntityEntry<MinamitsuEntity> MINAMITSU;
+	public static final EntityEntry<NazrinEntity> NAZRIN;
 	public static final EntityEntry<ByakurenEntity> HIJIRI_BYAKUREN;
 	public static final EntityEntry<NueEntity> HOUJUU_NUE;
 
@@ -119,11 +122,12 @@ public class GLEntities {
 	static {
 
 		PartyTaste TASTE_CIRNO, TASTE_REIMU, TASTE_MARISA, TASTE_MORICHIKA,
-				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU, TASTE_NUE;
+				TASTE_ALICE, TASTE_SAKUYA, TASTE_SUIKA, TASTE_YUYUKO, TASTE_MINAMITSU, TASTE_NUE,
+				TASTE_NAZRIN;
 
 		GiftPreference GIFT_CIRNO, GIFT_REIMU, GIFT_MARISA, GIFT_MORICHIKA,
 				GIFT_ALICE, GIFT_SAKUYA, GIFT_SUIKA, GIFT_YUYUKO, GIFT_MINAMITSU, GIFT_NUE,
-				GIFT_FAIRY;
+				GIFT_NAZRIN, GIFT_FAIRY;
 
 		// taste
 		{
@@ -137,6 +141,7 @@ public class GLEntities {
 			TASTE_ALICE = new PartyTaste(100, 0, 250, 1, 150, 500, 12, 60, 160, 0.05, 0.05);
 			TASTE_SAKUYA = new PartyTaste(100, 0, 250, 1, 200, 500, 20, 60, 160, 0.05, 0.05);
 			TASTE_MINAMITSU = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
+			TASTE_NAZRIN = new PartyTaste(100, 0, 200, 1, 100, 500, 20, 60, 160, 0.05, 0.05);
 			TASTE_NUE = new PartyTaste(100, 0, 200, 1, 100, 400, 20, 60, 160, 0.05, 0.05);
 			// they eat a lot
 			TASTE_SUIKA = new PartyTaste(10, 0, 250, 1, 500, 1000, 400, 60, 160, 0.05, 0.01);
@@ -210,6 +215,11 @@ public class GLEntities {
 					GiftType.FOOD, 1.5,
 					GiftType.COLLECTION, 1.5,
 					GiftType.TOOL, 1.0
+			));
+			GIFT_NAZRIN = GiftPreference.of(Map.of(
+					GiftType.COLLECTION, 2.0,
+					GiftType.FOOD, 2.0,
+					GiftType.TOOL, 1.5
 			));
 			GIFT_NUE = GiftPreference.of(Map.of(
 					GiftType.ALCOHOL, 2.0,
@@ -486,6 +496,16 @@ public class GLEntities {
 					.tag(GLTagGen.CARRYON_BLACKLIST)
 					.register();
 			dataMap(MINAMITSU, TASTE_MINAMITSU, GIFT_MINAMITSU);
+
+			NAZRIN = GensokyoLegacy.REGISTRATE
+					.entity("nazrin", NazrinEntity::new, MobCategory.CREATURE)
+					.properties(e -> e.sized(0.4F, 1.8f).clientTrackingRange(10))
+					.attributes(BossYoukaiEntity::createAttributes)
+					.renderer(() -> NazrinRenderer::new)
+					.loot(EntityLootGen::noLoot)
+					.tag(GLTagGen.CARRYON_BLACKLIST)
+					.register();
+			dataMap(NAZRIN, TASTE_NAZRIN, GIFT_NAZRIN);
 
 			HIJIRI_BYAKUREN = GensokyoLegacy.REGISTRATE
 					.entity("hijiri_byakuren", ByakurenEntity::new, MobCategory.CREATURE)

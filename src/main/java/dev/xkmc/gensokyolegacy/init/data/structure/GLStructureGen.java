@@ -151,8 +151,8 @@ public class GLStructureGen {
 				),
 				// Myouren Temple, the barrens' only structure (assembled 89x27x97 from 29 jigsaw parts): the
 				// main hall and its wings, the bedroom blocks, the gate and bell tower, the wall ring and the
-				// pond. All parts use RIGID projection so their assembled offsets are preserved. Byakuren
-				// lives in the temple's bedchamber; Nue only visits, so she has no bed of her own here.
+				// pond. All parts use RIGID projection so their assembled offsets are preserved. Byakuren,
+				// Minamitsu and Nazrin live in the temple; Nue only visits, so she has no bed here.
 				new StructStructure(
 						MYOUREN_TEMPLE, GLBiomeGen.MYOUREN_TEMPLE, 32, 24,
 						StructureConfigBuilder.myouren(),
@@ -166,6 +166,11 @@ public class GLStructureGen {
 										GLEntities.HIJIRI_BYAKUREN,
 										CharacterConfig.forStructure(6000, 12000, 16, 30),
 										GLBlocks.Beds.BYAKUREN.holder()
+								),
+								new StructBed(
+										GLEntities.NAZRIN,
+										CharacterConfig.forStructure(6000, 12000, 16, 30),
+										GLBlocks.Beds.NAZRIN.holder()
 								)
 						),
 						visits(Map.of(
@@ -253,13 +258,6 @@ public class GLStructureGen {
 				config.visit(entry.getKey(), entry.getValue());
 			structures.values.put(e.id(), config.build());
 		}
-
-		// Minamitsu has no preset home: her bed binds to any custom home, so a player-built
-		// room holding a Minamitsu bed claims her and respawns her there.
-		beds.values.put(GLBlocks.Beds.MINAMITSU.holder().unwrapKey().orElseThrow().location(),
-				new BedData(GLEntities.MINAMITSU.get()));
-		entities.values.put(BuiltInRegistries.ENTITY_TYPE.getKey(GLEntities.MINAMITSU.get()),
-				CharacterConfig.forStructure(6000, 12000, 12, 30));
 
 		collector.add(GLMeta.BED_DATA.entry(), GensokyoLegacy.loc("main"), beds);
 		collector.add(GLMeta.ENTITY_DATA.entry(), GensokyoLegacy.loc("main"), entities);

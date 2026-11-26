@@ -48,6 +48,12 @@
       "trade": "gensokyolegacy/minamitsu/chat/trade",
       "visitGreeting": "gensokyolegacy/minamitsu/chat/visit_greeting"
     },
+    "gensokyolegacy:nazrin": {
+      "greeting": "gensokyolegacy/nazrin/chat/greeting",
+      "partyGreeting": "gensokyolegacy/nazrin/chat/party_greeting",
+      "trade": "gensokyolegacy/nazrin/chat/trade",
+      "visitGreeting": "gensokyolegacy/nazrin/chat/visit_greeting"
+    },
     "gensokyolegacy:saigyouji_yuyuko": {
       "greeting": "gensokyolegacy/yuyuko/chat/greeting",
       "partyGreeting": "gensokyolegacy/yuyuko/chat/party_greeting",

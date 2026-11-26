@@ -125,6 +125,7 @@ Four things follow from gating at the *pool*:
 | Suika | 0–50, 50–400, 400+ | her gourd on the top rung; the wide middle rung is nothing but sake, because an oni eats and drinks more than most |
 | Yuyuko | 0–500, 500–1000, 1000–2000, 2000+ | her fan on the top rung; a whole evening has to pass 2000 appeal before she parts with it. The ghost dango sits alone on the rung below, where a guest has eaten enough for the sweet but not for the fan |
 | Minamitsu | 0–50, 50–1000, 1000+ | her anchor on the top rung; the wide middle rung is sake and beer, the one thing a ship ghost always shares |
+| Nazrin | 0–50, 50–500, 500+ | her treasure basket on the top rung; the wide middle rung is what her dowsers turn up — gold, emeralds, diamonds, mermaid pearls |
 | Nue | 0–50, 50–1000, 1000+ | her trident on the top rung; the wide middle rung is a UFO that opens into one item off its loot table |
 | *default* | 0–50, 50–100, 100–150 | *(none)* — an unlisted character has nothing that is hers, so her ladder is three generic rungs and stops there |
 
