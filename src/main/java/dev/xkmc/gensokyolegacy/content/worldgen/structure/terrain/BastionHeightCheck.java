@@ -16,6 +16,7 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.PiecesContainer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Bastion rule: the anchor piece (the gate) sits on the terrain and may not deviate more than the tolerance;
@@ -107,6 +108,20 @@ public record BastionHeightCheck(ResourceLocation anchor, int tolerance, BlockSt
 			}
 		}
 		return FitResult.pass(delta);
+	}
+
+	/**
+	 * Only the root and the anchor gate must sit in the target biome: the wings may cross into a neighbouring
+	 * biome, so a temple on the barrens' edge is not rejected for reaching outside it.
+	 */
+	@Override
+	public List<BoundingBox> biomeBoxes(PieceTree tree) {
+		int anchor = tree.findPiece(this.anchor);
+		BoundingBox root = tree.piece(0).getBoundingBox();
+		if (anchor < 0 || anchor == 0) {
+			return List.of(root);
+		}
+		return List.of(root, tree.piece(anchor).getBoundingBox());
 	}
 
 	/**

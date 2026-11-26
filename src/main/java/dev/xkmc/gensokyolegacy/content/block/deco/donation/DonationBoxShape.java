@@ -7,44 +7,57 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
 public class DonationBoxShape implements ShapePathFindBlockMethod {
 
-	public static final VoxelShape SHAPE_NS = Shapes.or(
-			Block.box(-4, 0, 0, 20, 14, 16),
-			Block.box(-5, 14, -1, 21, 15, 17)
-	);
-	public static final VoxelShape SHAPE_WE = Shapes.or(
-			Block.box(0, 0, -4, 16, 14, 20),
-			Block.box(-1, 14, -5, 17, 15, 21)
-	);
-
-	private final VoxelShape northSouth;
-	private final VoxelShape westEast;
+	// index: negative side, middle, positive side along the width axis
+	private final VoxelShape[] northSouth;
+	private final VoxelShape[] westEast;
 
 	public DonationBoxShape() {
-		this(SHAPE_NS, SHAPE_WE);
-	}
-
-	private DonationBoxShape(VoxelShape northSouth, VoxelShape westEast) {
-		this.northSouth = northSouth;
-		this.westEast = westEast;
+		this(4, 0);
 	}
 
 	public static DonationBoxShape myouren() {
-		return new DonationBoxShape(
-				Shapes.or(Block.box(-11, 0, -1, 27, 2, 17), Block.box(-8, 2, 0, 24, 14, 16),
-						Block.box(-9, 14, -1, 25, 15, 17)),
-				Shapes.or(Block.box(-1, 0, -11, 17, 2, 27), Block.box(0, 2, -8, 16, 14, 24),
-						Block.box(-1, 14, -9, 17, 15, 25)));
+		return new DonationBoxShape(9, 1);
+	}
+
+	/**
+	 * Each part is a single one-block box in whole pixels. {@code depth} is how far it reaches into a
+	 * side cell along the model's long axis, and {@code expand} how far every part overflows the
+	 * short axis on either side.
+	 */
+	private DonationBoxShape(int depth, int expand) {
+		int lo = -expand;
+		int hi = 16 + expand;
+		this.northSouth = new VoxelShape[]{
+				Block.box(16 - depth, 0, lo, 16, 15, hi),
+				Block.box(0, 0, lo, 16, 15, hi),
+				Block.box(0, 0, lo, depth, 15, hi)
+		};
+		this.westEast = new VoxelShape[]{
+				Block.box(lo, 0, 16 - depth, hi, 15, 16),
+				Block.box(lo, 0, 0, hi, 15, 16),
+				Block.box(lo, 0, 0, hi, 15, depth)
+		};
 	}
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-		return state.getValue(FACING).getAxis() == Direction.Axis.Z ? northSouth : westEast;
+		boolean z = state.getValue(FACING).getAxis() == Direction.Axis.Z;
+		VoxelShape[] shapes = z ? northSouth : westEast;
+		return shapes[index(state)];
 	}
+
+	private static int index(BlockState state) {
+		var part = state.getValue(DonationBoxBlock.PART);
+		if (part == DonationBoxBlock.Part.MIDDLE) return 1;
+		Direction side = part == DonationBoxBlock.Part.LEFT ?
+				state.getValue(FACING).getCounterClockWise() : state.getValue(FACING).getClockWise();
+		return side.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 2 : 0;
+	}
+
 }

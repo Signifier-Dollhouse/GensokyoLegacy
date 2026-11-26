@@ -46,7 +46,13 @@ public class DonationBoxBlockEntity extends LocatedBlockEntity implements IDebug
 
 	public static final int CREDIT_COST = 8;
 
-	public static final BlockMethod TE = new BlockEntityBlockMethodImpl<>(GLFurniture.DONATION_BOX_BE, DonationBoxBlockEntity.class);
+	public static final BlockMethod TE = new BlockEntityBlockMethodImpl<DonationBoxBlockEntity>(GLFurniture.DONATION_BOX_BE, DonationBoxBlockEntity.class) {
+		@Override
+		public DonationBoxBlockEntity createTileEntity(BlockPos pos, BlockState state) {
+			if (state.getValue(DonationBoxBlock.PART) != DonationBoxBlock.Part.MIDDLE) return null;
+			return super.createTileEntity(pos, state);
+		}
+	};
 
 	public DonationBoxBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);

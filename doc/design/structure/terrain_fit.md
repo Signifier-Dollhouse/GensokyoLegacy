@@ -29,7 +29,7 @@ So the rule becomes a field of the structure instead of code, with two implement
 | `TerrainFit` | `content/worldgen/structure/terrain/TerrainFit.java` | Record `(GenerationContext ctx, PieceTree tree, int seaLevel)` plus `height(x, z)` (`getFirstFreeHeight(WORLD_SURFACE_WG)`) and the 9-point `ring(BoundingBox)` sampler (4 corners, 4 edge centres, centre). |
 | `FitResult` | `content/worldgen/structure/terrain/FitResult.java` | Record `(boolean pass, int delta)`: the verdict and the vertical shift applied to the layout. |
 | `UniformHeightCheck` | `content/worldgen/structure/terrain/UniformHeightCheck.java` | The old rule, verbatim. `height_tolerance` is now its own field. |
-| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. |
+| `BastionHeightCheck` | `content/worldgen/structure/terrain/BastionHeightCheck.java` | Anchor one piece on the terrain, one-sided bound for the rest, and the `afterPlace` fill. Also names the anchor's beard: `BEARD_THIN` for the gate, `NONE` for every other piece. The biome gate is narrowed to the root and the anchor, so the wings may cross into a neighbouring biome. |
 | `GLBeardedPiece` | `content/worldgen/structure/GLBeardedPiece.java` | `PoolElementStructurePiece` with a per-piece `PieceBeardifierModifier` adjustment, persisted under its own `StructurePieceType` so it survives a start reload. |
 
 All three tiers (`FlatCheckStructure`, `SecondaryStructure`, `FallbackStructure`) carry a `TerrainPredicate terrain`
@@ -68,7 +68,7 @@ findGenerationPoint
             └─ validateLayout
                  ├─ JigsawPlacement.addPieces at the provisional Y
                  ├─ PieceTree.build
-                 ├─ biome check     8 points of the union box
+                 ├─ biome check     8 points per TerrainPredicate#biomeBoxes box
                  └─ terrain.fit(...)   ← everything below moved here
 ```
 
@@ -115,6 +115,11 @@ Fills nothing. Used by the houses and the shrine (`t = 5`).
    float any distance above the terrain, and the fill in §5 closes the gap.
 5. No joint rule. Each rigid group is checked against the terrain on its own; the fill in §5 closes the
    gap below the anchored group.
+
+The biome gate is narrowed to the **root** (piece 0) and the **anchor**: each of those two boxes is sampled
+at its 8 edge points, and both must lie in the structure's biome set. Every other piece is free to cross into
+a neighbouring biome, so a temple at the barrens' edge is not rejected for a wing that reaches outside the tag.
+`UniformHeightCheck` keeps the default, the whole layout's union box.
 
 Vanilla makes this simpler than it looks: a rigid child's `ground_level_delta` is set to
 `parent delta - junction offset`, so a rigid-rigid group shares one `groundOf` (verified: Myouren's 29
@@ -255,6 +260,10 @@ with the code.
   `ground + t`; a piece may hang over a valley at any depth and the fill builds the foundation down to
   the surface. Bounding the gap instead (the first version of this rule) let barrens hillsides bury the
   halls, which no fill can undo.
+- **Biome gate on root and anchor only.** The whole-layout union box rejected a temple whose wings crossed
+  the barrens' edge into the neighbouring biome, although only the anchored gate and the start piece have to
+  belong to the target biome. The gate moved into `TerrainPredicate#biomeBoxes`, so the flat rule keeps the
+  union box while the bastion rule names the two boxes that matter.
 - **No per-column height sampling at placement.** `BastionHeightCheck` samples 9 points for the anchor
   and one centre per rigid piece (29 for Myouren), like the old rule. Precomputing the gap of every
   column would mean ~8.6 k `getFirstFreeHeight` calls per candidate, and every candidate chunk

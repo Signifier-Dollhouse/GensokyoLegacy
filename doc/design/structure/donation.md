@@ -3,6 +3,16 @@
 A donation box accepts coins only inside the structure named by its `donation_box` block data map. The
 data map also carries the weighted rewards, so a box placed in any other structure (or none) is inert.
 
+## Shape
+
+The box spans three cells: `part=middle` holds the block entity and draws the whole model, while
+`part=left` and `part=right` are invisible and only add collision. Each part's collision is a single
+one-block box in whole pixels, reaching 4 pixels into each side cell along the long axis for the
+shrine box and 9 for the myouren one, which also overflows the short axis by one pixel each way. The
+side states forward `useItemOn` and `entityInside` to the middle. `updateShape` breaks all three when
+one is removed, and the loot table drops the item only for `part=middle`, so a survival break or an
+explosion yields one item and a creative break yields none.
+
 ## Data map
 
 `data/<namespace>/data_maps/block/donation_box.json`, keyed by block:
@@ -42,8 +52,8 @@ Every payout also strips all harmful effects and applies regeneration III for
 
 - **Right click with a coin or coin stack:** consumes one item and adds its value.
 - **Throw a coin item entity:** `ItemEntity`'s thrower is the player. The box's collision lid sits at
-  15/16, so a coin that lands on it overlaps the box block cell; `DonationBoxBlock.entityInside`
-  consumes the whole stack. No tick scan is involved.
+  15/16, so a coin that lands on it overlaps a part cell; `DonationBoxBlock.entityInside` consumes
+  the whole stack, from a side part through the middle. No tick scan is involved.
 - **Coin danmaku:** `CoinDanmakuBulletEntity.dropCoin()` writes the shooter into the dropped item
   entity's thrower, so the same item-entity path picks it up.
 

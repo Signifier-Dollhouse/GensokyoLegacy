@@ -439,11 +439,18 @@ public class GLFurniture {
 	private static BlockEntry<DelegateBlock> registerDonationBox(L2Registrate reg, String id, DonationBoxShape shape) {
 		return reg.block(id, p -> DelegateBlock.newBaseBlock(p, BlockTemplates.HORIZONTAL, shape, new DonationBoxBlock(), DonationBoxBlockEntity.TE))
 				.properties(p -> p.mapColor(MapColor.DIRT).strength(2.0F).sound(SoundType.WOOD).noOcclusion())
-				.blockstate((ctx, pvd) -> pvd.horizontalBlock(ctx.get(),
-						pvd.models().getBuilder("block/" + ctx.getName())
-								.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
-								.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
-								.renderType("cutout")))
+				.blockstate((ctx, pvd) -> {
+					var model = pvd.models().getBuilder("block/" + ctx.getName())
+							.parent(new ModelFile.UncheckedModelFile(pvd.modLoc("custom/utensil/" + ctx.getName())))
+							.texture("all", pvd.modLoc("block/utensil/" + ctx.getName()))
+							.renderType("cutout");
+					// the middle model already spans both side cells, so the side states draw nothing
+					var side = pvd.models().getBuilder("block/" + ctx.getName() + "_side")
+							.texture("particle", pvd.modLoc("block/utensil/" + ctx.getName()));
+					pvd.horizontalBlock(ctx.get(), state ->
+							state.getValue(DonationBoxBlock.PART) == DonationBoxBlock.Part.MIDDLE ? model : side);
+				})
+				.loot(DonationBoxBlock::genLoot)
 				.tag(BlockTags.MINEABLE_WITH_AXE)
 				.item().build()
 				.register();
