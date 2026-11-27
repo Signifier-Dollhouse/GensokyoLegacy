@@ -19,7 +19,9 @@ public record AreaChunkHolder(ServerLevel level, ChunkPos pos, LevelChunk chunk,
 
 	@Nullable
 	public static AreaChunkHolder of(ServerLevel level, ChunkPos pos) {
-		LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, false);
+		// getChunkNow, not getChunk(...,false): the latter still blocks the main thread on a generating
+		// chunk's future, which happens exactly on chunk unwatch
+		LevelChunk chunk = level.getChunkSource().getChunkNow(pos.x, pos.z);
 		if (chunk == null) return null;
 		return new AreaChunkHolder(level, pos, chunk, GLMeta.CHUNK_EFFECT.type().getOrCreate(chunk));
 	}
