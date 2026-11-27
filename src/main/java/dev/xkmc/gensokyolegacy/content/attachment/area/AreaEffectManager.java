@@ -42,7 +42,7 @@ public final class AreaEffectManager {
 		for (int x = entry.range.minCX(); x <= entry.range.maxCX(); x++) {
 			for (int z = entry.range.minCZ(); z <= entry.range.maxCZ(); z++) {
 				ChunkPos cpos = new ChunkPos(x, z);
-				LevelChunk chunk = level.getChunkSource().getChunk(cpos.x, cpos.z, false);
+				LevelChunk chunk = level.getChunkSource().getChunkNow(cpos.x, cpos.z);
 				if (chunk != null) {
 					AreaChunkHolder.of(level, chunk).addId(entry.id);
 				} else {
@@ -120,10 +120,13 @@ public final class AreaEffectManager {
 		GLMeta.LEVEL_EFFECT.type().getOrCreate(level).tickPendingFlush(level);
 	}
 
+	/**
+	 * Both directions match on {@code entry.range}, never on the chunk index: an unwatched chunk is
+	 * usually gone already, and a loaded chunk's index lags while its ids sit in {@code pending}.
+	 */
 	public static void onTrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
-		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
-		if (holder == null) return;
-		for (AreaEffectEntry entry : holder.getAffecting()) {
+		for (AreaEffectEntry entry : GLMeta.LEVEL_EFFECT.type().getOrCreate(level).getAll()) {
+			if (!entry.range.contains(pos)) continue;
 			if (entry.incrementTracking(player)) {
 				AreaEffectSyncPacket.sendAdd(player, entry);
 			}
@@ -131,9 +134,8 @@ public final class AreaEffectManager {
 	}
 
 	public static void onUntrack(ServerLevel level, ChunkPos pos, ServerPlayer player) {
-		AreaChunkHolder holder = AreaChunkHolder.of(level, pos);
-		if (holder == null) return;
-		for (AreaEffectEntry entry : holder.getAffecting()) {
+		for (AreaEffectEntry entry : GLMeta.LEVEL_EFFECT.type().getOrCreate(level).getAll()) {
+			if (!entry.range.contains(pos)) continue;
 			if (entry.decrementTracking(player)) {
 				AreaEffectSyncPacket.sendRemove(player, entry.id);
 			}

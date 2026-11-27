@@ -26,9 +26,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.ProtoChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,10 +55,9 @@ public class Dowser extends Item {
 		LinkedHashSet<BlockPos> ans = new LinkedHashSet<>();
 		for (int ix = -r; ix <= r; ix++) {
 			for (int iz = -r; iz <= r; iz++) {
-				var chunk = level.getChunk(cpos.x + ix, cpos.z + iz, ChunkStatus.FULL, false);
+				var chunk = level.getChunkSource().getChunkNow(cpos.x + ix, cpos.z + iz);
 				if (chunk == null) continue;
-				Map<BlockPos, BlockEntity> bss = chunk instanceof ProtoChunk proto ? proto.getBlockEntities() :
-						chunk instanceof LevelChunk lc ? lc.getBlockEntities() : Map.of();
+				Map<BlockPos, BlockEntity> bss = chunk.getBlockEntities();
 				for (var ent : bss.entrySet()) {
 					if (isValid(ent.getValue())) {
 						ans.add(ent.getKey());

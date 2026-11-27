@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -136,19 +135,16 @@ public class LevelAreaAttachment extends GeneralCapabilityTemplate<Level, LevelA
 		for (String key : snapshot) {
 			long posLong = Long.parseUnsignedLong(key, 16);
 			ChunkPos cpos = new ChunkPos(posLong);
-			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) != null) {
-				// loaded but still pending, e.g. add raced the load — drain directly
-				var pendingIds = pending.remove(key);
-				if (pendingIds == null || pendingIds.isEmpty()) continue;
-				AreaChunkHolder holder = AreaChunkHolder.of(level, cpos);
-				if (holder == null) continue;
-				for (UUID uid : pendingIds) {
-					if (!byId.containsKey(uid)) continue;
-					holder.addId(uid);
-				}
-			} else {
-				// not loaded: schedule an offthread load, generation expected
-				level.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
+			// not loaded: keep pending for ChunkEvent.Load, never force a load from here
+			if (level.getChunkSource().getChunkNow(cpos.x, cpos.z) == null) continue;
+			// loaded but still pending, e.g. add raced the load — drain directly
+			var pendingIds = pending.remove(key);
+			if (pendingIds == null || pendingIds.isEmpty()) continue;
+			AreaChunkHolder holder = AreaChunkHolder.of(level, cpos);
+			if (holder == null) continue;
+			for (UUID uid : pendingIds) {
+				if (!byId.containsKey(uid)) continue;
+				holder.addId(uid);
 			}
 		}
 	}
