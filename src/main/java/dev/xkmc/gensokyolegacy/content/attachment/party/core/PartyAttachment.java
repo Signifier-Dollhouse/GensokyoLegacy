@@ -518,13 +518,13 @@ public class PartyAttachment extends GeneralCapabilityTemplate<LevelChunk, Party
 	 */
 	@Nullable
 	public static PartyAttachment of(ServerLevel level, ChunkPos pos) {
-		LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, false);
-		if (chunk == null) return null;
-		var party = GLMeta.PARTY.type().getOrCreate(chunk);
-		party.owner = chunk;
-		return party;
+		LevelChunk chunk = level.getChunkSource().getChunkNow(pos.x, pos.z);
+		return chunk == null ? null : of(chunk);
 	}
 
+	/**
+	 * This chunk's party; for callers already holding the chunk, e.g. the off-thread chunk load event.
+	 */
 	public static PartyAttachment of(LevelChunk chunk) {
 		var party = GLMeta.PARTY.type().getOrCreate(chunk);
 		party.owner = chunk;

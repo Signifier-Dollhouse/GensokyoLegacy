@@ -100,6 +100,7 @@ public class GLMetaEventHandlers {
 		if (!(chunk.getLevel() instanceof ServerLevel sl)) return;
 		// A party lives on its chunk and outlives the server, but the ticker entry does not: only PartySend fills
 		// ACTIVE, so a restored party has state with nothing to advance it. Re-register on chunk load, post-NBT read.
+		// This event fires off the main thread, so use the chunk from the event: getChunkNow would return null.
 		var party = PartyAttachment.of(chunk);
 		if (party.active()) PartyTicker.register(sl, chunk.getPos());
 		String key = Long.toHexString(chunk.getPos().toLong());

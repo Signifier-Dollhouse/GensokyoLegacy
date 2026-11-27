@@ -21,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -83,8 +82,8 @@ public class TravelMode extends UmbrellaMode {
 			BlockPos tpos = travelData != null ? travelData.target() : BlockPos.containing(sp.position().add(sp.getLookAngle().normalize().scale(dist)));
 			ServerLevel sl = sp.serverLevel();
 			ChunkPos cpos = new ChunkPos(tpos);
+			// the ticket loads the target asynchronously; onUseTick waits for it before teleporting
 			sl.getChunkSource().addRegionTicket(TicketType.PORTAL, cpos, 2, tpos);
-			sl.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
 			sp.displayClientMessage(GLLang.ItemUmbrella.TRAVEL_START.get(), true);
 		}
 		player.startUsingItem(hand);
@@ -158,11 +157,8 @@ public class TravelMode extends UmbrellaMode {
 			tpos = BlockPos.containing(tentative);
 		}
 		ChunkPos cpos = new ChunkPos(tpos);
-		if (!sl.getChunkSource().hasChunk(cpos.x, cpos.z)) {
-			if (remainingUseDuration % 10 == 0)
-				sl.getChunkSource().getChunk(cpos.x, cpos.z, ChunkStatus.FULL, false);
-			return;
-		}
+		// wait for the ticket-loaded chunk: findSafePosition reads block states
+		if (sl.getChunkSource().getChunkNow(cpos.x, cpos.z) == null) return;
 		Vec3 dst = TravelModeUtil.findSafePosition(sl, tpos);
 		dst = TravelModeUtil.adjustToFreeSpace(sl, sp, dst);
 		if (data != null) {
