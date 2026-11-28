@@ -122,18 +122,18 @@
 			"cat_bell_lore": "比平常的铃铛分量重得多",
 			"broom_lore": "魔女必备，非魔女也是",
 			"doll_lance_lore": "为人偶量身打造的长柄武器",
-			"mini_shield_lore": "人类的臂膀举不动，但人偶仍能躲在它后面",
+			"mini_shield_lore": "专为人偶打造的重型盾牌",
 			"star_wand_lore": "挥手掷星辰",
-			"iron_dagger_lore": "永远掷出未扔过的那把",
+			"iron_dagger_lore": "十分忠诚的飞刀",
 			"strange_glasses_lore": "所见即为真实",
 			"ice_wings_lore": "冰一样的力量，以及冰一样的聪慧",
 			"fairy_wings_lore": "妖精般轻盈，也如妖精般柔弱",
-			"fancy_fan_lore": "漂亮到足以送人，而挥动时还会吹起一阵风",
-			"yuyuko_fan_lore": "扇中盛满了幽灵，却没有一个肯安分下来",
+			"fancy_fan_lore": "精致的礼物，也能当扇子扇风",
+			"yuyuko_fan_lore": "容载海量气质的精致折扇",
 			"minamitsu_anchor_lore": "沉重到足以拖住一艘船，却总能自己回来",
-			"nue_trident_lore": "掷出去的那把，永远不是你留下的那把",
-			"ufo_lore": "里面有什么东西，正等着被放出来",
-			"gift_box_lore": "森近霖之助随手打包的存货"
+			"nue_trident_lore": "蕴含着足以扭曲认知的力量",
+			"ufo_lore": "在解开前，无从得知原有的样貌",
+			"gift_box_lore": "里面是什么呢？"
 		},
 		"gift": {
 			"type": {
@@ -293,7 +293,7 @@
 			"release": "右键自己的幽灵将其放归"
 		},
 		"jizo": {
-			"no_xp": "地藏需要一整级经验才肯收取",
+			"no_xp": "地藏需要一整级经验来交换",
 			"full": "该物品的灵力已满",
 			"restored": "地藏恢复了 %s 点灵力"
 		},
@@ -318,7 +318,7 @@
 		},
 		"treasure_tower": {
 			"need_power": "宝塔至少需要 %s 点灵力",
-			"tooltip": "右键瞄准石头，宝塔会飞出发射光束，将石头及与其相连的同类石头变为该宝石的矿石"
+			"tooltip": "宝塔会飞出发射光束，消耗宝石将石头及与其相连的同类石头变为该宝石的矿石"
 		},
 		"ufo": {
 			"contains": "内含：%s",

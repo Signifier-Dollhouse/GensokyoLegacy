@@ -8,12 +8,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:treasure_basket",
-      "title": "Keeping What Falls",
-      "text": "A wide, shallow basket that catches items before they can vanish. Anything that expires on the ground while a basket covers its chunk is stored in the basket instead.$(br2)By default a basket reaches seven chunks in every direction — a square fifteen chunks across — and a basket cannot be placed inside another's area. Where two areas meet at the edges, the nearer basket takes the item."
+      "title": "Lost and Found",
+      "text": "It keeps dropped items within its range from vanishing.$(br2)By default a basket reaches seven chunks in every direction — a square fifteen chunks across — and a basket cannot be placed inside another's area. Where two areas meet at the edges, the nearer basket takes the item."
     },
     {
       "type": "patchouli:text",
-      "text": "Right-click the basket to open it; it holds a large chest's worth of slots, and the contents are kept even while its chunk is unloaded. Breaking the basket spills everything on the ground, so empty it first if you care where it lands.$(br2)Dropped items age faster under a basket's care, so a lost stack is caught sooner instead of waiting out its full lifetime. Items that never expire are left alone.$(br2)Wear $(l:special_tools/strange_glasses)Strange Glasses$(/l), or hold a basket in either hand, to see the edge of the area."
+      "text": "Right-click the basket to open it; it holds a large chest's worth of slots, and breaking the basket spills everything on the ground.$(br2)Around a basket, dropped items age faster, so a lost stack is caught sooner instead of waiting out its full lifetime; items that never expire are left alone.$(br2)Wear $(l:special_tools/strange_glasses)Strange Glasses$(/l), or hold a basket in either hand, to see its range."
     }
   ]
 }
