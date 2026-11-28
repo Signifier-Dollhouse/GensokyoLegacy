@@ -7,19 +7,19 @@
     {
 	  "type": "patchouli:text",
       "title": "The People of Gensokyo",
-      "text": "Gensokyo is home to many characters, and each keeps to a place of her own: the shrine maiden at the Hakurei Shrine, the ordinary magician in the forest, the shopkeeper at Kourindou. Find her house and you will find her.$(br2)They remember you. A gift, a shared meal, a finished errand: every kindness raises your $(bold)reputation$() with that one character, and every blow lowers it. Reputation is shown when you talk to her; it opens rarer conversations, better offers and new quests, and it slowly settles down if you stay away."
+      "text": "Gensokyo is home to many characters: the shrine maiden at the Hakurei Shrine, the ordinary magician in the forest, the shopkeeper at Kourindou, and more. They keep to places all over the world.$(br2)You can build a bond with them: a gift they like, a hearty feast, a finished errand — each raises your $(bold)reputation$(). Reputation is shown when you talk to them; the higher it is, the more they will trade and the more quests they will unlock."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Talking$()$(br)Right-click a character to talk. Her greeting changes with your reputation and with where you meet her, and a list of topics follows: herself, other characters, her home, her work. Some topics only appear once you are close enough, or once you have been somewhere she cares about.$(br2)Conversation is where quests are taken and handed in, and where her trades are opened. Right-clicking with a gift item instead gives it to her: she reacts on the spot, and an item she has no taste for is not taken from you.$(br2)Every accepted gift is also counted toward something she will give back; when enough has been given, the next conversation begins with her holding it out to you. If she has nothing new to say, the greeting is all you will get — come back another day."
+      "text": "$(bold)Talking$()$(br)Right-click a character to talk. Some topics only appear once you are close enough, or once some other condition is met. Right-clicking with a gift item instead gives it to her: how much reputation it earns depends on her taste, and an item she has no liking for is not taken.$(br2)After receiving a gift she likes, she will give you something back in your next conversation."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Requests$()$(br)Quests are the surest way to earn a character's trust. She offers them in conversation: one-time errands that lead from one to the next, and daily requests that can be taken again after a day. Each one lists what it needs — items to bring, or a mob to deal with — and what it pays: experience, items, and reputation.$(br2)Every finished quest also raises the ceiling on your reputation with her; kind gestures alone will only take you so far. Bring what is asked for and talk to her again to hand it in."
+      "text": "$(bold)Requests$()$(br)Quests come in daily and one-time kinds. Each one lists what it needs and what it pays.$(br2)Finishing key quests also raises the ceiling on the reputation you can build; gifts and hospitality alone will not get you there."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Their Homes$()$(br)Every character has a home: the shrine, the magician's house, the shop, and so on. Her bed is the heart of it, and her anchor — she revives there if she is lost or killed, so never break or move it. If you cannot find her, look around her house: she keeps to it, and its rooms say a lot about her. See $(l:decoration/character_beds)Character Beds$(/l).$(br2)Characters do not move in with you, but they do travel. Now and then one will leave her own home for a while and visit another's during the day. A visitor has no bed there and offers no new quests, but she will still talk, trade, and accept a finished quest."
+      "text": "$(bold)Their Homes$()$(br)A major character has a home of her own, and her bed is the heart of it and her anchor — even if she is knocked out or dies by accident, she will respawn at the bed before long, so never break or move it. If you cannot find her, look around her house; she keeps close to it. See $(l:decoration/character_beds)Character Beds$(/l).$(br2)Characters keep to their homes, so carrying one off will not work; a broken bed makes the whole structure stop working and loses the bed's data. Now and then a character will visit another's home during the day. A visitor has no bed there and offers no quests, but she will still talk, trade, and accept a finished quest."
     }
   ]
 }
