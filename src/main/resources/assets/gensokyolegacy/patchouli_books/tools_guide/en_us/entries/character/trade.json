@@ -10,16 +10,16 @@
         "gensokyolegacy:coin",
         "gensokyolegacy:coin_stack"
       ],
-      "title": "Coin",
-      "text": "The coin is the money of Gensokyo. Eight coins make a coin stack; a stack is worth eight coins wherever a price is counted, so it saves inventory space and nothing else.$(br2)Both characters and shelves charge in coins, and the price is paid straight from your inventory — the trade screen shows your purse, and a stack is broken into loose coins only when there are not enough of them. Coins can also be thrown like a danmaku: a thrown coin flies out and lands where it falls, ready to be picked back up.$(br2)A shrine's donation box takes coins too, and pays back a blessing once enough have been given."
+      "title": "Copper Coin",
+      "text": "Copper coins are the money of Gensokyo.$(br2)Characters and shelves both take them — a coin stack is broken into loose coins when there are not enough.$(br2)Coins can also be thrown like danmaku, and a shrine's donation box accepts them and returns a blessing once enough have been given."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Trading$()$(br)Talk to a character and open her trades, or use the trade button in the conversation. Her offers are laid out as a board of icons: goods she sells for coins, goods she buys from you, and work she does with materials you bring. A tag under an icon shows the price; a price turned red is more than you carry.$(br2)The buttons on the right filter the board — her wares, her purchases, and her work — and the arrows turn the page. Each offer has a stock; an emptied offer stays on the board but cannot be traded until it restocks. The plate on the left shows how much money you carry."
+      "text": "$(bold)Trading$()$(br)Talking to a character opens her trades: goods she sells, goods she buys, and work she does.$(br2)The buttons on the right filter by trade type, and the arrows turn the page. Each offer has a stock; once it is used up it cannot be traded until it restocks. The plate on the left shows how much you carry."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Shelf Offers$()$(br)Rinnosuke keeps the shelves of Kourindou stocked himself. While he is at home he picks a shelf, walks over, and lays out one item from his own catalogue: a price, and a few of the item, different every time. Gifts, drinks, books and odd tools all pass through his hands; the rarer a thing is, the higher he prices it and the fewer he puts out.$(br2)Buy from his shelves as you would from any other: right-click with the coins in your inventory. If you place shelves of your own, he leaves them alone while they hold goods, stock or earnings; a shelf you have emptied completely may be claimed for his shop and restocked with his wares. See $(l:decoration/shelves)Shelves$(/l)."
+      "text": "$(bold)Shelf Offers$()$(br)Rinnosuke restocks the shelves in Kourindou himself. See $(l:decoration/shelves)Shelves$(/l) for more."
     }
   ]
 }

@@ -694,9 +694,9 @@ public final class GLLang {
 		CAT_BELL_LORE("Small, and heavier than any bell has a right to be.", 0, ChatFormatting.GRAY),
 		BROOM_LORE("It flies itself, given there is somebody left to fly.", 0, ChatFormatting.GRAY),
 		DOLL_LANCE_LORE("A polearm built to a doll's reach rather than a hand's.", 0, ChatFormatting.GRAY),
-		MINI_SHIELD_LORE("Too small for a hand, but a doll can still get behind it.", 0, ChatFormatting.GRAY),
+		MINI_SHIELD_LORE("A shield built specially for a doll.", 0, ChatFormatting.GRAY),
 		STAR_WAND_LORE("Throws the star, keeps the wand.", 0, ChatFormatting.GRAY),
-		IRON_DAGGER_LORE("Thrown, not dropped — it knows the way back.", 0, ChatFormatting.GRAY),
+		IRON_DAGGER_LORE("A loyal throwing knife.", 0, ChatFormatting.GRAY),
 		STRANGE_GLASSES_LORE("Someone else's idea of what counts as real.", 0, ChatFormatting.GRAY),
 		FURNACE_1_LORE("A portable magical furnace that emits heat. Can slowly smelt adjacent items when placed in inventory.", 0, ChatFormatting.GRAY),
 		FURNACE_2_LORE("A portable magical furnace with the leaks sealed. Smelts what you put in it, and rather too fast at that.", 0, ChatFormatting.GRAY),
@@ -705,13 +705,13 @@ public final class GLLang {
 		KOISHI_HAT_LORE("Taken off a third party, and it never stopped sulking about it.", 0, ChatFormatting.GRAY),
 		ICE_WINGS_LORE("Six crystals, and it is suddenly very hard to count past nine.", 0, ChatFormatting.GRAY),
 		FAIRY_WINGS_LORE("A fairy's wing, priced at half of whatever the wearer has.", 0, ChatFormatting.GRAY),
-		FANCY_FAN_LORE("Pretty enough to give away, and it blows when you wave it.", 0, ChatFormatting.GRAY),
-		YUYUKO_FAN_LORE("A fan full of ghosts, and not one of them will stay still.", 0, ChatFormatting.GRAY),
+		FANCY_FAN_LORE("A fine gift, and a fan that stirs the air.", 0, ChatFormatting.GRAY),
+		YUYUKO_FAN_LORE("A delicate folding fan holding an ocean's worth of presence.", 0, ChatFormatting.GRAY),
 		MINAMITSU_ANCHOR_LORE("Heavy enough to stop a ship, and it still comes back.", 0, ChatFormatting.GRAY),
 		DEVILS_SCROLL_LORE("Signed in a hand that was never quite human.", 0, ChatFormatting.GRAY),
-		NUE_TRIDENT_LORE("The one you throw is never the one you keep.", 0, ChatFormatting.GRAY),
-		UFO_LORE("Something in there is waiting to be let out.", 0, ChatFormatting.GRAY),
-		GIFT_BOX_LORE("Whatever Morichika had spare, tied up with string.", 0, ChatFormatting.GRAY);
+		NUE_TRIDENT_LORE("Holds power enough to twist what you perceive.", 0, ChatFormatting.GRAY),
+		UFO_LORE("Until it is opened, there is no telling what it holds.", 0, ChatFormatting.GRAY),
+		GIFT_BOX_LORE("What could be inside?", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1502,7 +1502,7 @@ public final class GLLang {
 
 	public enum ItemTreasureTower implements LangEntry {
 		NEED_POWER("The tower needs at least %s spiritual power", 1, ChatFormatting.RED),
-		TOOLTIP("Right-click at stone to send the tower out; it turns the stone and the stone it touches into that gem's ore", 0, ChatFormatting.GRAY);
+		TOOLTIP("The tower flies out and fires a beam, spending a gem to turn the stone and the connected stones of its kind into that gem's ore", 0, ChatFormatting.GRAY);
 
 		private final String def;
 		private final int argn;
@@ -1628,7 +1628,7 @@ public final class GLLang {
 	}
 
 	public enum Jizo implements LangEntry {
-		NO_XP("Jizo needs a full level of experience to draw on", 0, ChatFormatting.RED),
+		NO_XP("Jizo needs a full level of experience in exchange", 0, ChatFormatting.RED),
 		FULL("That item cannot hold any more spiritual power", 0, ChatFormatting.RED),
 		RESTORED("Jizo restored %s spiritual power", 1);
 

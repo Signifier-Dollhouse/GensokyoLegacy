@@ -8,12 +8,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "gensokyolegacy:treasure_tower",
-      "title": "Stone into Ore",
-      "text": "A hand-sized tower that turns stone into ore. Aim at a stone up to twenty-four blocks away and right-click: the tower flies out, fires a beam at the block, and returns to your hand. The aimed block and every stone of the same kind connected to it become the ore of a gem you are carrying — one gem per block.$(br2)The gem decides the material and the stone decides the variant: a deepslate vein becomes deepslate ore, a netherrack one quartz ore, and so on. The tower itself is never used up."
+      "title": "Law of Regression",
+      "text": "A counterfeit that holds a little power of its own. Aim at a stone up to twenty-four blocks away and right-click: the tower flies out, fires a beam at the block, and returns to your hand. The aimed block and every stone of the same kind connected to it become the ore of a gem you are carrying — one gem per block.$(br2)The gem spent and the stone struck decide the ore: a deepslate vein becomes deepslate ore, a netherrack one quartz ore, and so on."
     },
     {
       "type": "patchouli:text",
-      "text": "In vanilla, diamond, emerald, lapis lazuli and quartz have an ore and count as gems, so they work. Coal and redstone are not counted as gems, and iron, gold and copper smelt to ingots, so the tower will not make their ore.$(br2)A cast needs 100 spiritual power from the tower's own bar and has a short cooldown. The $(bold)Spiritual$() effect — from a shrine's blessing or a ghost dango — refills the bar over time.$(br2)JEI lists every gem and stone the tower accepts."
+      "text": "Only vanilla gems can be used; coal and metals cannot.$(br2)A cast needs 100 spiritual power from the tower's own bar and has a short cooldown.$(br2)JEI lists every gem and stone the tower accepts."
     }
   ]
 }
