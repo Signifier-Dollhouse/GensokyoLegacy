@@ -13,7 +13,7 @@ public class AttachedMover extends TargetPosMover {
 	@Override
 	public Vec3 pos(MoverInfo info) {
 		var e = info.self();
-		if (e.self().getOwner() instanceof LivingEntity self) {
+		if (e.asTraceable().getOwner() instanceof LivingEntity self) {
 			return self.position().add(0, self.getBbHeight() / 2, 0);
 		}
 		return info.prevPos();
@@ -21,6 +21,6 @@ public class AttachedMover extends TargetPosMover {
 
 	@Override
 	public ProjectileMovement move(MoverInfo info) {
-		return new ProjectileMovement(pos(info).subtract(info.prevPos()), info.self().self().rot());
+		return new ProjectileMovement(pos(info).subtract(info.prevPos()), info.self().rot());
 	}
 }
